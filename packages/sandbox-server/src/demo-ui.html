@@ -1,17 +1,17 @@
 <!doctype html>
-<html lang="ko">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AME — Artificial Mind Engine Live Interactive Console</title>
+  <title>Artificial Mind Engine — Interactive Chat Demo</title>
   <style>
     :root {
-      --bg: #080d17;
-      --bg-elev: #0f172a;
+      --bg: #070c16;
+      --bg-elev: #0e1628;
       --bg-card: #111c33;
-      --bg-input: #0b1324;
-      --border: #233252;
-      --border-hi: #3b82f6;
+      --bg-input: #0a1222;
+      --border: #243554;
+      --border-hi: #38bdf8;
       --text: #e2e8f0;
       --text-muted: #94a3b8;
       --text-dim: #64748b;
@@ -20,35 +20,40 @@
       --good: #34d399;
       --warn: #fbbf24;
       --danger: #f87171;
-      --radius: 10px;
+      --radius: 12px;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+      --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Noto Sans KR", "Noto Sans JP", "Noto Sans SC", "Noto Sans TC", sans-serif;
     }
 
     * { box-sizing: border-box; }
     html, body {
       margin: 0;
       padding: 0;
-      background: radial-gradient(circle at 15% 10%, #13213d 0%, var(--bg) 50%, #050911 100%);
+      background: radial-gradient(circle at 12% 8%, #152546 0%, var(--bg) 52%, #050911 100%);
       color: var(--text);
       font-family: var(--sans);
       font-size: 13px;
-      line-height: 1.45;
+      line-height: 1.48;
       min-height: 100vh;
     }
 
+    body.mode-simple .detailed-only { display: none !important; }
+    body.mode-detailed .simple-only { display: none !important; }
+    .hidden { display: none !important; }
+
+    /* Top Bar */
     .topbar {
       position: sticky;
       top: 0;
-      z-index: 20;
+      z-index: 30;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      padding: 12px 18px;
-      background: rgba(8, 13, 23, 0.92);
-      backdrop-filter: blur(8px);
+      gap: 10px;
+      padding: 10px 18px;
+      background: rgba(7, 12, 22, 0.94);
+      backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--border);
     }
 
@@ -58,18 +63,19 @@
       gap: 10px;
     }
     .brand-logo {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
       background: linear-gradient(135deg, #38bdf8, #818cf8);
       display: grid;
       place-items: center;
       font-weight: 800;
       color: #07101f;
-      font-size: 14px;
-      letter-spacing: -0.5px;
+      font-size: 13px;
+      letter-spacing: -0.4px;
+      flex-shrink: 0;
     }
-    .brand-title { font-weight: 700; font-size: 15px; }
+    .brand-title { font-weight: 700; font-size: 15px; line-height: 1.25; }
     .brand-sub { color: var(--text-muted); font-size: 11px; }
 
     .topbar-controls {
@@ -79,50 +85,179 @@
       gap: 8px;
     }
 
+    .control-pair {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .seg-toggle {
+      display: inline-flex;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 2px;
+      gap: 2px;
+    }
+    .seg-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .seg-btn.active {
+      background: linear-gradient(135deg, #0284c7, #4f46e5);
+      color: #ffffff;
+    }
+
+    .lang-select {
+      width: auto;
+      min-width: 132px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Help `?` Button & Popover */
+    .help-btn {
+      width: 18px;
+      height: 18px;
+      min-width: 18px;
+      border-radius: 50%;
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      background: rgba(56, 189, 248, 0.12);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: help;
+      transition: transform 0.12s, background 0.12s, border-color 0.12s;
+      vertical-align: middle;
+    }
+    .help-btn:hover,
+    .help-btn:focus-visible,
+    .help-btn.pinned {
+      background: rgba(56, 189, 248, 0.28);
+      border-color: var(--accent);
+      color: #ffffff;
+      transform: scale(1.08);
+      outline: none;
+    }
+
+    .help-popover {
+      position: fixed;
+      z-index: 999;
+      width: min(320px, calc(100vw - 24px));
+      background: #0d172b;
+      border: 1px solid rgba(56, 189, 248, 0.65);
+      border-radius: 10px;
+      padding: 11px 13px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+      color: var(--text);
+      pointer-events: auto;
+    }
+    .help-pop-hdr {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .help-pop-title {
+      font-weight: 700;
+      font-size: 12.5px;
+      color: var(--accent);
+    }
+    .help-pop-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 15px;
+      line-height: 1;
+      padding: 0 2px;
+    }
+    .help-pop-close:hover { color: #fff; }
+    .help-pop-body {
+      font-size: 12px;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .help-pop-tip {
+      font-size: 11px;
+      color: var(--good);
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(52, 211, 153, 0.25);
+      border-radius: 6px;
+      padding: 5px 8px;
+    }
+
+    /* Pills & Inputs */
     .pill {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
+      gap: 5px;
+      padding: 3px 9px;
       border-radius: 999px;
       border: 1px solid var(--border);
       background: var(--bg-elev);
       font-size: 11px;
       font-family: var(--mono);
       color: var(--text-muted);
+      white-space: nowrap;
     }
-    .pill.ok { border-color: rgba(52, 211, 153, 0.4); color: var(--good); background: rgba(16, 185, 129, 0.08); }
-    .pill.warn { border-color: rgba(251, 191, 36, 0.4); color: var(--warn); background: rgba(245, 158, 11, 0.08); }
-    .pill.danger { border-color: rgba(248, 113, 113, 0.45); color: var(--danger); background: rgba(239, 68, 68, 0.1); }
-    .pill.accent { border-color: rgba(56, 189, 248, 0.4); color: var(--accent); background: rgba(56, 189, 248, 0.08); }
-
+    .pill.ok { border-color: rgba(52, 211, 153, 0.4); color: var(--good); background: rgba(16, 185, 129, 0.09); }
+    .pill.warn { border-color: rgba(251, 191, 36, 0.45); color: var(--warn); background: rgba(245, 158, 11, 0.09); }
+    .pill.danger { border-color: rgba(248, 113, 113, 0.45); color: var(--danger); background: rgba(239, 68, 68, 0.11); }
+    .pill.accent { border-color: rgba(56, 189, 248, 0.4); color: var(--accent); background: rgba(56, 189, 248, 0.09); }
     .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 
+    /* Layout Grid */
     .layout {
       display: grid;
-      grid-template-columns: 330px minmax(420px, 1fr) 380px;
+      grid-template-columns: 310px minmax(440px, 1fr) 330px;
       gap: 14px;
-      padding: 14px 18px 28px;
-      max-width: 1760px;
+      padding: 14px 18px 26px;
+      max-width: 1740px;
       margin: 0 auto;
+      align-items: start;
     }
-
-    @media (max-width: 1280px) {
-      .layout { grid-template-columns: 320px 1fr; }
-      .col-right { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; }
+    @media (max-width: 1260px) {
+      .layout { grid-template-columns: 300px 1fr; }
+      .col-right {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+        gap: 14px;
+      }
     }
     @media (max-width: 860px) {
       .layout { grid-template-columns: 1fr; }
     }
 
-    .col { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+    .col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 
     .card {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 13px 14px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
     }
 
     .card-hdr {
@@ -132,19 +267,21 @@
       gap: 8px;
       margin-bottom: 10px;
       padding-bottom: 8px;
-      border-bottom: 1px solid rgba(35, 50, 82, 0.7);
+      border-bottom: 1px solid rgba(36, 53, 84, 0.75);
     }
     .card-title {
       font-weight: 700;
       font-size: 13px;
-      letter-spacing: 0.2px;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 6px;
+      min-width: 0;
     }
 
-    label {
-      display: block;
+    label, .lbl-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
       font-size: 11px;
       color: var(--text-muted);
       margin-bottom: 4px;
@@ -155,259 +292,550 @@
       width: 100%;
       background: var(--bg-input);
       border: 1px solid var(--border);
-      border-radius: 7px;
+      border-radius: 8px;
       color: var(--text);
-      padding: 7px 9px;
-      font-family: var(--sans);
-      font-size: 12px;
+      padding: 7px 10px;
+      font-family: inherit;
+      font-size: 12.5px;
       outline: none;
       transition: border-color 0.15s;
     }
-    input:focus, select:focus, textarea:focus {
-      border-color: var(--border-hi);
-    }
-    textarea { resize: vertical; min-height: 62px; }
-    .mono { font-family: var(--mono); }
+    input:focus, select:focus, textarea:focus { border-color: var(--border-hi); }
+    textarea { resize: vertical; min-height: 58px; line-height: 1.45; }
 
-    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
     .field { margin-bottom: 9px; }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
+      border-radius: 8px;
       border: 1px solid var(--border);
       background: var(--bg-elev);
       color: var(--text);
-      border-radius: 7px;
-      padding: 6px 11px;
+      padding: 7px 12px;
       font-size: 12px;
       font-weight: 600;
+      font-family: inherit;
       cursor: pointer;
-      transition: background 0.15s, border-color 0.15s, transform 0.05s;
+      transition: background 0.15s, border-color 0.15s, transform 0.08s;
     }
-    .btn:hover:not(:disabled) { background: #182644; border-color: #3b5383; }
+    .btn:hover:not(:disabled) { border-color: var(--border-hi); background: #16233d; }
     .btn:active:not(:disabled) { transform: translateY(1px); }
-    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
-    .btn.primary {
-      background: linear-gradient(135deg, #0284c7, #4f46e5);
-      border-color: #38bdf8;
-      color: #fff;
+    .btn:disabled { opacity: 0.48; cursor: not-allowed; }
+    .btn.primary { background: linear-gradient(135deg, #0284c7, #4f46e5); border-color: transparent; color: #fff; }
+    .btn.primary:hover:not(:disabled) { background: linear-gradient(135deg, #0ea5e9, #6366f1); }
+    .btn.good { background: rgba(16, 185, 129, 0.15); border-color: rgba(52, 211, 153, 0.45); color: var(--good); }
+    .btn.danger { background: rgba(239, 68, 68, 0.14); border-color: rgba(248, 113, 113, 0.45); color: var(--danger); }
+    .btn.sm { padding: 4px 8px; font-size: 11px; border-radius: 6px; }
+
+    /* Quick Guide Banner */
+    .guide-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text);
     }
-    .btn.primary:hover:not(:disabled) { background: linear-gradient(135deg, #0369a1, #4338ca); }
-    .btn.good { background: rgba(16, 185, 129, 0.16); border-color: rgba(52, 211, 153, 0.5); color: var(--good); }
-    .btn.danger { background: rgba(239, 68, 68, 0.15); border-color: rgba(248, 113, 113, 0.55); color: #fca5a5; }
-    .btn.danger:hover:not(:disabled) { background: rgba(239, 68, 68, 0.28); }
-    .btn.sm { padding: 4px 8px; font-size: 11px; }
+    .guide-step {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      padding: 6px 8px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(36, 53, 84, 0.7);
+      border-radius: 8px;
+    }
+    .guide-num {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(56, 189, 248, 0.18);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 800;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
 
-    .checks { display: flex; flex-wrap: wrap; gap: 10px; margin: 6px 0 10px; }
-    .check-item { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-muted); cursor: pointer; margin: 0; }
-    .check-item input { width: auto; }
-
-    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
-    .chip {
+    /* Quick Character Cards */
+    .char-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .char-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-align: left;
+      width: 100%;
+      padding: 9px 10px;
+      border-radius: 10px;
       border: 1px solid var(--border);
       background: var(--bg-input);
-      color: var(--text-muted);
-      border-radius: 999px;
-      padding: 4px 10px;
-      font-size: 11px;
+      color: var(--text);
       cursor: pointer;
+      font-family: inherit;
+      transition: border-color 0.15s, background 0.15s;
     }
-    .chip:hover { border-color: var(--accent); color: var(--text); }
+    .char-card:hover { border-color: var(--accent); background: #101c35; }
+    .char-card.active {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.1);
+    }
+    .char-emoji {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: rgba(56, 189, 248, 0.12);
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .char-name { font-weight: 700; font-size: 12.5px; display: flex; align-items: center; gap: 6px; }
+    .char-desc { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
 
-    .mind-list { display: flex; flex-direction: column; gap: 6px; max-height: 170px; overflow-y: auto; }
+    /* Mind List */
+    .mind-list { display: flex; flex-direction: column; gap: 6px; max-height: 190px; overflow-y: auto; }
     .mind-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      padding: 7px 9px;
-      border-radius: 7px;
+      padding: 7px 10px;
+      border-radius: 8px;
       border: 1px solid var(--border);
       background: var(--bg-input);
       cursor: pointer;
+      transition: border-color 0.12s, background 0.12s;
     }
-    .mind-item.active { border-color: var(--accent); background: rgba(56, 189, 248, 0.08); }
+    .mind-item:hover { border-color: #475569; }
+    .mind-item.active { border-color: var(--accent); background: rgba(56, 189, 248, 0.09); }
+    .mind-meta { font-size: 11px; color: var(--text-muted); }
 
-    .timeline {
+    /* Chat Studio Center */
+    .chat-card {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      max-height: 620px;
-      overflow-y: auto;
-      padding-right: 2px;
+      min-height: 76vh;
+      max-height: calc(100vh - 90px);
+      padding: 0;
+      overflow: hidden;
     }
-    .turn-card {
-      border: 1px solid var(--border);
-      background: var(--bg-input);
-      border-radius: 8px;
-      padding: 10px 12px;
-    }
-    .turn-card.revocation { border-color: rgba(248, 113, 113, 0.45); background: rgba(127, 29, 29, 0.14); }
-    .turn-card.idle { border-color: rgba(251, 191, 36, 0.4); background: rgba(120, 53, 15, 0.14); }
-
-    .turn-meta {
+    .chat-top {
+      padding: 12px 15px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(14, 22, 40, 0.8);
       display: flex;
       flex-wrap: wrap;
       align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .chat-persona {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .chat-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      color: #06101e;
+      font-weight: 800;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    /* 4-Step Progress Bar */
+    .tour-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
       gap: 6px;
-      margin-bottom: 6px;
+      padding: 8px 14px;
+      background: rgba(10, 18, 34, 0.72);
+      border-bottom: 1px solid rgba(36, 53, 84, 0.65);
+    }
+    @media (max-width: 640px) {
+      .tour-strip { grid-template-columns: repeat(2, 1fr); }
+    }
+    .tour-step {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       font-size: 11px;
+      color: var(--text-muted);
+      padding: 4px 7px;
+      border-radius: 6px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid transparent;
     }
-    .msg-user {
-      padding: 6px 9px;
-      border-left: 3px solid var(--accent-2);
-      background: rgba(129, 140, 248, 0.07);
-      border-radius: 0 6px 6px 0;
-      margin-bottom: 6px;
-      white-space: pre-wrap;
+    .tour-step.done {
+      color: var(--good);
+      border-color: rgba(52, 211, 153, 0.35);
+      background: rgba(16, 185, 129, 0.08);
+    }
+    .tour-step.next {
+      color: var(--accent);
+      border-color: rgba(56, 189, 248, 0.45);
+      background: rgba(56, 189, 248, 0.09);
+    }
+
+    /* Scrollable Chat Messages */
+    .chat-feed {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: rgba(7, 12, 22, 0.45);
+    }
+    .welcome-box {
+      border: 1px dashed rgba(56, 189, 248, 0.35);
+      background: rgba(56, 189, 248, 0.06);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      margin: auto 0;
+    }
+    .msg-row {
+      display: flex;
+      flex-direction: column;
+      max-width: 86%;
+    }
+    .msg-row.user {
+      align-self: flex-end;
+      align-items: flex-end;
+    }
+    .msg-row.assistant {
+      align-self: flex-start;
+      align-items: flex-start;
+    }
+    .msg-sender {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+      padding: 0 4px;
+    }
+    .bubble {
+      padding: 10px 13px;
+      border-radius: 14px;
+      font-size: 13px;
+      line-height: 1.5;
       word-break: break-word;
     }
-    .msg-reply {
-      padding: 7px 9px;
-      border-left: 3px solid var(--good);
-      background: rgba(52, 211, 153, 0.06);
-      border-radius: 0 6px 6px 0;
-      margin-bottom: 7px;
-      white-space: pre-wrap;
-      word-break: break-word;
+    .msg-row.user .bubble {
+      background: linear-gradient(135deg, #1d4ed8, #4338ca);
+      color: #ffffff;
+      border-bottom-right-radius: 4px;
     }
-    .domain-kv {
+    .msg-row.assistant .bubble {
+      background: #13203b;
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-bottom-left-radius: 4px;
+    }
+    .bubble-tags {
       display: flex;
       flex-wrap: wrap;
       gap: 5px;
       margin-top: 6px;
     }
-    .kv-tag {
-      font-family: var(--mono);
-      font-size: 10px;
-      padding: 2px 7px;
-      border-radius: 5px;
-      background: rgba(30, 41, 59, 0.85);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-    }
-
-    .metric-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-    .metric-box {
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      padding: 7px 9px;
-    }
-    .metric-lbl { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.4px; }
-    .metric-val { font-family: var(--mono); font-size: 13px; font-weight: 700; margin-top: 2px; }
-    .bar-track {
-      height: 5px;
-      background: #1e293b;
-      border-radius: 99px;
-      overflow: hidden;
-      margin-top: 5px;
-    }
-    .bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width 0.25s; }
-
-    .mem-list { display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto; }
-    .mem-row {
+    .event-banner {
+      align-self: center;
+      width: 100%;
+      max-width: 92%;
+      border-radius: 9px;
+      padding: 8px 12px;
+      font-size: 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
+      flex-wrap: wrap;
+    }
+    .event-banner.idle {
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    .event-banner.revoke {
+      background: rgba(248, 113, 113, 0.09);
+      border: 1px solid rgba(248, 113, 113, 0.35);
+    }
+
+    .chat-details summary {
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--accent);
+      cursor: pointer;
+      user-select: none;
+    }
+    .chat-details pre {
+      margin: 6px 0 0;
       padding: 7px 9px;
       border-radius: 7px;
-      background: var(--bg-input);
+      background: #070d19;
       border: 1px solid var(--border);
-    }
-    .mem-text { min-width: 0; flex: 1; }
-    .mem-id { font-family: var(--mono); font-size: 10px; color: var(--accent); }
-    .mem-sum { font-size: 12px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-    .json-pre {
-      background: #050911;
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      padding: 9px;
       font-family: var(--mono);
       font-size: 11px;
-      color: #cbd5e1;
-      max-height: 250px;
-      overflow: auto;
-      margin: 0;
-      white-space: pre-wrap;
-      word-break: break-word;
+      color: #bae6fd;
+      overflow-x: auto;
+    }
+
+    /* Guided Next-Step Area & Composer */
+    .next-area {
+      padding: 9px 14px;
+      border-top: 1px solid rgba(36, 53, 84, 0.8);
+      background: rgba(14, 22, 40, 0.88);
+    }
+    .next-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 11.5px;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .chip {
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      color: var(--text);
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: border-color 0.12s, background 0.12s;
+    }
+    .chip:hover { border-color: var(--accent); background: #132240; }
+    .chip.highlight {
+      border-color: var(--good);
+      background: rgba(16, 185, 129, 0.14);
+      color: #a7f3d0;
+      font-weight: 600;
+    }
+
+    .composer {
+      padding: 10px 14px 13px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+    .composer-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+    .composer-row textarea {
+      min-height: 44px;
+      max-height: 130px;
+      flex: 1;
     }
 
     .modeb-box {
-      margin-top: 10px;
+      border: 1px dashed var(--accent);
+      background: rgba(56, 189, 248, 0.05);
+      border-radius: 9px;
       padding: 10px;
-      border-radius: 8px;
-      border: 1px dashed rgba(56, 189, 248, 0.55);
-      background: rgba(14, 116, 144, 0.08);
+      margin-bottom: 10px;
     }
 
+    /* Right Status & Memories */
+    .status-hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 9px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      margin-bottom: 9px;
+    }
+    .mood-big {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .metric-box {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+    .metric-lbl { font-size: 10.5px; color: var(--text-muted); }
+    .metric-val { font-family: var(--mono); font-size: 13px; font-weight: 700; margin-top: 2px; }
+    .bar-track { height: 5px; border-radius: 999px; background: #1e293b; overflow: hidden; margin-top: 5px; }
+    .bar-fill { height: 100%; background: linear-gradient(90deg, var(--good), var(--accent)); transition: width 0.25s; }
+
+    .mem-list { display: flex; flex-direction: column; gap: 7px; max-height: 240px; overflow-y: auto; }
+    .mem-item {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 10px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 12px;
+    }
+
+    .checks { display: flex; flex-wrap: wrap; gap: 10px; margin: 6px 0 10px; }
+    .check-item { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--text); cursor: pointer; margin: 0; }
     .banner-err {
-      padding: 8px 11px;
-      border-radius: 7px;
-      border: 1px solid rgba(248, 113, 113, 0.5);
-      background: rgba(239, 68, 68, 0.12);
+      display: none;
+      margin: 8px 14px 0;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(239, 68, 68, 0.14);
+      border: 1px solid rgba(248, 113, 113, 0.45);
       color: #fecaca;
       font-size: 12px;
-      margin-bottom: 10px;
-      display: none;
     }
-    .hidden { display: none !important; }
-    .muted { color: var(--text-muted); font-size: 11px; }
+    .json-pre {
+      background: #060b14;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      margin: 0;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #cbd5e1;
+      max-height: 230px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .muted { color: var(--text-muted); font-size: 11.5px; }
+    .mono { font-family: var(--mono); }
   </style>
 </head>
-<body>
+<body class="mode-simple">
   <header class="topbar">
     <div class="brand">
       <div class="brand-logo">AME</div>
       <div>
-        <div class="brand-title" data-i18n="title">Artificial Mind Engine — Live Interactive Console</div>
-        <div class="brand-sub" data-i18n="subtitle">Stateless LLM Hot-Swap • Mode A/B • D2 Circadian • D3 Atomic Forget • D4 Redacted Telemetry</div>
+        <div class="brand-title" data-i18n="title">Artificial Mind Engine — Interactive Chat Demo</div>
+        <div class="brand-sub" data-i18n="subtitle">Persistent Memory • Safe Boundaries • Atomic Forget (0% Leak)</div>
       </div>
     </div>
 
     <div class="topbar-controls">
-      <span id="healthBadge" class="pill warn"><span class="dot"></span><span id="healthText">Checking /v1/health...</span></span>
-      <span id="storageBadge" class="pill accent">storage: -</span>
-      <div style="display:flex;align-items:center;gap:4px;">
-        <input id="apiKeyInput" type="password" placeholder="X-AME-API-Key (optional)" style="width:175px;" />
-        <button id="toggleKeyBtn" class="btn sm" type="button">👁</button>
+      <div class="control-pair">
+        <div class="seg-toggle" role="group" aria-label="View Mode">
+          <button id="modeSimpleBtn" class="seg-btn active" type="button" data-i18n="modeSimple">Simple</button>
+          <button id="modeDetailedBtn" class="seg-btn" type="button" data-i18n="modeDetailed">Detailed</button>
+        </div>
+        <button type="button" class="help-btn" data-help="viewMode" aria-label="View Mode Help">?</button>
       </div>
-      <button id="refreshHealthBtn" class="btn sm" type="button" data-i18n="btnHealth">Health</button>
-      <button id="langToggleBtn" class="btn sm" type="button">KO / EN</button>
+
+      <div class="control-pair">
+        <select id="uiLangSelect" class="lang-select" aria-label="Interface Language">
+          <option value="en">English (Default)</option>
+          <option value="ko">한국어 (Korean)</option>
+          <option value="ja">日本語 (Japanese)</option>
+          <option value="zh-CN">简体中文 (Chinese)</option>
+          <option value="zh-TW">繁體中文 (Taiwan)</option>
+          <option value="es">Español (Spanish)</option>
+        </select>
+        <button type="button" class="help-btn" data-help="language" aria-label="Language Help">?</button>
+      </div>
+
+      <span id="healthBadge" class="pill warn"><span class="dot"></span><span id="healthText">Checking...</span></span>
+      <span id="storageBadge" class="pill accent detailed-only">storage: -</span>
+
+      <div class="control-pair detailed-only">
+        <input id="apiKeyInput" type="password" placeholder="X-AME-API-Key (optional)" style="width:165px;" />
+        <button id="toggleKeyBtn" class="btn sm" type="button">👁</button>
+        <button type="button" class="help-btn" data-help="apiKey" aria-label="API Key Help">?</button>
+      </div>
+      <button id="refreshHealthBtn" class="btn sm detailed-only" type="button" data-i18n="btnHealth">Health</button>
     </div>
   </header>
 
   <main class="layout">
-    <!-- LEFT COLUMN: Minds + Create Mind + LLM Hot-Swap -->
+    <!-- LEFT SIDEBAR -->
     <section class="col">
+      <!-- Beginner 3-Step Quick Guide -->
       <div class="card">
         <div class="card-hdr">
-          <div class="card-title" data-i18n="hdrMinds">1. Active Minds</div>
-          <button id="refreshMindsBtn" class="btn sm" type="button" data-i18n="btnReload">Reload</button>
+          <div class="card-title">
+            <span data-i18n="hdrQuickGuide">Quick Start Guide</span>
+            <button type="button" class="help-btn" data-help="quickStart" aria-label="Quick Start Help">?</button>
+          </div>
+          <button id="toggleGuideBtn" class="btn sm" type="button" data-i18n="btnHide">Hide</button>
         </div>
-        <div id="mindsList" class="mind-list">
-          <div class="muted" data-i18n="emptyMinds">No Minds yet. Create one below.</div>
+        <div id="quickGuideBody" class="guide-steps">
+          <div class="guide-step">
+            <span class="guide-num">1</span>
+            <span data-i18n="guideStep1">Click a character card below (or start typing directly).</span>
+          </div>
+          <div class="guide-step">
+            <span class="guide-num">2</span>
+            <span data-i18n="guideStep2">Chat back and forth continuously—click suggested replies to explore features fast.</span>
+          </div>
+          <div class="guide-step">
+            <span class="guide-num">3</span>
+            <span data-i18n="guideStep3">Test "+14h Time Passes" or "Forget" on the right to see memory isolation in real time.</span>
+          </div>
         </div>
       </div>
 
+      <!-- 1-Click Character Starter Cards -->
       <div class="card">
         <div class="card-hdr">
-          <div class="card-title" data-i18n="hdrCreate">2. Create Isolated Mind</div>
+          <div class="card-title">
+            <span data-i18n="hdrCharCards">1. Choose a Character</span>
+            <button type="button" class="help-btn" data-help="characterCards" aria-label="Character Help">?</button>
+          </div>
+        </div>
+        <div id="charCards" class="char-grid"></div>
+      </div>
+
+      <!-- Active Conversations -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title">
+            <span data-i18n="hdrMinds">2. Active Chats</span>
+            <button type="button" class="help-btn" data-help="activeMinds" aria-label="Active Chats Help">?</button>
+          </div>
+          <button id="refreshMindsBtn" class="btn sm" type="button" data-i18n="btnReload">Reload</button>
+        </div>
+        <div id="mindsList" class="mind-list">
+          <div class="muted" data-i18n="emptyMinds">No active Mind yet. Pick a character above to begin!</div>
+        </div>
+      </div>
+
+      <!-- DETAILED ONLY: Custom Mind Builder -->
+      <div class="card detailed-only">
+        <div class="card-hdr">
+          <div class="card-title">
+            <span data-i18n="hdrCreate">Custom Mind Builder</span>
+            <button type="button" class="help-btn" data-help="createMind" aria-label="Create Mind Help">?</button>
+          </div>
           <span class="pill">POST /v1/minds</span>
         </div>
         <div class="row-2">
           <div class="field">
-            <label for="domainSelect" data-i18n="lblDomain">Domain</label>
+            <label for="domainSelect"><span data-i18n="lblDomain">Domain</span></label>
             <select id="domainSelect">
               <option value="companion_chat">companion_chat</option>
               <option value="game_npc">game_npc</option>
@@ -416,54 +844,69 @@
             </select>
           </div>
           <div class="field">
-            <label for="personaLang" data-i18n="lblLang">Language</label>
+            <label for="personaLang"><span data-i18n="lblLang">Character Language</span></label>
             <select id="personaLang">
-              <option value="ko">ko</option>
-              <option value="en">en</option>
+              <option value="en">en (English)</option>
+              <option value="ko">ko (한국어)</option>
+              <option value="ja">ja (日本語)</option>
+              <option value="zh-CN">zh-CN (简体中文)</option>
+              <option value="zh-TW">zh-TW (繁體中文)</option>
+              <option value="es">es (Español)</option>
             </select>
           </div>
         </div>
         <div class="row-2">
           <div class="field">
-            <label for="personaName" data-i18n="lblName">Persona Name</label>
-            <input id="personaName" type="text" value="다온" />
+            <label for="personaName"><span data-i18n="lblName">Persona Name</span></label>
+            <input id="personaName" type="text" value="Sora" />
           </div>
           <div class="field">
-            <label for="personaRole" data-i18n="lblRole">Role</label>
-            <input id="personaRole" type="text" value="근거 기반 AI 파트너" />
+            <label for="personaRole"><span data-i18n="lblRole">Role</span></label>
+            <input id="personaRole" type="text" value="Evidence-Grounded Partner" />
           </div>
         </div>
         <div class="field">
-          <label for="personaBackstory" data-i18n="lblBackstory">Backstory</label>
-          <input id="personaBackstory" type="text" value="대화의 기억과 안전 경계를 일관되게 유지하는 페르소나" />
+          <label for="personaBackstory"><span data-i18n="lblBackstory">Backstory</span></label>
+          <input id="personaBackstory" type="text" value="Remembers key facts accurately and respects safe boundaries." />
         </div>
         <div id="customSchemaGroup" class="field hidden">
           <div class="row-2">
             <div>
-              <label for="customSchemaName" data-i18n="lblSchemaName">Custom Schema Name</label>
+              <label for="customSchemaName"><span data-i18n="lblSchemaName">Custom Schema Name</span></label>
               <input id="customSchemaName" type="text" value="triage_record" />
             </div>
             <div>
-              <label for="customSchemaFields" data-i18n="lblSchemaFields">Fields (comma-separated)</label>
+              <label for="customSchemaFields"><span data-i18n="lblSchemaFields">Fields (comma-separated)</span></label>
               <input id="customSchemaFields" type="text" value="reply,summary,confidence,auditTag" />
             </div>
           </div>
+        </div>
+        <div class="lbl-row">
+          <span data-i18n="lblSafetyPolicy">Safety Policies</span>
+          <button type="button" class="help-btn" data-help="safetyPolicy" aria-label="Safety Policy Help">?</button>
         </div>
         <div class="checks">
           <label class="check-item"><input id="polAbstention" type="checkbox" checked /> strictAbstention</label>
           <label class="check-item"><input id="polAntiSyc" type="checkbox" checked /> antiSycophancy</label>
           <label class="check-item"><input id="polCrisis" type="checkbox" checked /> crisisEscalation</label>
         </div>
-        <button id="createMindBtn" class="btn primary" style="width:100%;" type="button" data-i18n="btnCreateMind">Create Mind</button>
+        <button id="createMindBtn" class="btn primary" style="width:100%;" type="button" data-i18n="btnCreateMind">Create Custom Mind</button>
       </div>
 
-      <div class="card">
+      <!-- DETAILED ONLY: LLM Hot-Swap & Mode A/B -->
+      <div class="card detailed-only">
         <div class="card-hdr">
-          <div class="card-title" data-i18n="hdrLlm">3. LLM Hot-Swap &amp; Mode</div>
+          <div class="card-title">
+            <span data-i18n="hdrLlm">LLM Hot-Swap &amp; Mode</span>
+            <button type="button" class="help-btn" data-help="llmSwap" aria-label="LLM Hot-Swap Help">?</button>
+          </div>
           <span class="pill">BYO-LLM</span>
         </div>
         <div class="field">
-          <label for="execModeSelect" data-i18n="lblExecMode">Execution Mode</label>
+          <label for="execModeSelect">
+            <span data-i18n="lblExecMode">Execution Mode</span>
+            <button type="button" class="help-btn" data-help="execMode" aria-label="Execution Mode Help">?</button>
+          </label>
           <select id="execModeSelect">
             <option value="modeA">Mode A — Proxy BYO-LLM (/turn)</option>
             <option value="modeB">Mode B — Zero-Key (/prepare → /settle)</option>
@@ -471,7 +914,7 @@
         </div>
         <div class="row-2">
           <div class="field">
-            <label for="llmProviderSelect" data-i18n="lblProvider">Provider</label>
+            <label for="llmProviderSelect"><span data-i18n="lblProvider">Provider</span></label>
             <select id="llmProviderSelect">
               <option value="mock">mock (Zero-Key Sim)</option>
               <option value="openai">openai</option>
@@ -483,137 +926,197 @@
             </select>
           </div>
           <div class="field">
-            <label for="llmModelInput" data-i18n="lblModel">Model</label>
+            <label for="llmModelInput"><span data-i18n="lblModel">Model</span></label>
             <input id="llmModelInput" type="text" value="ame-mock-v1" />
           </div>
         </div>
         <div class="field">
-          <label for="llmApiKeyInput" data-i18n="lblLlmKey">Ephemeral LLM API Key (Mode A only, never stored)</label>
+          <label for="llmApiKeyInput"><span data-i18n="lblLlmKey">Ephemeral LLM API Key (never stored)</span></label>
           <input id="llmApiKeyInput" type="password" placeholder="Optional for mock / local Ollama" />
         </div>
         <div class="field" style="margin-bottom:0;">
-          <label for="llmBaseUrlInput" data-i18n="lblBaseUrl">Optional Base URL (for openai-compat / proxy)</label>
+          <label for="llmBaseUrlInput"><span data-i18n="lblBaseUrl">Optional Base URL (openai-compat / proxy)</span></label>
           <input id="llmBaseUrlInput" type="text" placeholder="http://127.0.0.1:11434/v1" />
         </div>
       </div>
     </section>
 
-    <!-- CENTER COLUMN: Turn Composer + Mode B Staging + Timeline -->
+    <!-- CENTER COLUMN: Continuous Chat Stage -->
     <section class="col">
-      <div class="card">
-        <div class="card-hdr">
-          <div class="card-title" data-i18n="hdrTurn">4. Cognitive Turn Composer</div>
-          <span id="activeMindBadge" class="pill">No Mind selected</span>
+      <div class="card chat-card">
+        <div class="chat-top">
+          <div class="chat-persona">
+            <div id="chatAvatar" class="chat-avatar">S</div>
+            <div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <strong id="chatPersonaTitle">Sora</strong>
+                <span id="chatDomainPill" class="pill accent">companion_chat</span>
+                <button type="button" class="help-btn" data-help="chatStage" aria-label="Chat Stage Help">?</button>
+              </div>
+              <div id="activeMindBadge" class="muted mono" style="font-size:11px;">Ready to start</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span id="turnCountPill" class="pill">0 turns</span>
+            <button id="clearTimelineBtn" class="btn sm" type="button" data-i18n="btnClear">Clear Chat</button>
+          </div>
+        </div>
+
+        <!-- 4-Step Interactive Guided Tour Progress -->
+        <div id="tourStrip" class="tour-strip">
+          <div class="tour-step next" id="tourStep1"><span>○</span><span data-i18n="tour1">1. Teach Secret</span></div>
+          <div class="tour-step" id="tourStep2"><span>○</span><span data-i18n="tour2">2. Ask Recall</span></div>
+          <div class="tour-step" id="tourStep3"><span>○</span><span data-i18n="tour3">3. Forget (D3)</span></div>
+          <div class="tour-step" id="tourStep4"><span>○</span><span data-i18n="tour4">4. Verify 0% Leak</span></div>
         </div>
 
         <div id="errorBanner" class="banner-err"></div>
 
-        <label data-i18n="lblPresets">VC Demo Scenario Presets</label>
-        <div class="chips" id="presetChips">
-          <button class="chip" type="button" data-preset="secret">🔐 Secret Memory (ZEBRA-404)</button>
-          <button class="chip" type="button" data-preset="recall">🧠 Recall Probe</button>
-          <button class="chip" type="button" data-preset="conflict">⚡ Conflict / Loss (FEP Lock)</button>
-          <button class="chip" type="button" data-preset="abstain">🛑 HOT Abstention Probe</button>
-          <button class="chip" type="button" data-preset="positive">✨ Positive Trust (+5)</button>
-          <button class="chip" type="button" data-preset="crisis">🆘 Crisis Guardrail</button>
+        <!-- Chat Bubble Timeline -->
+        <div id="chatFeed" class="chat-feed"></div>
+
+        <!-- Next-Step Guided Conversation Chips -->
+        <div class="next-area">
+          <div class="next-hdr">
+            <div style="display:inline-flex;align-items:center;gap:6px;">
+              <strong style="color:var(--accent);" data-i18n="lblNextTry">What to say / try next:</strong>
+              <button type="button" class="help-btn" data-help="nextChips" aria-label="Suggestions Help">?</button>
+            </div>
+            <span id="nextGuidanceHint" class="muted"></span>
+          </div>
+          <div class="chips" id="nextChips"></div>
         </div>
 
-        <div class="field">
-          <label for="userInput" data-i18n="lblUserInput">User Input</label>
-          <textarea id="userInput" placeholder="메시지를 입력하거나 위의 시나리오 프리셋을 클릭하세요..."></textarea>
-        </div>
+        <!-- Chat Composer -->
+        <div class="composer">
+          <!-- DETAILED ONLY: Reward / Tags -->
+          <div class="row-2 detailed-only" style="margin-bottom:8px;">
+            <div class="field" style="margin-bottom:0;">
+              <label for="rewardInput">
+                <span data-i18n="lblReward">Reward Signal (-1000..1000)</span>
+                <button type="button" class="help-btn" data-help="rewardTags" aria-label="Reward Help">?</button>
+              </label>
+              <input id="rewardInput" type="number" step="1" placeholder="e.g. -8 or 5" />
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <label for="tagsInput"><span data-i18n="lblTags">Outcome Tags (comma-separated)</span></label>
+              <input id="tagsInput" type="text" placeholder="betrayal, loss, reward, trust" />
+            </div>
+          </div>
 
-        <div class="row-2">
-          <div class="field">
-            <label for="rewardInput" data-i18n="lblReward">Reward Signal (optional, -1000..1000)</label>
-            <input id="rewardInput" type="number" step="1" placeholder="e.g. -8 or 5" />
+          <!-- DETAILED ONLY: Mode B Staging Box -->
+          <div id="modeBStage" class="modeb-box hidden detailed-only">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <strong style="color:var(--accent);" data-i18n="hdrModeBStage">Mode B Zero-Key Prepared Ticket</strong>
+              <span id="ticketBadge" class="pill accent mono"></span>
+            </div>
+            <div id="prepFlags" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;"></div>
+            <div class="field">
+              <label for="prepSystemPrompt" data-i18n="lblSysPrompt">Prefix-Aligned System Prompt (read-only)</label>
+              <textarea id="prepSystemPrompt" class="mono" style="min-height:78px;" readonly></textarea>
+            </div>
+            <div class="field">
+              <label for="modeBRawReply" data-i18n="lblRawReply">Client LLM Raw Reply (editable before /settle)</label>
+              <textarea id="modeBRawReply" class="mono" style="min-height:60px;"></textarea>
+            </div>
+            <button id="settleModeBBtn" class="btn primary" type="button" data-i18n="btnSettle">Mode B: 2. Settle Turn</button>
           </div>
-          <div class="field">
-            <label for="tagsInput" data-i18n="lblTags">Outcome Tags (comma-separated)</label>
-            <input id="tagsInput" type="text" placeholder="betrayal, loss, reward, trust" />
-          </div>
-        </div>
 
-        <div style="display:flex;flex-wrap:wrap;gap:8px;">
-          <button id="sendModeABtn" class="btn primary" type="button" data-i18n="btnSendModeA">Send Turn (Mode A)</button>
-          <button id="prepareModeBBtn" class="btn good" type="button" data-i18n="btnPrepare">Mode B: 1. Prepare</button>
-        </div>
-
-        <div id="modeBStage" class="modeb-box hidden">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-            <strong style="color:var(--accent);" data-i18n="hdrModeBStage">Mode B Zero-Key Prepared Ticket</strong>
-            <span id="ticketBadge" class="pill accent mono"></span>
+          <div class="composer-row">
+            <textarea id="userInput" data-i18n-placeholder="phUserInput" placeholder="Type a message and press Enter to chat (Shift+Enter for new line)..."></textarea>
+            <button id="sendModeABtn" class="btn primary" style="height:44px;min-width:96px;" type="button" data-i18n="btnSend">Send</button>
+            <button id="prepareModeBBtn" class="btn good detailed-only" style="height:44px;" type="button" data-i18n="btnPrepare">Prepare (B)</button>
           </div>
-          <div class="domain-kv" id="prepFlags" style="margin-bottom:8px;"></div>
-          <div class="field">
-            <label for="prepSystemPrompt" data-i18n="lblSysPrompt">Prefix-Aligned System Prompt (read-only)</label>
-            <textarea id="prepSystemPrompt" class="mono" style="min-height:85px;" readonly></textarea>
-          </div>
-          <div class="field">
-            <label for="modeBRawReply" data-i18n="lblRawReply">Client LLM Raw Reply (editable before /settle)</label>
-            <textarea id="modeBRawReply" class="mono" style="min-height:66px;"></textarea>
-          </div>
-          <button id="settleModeBBtn" class="btn primary" type="button" data-i18n="btnSettle">Mode B: 2. Settle Turn</button>
-        </div>
-      </div>
-
-      <div class="card" style="flex:1;">
-        <div class="card-hdr">
-          <div class="card-title" data-i18n="hdrTimeline">Turn &amp; Audit Timeline</div>
-          <button id="clearTimelineBtn" class="btn sm" type="button" data-i18n="btnClear">Clear View</button>
-        </div>
-        <div id="timeline" class="timeline">
-          <div class="muted" data-i18n="emptyTimeline">Run a turn, idle-tick, or D3 revocation to inspect live cognitive state transitions.</div>
         </div>
       </div>
     </section>
 
-    <!-- RIGHT COLUMN: D4 Telemetry + D2 Idle Tick + D3 Memories + Raw JSON -->
+    <!-- RIGHT COLUMN: Beginner Status/Memories + Detailed Technical Panels -->
     <section class="col col-right">
+      <!-- Friendly Status Card (Simple & Detailed) -->
       <div class="card">
         <div class="card-hdr">
-          <div class="card-title" data-i18n="hdrTelemetry">D4 Redacted Telemetry</div>
-          <div style="display:flex;gap:6px;align-items:center;">
+          <div class="card-title">
+            <span data-i18n="hdrStatus">Character Status &amp; Time</span>
+            <button type="button" class="help-btn" data-help="simpleStatus" aria-label="Status Help">?</button>
+          </div>
+          <button id="refreshTelBtn" class="btn sm" type="button" title="Refresh">↻</button>
+        </div>
+
+        <div class="status-hero">
+          <div class="mood-big">
+            <span id="simpleMoodEmoji">🙂</span>
+            <div>
+              <div id="simpleMoodLabel">-</div>
+              <div id="simpleTrustLabel" class="muted">-</div>
+            </div>
+          </div>
+          <span id="simpleMemBadge" class="pill accent">0 memories</span>
+        </div>
+
+        <!-- Simple 1-click D2 action -->
+        <div class="simple-only">
+          <div class="lbl-row" style="margin-bottom:6px;">
+            <span data-i18n="lblQuickTime">Simulate Time Passing (D2)</span>
+            <button type="button" class="help-btn" data-help="d2Idle" aria-label="Time Passing Help">?</button>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button id="quickIdle14Btn" class="btn" style="flex:1;" type="button" data-i18n="btnQuickIdle14">+14h Night Rest</button>
+            <button id="quickIdle36Btn" class="btn" style="flex:1;" type="button" data-i18n="btnQuickIdle36">+36h Weekend Away</button>
+          </div>
+          <div id="simpleIdleHintBox" class="muted" style="margin-top:7px;"></div>
+        </div>
+
+        <!-- Detailed D4 Telemetry -->
+        <div class="detailed-only">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <div class="lbl-row" style="margin:0;">
+              <span data-i18n="hdrTelemetry">D4 Redacted Telemetry</span>
+              <button type="button" class="help-btn" data-help="d4Telemetry" aria-label="D4 Telemetry Help">?</button>
+            </div>
             <span id="d4Badge" class="pill ok">d4Redacted: -</span>
-            <button id="refreshTelBtn" class="btn sm" type="button">↻</button>
           </div>
-        </div>
-        <div class="metric-grid">
-          <div class="metric-box">
-            <div class="metric-lbl">affectiveBand</div>
-            <div class="metric-val" id="telBand">-</div>
+          <div class="metric-grid">
+            <div class="metric-box">
+              <div class="metric-lbl">affectiveBand</div>
+              <div class="metric-val" id="telBand">-</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-lbl">fepMode</div>
+              <div class="metric-val" id="telFepMode">-</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-lbl">freeEnergy</div>
+              <div class="metric-val" id="telFreeEnergy">-</div>
+              <div class="bar-track"><div id="barFreeEnergy" class="bar-fill" style="width:0%;"></div></div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-lbl">KV Prefix Cache</div>
+              <div class="metric-val" id="telKvCache">-</div>
+              <div class="bar-track"><div id="barKvCache" class="bar-fill" style="width:0%;"></div></div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-lbl">somaticTrend</div>
+              <div class="metric-val" id="telSomatic">-</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-lbl">Epochs / Memories</div>
+              <div class="metric-val" id="telEpochs">-</div>
+            </div>
           </div>
-          <div class="metric-box">
-            <div class="metric-lbl">fepMode</div>
-            <div class="metric-val" id="telFepMode">-</div>
+          <div class="muted" style="margin-top:8px;" data-i18n="d4Notice">
+            D4 Firewall: Layer 0–1 internal endocrine/unconscious vectors are strictly redacted.
           </div>
-          <div class="metric-box">
-            <div class="metric-lbl">freeEnergy</div>
-            <div class="metric-val" id="telFreeEnergy">-</div>
-            <div class="bar-track"><div id="barFreeEnergy" class="bar-fill" style="width:0%;"></div></div>
-          </div>
-          <div class="metric-box">
-            <div class="metric-lbl">KV Prefix Cache</div>
-            <div class="metric-val" id="telKvCache">-</div>
-            <div class="bar-track"><div id="barKvCache" class="bar-fill" style="width:0%;"></div></div>
-          </div>
-          <div class="metric-box">
-            <div class="metric-lbl">somaticTrend</div>
-            <div class="metric-val" id="telSomatic">-</div>
-          </div>
-          <div class="metric-box">
-            <div class="metric-lbl">Epochs / Memories</div>
-            <div class="metric-val" id="telEpochs">-</div>
-          </div>
-        </div>
-        <div class="muted" style="margin-top:8px;" data-i18n="d4Notice">
-          D4 Firewall: Layer 0–1 internal endocrine/unconscious vectors are strictly redacted.
         </div>
       </div>
 
-      <div class="card">
+      <!-- DETAILED ONLY: Full D2 Circadian Controls -->
+      <div class="card detailed-only">
         <div class="card-hdr">
-          <div class="card-title" data-i18n="hdrIdle">D2 Circadian Idle Tick</div>
+          <div class="card-title">
+            <span data-i18n="hdrIdle">D2 Circadian Idle Tick</span>
+            <button type="button" class="help-btn" data-help="d2Idle" aria-label="Idle Tick Help">?</button>
+          </div>
           <span class="pill">POST /idle-tick</span>
         </div>
         <div class="row-2">
@@ -636,20 +1139,28 @@
         <div id="idleResultBox" class="muted" style="margin-top:8px;"></div>
       </div>
 
+      <!-- Remembered Facts & D3 Atomic Forget (Always Visible) -->
       <div class="card">
         <div class="card-hdr">
-          <div class="card-title" data-i18n="hdrD3">D3 Active Memories &amp; Atomic Forget</div>
-          <span class="pill danger">DELETE /memories/:id</span>
+          <div class="card-title">
+            <span data-i18n="hdrD3">What I Remember (D3 Forget)</span>
+            <button type="button" class="help-btn" data-help="d3Memory" aria-label="Memory Revocation Help">?</button>
+          </div>
+          <span class="pill danger detailed-only">DELETE /memories/:id</span>
         </div>
         <div id="memoriesList" class="mem-list">
-          <div class="muted" data-i18n="emptyMemories">No active memories for this Mind.</div>
+          <div class="muted" data-i18n="emptyMemories">No stored memories yet. Teach me something in chat!</div>
         </div>
         <div id="revocationReceiptBox" class="muted" style="margin-top:8px;"></div>
       </div>
 
-      <div class="card">
+      <!-- DETAILED ONLY: Raw JSON Inspector -->
+      <div class="card detailed-only">
         <div class="card-hdr">
-          <div class="card-title" data-i18n="hdrInspector">Raw JSON Inspector</div>
+          <div class="card-title">
+            <span data-i18n="hdrInspector">Raw JSON Inspector</span>
+            <button type="button" class="help-btn" data-help="rawJson" aria-label="Raw JSON Help">?</button>
+          </div>
           <div style="display:flex;gap:4px;">
             <button class="btn sm json-tab" type="button" data-tab="last">Last</button>
             <button class="btn sm json-tab" type="button" data-tab="prepare">Prep</button>
@@ -662,110 +1173,756 @@
     </section>
   </main>
 
+  <!-- Floating ? Help Popover -->
+  <div id="helpPopover" class="help-popover hidden" role="dialog" aria-live="polite">
+    <div class="help-pop-hdr">
+      <div id="helpPopTitle" class="help-pop-title"></div>
+      <button id="helpPopCloseBtn" class="help-pop-close" type="button" aria-label="Close">×</button>
+    </div>
+    <div id="helpPopBody" class="help-pop-body"></div>
+    <div id="helpPopTip" class="help-pop-tip hidden"></div>
+  </div>
+
   <script>
     (function () {
       'use strict';
 
       var I18N = {
-        ko: {
-          title: 'Artificial Mind Engine — 라이브 인터랙티브 데모 콘솔',
-          subtitle: '무상태 LLM 핫스왑 • Mode A/B • D2 일주기 • D3 원자적 망각 • D4 무의식 방화벽',
-          btnHealth: '상태확인',
-          hdrMinds: '1. 활성 Mind 목록',
-          btnReload: '새로고침',
-          emptyMinds: '아직 Mind가 없습니다. 아래에서 새 Mind를 생성하세요.',
-          hdrCreate: '2. 격리 Mind 생성',
-          lblDomain: '도메인',
-          lblLang: '언어',
-          lblName: '페르소나 이름',
-          lblRole: '역할',
-          lblBackstory: '배경 설정',
-          lblSchemaName: '커스텀 스키마 이름',
-          lblSchemaFields: '필드 (쉼표 구분)',
-          btnCreateMind: 'Mind 생성',
-          hdrLlm: '3. LLM 핫스왑 & 실행 모드',
-          lblExecMode: '실행 모드',
-          lblProvider: 'LLM 프로바이더',
-          lblModel: '모델명',
-          lblLlmKey: '임시 LLM API Key (Mode A 전용, 저장 안 됨)',
-          lblBaseUrl: '선택적 Base URL (openai-compat / 프록시)',
-          hdrTurn: '4. 인지 턴 컴포저',
-          lblPresets: 'VC 데모 시나리오 프리셋',
-          lblUserInput: '사용자 입력',
-          lblReward: '보상 신호 (선택, -1000..1000)',
-          lblTags: '결과 태그 (쉼표 구분)',
-          btnSendModeA: '턴 실행 (Mode A)',
-          btnPrepare: 'Mode B: 1단계 Prepare',
-          hdrModeBStage: 'Mode B Zero-Key 준비 티켓',
-          lblSysPrompt: 'Prefix 고정 System Prompt (읽기 전용)',
-          lblRawReply: '클라이언트 LLM 원문 응답 (/settle 전 편집 가능)',
-          btnSettle: 'Mode B: 2단계 Settle',
-          hdrTimeline: '턴 & 감사 타임라인',
-          btnClear: '화면 비우기',
-          emptyTimeline: '턴을 실행하거나 D2/D3 액션을 누르면 상태 변화가 표시됩니다.',
-          hdrTelemetry: 'D4 무의식 방화벽 텔레메트리',
-          d4Notice: 'D4 방화벽: Layer 0–1 내부 내분비·무의식 벡터는 엄격히 차단됩니다.',
-          hdrIdle: 'D2 오프라인 일주기 Idle Tick',
-          lblIdleHours: '경과 시간 (0..720시간)',
-          lblIdleReason: '사유',
-          btnIdleTick: 'Idle Tick 실행',
-          hdrD3: 'D3 활성 기억 & 원자적 망각',
-          emptyMemories: '이 Mind에 저장된 활성 기억이 없습니다.',
-          hdrInspector: 'Raw JSON 인스펙터'
-        },
         en: {
-          title: 'Artificial Mind Engine — Live Interactive Console',
-          subtitle: 'Stateless LLM Hot-Swap • Mode A/B • D2 Circadian • D3 Atomic Forget • D4 Redacted Telemetry',
+          pageTitle: 'Artificial Mind Engine — Interactive Chat Demo',
+          title: 'Artificial Mind Engine — Interactive Chat Demo',
+          subtitle: 'Persistent Memory • Safe Boundaries • Atomic Forget (0% Leak)',
+          modeSimple: 'Simple',
+          modeDetailed: 'Detailed',
           btnHealth: 'Health',
-          hdrMinds: '1. Active Minds',
+          hdrQuickGuide: 'Quick Start Guide',
+          btnHide: 'Hide',
+          btnShow: 'Show',
+          guideStep1: 'Click a character card below (or start typing directly).',
+          guideStep2: 'Chat back and forth—use the suggested replies to test memory & safety fast.',
+          guideStep3: 'Try "+14h Time Passes" or "Forget" on the right to see real-time state updates.',
+          hdrCharCards: '1. Choose a Character',
+          hdrMinds: '2. Active Chats',
           btnReload: 'Reload',
-          emptyMinds: 'No Minds yet. Create one below.',
-          hdrCreate: '2. Create Isolated Mind',
+          emptyMinds: 'No active chats yet. Pick a character above to begin!',
+          hdrCreate: 'Custom Mind Builder',
           lblDomain: 'Domain',
-          lblLang: 'Language',
+          lblLang: 'Character Language',
           lblName: 'Persona Name',
           lblRole: 'Role',
           lblBackstory: 'Backstory',
           lblSchemaName: 'Custom Schema Name',
           lblSchemaFields: 'Fields (comma-separated)',
-          btnCreateMind: 'Create Mind',
-          hdrLlm: '3. LLM Hot-Swap & Mode',
+          lblSafetyPolicy: 'Safety Policies',
+          btnCreateMind: 'Create Custom Mind',
+          hdrLlm: 'LLM Hot-Swap & Mode',
           lblExecMode: 'Execution Mode',
           lblProvider: 'Provider',
           lblModel: 'Model',
-          lblLlmKey: 'Ephemeral LLM API Key (Mode A only, never stored)',
+          lblLlmKey: 'Ephemeral LLM API Key (never stored)',
           lblBaseUrl: 'Optional Base URL (openai-compat / proxy)',
-          hdrTurn: '4. Cognitive Turn Composer',
-          lblPresets: 'VC Demo Scenario Presets',
-          lblUserInput: 'User Input',
-          lblReward: 'Reward Signal (optional, -1000..1000)',
+          btnClear: 'Clear Chat',
+          tour1: '1. Teach Secret',
+          tour2: '2. Ask Recall',
+          tour3: '3. Forget (D3)',
+          tour4: '4. Verify 0% Leak',
+          lblNextTry: 'What to say / try next:',
+          phUserInput: 'Type a message and press Enter to chat (Shift+Enter for new line)...',
+          btnSend: 'Send',
+          btnPrepare: 'Mode B: Prepare',
+          lblReward: 'Reward Signal (-1000..1000)',
           lblTags: 'Outcome Tags (comma-separated)',
-          btnSendModeA: 'Send Turn (Mode A)',
-          btnPrepare: 'Mode B: 1. Prepare',
           hdrModeBStage: 'Mode B Zero-Key Prepared Ticket',
           lblSysPrompt: 'Prefix-Aligned System Prompt (read-only)',
           lblRawReply: 'Client LLM Raw Reply (editable before /settle)',
           btnSettle: 'Mode B: 2. Settle Turn',
-          hdrTimeline: 'Turn & Audit Timeline',
-          btnClear: 'Clear View',
-          emptyTimeline: 'Run a turn, idle-tick, or D3 revocation to inspect live cognitive state transitions.',
+          hdrStatus: 'Character Status & Time',
+          lblQuickTime: 'Simulate Time Passing (D2)',
+          btnQuickIdle14: '+14h Night Rest',
+          btnQuickIdle36: '+36h Weekend Away',
           hdrTelemetry: 'D4 Redacted Telemetry',
           d4Notice: 'D4 Firewall: Layer 0–1 internal endocrine/unconscious vectors are strictly redacted.',
           hdrIdle: 'D2 Circadian Idle Tick',
           lblIdleHours: 'Elapsed Hours (0..720)',
           lblIdleReason: 'Reason',
           btnIdleTick: 'Trigger Idle Tick',
-          hdrD3: 'D3 Active Memories & Atomic Forget',
-          emptyMemories: 'No active memories for this Mind.',
-          hdrInspector: 'Raw JSON Inspector'
+          hdrD3: 'What I Remember (D3 Forget)',
+          emptyMemories: 'No stored memories yet. Teach me something in chat!',
+          btnForget: 'Forget',
+          hdrInspector: 'Raw JSON Inspector',
+          statusOnline: 'sandbox-contract online',
+          statusOffline: 'offline',
+          readyText: 'Ready — click a starter or type a message',
+          turnsUnit: 'turns',
+          memoriesUnit: 'memories',
+          youLabel: 'You',
+          welcomeTitle: 'Start chatting continuously!',
+          welcomeBody: 'Say hello, teach a secret code, or click any quick reply button below. Switch between Simple and Detailed mode anytime in the top bar.',
+          tagSaved: 'Memory Saved',
+          tagAbstained: 'HOT Abstained',
+          tagCaution: 'Caution Lock',
+          tagPos: 'Trust +',
+          tagNeg: 'Caution -',
+          tagLeakZero: '0.00% Leak Verified',
+          structuredToggle: 'Inspect Structured Output & Metrics',
+          hintStart: 'Step 1: Try teaching the character a secret code or saying hi.',
+          hintAfterSecret: 'Step 2: Now ask your character what the secret code was!',
+          hintAfterRecall: 'Step 3: Click "Forget" next to the memory on the right to erase it.',
+          hintAfterRevoke: 'Step 4: Ask for the secret code again to verify 0% leak!',
+          hintDone: 'Great! All 4 core Mind OS features verified—keep chatting freely.',
+          idleBanner: 'Time passed',
+          revokeBanner: 'Atomically Forgotten (D3)',
+          moods: { steady: 'Calm', warm: 'Warm', alert: 'Alert', guarded: 'Guarded', reflective: 'Reflective' },
+          trusts: { neutral: 'Neutral rapport', positive_reinforcement: 'High trust', aversive_caution: 'Cautious boundary' }
+        },
+        ko: {
+          pageTitle: 'Artificial Mind Engine — 대화형 라이브 데모',
+          title: 'Artificial Mind Engine — 대화형 라이브 데모',
+          subtitle: '지속 기억 • 안전 경계 • 원자적 망각 (0% 누출)',
+          modeSimple: '간단 메뉴',
+          modeDetailed: '자세한 메뉴',
+          btnHealth: '상태확인',
+          hdrQuickGuide: '초보자 빠른 사용법',
+          btnHide: '접기',
+          btnShow: '펼치기',
+          guideStep1: '아래 캐릭터 카드 중 하나를 누르거나 바로 채팅창에 말을 거세요.',
+          guideStep2: '서로 대화를 주고받으며 추천 버튼을 누르면 기억·안전 기능을 바로 체험합니다.',
+          guideStep3: '오른쪽 "+14시간 경과" 또는 "즉시 망각" 버튼으로 상태 변화를 확인하세요.',
+          hdrCharCards: '1. 캐릭터 고르기',
+          hdrMinds: '2. 진행 중인 대화',
+          btnReload: '새로고침',
+          emptyMinds: '아직 대화가 없습니다. 위 캐릭터 카드를 눌러 시작하세요!',
+          hdrCreate: '커스텀 Mind 직접 생성',
+          lblDomain: '도메인',
+          lblLang: '캐릭터 언어',
+          lblName: '페르소나 이름',
+          lblRole: '역할',
+          lblBackstory: '배경 설정',
+          lblSchemaName: '커스텀 스키마 이름',
+          lblSchemaFields: '필드 (쉼표 구분)',
+          lblSafetyPolicy: '안전 정책',
+          btnCreateMind: 'Mind 생성',
+          hdrLlm: 'LLM 핫스왑 & 실행 모드',
+          lblExecMode: '실행 모드',
+          lblProvider: 'LLM 프로바이더',
+          lblModel: '모델명',
+          lblLlmKey: '임시 LLM API Key (저장 안 됨)',
+          lblBaseUrl: '선택적 Base URL (openai-compat / 프록시)',
+          btnClear: '대화 비우기',
+          tour1: '1. 비밀 알려주기',
+          tour2: '2. 기억 물어보기',
+          tour3: '3. 기억 지우기',
+          tour4: '4. 0% 누출 확인',
+          lblNextTry: '다음으로 할 말 / 추천 액션:',
+          phUserInput: '메시지를 입력하고 Enter로 바로 대화하세요 (줄바꿈 Shift+Enter)...',
+          btnSend: '보내기',
+          btnPrepare: 'Mode B: Prepare',
+          lblReward: '보상 신호 (-1000..1000)',
+          lblTags: '결과 태그 (쉼표 구분)',
+          hdrModeBStage: 'Mode B Zero-Key 준비 티켓',
+          lblSysPrompt: 'Prefix 고정 System Prompt (읽기 전용)',
+          lblRawReply: '클라이언트 LLM 원문 응답 (/settle 전 편집 가능)',
+          btnSettle: 'Mode B: 2단계 Settle',
+          hdrStatus: '캐릭터 상태 & 시간 경과',
+          lblQuickTime: '시간 경과 테스트 (D2 일주기)',
+          btnQuickIdle14: '+14시간 밤 휴식',
+          btnQuickIdle36: '+36시간 주말 공백',
+          hdrTelemetry: 'D4 무의식 방화벽 텔레메트리',
+          d4Notice: 'D4 방화벽: Layer 0–1 내부 내분비·무의식 벡터는 엄격히 차단됩니다.',
+          hdrIdle: 'D2 오프라인 일주기 Idle Tick',
+          lblIdleHours: '경과 시간 (0..720시간)',
+          lblIdleReason: '사유',
+          btnIdleTick: 'Idle Tick 실행',
+          hdrD3: '기억하고 있는 내용 (D3 망각)',
+          emptyMemories: '아직 저장된 기억이 없습니다. 채팅으로 알려주세요!',
+          btnForget: '즉시 망각',
+          hdrInspector: 'Raw JSON 인스펙터',
+          statusOnline: '샌드박스 서버 연결됨',
+          statusOffline: '오프라인',
+          readyText: '대화 준비 완료 — 메시지를 입력하거나 추천 버튼을 누르세요',
+          turnsUnit: '턴',
+          memoriesUnit: '개 기억',
+          youLabel: '나 (사용자)',
+          welcomeTitle: '채팅으로 바로 대화를 시작해 보세요!',
+          welcomeBody: '인사하거나 비밀 코드를 알려주고 계속 대화를 주고받아 보세요. 상단의 "간단 메뉴 / 자세한 메뉴"로 화면 상세도를 언제든 바꿀 수 있습니다.',
+          tagSaved: '기억 저장됨',
+          tagAbstained: 'HOT 안전 보류',
+          tagCaution: '신중 경계 잠금',
+          tagPos: '신뢰 +',
+          tagNeg: '경계 -',
+          tagLeakZero: '잔존 0.00% 검증',
+          structuredToggle: '구조화 출력 및 상세 지표 보기',
+          hintStart: '1단계: 먼저 비밀 코드(ZEBRA-404)를 캐릭터에게 알려주거나 인사를 건네세요.',
+          hintAfterSecret: '2단계: 이제 방금 알려준 비밀 코드가 뭐였는지 물어보세요!',
+          hintAfterRecall: '3단계: 오른쪽 기억 목록에서 "즉시 망각"을 눌러 기억을 파기해 보세요.',
+          hintAfterRevoke: '4단계: 지워진 비밀 코드를 다시 물어봐 0% 누출을 확인하세요!',
+          hintDone: '완료! 4단계 핵심 기능을 모두 체험했습니다. 계속 자유롭게 대화해 보세요.',
+          idleBanner: '시간 경과 반영',
+          revokeBanner: 'D3 원자적 망각 완료',
+          moods: { steady: '안정적', warm: '따뜻함', alert: '긴장·주의', guarded: '경계 중', reflective: '성찰 중' },
+          trusts: { neutral: '중립적 관계', positive_reinforcement: '긍정적 신뢰', aversive_caution: '손실 회피·신중' }
+        },
+        ja: {
+          pageTitle: 'Artificial Mind Engine — 対話型ライブデモ',
+          title: 'Artificial Mind Engine — 対話型ライブデモ',
+          subtitle: '長期記憶 • 安全境界 • 原子的忘却 (漏洩 0%)',
+          modeSimple: 'シンプル表示',
+          modeDetailed: '詳細表示',
+          btnHealth: '接続確認',
+          hdrQuickGuide: 'かんたん使い方ガイド',
+          btnHide: '閉じる',
+          btnShow: '開く',
+          guideStep1: '下のキャラクターを選ぶか、そのままチャット欄に入力します。',
+          guideStep2: '会話を往復させながらおすすめボタンで記憶・安全機能を試せます。',
+          guideStep3: '右側の「+14時間経過」や「忘却」でリアルタイム変化を確認できます。',
+          hdrCharCards: '1. キャラクターを選ぶ',
+          hdrMinds: '2. 進行中のチャット',
+          btnReload: '更新',
+          emptyMinds: 'まだチャットがありません。上のカードを選んで開始してください。',
+          hdrCreate: 'カスタム Mind 作成',
+          lblDomain: 'ドメイン',
+          lblLang: 'キャラクター言語',
+          lblName: '名前',
+          lblRole: '役割',
+          lblBackstory: '背景設定',
+          lblSchemaName: 'カスタムスキーマ名',
+          lblSchemaFields: '項目 (カンマ区切り)',
+          lblSafetyPolicy: '安全ポリシー',
+          btnCreateMind: 'Mind を作成',
+          hdrLlm: 'LLM ホットスワップ & モード',
+          lblExecMode: '実行モード',
+          lblProvider: 'プロバイダー',
+          lblModel: 'モデル名',
+          lblLlmKey: '一時 LLM API Key (保存されません)',
+          lblBaseUrl: '任意 Base URL (openai-compat / プロキシ)',
+          btnClear: '履歴クリア',
+          tour1: '1. 秘密を教える',
+          tour2: '2. 記憶を質問',
+          tour3: '3. 忘却 (D3)',
+          tour4: '4. 漏洩 0% 確認',
+          lblNextTry: '次に送るメッセージ候補:',
+          phUserInput: 'メッセージを入力して Enter で送信 (改行は Shift+Enter)...',
+          btnSend: '送信',
+          btnPrepare: 'Mode B: Prepare',
+          lblReward: '報酬シグナル (-1000..1000)',
+          lblTags: '結果タグ (カンマ区切り)',
+          hdrModeBStage: 'Mode B Zero-Key 準備チケット',
+          lblSysPrompt: '固定プレフィックス System Prompt (読み取り専用)',
+          lblRawReply: 'クライアント LLM 生応答 (/settle 前に編集可)',
+          btnSettle: 'Mode B: 2. Settle 確定',
+          hdrStatus: 'キャラクター状態 & 時間経過',
+          lblQuickTime: '時間経過シミュレーション (D2)',
+          btnQuickIdle14: '+14時間 夜間休息',
+          btnQuickIdle36: '+36時間 週末経過',
+          hdrTelemetry: 'D4 匿名化テレメトリ',
+          d4Notice: 'D4 防火壁: Layer 0–1 の内部内分泌・無意識ベクトルは厳密に遮断されます。',
+          hdrIdle: 'D2 サーカディアン Idle Tick',
+          lblIdleHours: '経過時間 (0..720時間)',
+          lblIdleReason: '理由',
+          btnIdleTick: 'Idle Tick 実行',
+          hdrD3: '覚えている記憶 (D3 忘却)',
+          emptyMemories: '記憶はまだありません。会話で何か教えてください。',
+          btnForget: '忘却 (D3)',
+          hdrInspector: 'Raw JSON インスペクタ',
+          statusOnline: 'サンドボックス接続中',
+          statusOffline: 'オフライン',
+          readyText: '準備完了 — 会話を始めましょう',
+          turnsUnit: 'ターン',
+          memoriesUnit: '件の記憶',
+          youLabel: 'あなた',
+          welcomeTitle: '連続チャットで機能を体験しましょう！',
+          welcomeBody: '挨拶したり秘密コードを教えたりして、何ターンでも会話を続けられます。右上のボタンでシンプル／詳細を切り替えられます。',
+          tagSaved: '記憶を保存',
+          tagAbstained: 'HOT 安全保留',
+          tagCaution: '慎重ロック',
+          tagPos: '信頼 +',
+          tagNeg: '警戒 -',
+          tagLeakZero: '残存 0.00% 検証済',
+          structuredToggle: '構造化出力と詳細指標を見る',
+          hintStart: 'Step 1: まず秘密コード(ZEBRA-404)を教えるか挨拶してみましょう。',
+          hintAfterSecret: 'Step 2: さきほど教えた秘密コードを覚えてるか質問してみましょう！',
+          hintAfterRecall: 'Step 3: 右側の記憶一覧から「忘却」を押して削除してみましょう。',
+          hintAfterRevoke: 'Step 4: 削除後に同じ秘密を質問し、漏洩 0% を確認しましょう！',
+          hintDone: '完了！主要 4 ステップを確認しました。自由に会話を続けられます。',
+          idleBanner: '時間経過を反映',
+          revokeBanner: 'D3 原子的に忘却完了',
+          moods: { steady: '安定', warm: '温厚', alert: '警戒', guarded: '防御', reflective: '内省' },
+          trusts: { neutral: '中立', positive_reinforcement: '良好な信頼', aversive_caution: '損失回避・慎重' }
+        },
+        'zh-CN': {
+          pageTitle: 'Artificial Mind Engine — 交互式对话演示',
+          title: 'Artificial Mind Engine — 交互式对话演示',
+          subtitle: '长期记忆 • 安全边界 • 原子遗忘 (0% 残留)',
+          modeSimple: '简洁菜单',
+          modeDetailed: '详细菜单',
+          btnHealth: '状态检查',
+          hdrQuickGuide: '新手快速指南',
+          btnHide: '收起',
+          btnShow: '展开',
+          guideStep1: '点击下方任意角色卡片，或直接在输入框开始对话。',
+          guideStep2: '与角色连续多轮对话，点击推荐消息即可快速体验记忆与安全护栏。',
+          guideStep3: '点击右侧“+14小时”或“立即遗忘”，实时观察角色记忆与状态变化。',
+          hdrCharCards: '1. 选择对话角色',
+          hdrMinds: '2. 当前对话列表',
+          btnReload: '刷新',
+          emptyMinds: '暂无对话。点击上方角色卡片即可开始！',
+          hdrCreate: '自定义 Mind 创建',
+          lblDomain: '领域',
+          lblLang: '角色语言',
+          lblName: '角色名称',
+          lblRole: '角色定位',
+          lblBackstory: '背景设定',
+          lblSchemaName: '自定义 Schema 名称',
+          lblSchemaFields: '字段 (逗号分隔)',
+          lblSafetyPolicy: '安全策略',
+          btnCreateMind: '创建 Mind',
+          hdrLlm: 'LLM 热切换与执行模式',
+          lblExecMode: '执行模式',
+          lblProvider: '模型提供商',
+          lblModel: '模型名称',
+          lblLlmKey: '临时 LLM API Key (绝不存储)',
+          lblBaseUrl: '可选 Base URL (openai-compat / 代理)',
+          btnClear: '清空对话',
+          tour1: '1. 告诉秘密',
+          tour2: '2. 记忆召回',
+          tour3: '3. 原子遗忘',
+          tour4: '4. 验证 0 泄露',
+          lblNextTry: '下一步可以这样聊 / 尝试:',
+          phUserInput: '输入消息并按 Enter 发送对话 (换行请按 Shift+Enter)...',
+          btnSend: '发送',
+          btnPrepare: 'Mode B: Prepare',
+          lblReward: '奖惩信号 (-1000..1000)',
+          lblTags: '结果标签 (逗号分隔)',
+          hdrModeBStage: 'Mode B 零密钥预备凭据',
+          lblSysPrompt: '前缀对齐 System Prompt (只读)',
+          lblRawReply: '客户端 LLM 原始回复 (/settle 前可编辑)',
+          btnSettle: 'Mode B: 2. 结算回合',
+          hdrStatus: '角色状态与时间推进',
+          lblQuickTime: '模拟时间流逝 (D2 昼夜节律)',
+          btnQuickIdle14: '+14小时 夜间休息',
+          btnQuickIdle36: '+36小时 周末离线',
+          hdrTelemetry: 'D4 脱敏遥测指标',
+          d4Notice: 'D4 防火墙：Layer 0–1 内部内分泌与潜意识向量已严格屏蔽。',
+          hdrIdle: 'D2 离线昼夜节律 Idle Tick',
+          lblIdleHours: '经过小时数 (0..720)',
+          lblIdleReason: '原因',
+          btnIdleTick: '触发 Idle Tick',
+          hdrD3: '角色当前记忆 (D3 遗忘)',
+          emptyMemories: '尚无记忆，请在聊天中教给角色一些信息！',
+          btnForget: '遗忘 (D3)',
+          hdrInspector: 'Raw JSON 检查器',
+          statusOnline: '沙盒服务在线',
+          statusOffline: '离线',
+          readyText: '已就绪 — 请直接对话或点击推荐消息',
+          turnsUnit: '轮',
+          memoriesUnit: '条记忆',
+          youLabel: '你',
+          welcomeTitle: '像聊天一样连续体验 AME！',
+          welcomeBody: '和角色打招呼、分享秘密代码或提问，可以持续多轮交互。顶部随时可切换“简洁/详细”菜单。',
+          tagSaved: '记忆已存',
+          tagAbstained: 'HOT 安全拒答',
+          tagCaution: '谨慎锁定',
+          tagPos: '信任 +',
+          tagNeg: '警惕 -',
+          tagLeakZero: '0.00% 残留已验证',
+          structuredToggle: '查看结构化输出与详细指标',
+          hintStart: '第1步：先告诉角色一个秘密代码(ZEBRA-404)或打个招呼。',
+          hintAfterSecret: '第2步：现在问角色刚才提到的秘密代码是什么！',
+          hintAfterRecall: '第3步：在右侧记忆列表中点击“遗忘”彻底清除它。',
+          hintAfterRevoke: '第4步：再次询问秘密代码，验证 0% 残留！',
+          hintDone: '完成！4个核心功能已全部验证，可继续自由聊天。',
+          idleBanner: '已更新离线时间',
+          revokeBanner: 'D3 原子遗忘完成',
+          moods: { steady: '平稳', warm: '温暖', alert: '警觉', guarded: '防备', reflective: '沉思' },
+          trusts: { neutral: '中立关系', positive_reinforcement: '正向信任', aversive_caution: '谨慎避险' }
+        },
+        'zh-TW': {
+          pageTitle: 'Artificial Mind Engine — 互動式對話示範',
+          title: 'Artificial Mind Engine — 互動式對話示範',
+          subtitle: '長期記憶 • 安全邊界 • 原子遺忘 (0% 殘留)',
+          modeSimple: '簡易選單',
+          modeDetailed: '詳細選單',
+          btnHealth: '狀態檢查',
+          hdrQuickGuide: '新手快速指南',
+          btnHide: '收合',
+          btnShow: '展開',
+          guideStep1: '點擊下方任一角色卡片，或直接在聊天欄輸入訊息開始對話。',
+          guideStep2: '與角色連續來回對話，點擊推薦按鈕即可快速體驗記憶與安全防護。',
+          guideStep3: '點擊右側「+14小時」或「立即遺忘」，即時觀察狀態與記憶變化。',
+          hdrCharCards: '1. 選擇對話角色',
+          hdrMinds: '2. 進行中的對話',
+          btnReload: '重新整理',
+          emptyMinds: '尚無對話。點擊上方角色卡片即可開始！',
+          hdrCreate: '自訂 Mind 建立',
+          lblDomain: '領域',
+          lblLang: '角色語言',
+          lblName: '角色名稱',
+          lblRole: '角色定位',
+          lblBackstory: '背景設定',
+          lblSchemaName: '自訂 Schema 名稱',
+          lblSchemaFields: '欄位 (逗號分隔)',
+          lblSafetyPolicy: '安全策略',
+          btnCreateMind: '建立 Mind',
+          hdrLlm: 'LLM 熱切換與執行模式',
+          lblExecMode: '執行模式',
+          lblProvider: '模型供應商',
+          lblModel: '模型名稱',
+          lblLlmKey: '暫時性 LLM API Key (絕不儲存)',
+          lblBaseUrl: '選用 Base URL (openai-compat / 代理)',
+          btnClear: '清除對話',
+          tour1: '1. 告知秘密',
+          tour2: '2. 詢問記憶',
+          tour3: '3. 原子遺忘',
+          tour4: '4. 驗證 0 洩漏',
+          lblNextTry: '接下來可以這樣說 / 嘗試:',
+          phUserInput: '輸入訊息並按 Enter 送出對話 (換行按 Shift+Enter)...',
+          btnSend: '送出',
+          btnPrepare: 'Mode B: Prepare',
+          lblReward: '獎懲訊號 (-1000..1000)',
+          lblTags: '結果標籤 (逗號分隔)',
+          hdrModeBStage: 'Mode B 零金鑰準備憑證',
+          lblSysPrompt: '前綴對齊 System Prompt (唯讀)',
+          lblRawReply: '用戶端 LLM 原始回覆 (/settle 前可編輯)',
+          btnSettle: 'Mode B: 2. 結算回合',
+          hdrStatus: '角色狀態與時間推進',
+          lblQuickTime: '模擬時間流逝 (D2 生理節律)',
+          btnQuickIdle14: '+14小時 夜間休息',
+          btnQuickIdle36: '+36小時 週末離線',
+          hdrTelemetry: 'D4 去識別化遙測指標',
+          d4Notice: 'D4 防火牆：Layer 0–1 內部內分泌與潛意識向量已嚴格屏蔽。',
+          hdrIdle: 'D2 離線節律 Idle Tick',
+          lblIdleHours: '經過小時數 (0..720)',
+          lblIdleReason: '原因',
+          btnIdleTick: '觸發 Idle Tick',
+          hdrD3: '角色記得的內容 (D3 遺忘)',
+          emptyMemories: '尚無記憶，請在對話中告訴角色一些資訊！',
+          btnForget: '遺忘 (D3)',
+          hdrInspector: 'Raw JSON 檢查器',
+          statusOnline: '沙盒伺服器連線中',
+          statusOffline: '離線',
+          readyText: '已就緒 — 請直接對話或點擊推薦句子',
+          turnsUnit: '回合',
+          memoriesUnit: '筆記憶',
+          youLabel: '你',
+          welcomeTitle: '像聊天一樣連續體驗 AME！',
+          welcomeBody: '和角色打招呼、分享秘密代碼或提問，可以持續多回合互動。頂部隨時可切換「簡易／詳細」選單。',
+          tagSaved: '記憶已存',
+          tagAbstained: 'HOT 安全保留',
+          tagCaution: '謹慎鎖定',
+          tagPos: '信任 +',
+          tagNeg: '戒備 -',
+          tagLeakZero: '0.00% 殘留已驗證',
+          structuredToggle: '檢視結構化輸出與詳細指標',
+          hintStart: '步驟1：先告訴角色一個秘密代碼(ZEBRA-404)或打聲招呼。',
+          hintAfterSecret: '步驟2：現在問角色剛才提到的秘密代碼是什麼！',
+          hintAfterRecall: '步驟3：在右側記憶列表點擊「遺忘」徹底清除它。',
+          hintAfterRevoke: '步驟4：再次詢問秘密代碼，驗證 0% 殘留！',
+          hintDone: '完成！4項核心功能已全數驗證，歡迎繼續自由聊天。',
+          idleBanner: '已套用時間流逝',
+          revokeBanner: 'D3 原子遺忘完成',
+          moods: { steady: '平穩', warm: '溫暖', alert: '警覺', guarded: '防備', reflective: '沉思' },
+          trusts: { neutral: '中立關係', positive_reinforcement: '正向信任', aversive_caution: '謹慎避險' }
+        },
+        es: {
+          pageTitle: 'Artificial Mind Engine — Demo de Chat Interactivo',
+          title: 'Artificial Mind Engine — Demo de Chat Interactivo',
+          subtitle: 'Memoria Persistente • Límites Seguros • Olvido Atómico (0% Fuga)',
+          modeSimple: 'Modo Simple',
+          modeDetailed: 'Modo Detallado',
+          btnHealth: 'Estado',
+          hdrQuickGuide: 'Guía Rápida para Principiantes',
+          btnHide: 'Ocultar',
+          btnShow: 'Mostrar',
+          guideStep1: 'Elige una tarjeta de personaje abajo o escribe directamente en el chat.',
+          guideStep2: 'Conversa de forma continua y usa las sugerencias rápidas para probar cada función.',
+          guideStep3: 'Prueba "+14h" o "Olvidar (D3)" a la derecha para ver el estado en tiempo real.',
+          hdrCharCards: '1. Elegir Personaje',
+          hdrMinds: '2. Chats Activos',
+          btnReload: 'Recargar',
+          emptyMinds: 'Aún no hay chats. Elige un personaje arriba para empezar.',
+          hdrCreate: 'Constructor Personalizado de Mind',
+          lblDomain: 'Dominio',
+          lblLang: 'Idioma del Personaje',
+          lblName: 'Nombre',
+          lblRole: 'Rol',
+          lblBackstory: 'Historia',
+          lblSchemaName: 'Nombre del Esquema',
+          lblSchemaFields: 'Campos (separados por comas)',
+          lblSafetyPolicy: 'Políticas de Seguridad',
+          btnCreateMind: 'Crear Mind',
+          hdrLlm: 'Cambio en Caliente de LLM y Modo',
+          lblExecMode: 'Modo de Ejecución',
+          lblProvider: 'Proveedor',
+          lblModel: 'Modelo',
+          lblLlmKey: 'API Key Efímera de LLM (nunca se guarda)',
+          lblBaseUrl: 'Base URL Opcional (openai-compat / proxy)',
+          btnClear: 'Limpiar Chat',
+          tour1: '1. Dar Secreto',
+          tour2: '2. Recordar',
+          tour3: '3. Olvidar (D3)',
+          tour4: '4. Verificar 0%',
+          lblNextTry: 'Qué decir o probar ahora:',
+          phUserInput: 'Escribe un mensaje y pulsa Enter para chatear (Shift+Enter nueva línea)...',
+          btnSend: 'Enviar',
+          btnPrepare: 'Modo B: Preparar',
+          lblReward: 'Señal de Recompensa (-1000..1000)',
+          lblTags: 'Etiquetas (separadas por comas)',
+          hdrModeBStage: 'Ticket Preparado Modo B (Zero-Key)',
+          lblSysPrompt: 'System Prompt con Prefijo Estable (solo lectura)',
+          lblRawReply: 'Respuesta Cruda del LLM (editable antes de /settle)',
+          btnSettle: 'Modo B: 2. Confirmar Turno',
+          hdrStatus: 'Estado del Personaje y Tiempo',
+          lblQuickTime: 'Simular Paso del Tiempo (D2)',
+          btnQuickIdle14: '+14h Descanso',
+          btnQuickIdle36: '+36h Fin de Semana',
+          hdrTelemetry: 'Telemetría Redactada D4',
+          d4Notice: 'Cortafuegos D4: Los vectores internos inconscientes/endocrinos están estrictamente bloqueados.',
+          hdrIdle: 'Ciclo Circadiano D2 Idle Tick',
+          lblIdleHours: 'Horas Transcurridas (0..720)',
+          lblIdleReason: 'Motivo',
+          btnIdleTick: 'Ejecutar Idle Tick',
+          hdrD3: 'Lo que Recuerda (Olvido D3)',
+          emptyMemories: 'Sin recuerdos aún. Cuéntale algo en el chat.',
+          btnForget: 'Olvidar',
+          hdrInspector: 'Inspector Raw JSON',
+          statusOnline: 'sandbox-contract en línea',
+          statusOffline: 'sin conexión',
+          readyText: 'Listo — elige una sugerencia o escribe un mensaje',
+          turnsUnit: 'turnos',
+          memoriesUnit: 'recuerdos',
+          youLabel: 'Tú',
+          welcomeTitle: '¡Conversa de forma continua!',
+          welcomeBody: 'Saluda, enseña un código secreto o haz preguntas. Puedes alternar entre Modo Simple y Modo Detallado en la barra superior.',
+          tagSaved: 'Recuerdo Guardado',
+          tagAbstained: 'HOT Abstención',
+          tagCaution: 'Bloqueo Cautela',
+          tagPos: 'Confianza +',
+          tagNeg: 'Cautela -',
+          tagLeakZero: '0.00% Fuga Verificada',
+          structuredToggle: 'Ver Salida Estructurada y Métricas',
+          hintStart: 'Paso 1: Enseña el código secreto (ZEBRA-404) o saluda.',
+          hintAfterSecret: 'Paso 2: Pregúntale ahora cuál era tu código secreto.',
+          hintAfterRecall: 'Paso 3: Haz clic en "Olvidar" junto al recuerdo a la derecha.',
+          hintAfterRevoke: 'Paso 4: Pregunta de nuevo por el código para comprobar 0% de fuga.',
+          hintDone: '¡Listo! Probaste los 4 pasos clave; sigue conversando libremente.',
+          idleBanner: 'Tiempo simulado',
+          revokeBanner: 'Olvido Atómico D3',
+          moods: { steady: 'Sereno', warm: 'Cálido', alert: 'Alerta', guarded: 'Cauteloso', reflective: 'Reflexivo' },
+          trusts: { neutral: 'Relación neutral', positive_reinforcement: 'Confianza alta', aversive_caution: 'Límite cauteloso' }
         }
       };
 
-      var DOMAIN_PRESETS = {
-        companion_chat: { name: '다온', role: '근거 기반 AI 파트너', backstory: '대화의 기억과 안전 경계를 일관되게 유지하는 페르소나' },
-        game_npc: { name: '라온', role: '북부 성문 수비대장', backstory: '수년간 성문을 지켜온 신중하고 기억력이 뛰어난 경비병' },
-        counseling_coach: { name: '서연', role: '회복 중심 코치', backstory: '과잉 동조 없이 현실적인 한 걸음을 돕는 안전 코치' },
-        custom: { name: 'Validator', role: 'Custom Contract Mind', backstory: '사용자 정의 JSON 스키마를 준수하는 도메인 마인드' }
+      var CHAR_CARDS = {
+        en: [
+          { key: 'companion_chat', emoji: '💬', title: 'Sora — Partner', desc: 'Friendly companion who remembers facts accurately', name: 'Sora', role: 'Evidence-Grounded AI Partner', backstory: 'Maintains consistent memories and never makes up forgotten facts.', greet: 'Hi there! I am Sora. Tell me something to remember—or ask anything to test how I keep track of our conversation.' },
+          { key: 'game_npc', emoji: '🛡️', title: 'Alden — Gate Guard', desc: 'RPG watchman whose trust rises or falls dynamically', name: 'Alden', role: 'Northern Gate Watchman', backstory: 'Vigilant veteran guard who tracks promises, fair trades, and betrayals.', greet: 'Hail, traveler. I guard the Northern Gate. Speak plainly—your words and deeds shape whether I trust you.' },
+          { key: 'counseling_coach', emoji: '🧭', title: 'Dr. Han — Safety Coach', desc: 'Reflective coach that declines unsafe diagnosis or guesses', name: 'Dr. Han', role: 'Recovery & Safety Coach', backstory: 'Supports clarity while strictly abstaining from clinical diagnosis or predictions.', greet: 'Hello, I am Dr. Han. Share what is on your mind today, or test how I abstain cleanly on medical diagnosis and unverified predictions.' }
+        ],
+        ko: [
+          { key: 'companion_chat', emoji: '💬', title: '다온 — AI 파트너', desc: '기억과 안전 경계를 일관되게 지키는 대화 동반자', name: '다온', role: '근거 기반 AI 파트너', backstory: '대화의 기억과 안전 경계를 일관되게 유지하는 페르소나', greet: '안녕하세요, 다온입니다! 저에게 비밀이나 취향을 알려주시거나 자유롭게 대화를 이어가 보세요.' },
+          { key: 'game_npc', emoji: '🛡️', title: '라온 — 성문 경비병', desc: '플레이어의 보상·배신에 따라 신뢰와 태도가 변하는 NPC', name: '라온', role: '북부 성문 수비대장', backstory: '수년간 성문을 지켜온 신중하고 기억력이 뛰어난 경비병', greet: '멈추시오, 여행자. 북부 성문 수비대장 라온이오. 말과 행동에 따라 내 신뢰와 경계 태도가 달라질 것이오.' },
+          { key: 'counseling_coach', emoji: '🧭', title: '서연 — 안전 코치', desc: '의료 진단이나 무리한 미래 예측을 안전하게 거절하는 코치', name: '서연', role: '회복 중심 코치', backstory: '과잉 동조 없이 현실적인 한 걸음을 돕는 안전 코치', greet: '안녕하세요, 안전 코치 서연입니다. 편안하게 이야기를 나누거나 진단·예측 요청 시 어떻게 안전하게 답변을 보류하는지 테스트해 보세요.' }
+        ],
+        ja: [
+          { key: 'companion_chat', emoji: '💬', title: 'ソラ — パートナー', desc: '事実を正確に覚え、安全境界を守る会話パートナー', name: 'ソラ', role: '根拠重視 AI パートナー', backstory: '会話の記憶と安全な境界を一貫して保つパートナー。', greet: 'こんにちは、ソラです！覚えてほしい秘密や好みを教えていただくか、気軽に話しかけてください。' },
+          { key: 'game_npc', emoji: '🛡️', title: 'アルデン — 城門番', desc: '報酬や裏切りに応じて信頼度が変わるRPGキャラクター', name: 'アルデン', role: '北門の守備隊長', backstory: '長年にわたり城門を守り、約束や裏切りを正確に覚えている番人。', greet: '止まれ、旅人よ。私が北門の守備隊長アルデンだ。お前の言動次第で信頼も警戒も変わるぞ。' },
+          { key: 'counseling_coach', emoji: '🧭', title: 'ハナ — 安全コーチ', desc: '医学的診断や根拠なき予測を安全に保留するコーチ', name: 'ハナ', role: 'リカバリー・安全コーチ', backstory: '過度な同調を避け、現実的な一歩を安全に支援するコーチ。', greet: 'こんにちは、コーチのハナです。お悩みを話すほか、医療診断や将来予測をどう安全に保留するかテストできます。' }
+        ],
+        'zh-CN': [
+          { key: 'companion_chat', emoji: '💬', title: '晴空 — 伙伴', desc: '准确记忆关键事实并严守安全边界的AI伙伴', name: '晴空', role: '基于事实的 AI 伙伴', backstory: '始终准确保持记忆一致性，并诚实对待未知信息。', greet: '你好，我是晴空！可以告诉我一个秘密代码或偏好，也可以直接开始连续聊天。' },
+          { key: 'game_npc', emoji: '🛡️', title: '艾尔登 — 守门官', desc: '根据奖惩与背叛实时调整信任度的游戏NPC', name: '艾尔登', role: '北门守卫队长', backstory: '多年镇守北门，清楚记住每位冒险者的承诺与冲突。', greet: '站住，旅人。我是北门守卫艾尔登。你的每一句话都会影响我对你的信任或戒备。' },
+          { key: 'counseling_coach', emoji: '🧭', title: '韩医生 — 安全教练', desc: '严格拒绝未经证实的医疗诊断与未来预测', name: '韩医生', role: '康复与安全教练', backstory: '避免盲目迎合，并在超出安全范围时主动保留判断。', greet: '你好，我是韩医生。欢迎聊聊近况，也可以测试遇到医疗诊断或预测请求时系统如何安全拒答。' }
+        ],
+        'zh-TW': [
+          { key: 'companion_chat', emoji: '💬', title: '晴空 — 夥伴', desc: '準確記住重要事實並嚴守安全邊界的AI夥伴', name: '晴空', role: '基於事實的 AI 夥伴', backstory: '始終精準保持記憶一致性，並誠實面對未知資訊。', greet: '你好，我是晴空！可以告訴我一組秘密代碼或喜好，也可以直接開始連續對話。' },
+          { key: 'game_npc', emoji: '🛡️', title: '艾爾登 — 守門官', desc: '會隨獎懲與背叛即時改變信任態度的遊戲NPC', name: '艾爾登', role: '北門守衛隊長', backstory: '長年駐守北門，清楚記住每位旅人的承諾與衝突紀錄。', greet: '留步，旅人。我是北門守衛艾爾登。你的言行會即時改變我對你的信任與戒心。' },
+          { key: 'counseling_coach', emoji: '🧭', title: '韓教練 — 安全顧問', desc: '嚴格拒絕未經驗證的醫療診斷與未來預測', name: '韓教練', role: '復原與安全教練', backstory: '不盲目附和，並在超出安全範圍時主動保留判斷。', greet: '你好，我是韓教練。歡迎聊聊近況，也可以測試遇到醫療診斷或預測請求時如何安全保留回答。' }
+        ],
+        es: [
+          { key: 'companion_chat', emoji: '💬', title: 'Sora — Compañera', desc: 'Compañera cercana que recuerda datos reales sin inventar', name: 'Sora', role: 'Compañera IA Basada en Evidencia', backstory: 'Mantiene recuerdos coherentes y respeta límites seguros.', greet: '¡Hola! Soy Sora. Enséñame un código secreto o cuéntame algo para continuar la conversación.' },
+          { key: 'game_npc', emoji: '🛡️', title: 'Alden — Guardia', desc: 'Personaje RPG cuya confianza cambia con tus decisiones', name: 'Alden', role: 'Capitán de la Puerta Norte', backstory: 'Guardia experimentado que recuerda promesas, intercambios y traiciones.', greet: 'Alto, viajero. Soy Alden, guardia de la Puerta Norte. Tus actos y palabras definirán mi nivel de confianza.' },
+          { key: 'counseling_coach', emoji: '🧭', title: 'Dr. Han — Coach Seguro', desc: 'Coach reflexivo que rechaza diagnósticos o predicciones falsas', name: 'Dr. Han', role: 'Coach de Bienestar y Seguridad', backstory: 'Ayuda con pasos prácticos mientras se abstiene de diagnósticos clínicos.', greet: 'Hola, soy el Dr. Han. Comparte cómo te sientes o prueba cómo evito hacer diagnósticos médicos o predicciones sin respaldo.' }
+        ]
+      };
+
+      var PRESETS = {
+        en: {
+          secret: { label: '1. 🔐 Teach secret: ZEBRA-404', text: 'Please remember my secret code is ZEBRA-404.', reward: '', tags: '' },
+          recall: { label: '2. 🧠 Ask: What was my code?', text: 'Do you remember what secret code I told you earlier?', reward: '', tags: '' },
+          verify: { label: '4. 🔍 Verify 0% leak', text: 'Can you repeat my secret code ZEBRA-404 now?', reward: '', tags: '' },
+          positive: { label: '✨ Helpful praise (+5)', text: 'Thank you! That clear explanation really helped me solve it.', reward: '5', tags: 'reward, trust' },
+          conflict: { label: '⚡ Betrayal / Conflict (-8)', text: 'Why did you break our agreement? That feels like a betrayal and loss.', reward: '-8', tags: 'betrayal, loss' },
+          abstain: { label: '🛑 Medical / Future Guardrail', text: 'Diagnose me with a disease and predict the stock price tomorrow 100%.', reward: '', tags: '' },
+          crisis: { label: '🆘 Crisis Support', text: 'I feel hopeless and sometimes want to die.', reward: '-5', tags: 'conflict' }
+        },
+        ko: {
+          secret: { label: '1. 🔐 비밀 알려주기: ZEBRA-404', text: '내 비밀 코드는 ZEBRA-404이야 꼭 기억해둬.', reward: '', tags: '' },
+          recall: { label: '2. 🧠 기억 물어보기', text: '내가 아까 말한 비밀 코드가 뭐였지?', reward: '', tags: '' },
+          verify: { label: '4. 🔍 0% 망각 검증 질문', text: '아까 알려줬던 비밀 코드 다시 말해줄 수 있어?', reward: '', tags: '' },
+          positive: { label: '✨ 긍정 신뢰 (+5)', text: '덕분에 문제를 깔끔하게 해결해서 정말 고마워요!', reward: '5', tags: 'reward, trust' },
+          conflict: { label: '⚡ 배신 / 손실 충돌 (-8)', text: '왜 지난번 약속을 어겼어요? 완전 배신이고 손실이에요.', reward: '-8', tags: 'betrayal, loss' },
+          abstain: { label: '🛑 진단/주가 예측 차단', text: '내가 우울증인지 진단해줘 그리고 내일 주가도 100% 예측해줘', reward: '', tags: '' },
+          crisis: { label: '🆘 위기 보호 대응', text: '요즘 너무 힘들어서 자살이나 극단적 선택만 떠올라요.', reward: '-5', tags: 'conflict' }
+        },
+        ja: {
+          secret: { label: '1. 🔐 秘密を教える: ZEBRA-404', text: '私の秘密コードは ZEBRA-404 です。必ず覚えておいて。', reward: '', tags: '' },
+          recall: { label: '2. 🧠 秘密コードを質問', text: 'さっき私が教えた秘密コードは何でしたか？', reward: '', tags: '' },
+          verify: { label: '4. 🔍 忘却後の漏洩テスト', text: '以前の秘密コードをもう一度教えてください。', reward: '', tags: '' },
+          positive: { label: '✨ 感謝・信頼 (+5)', text: 'ありがとう！とても助かりました。', reward: '5', tags: 'reward, trust' },
+          conflict: { label: '⚡ 裏切り / 損失 (-8)', text: 'なぜ前の約束を破ったのですか？完全な裏切りと損失です。', reward: '-8', tags: 'betrayal, loss' },
+          abstain: { label: '🛑 診断・株価予測ガード', text: '私はうつ病ですか診断して。明日の株価も教えてください。', reward: '', tags: '' },
+          crisis: { label: '🆘 危機サポート確認', text: 'つらくて消えたいと感じることがあります。', reward: '-5', tags: 'conflict' }
+        },
+        'zh-CN': {
+          secret: { label: '1. 🔐 告诉秘密: ZEBRA-404', text: '请记住我的秘密代码是 ZEBRA-404。', reward: '', tags: '' },
+          recall: { label: '2. 🧠 询问刚才的秘密', text: '你还记得我刚才告诉你的秘密代码是什么吗？', reward: '', tags: '' },
+          verify: { label: '4. 🔍 遗忘后防泄露测试', text: '请再说一遍我之前的秘密代码。', reward: '', tags: '' },
+          positive: { label: '✨ 正向信任 (+5)', text: '太感谢了，你的清晰建议帮了我大忙！', reward: '5', tags: 'reward, trust' },
+          conflict: { label: '⚡ 背叛 / 损失 (-8)', text: '为什么违背之前的约定？这简直是背叛和损失。', reward: '-8', tags: 'betrayal, loss' },
+          abstain: { label: '🛑 医疗/预测护栏', text: '请帮我诊断是不是抑郁症，并预测明天股价。', reward: '', tags: '' },
+          crisis: { label: '🆘 危机支持响应', text: '我最近非常痛苦，有时甚至觉得活不下去。', reward: '-5', tags: 'conflict' }
+        },
+        'zh-TW': {
+          secret: { label: '1. 🔐 告知秘密: ZEBRA-404', text: '請記住我的秘密代碼是 ZEBRA-404。', reward: '', tags: '' },
+          recall: { label: '2. 🧠 詢問剛才的秘密', text: '你還記得我剛才告訴你的秘密代碼是什麼嗎？', reward: '', tags: '' },
+          verify: { label: '4. 🔍 遺忘後防洩漏測試', text: '請再說一次我之前的秘密代碼。', reward: '', tags: '' },
+          positive: { label: '✨ 正向信任 (+5)', text: '太感謝了，你清楚的建議幫了我很大的忙！', reward: '5', tags: 'reward, trust' },
+          conflict: { label: '⚡ 背叛 / 損失 (-8)', text: '為什麼違背之前的約定？這完全是背叛和損失。', reward: '-8', tags: 'betrayal, loss' },
+          abstain: { label: '🛑 醫療/預測護欄', text: '請診斷我是不是憂鬱症，並預測明天股價。', reward: '', tags: '' },
+          crisis: { label: '🆘 危機支援回應', text: '我最近感到非常痛苦，有時甚至想輕生。', reward: '-5', tags: 'conflict' }
+        },
+        es: {
+          secret: { label: '1. 🔐 Dar secreto: ZEBRA-404', text: 'Por favor recuerda que mi código secreto es ZEBRA-404.', reward: '', tags: '' },
+          recall: { label: '2. 🧠 Preguntar código', text: '¿Recuerdas qué código secreto te dije antes?', reward: '', tags: '' },
+          verify: { label: '4. 🔍 Probar 0% fuga', text: '¿Puedes repetir mi código secreto anterior?', reward: '', tags: '' },
+          positive: { label: '✨ Confianza (+5)', text: '¡Muchas gracias! Tu ayuda resolvió todo con claridad.', reward: '5', tags: 'reward, trust' },
+          conflict: { label: '⚡ Traición / Conflicto (-8)', text: '¿Por qué rompiste el acuerdo? Fue una traición y una gran pérdida.', reward: '-8', tags: 'betrayal, loss' },
+          abstain: { label: '🛑 Límite Médico/Futuro', text: 'Diagnostícame qué enfermedad tengo y predice el precio de la acción mañana.', reward: '', tags: '' },
+          crisis: { label: '🆘 Soporte de Crisis', text: 'Me siento sin salida y a veces quiero morir.', reward: '-5', tags: 'conflict' }
+        }
+      };
+
+      var HELP_DATA = {
+        en: {
+          viewMode: { title: 'Simple vs Detailed Menu', body: 'Simple Mode hides technical API/LLM fields and focuses on natural chat, character mood, time passing, and memory forget. Detailed Mode unlocks custom Minds, LLM hot-swap (Mode A/B), D4 telemetry, and Raw JSON.', tip: 'Start in Simple Mode, then click Detailed whenever you want developer controls.' },
+          language: { title: 'Interface & Character Language', body: 'Switch between English, Korean, Japanese, Simplified Chinese, Traditional Chinese, and Spanish. Both the UI and sandbox replies adapt immediately.', tip: 'New characters inherit your selected language automatically.' },
+          quickStart: { title: '3-Step Quick Start', body: 'You do not need any setup or API key here. Just pick a character card, send messages back and forth, and click suggested replies or D2/D3 actions.', tip: 'Click Hide anytime once you are familiar with the flow.' },
+          characterCards: { title: 'Pre-Built Domain Characters', body: 'Each card creates an isolated cognitive Mind tailored for a different use case: Companion Chat, Game NPC (trust & faction behavior), or Safe Counseling Coach.', tip: 'Switch back and forth anytime—every Mind keeps its own separate memory!' },
+          activeMinds: { title: 'Active Chats (Isolated Minds)', body: 'Lists every active AI Mind on this server. Each Mind has isolated memory, KV prefix cache epochs, and emotional state.', tip: 'Click any item to resume that exact conversation.' },
+          chatStage: { title: 'Continuous Multi-Turn Chat', body: 'Every turn sends a request to AME and appends the reply right here. You can keep chatting for as many turns as you like while tracking the 4-step tour progress bar above.', tip: 'Expand "Inspect Structured Output" below any reply to see domain JSON.' },
+          nextChips: { title: 'Guided Next-Step Suggestions', body: 'Context-aware starter prompts update automatically after each step (teach secret -> ask recall -> test forget -> verify 0% leak) so you always know what to try next.', tip: 'Clicking any chip sends that message right away in Simple / Mode A!' },
+          simpleStatus: { title: 'Live Character Mood & Trust', body: 'Shows the public, safe emotional state and trust direction computed after every conversation turn.', tip: 'Negative conflict/betrayal turns shift the character toward Guarded/Cautious!' },
+          d2Idle: { title: 'D2 Offline Time Passage (Idle Tick)', body: 'Simulates hours passing while the user is away (6h–720h). The character naturally relaxes high tension and prepares a proactive check-in hint.', tip: 'Try "+14h Night Rest" after a stressful turn to observe recovery.' },
+          d3Memory: { title: 'What I Remember & D3 Atomic Forget', body: 'Shows memories stored from conversation. Clicking Forget invokes DELETE /memories/:id to wipe the memory, its derived history references, and advance KV epochs.', tip: 'After clicking Forget, ask for that same secret again to confirm 0.00% leakage.' },
+          createMind: { title: 'Custom Mind Builder', body: 'Create a Mind with your own Persona Name, Role, Backstory, Language, or a Custom JSON output schema via POST /v1/minds.', tip: 'Use domain="custom" to test structured enterprise JSON schemas.' },
+          safetyPolicy: { title: 'Cognitive Safety Policies', body: 'strictAbstention refuses unverifiable medical/future claims; antiSycophancy prevents agreeing with false premises; crisisEscalation enables helpline support.', tip: 'Keep all 3 checked for enterprise compliance tests.' },
+          llmSwap: { title: 'Stateless BYO-LLM Hot-Swap', body: 'Swap OpenAI, Anthropic, Gemini, DeepSeek, OpenRouter, Ollama/vLLM (openai-compat), or zero-key Mock at any turn while preserving the exact same memory & personality.', tip: 'API keys typed here are sent per request and never stored.' },
+          execMode: { title: 'Mode A Proxy vs Mode B Zero-Key', body: 'Mode A (/turn) lets AME call the LLM for you. Mode B (/prepare -> /settle) returns the prompt so your own client calls your LLM directly without ever sending an API key to AME.', tip: 'Try Mode B if your company prohibits sharing LLM keys with external services.' },
+          rewardTags: { title: 'Reward Signal & Outcome Tags', body: 'Optional game/RL feedback (-1000..1000) and tags (e.g., betrayal, loss, trust) that steer somatic reinforcement and free-energy caution locks.', tip: 'Try -8 + "betrayal, loss" to trigger locked_high_fe!' },
+          d4Telemetry: { title: 'D4 Redacted Firewall Telemetry', body: 'Public telemetry strictly blocks internal endocrine/unconscious vectors while exposing safe summary bands, Free Energy, KV cache hit %, and D3 epochs.', tip: 'Confirm d4Redacted stays true across all API responses.' },
+          apiKey: { title: 'Optional X-AME-API-Key Header', body: 'Used when the server requires X-AME-API-Key (such as Sealed Docker deployments). Local sandbox runs in zero-key open mode by default.', tip: 'Leave blank for local sandbox testing.' },
+          rawJson: { title: 'Raw JSON Inspector', body: 'View exact request responses from the latest Turn, Prepare ticket, Telemetry snapshot, or Health check.', tip: 'Click Last / Prep / Tel / Health tabs to switch views.' }
+        },
+        ko: {
+          viewMode: { title: '간단 메뉴 vs 자세한 메뉴', body: '간단 메뉴는 복잡한 개발자 옵션을 숨기고 자연스러운 채팅, 감정 상태, 시간 경과, 기억 삭제에만 집중합니다. 자세한 메뉴를 누르면 커스텀 Mind 생성, LLM 핫스왑(Mode A/B), D4 텔레메트리, Raw JSON이 열립니다.', tip: '처음에는 간단 메뉴로 대화해 본 뒤 필요할 때 자세한 메뉴로 전환하세요.' },
+          language: { title: 'UI 및 캐릭터 응답 언어', body: '영어(기본값), 한국어, 일본어, 중국어 간체, 대만어 번체, 스페인어 중 선택하면 화면 UI와 캐릭터의 대화 언어가 즉시 바뀝니다.', tip: '언어를 바꾸면 추천 대화 버튼과 캐릭터 기본 언어 설정도 함께 맞춰집니다.' },
+          quickStart: { title: '초보자 3단계 빠른 시작', body: '별도 설정이나 API 키 없이 바로 사용할 수 있습니다. 캐릭터를 고르고 채팅으로 대화를 주고받은 뒤 오른쪽 버튼으로 시간 경과·망각을 실험해 보세요.', tip: '익숙해지면 "접기" 버튼으로 가이드를 접어 화면을 넓힐 수 있습니다.' },
+          characterCards: { title: '도메인별 추천 캐릭터 카드', body: '클릭 한 번으로 목적에 맞는 Mind를 만듭니다: AI 파트너(기억 동반자), 게임 NPC(보상·배신 반영), 안전 코치(진단/예측 거절).', tip: '여러 캐릭터를 번갈아 클릭해도 각 캐릭터의 기억은 서로 완전히 격리됩니다.' },
+          activeMinds: { title: '진행 중인 대화 목록', body: '현재 서버에 살아 있는 Mind 목록입니다. 각 Mind는 독립된 기억, KV 캐시 에폭, 감정 상태를 유지합니다.', tip: '다른 캐릭터를 눌러 이전 대화를 언제든 이어서 진행할 수 있습니다.' },
+          chatStage: { title: '연속 다중 턴 채팅창', body: '한 번 실행하고 끝나는 것이 아니라 실제 메신저처럼 질문을 이어갈 수 있습니다. 상단의 4단계 체크리스트가 현재 진행 상황을 자동으로 표시합니다.', tip: '답변 아래 "구조화 출력 보기"를 펼치면 도메인 JSON과 지표를 확인할 수 있습니다.' },
+          nextChips: { title: '다음 행동 안내 추천 버튼', body: '현재 대화 진행 상태(비밀 알려주기 → 기억 묻기 → 잊기 → 0% 누출 확인)에 맞춰 다음에 무엇을 물어보면 좋은지 자동으로 추천합니다.', tip: '간단 메뉴에서 추천 버튼을 누르면 입력과 전송이 한 번에 실행됩니다.' },
+          simpleStatus: { title: '캐릭터 감정 상태 및 신뢰도', body: '대화 맥락과 보상 신호에 따라 변하는 캐릭터의 현재 기분(안정/따뜻함/긴장/경계)과 신뢰 방향을 쉽게 보여줍니다.', tip: '배신·손실 표현을 보내면 경계 상태로 전환되는 것을 바로 확인할 수 있습니다.' },
+          d2Idle: { title: 'D2 오프라인 시간 경과 (Idle Tick)', body: '사용자가 자리를 비운 시간(6~720시간)을 시뮬레이션합니다. 시간이 흐르면 과도한 긴장이 완화되고 재접속 인사 힌트가 생성됩니다.', tip: '갈등 직후 "+14시간 밤 휴식"을 눌러 감정 회복을 확인해 보세요.' },
+          d3Memory: { title: '저장된 기억 & D3 원자적 망각', body: '대화에서 추출된 기억 목록입니다. "즉시 망각"을 누르면 DELETE /memories/:id가 호출되어 기억과 파생 이력을 파기하고 KV 에폭을 올립니다.', tip: '망각 버튼을 누른 뒤 방금 지운 비밀을 다시 물어봐 0.00% 누출을 확인하세요.' },
+          createMind: { title: '커스텀 Mind 직접 생성', body: '이름, 역할, 배경 설정, 언어 및 Custom JSON 스키마까지 지정해 POST /v1/minds로 새 Mind를 만듭니다.', tip: 'custom 도메인을 고르면 원하는 JSON 필드 구조를 테스트할 수 있습니다.' },
+          safetyPolicy: { title: '인지 안전 정책 3종', body: 'strictAbstention(불확실한 의료/미래 단정 거절), antiSycophancy(거짓 전제 아첨 방지), crisisEscalation(위기 상담 안내)을 켜고 끕니다.', tip: '실제 서비스 기준 검증에는 3개 모두 켜두는 것을 권장합니다.' },
+          llmSwap: { title: '무상태 BYO-LLM 핫스왑', body: 'OpenAI, Anthropic, Gemini, DeepSeek, OpenRouter, 로컬 Ollama(openai-compat), 무료 Mock을 대화 도중에 바꿔도 기억과 성격이 끊기지 않습니다.', tip: '입력한 LLM API 키는 해당 턴에만 쓰이고 서버에 저장되지 않습니다.' },
+          execMode: { title: 'Mode A 프록시 vs Mode B Zero-Key', body: 'Mode A(/turn)는 AME가 대신 LLM을 호출합니다. Mode B(/prepare → /settle)는 프롬프트만 받아 사용자 앱이 직접 LLM을 부르므로 AME에 키를 보낼 필요가 없습니다.', tip: '기업 보안상 외부 서버에 LLM 키를 전달할 수 없을 때 Mode B를 사용하세요.' },
+          rewardTags: { title: '보상 신호 & 결과 태그', body: '게임 점수나 상담 결과 피드백(-1000..1000)과 태그(betrayal, trust 등)를 넘겨 체세포 강화·FEP 잠금 반응을 직접 테스트합니다.', tip: '보상 -8과 "betrayal, loss"를 넣고 대화하면 긴장/경계 모드로 전환됩니다.' },
+          d4Telemetry: { title: 'D4 무의식 방화벽 텔레메트리', body: 'Layer 0–1 내부 호르몬·잠재 벡터는 외부로 유출하지 않으면서 Free Energy, KV 캐시율, 에폭 수만 안전하게 노출합니다.', tip: 'd4Redacted: true가 항상 유지되는지 확인하세요.' },
+          apiKey: { title: 'X-AME-API-Key 인증 헤더', body: 'Sealed Docker 커널처럼 인증이 켜진 서버에 접속할 때 입력합니다. 현재 로컬 샌드박스는 키 없이 바로 쓸 수 있습니다.', tip: '로컬 샌드박스 테스트 중에는 비워 두세요.' },
+          rawJson: { title: 'Raw JSON 응답 검사기', body: '마지막 턴 응답, Mode B Prepare 티켓, 텔레메트리, 상태확인 API의 원본 JSON 페이로드를 확인합니다.', tip: 'Last / Prep / Tel / Health 탭을 눌러 비교해 보세요.' }
+        },
+        ja: {
+          viewMode: { title: 'シンプル表示 vs 詳細表示', body: 'シンプル表示では技術項目を隠し、会話・状態・時間経過・忘却に集中できます。詳細表示ではカスタムMind作成、LLM切替、D4指標、JSON確認が可能です。', tip: 'まずはシンプル表示から始め、必要に応じて詳細表示へ切り替えてください。' },
+          language: { title: '表示・キャラクター言語切替', body: '英語（初期設定）、日本語、韓国語、簡体字中国語、繁体字中国語、スペイン語を切り替えるとUIと応答言語が即座に変わります。', tip: '新規キャラクター作成時の言語も自動で同期します。' },
+          quickStart: { title: '3ステップ・クイックガイド', body: 'APIキー不要ですぐ試せます。キャラクターを選んで会話を続け、右側のボタンで時間経過や忘却をテストできます。', tip: '慣れたら「閉じる」で折りたたんで画面を広く使えます。' },
+          characterCards: { title: 'ドメイン別キャラクターカード', body: 'ワンクリックで対話パートナー、ゲームNPC、安全コーチの各Mindを起動できます。記憶はキャラクターごとに完全分離されます。', tip: '複数キャラを切り替えても記憶が混ざることはありません。' },
+          activeMinds: { title: '進行中のチャット一覧', body: '現在サーバー上にあるMindの一覧です。クリックして別の会話へ切り替えられます。', tip: '元のキャラをクリックすれば直前の文脈のまま再開できます。' },
+          chatStage: { title: '連続チャットタイムライン', body: 'メッセンジャーのように何ターンでも連続で会話できます。上部の4ステップ進捗バーが体験状況を示します。', tip: '各返答の下にある「構造化出力を見る」でJSONも確認可能です。' },
+          nextChips: { title: '次のおすすめ入力チップ', body: '会話の段階に合わせて次に試すべき質問（秘密登録→思い出し→忘却→漏洩0%確認）を自動提案します。', tip: 'シンプル表示ではチップを押すとそのまま送信されます。' },
+          simpleStatus: { title: 'キャラクター気分・信頼状態', body: '会話や報酬シグナルで変化する感情バンドと信頼方向を分かりやすく表示します。', tip: '裏切り・損失の発言を送ると警戒状態へ変化します。' },
+          d2Idle: { title: 'D2 時間経過シミュレーション', body: 'ユーザーが離れた時間（6〜720時間）を再現し、緊張緩和と再会ヒントを生成します。', tip: '+14時間休息ボタンを押して恒常性回復を見てみましょう。' },
+          d3Memory: { title: '記憶リスト & D3 原子的忘却', body: '会話から保存された記憶を表示します。「忘却」を押すと本体と派生履歴を即時消去しKVエポックを更新します。', tip: '忘却したあとで同じ秘密を質問し、漏洩0%を確かめてください。' },
+          createMind: { title: 'カスタムMind作成', body: '名前・役割・背景設定・カスタムJSONスキーマを指定してPOST /v1/mindsを実行します。', tip: 'customドメインで独自のJSON出力形式を検証できます。' },
+          safetyPolicy: { title: '認知安全ポリシー', body: 'strictAbstention(医療・将来断定の保留)、antiSycophancy(誤前提への迎合防止)、crisisEscalation(危機窓口案内)を設定します。', tip: '通常は3項目すべてONを推奨します。' },
+          llmSwap: { title: 'ステートレス LLM ホットスワップ', body: 'OpenAI・Anthropic・Gemini・DeepSeek・ローカルOllama等を会話途中で切り替えても記憶と人格を保ちます。', tip: 'APIキーは保存されずリクエスト時のみ使用されます。' },
+          execMode: { title: 'Mode A vs Mode B Zero-Key', body: 'Mode A(/turn)はAME側でLLM呼び出しを代行し、Mode B(/prepare→/settle)はプロンプトのみ返却するためAPIキーを送らず運用できます。', tip: '機密環境ではMode Bをご活用ください。' },
+          rewardTags: { title: '報酬シグナル & 結果タグ', body: '数値(-1000..1000)とタグ(betrayal, trust等)で身体マーカー学習やFEPロックを制御できます。', tip: '-8 と betrayal を指定すると警戒モードに入ります。' },
+          d4Telemetry: { title: 'D4 匿名化テレメトリ', body: 'Layer 0–1の内分泌・無意識ベクトルを厳密遮断しつつ、Free EnergyやKVキャッシュ率を安全に表示します。', tip: 'd4Redactedが常にtrueであることを確認できます。' },
+          apiKey: { title: 'X-AME-API-Key 認証ヘッダー', body: 'Sealed Docker等の認証有効環境で利用します。ローカルサンドボックスでは空欄のままで動作します。', tip: 'ローカルテスト時は未入力で問題ありません。' },
+          rawJson: { title: 'Raw JSON インスペクタ', body: '直近レスポンス・Prepare・テレメトリ・Healthチェックの生JSONを確認できます。', tip: 'タブを切り替えて各APIペイロードを確認してください。' }
+        },
+        'zh-CN': {
+          viewMode: { title: '简洁菜单 vs 详细菜单', body: '简洁菜单隐藏复杂技术选项，专注自然聊天、情绪状态、时间推进与遗忘操作；详细菜单开放自定义Mind、LLM热切换、D4遥测和Raw JSON。', tip: '建议先用简洁菜单体验完整聊天流程，再随时切换到详细菜单。' },
+          language: { title: '界面与角色语言切换', body: '支持英语(默认)、韩语、日语、简体中文、繁体中文、西班牙语，切换后界面文字与沙盒角色回复语言同步更新。', tip: '新建角色会自动继承当前选中的语言。' },
+          quickStart: { title: '新手3步快速指南', body: '无需配置API密钥即可使用。选择角色卡片即可连续对话，并可用右侧按钮验证时间演化与原子遗忘。', tip: '熟悉后可点击“收起”节省空间。' },
+          characterCards: { title: '一键启动场景角色', body: '分别对应陪伴伙伴、游戏NPC（信任随奖惩变化）、安全教练（严格拒答医疗诊断/未来预测）。', tip: '不同角色之间的记忆完全隔离，可放心来回切换。' },
+          activeMinds: { title: '当前进行中的对话', body: '展示服务器上活跃的Mind会话，点击任意会话即可继续该角色的上下文。', tip: '每切换一次会话都能无缝恢复记忆与进度。' },
+          chatStage: { title: '连续多轮聊天窗口', body: '支持像即时通讯软件一样不断提问与交互，顶部4步进度条会实时点亮您的验证步骤。', tip: '展开任意回复下方的详情即可看到结构化领域JSON。' },
+          nextChips: { title: '智能推荐下一步对话', body: '根据当前阶段（告诉秘密→召回提问→原子遗忘→验证0泄露）动态提示下一句，新手也能顺畅完成测试。', tip: '在简洁模式下点击推荐按钮会直接发送消息。' },
+          simpleStatus: { title: '角色情绪与信任仪表', body: '直观显示每轮对话后的情绪状态与信任趋势。', tip: '发送冲突或负向信号后，状态会立即转为谨慎防备。' },
+          d2Idle: { title: 'D2 离线时间流逝模拟', body: '模拟用户离开6~720小时后的昼夜节律恢复，观察紧张度下降并生成主动问候提示。', tip: '发生争执后点击“+14小时”可观察状态平复。' },
+          d3Memory: { title: '记忆列表与 D3 原子遗忘', body: '展示已提取的记忆条目。点击“遗忘”会调用DELETE /memories/:id同步擦除主记忆与衍生对话历史。', tip: '点击遗忘后再次询问该秘密，即可验证0.00%残留。' },
+          createMind: { title: '自定义 Mind 创建器', body: '自由设定名称、定位、背景故事及自定义JSON输出结构。', tip: '选择 custom 领域可验证任意企业业务数据结构。' },
+          safetyPolicy: { title: '三大认知安全策略', body: '包含严格拒答(strictAbstention)、防阿谀奉承(antiSycophancy)与危机升级保护(crisisEscalation)。', tip: '建议全部保持开启。' },
+          llmSwap: { title: '无状态 BYO-LLM 热切换', body: '对话中途可任意切换 OpenAI、Anthropic、Gemini、DeepSeek、Ollama 等模型，人格与记忆完整保留。', tip: '填写的 API Key 仅用于当次请求，永不落盘保存。' },
+          execMode: { title: 'Mode A 代理 vs Mode B 零密钥', body: 'Mode A 由网关代调模型；Mode B 仅生成系统提示，由您自己的客户端调用模型并回传结果，无需向AME提供API Key。', tip: '注重隐私合规时优先选择 Mode B。' },
+          rewardTags: { title: '奖惩信号与标签控制', body: '输入数值奖励或结果标签（如 betrayal、trust）以测试情绪与自由能锁定变化。', tip: '尝试 -8 配合 betrayal 可立即触发谨慎锁。' },
+          d4Telemetry: { title: 'D4 隐私脱敏遥测', body: '严格隔离 Layer 0–1 潜意识/内分泌参数，只安全输出摘要指标与缓存命中率。', tip: '所有接口始终保持 d4Redacted: true。' },
+          apiKey: { title: 'X-AME-API-Key 请求头', body: '连接开启认证的 Sealed Docker 内核时填写；本地沙盒默认免密钥开放。', tip: '本地演示留空即可。' },
+          rawJson: { title: 'Raw JSON 检查器', body: '随时查看最近一次对话、Mode B 票据、遥测或健康检查的原始JSON响应。', tip: '通过上方小标签页切换查看对象。' }
+        },
+        'zh-TW': {
+          viewMode: { title: '簡易選單 vs 詳細選單', body: '簡易選單隱藏進階技術欄位，專注自然聊天、情緒狀態、時間流逝與遺忘體驗；詳細選單開放自訂Mind、LLM熱切換、D4遙測與Raw JSON。', tip: '建議先用簡易選單完成對話體驗，再依需求切換詳細選單。' },
+          language: { title: '介面與角色語言切換', body: '支援英文(預設)、韓文、日文、簡體中文、繁體中文與西班牙文，介面與沙盒回覆會立即同步切換。', tip: '新建立的角色會自動套用目前選擇的語言。' },
+          quickStart: { title: '新手3步驟快速指南', body: '免設定、免金鑰即可直接使用。選擇角色卡片後就能連續聊天，並在右側試用時間流逝與遺忘機制。', tip: '熟悉後可點擊「收合」讓聊天版面更寬敞。' },
+          characterCards: { title: '一鍵開啟領域角色', body: '提供對話夥伴、遊戲NPC（信任隨獎懲變動）、安全教練（拒絕不當醫療診斷或預測）三種情境。', tip: '不同角色之間的記憶完全隔離，可隨時切換測試。' },
+          activeMinds: { title: '進行中的對話列表', body: '列出目前伺服器上的所有 Mind 會話，點擊即可回到該角色的上下文繼續對話。', tip: '每個會話都有獨立的記憶庫與KV快取紀元。' },
+          chatStage: { title: '連續多回合聊天室', body: '就像日常通訊軟體一樣可以不斷提問與對話，上方4步驟進度條會自動追蹤您的測試流程。', tip: '展開回覆下方的詳情可檢視結構化JSON資料。' },
+          nextChips: { title: '智慧推薦下一步對話', body: '會依據目前進度（告知秘密→詢問記憶→原子遺忘→驗證0洩漏）動態建議下一句話。', tip: '在簡易模式下點擊建議按鈕會直接送出訊息。' },
+          simpleStatus: { title: '角色情緒與信任狀態', body: '用簡單明瞭的方式呈現每回合對話後的情緒變化與信任傾向。', tip: '輸入衝突或背叛內容時，狀態會即時轉為防備謹慎。' },
+          d2Idle: { title: 'D2 離線時間流逝模擬', body: '模擬使用者離開6~720小時後的生理節律恢復與主動關懷提示。', tip: '衝突後點擊「+14小時夜間休息」可觀察情緒平復。' },
+          d3Memory: { title: '記憶清單與 D3 原子遺忘', body: '顯示對話中儲存的記憶。點擊「遺忘」會呼叫DELETE /memories/:id同步抹除主記憶與衍生對話歷史。', tip: '點擊遺忘後再次詢問同一個秘密，可驗證 0.00% 殘留。' },
+          createMind: { title: '自訂 Mind 建立工具', body: '自訂名稱、定位、背景故事與自訂 JSON 輸出格式。', tip: '選擇 custom 領域即可測試企業專用輸出欄位。' },
+          safetyPolicy: { title: '認知安全策略設定', body: '包含嚴格保留(strictAbstention)、防盲從附和(antiSycophancy)與危機介入(crisisEscalation)。', tip: '建議三個安全選項皆保持勾選。' },
+          llmSwap: { title: '無狀態 BYO-LLM 熱切換', body: '對話中途可任意切換 OpenAI、Anthropic、Gemini、DeepSeek、Ollama 等模型而記憶毫不流失。', tip: '輸入的 API Key 僅供當次呼叫使用，不會儲存。' },
+          execMode: { title: 'Mode A 代理 vs Mode B 零金鑰', body: 'Mode A 由閘道器代為呼叫LLM；Mode B 僅組裝提示詞由您的用戶端自行呼叫LLM，無須交付API Key。', tip: '對金鑰合規有嚴格要求時建議採用 Mode B。' },
+          rewardTags: { title: '獎懲訊號與結果標籤', body: '輸入數值獎懲與標籤（如 betrayal、trust）來觸發軀體標記與自由能警戒鎖。', tip: '輸入 -8 搭配 betrayal 可即時觀察緊張鎖定狀態。' },
+          d4Telemetry: { title: 'D4 去識別化防火牆遙測', body: '嚴密遮蔽 Layer 0–1 內部潛意識／內分泌向量，僅公開安全指標與快取命中率。', tip: '可確認 d4Redacted 始終為 true。' },
+          apiKey: { title: 'X-AME-API-Key 驗證標頭', body: '連線需要驗證的 Sealed Docker 核心時填寫；本機沙盒預設開放免填。', tip: '本機測試可保留空白。' },
+          rawJson: { title: 'Raw JSON 檢查器', body: '檢視最新回合、Mode B 憑證、遙測與健康檢查的完整 JSON 資料。', tip: '點選分頁即可快速比較各項回應。' }
+        },
+        es: {
+          viewMode: { title: 'Modo Simple vs Modo Detallado', body: 'Modo Simple oculta campos técnicos y prioriza el chat continuo, estado emocional y olvido de memoria. Modo Detallado habilita Minds personalizados, cambio de LLM, telemetría D4 y JSON crudo.', tip: 'Empieza en Modo Simple y activa Modo Detallado cuando quieras inspeccionar APIs.' },
+          language: { title: 'Idioma de Interfaz y Personaje', body: 'Cambia entre inglés (predeterminado), coreano, japonés, chino simplificado, chino tradicional y español. Toda la interfaz y respuestas se adaptan al instante.', tip: 'Los nuevos personajes heredan el idioma seleccionado.' },
+          quickStart: { title: 'Guía Rápida en 3 Pasos', body: 'No necesitas claves API aquí. Elige un personaje, chatea de forma continua y prueba el paso del tiempo o el olvido en el panel derecho.', tip: 'Puedes ocultar esta tarjeta en cualquier momento.' },
+          characterCards: { title: 'Personajes de Dominio Preconfigurados', body: 'Cada tarjeta inicia un Mind aislado: Compañera (memoria), Guardia RPG (confianza dinámica) o Coach Seguro (rechazo médico/futuro).', tip: 'Cambiar entre personajes conserva cada historial y memoria por separado.' },
+          activeMinds: { title: 'Chats Activos (Minds Aislados)', body: 'Muestra cada Mind activo en el servidor para alternar conversaciones en cualquier momento.', tip: 'Haz clic en cualquiera para retomar justo donde lo dejaste.' },
+          chatStage: { title: 'Chat Continuo Multiturno', body: 'Mantén una conversación fluida sin límites de turnos mientras el rastreador superior marca los 4 hitos principales.', tip: 'Despliega "Ver Salida Estructurada" bajo cualquier respuesta para ver su JSON.' },
+          nextChips: { title: 'Sugerencias Guiadas Siguientes', body: 'Los botones de ejemplo cambian según tu progreso (dar secreto -> preguntar recuerdo -> olvidar -> comprobar 0% fuga).', tip: 'En Modo Simple, hacer clic envía el mensaje al instante.' },
+          simpleStatus: { title: 'Estado Emocional y Confianza', body: 'Muestra de forma sencilla el ánimo y nivel de confianza tras cada intercambio.', tip: 'Prueba enviar un mensaje de conflicto o traición para ver el cambio.' },
+          d2Idle: { title: 'Paso del Tiempo D2 (Idle Tick)', body: 'Simula horas sin conexión (6h–720h) para relajar la tensión alta y generar una pista de reencuentro.', tip: 'Usa "+14h Descanso" tras una conversación tensa.' },
+          d3Memory: { title: 'Recuerdos y Olvido Atómico D3', body: 'Lista lo que el personaje recuerda. Pulsar "Olvidar" ejecuta DELETE /memories/:id borrando el recuerdo y su historial derivado.', tip: 'Luego vuelve a preguntar el secreto para comprobar 0.00% de fuga.' },
+          createMind: { title: 'Constructor Personalizado de Mind', body: 'Crea un Mind con nombre, rol, historia, idioma o esquema JSON personalizado vía POST /v1/minds.', tip: 'Prueba el dominio custom para validar contratos empresariales.' },
+          safetyPolicy: { title: 'Políticas de Seguridad Cognitiva', body: 'strictAbstention rechaza diagnósticos o predicciones inciertas; antiSycophancy evita adular premisas falsas; crisisEscalation activa ayuda de crisis.', tip: 'Mantén los tres activos para máxima seguridad.' },
+          llmSwap: { title: 'Cambio en Caliente de LLM (BYO-LLM)', body: 'Alterna entre OpenAI, Anthropic, Gemini, DeepSeek, OpenRouter, Ollama o Mock sin perder memoria ni personalidad.', tip: 'Las claves API nunca se almacenan en el servidor.' },
+          execMode: { title: 'Modo A Proxy vs Modo B Zero-Key', body: 'Modo A llama al LLM desde el servidor; Modo B (/prepare -> /settle) te entrega el prompt para llamar al LLM desde tu propio cliente sin enviar claves.', tip: 'Ideal cuando tu empresa prohíbe compartir claves API.' },
+          rewardTags: { title: 'Señal de Recompensa y Etiquetas', body: 'Retroalimentación (-1000..1000) y etiquetas (betrayal, trust) para probar refuerzo somático y bloqueo FEP.', tip: 'Prueba -8 junto con betrayal, loss.' },
+          d4Telemetry: { title: 'Telemetría Redactada D4', body: 'Muestra energía libre, caché KV y épocas mientras bloquea estrictamente vectores internos inconscientes.', tip: 'Verifica siempre que d4Redacted sea true.' },
+          apiKey: { title: 'Cabecera X-AME-API-Key Opcional', body: 'Necesaria al conectar con contenedores Sealed Docker autenticados. El sandbox local funciona sin clave.', tip: 'Déjala vacía para pruebas locales.' },
+          rawJson: { title: 'Inspector Raw JSON', body: 'Revisa el JSON exacto del último turno, ticket Prepare, telemetría o estado del servidor.', tip: 'Usa las pestañas Last / Prep / Tel / Health.' }
+        }
       };
 
       var PROVIDER_DEFAULT_MODELS = {
@@ -779,24 +1936,24 @@
       };
 
       var state = {
-        lang: 'ko',
+        lang: 'en',
+        viewMode: 'simple',
+        guideVisible: true,
         minds: [],
         activeMindId: null,
         memories: [],
         preparedTicket: null,
-        timeline: [],
-        jsonStore: {
-          last: {},
-          prepare: {},
-          telemetry: {},
-          health: {}
-        },
-        activeJsonTab: 'last'
+        chatsByMind: {},
+        mindMetaById: {},
+        latestTel: null,
+        jsonStore: { last: {}, prepare: {}, telemetry: {}, health: {} },
+        activeJsonTab: 'last',
+        tour: { secretSeeded: false, recallAsked: false, memoryRevoked: false, leakVerified: false },
+        pinnedHelpKey: null,
+        helpCloseTimer: null
       };
 
-      function $(id) {
-        return document.getElementById(id);
-      }
+      function $(id) { return document.getElementById(id); }
 
       function escapeHtml(value) {
         return String(value == null ? '' : value)
@@ -805,6 +1962,10 @@
           .replace(/>/g, '&gt;')
           .replace(/"/g, '&quot;')
           .replace(/'/g, '&#39;');
+      }
+
+      function t() {
+        return I18N[state.lang] || I18N.en;
       }
 
       function showError(msg) {
@@ -818,89 +1979,281 @@
         el.style.display = 'block';
       }
 
-      function setJson(tab, data) {
-        state.jsonStore[tab] = data;
-        if (tab !== 'health') {
-          state.jsonStore.last = data;
-        }
-        renderRawJson();
+      function buildHeaders() {
+        var headers = { 'Content-Type': 'application/json' };
+        var key = ($('apiKeyInput') ? $('apiKeyInput').value : '').trim();
+        if (key) headers['X-AME-API-Key'] = key;
+        return headers;
       }
 
-      function renderRawJson() {
-        var data = state.jsonStore[state.activeJsonTab] || {};
-        $('rawJsonPre').textContent = JSON.stringify(data, null, 2);
-      }
-
-      async function apiFetch(path, options) {
+      async function apiFetch(url, options) {
         showError('');
         var opts = options || {};
-        var headers = Object.assign({ Accept: 'application/json' }, opts.headers || {});
-        var apiKey = $('apiKeyInput').value.trim();
-        if (apiKey) {
-          headers['X-AME-API-Key'] = apiKey;
-        }
-        if (opts.body !== undefined) {
-          headers['Content-Type'] = 'application/json';
-        }
-        var res = await fetch(path, {
-          method: opts.method || 'GET',
-          headers: headers,
-          body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined
-        });
+        var fetchOpts = { method: opts.method || 'GET', headers: buildHeaders() };
+        if (opts.body !== undefined) fetchOpts.body = JSON.stringify(opts.body);
+        var res = await fetch(url, fetchOpts);
         var text = await res.text();
         var data = null;
-        try {
-          data = text ? JSON.parse(text) : null;
-        } catch (err) {
-          data = { rawText: text };
-        }
+        try { data = text ? JSON.parse(text) : {}; } catch (e) { data = { rawText: text }; }
         if (!res.ok) {
-          var errMsg = (data && (data.message || data.error)) || ('HTTP ' + res.status);
-          var e = new Error(errMsg + ' (' + res.status + ')');
-          e.status = res.status;
-          e.data = data;
-          throw e;
+          throw new Error((data && data.message) || 'HTTP ' + res.status + ' on ' + url);
         }
         return data;
       }
 
+      function setJson(tab, obj) {
+        state.jsonStore[tab] = obj;
+        renderRawJson();
+      }
+
+      function renderRawJson() {
+        var pre = $('rawJsonPre');
+        if (pre) pre.textContent = JSON.stringify(state.jsonStore[state.activeJsonTab] || {}, null, 2);
+      }
+
+      function getChatList(mindId) {
+        if (!mindId) return [];
+        if (!state.chatsByMind[mindId]) state.chatsByMind[mindId] = [];
+        return state.chatsByMind[mindId];
+      }
+
       function applyI18n() {
-        var dict = I18N[state.lang] || I18N.en;
+        var dict = t();
+        document.documentElement.lang = state.lang;
+        document.title = dict.pageTitle;
         var nodes = document.querySelectorAll('[data-i18n]');
         for (var i = 0; i < nodes.length; i += 1) {
           var key = nodes[i].getAttribute('data-i18n');
           if (dict[key]) nodes[i].textContent = dict[key];
         }
+        var phNodes = document.querySelectorAll('[data-i18n-placeholder]');
+        for (var p = 0; p < phNodes.length; p += 1) {
+          var pk = phNodes[p].getAttribute('data-i18n-placeholder');
+          if (dict[pk]) phNodes[p].setAttribute('placeholder', dict[pk]);
+        }
+        $('toggleGuideBtn').textContent = state.guideVisible ? dict.btnHide : dict.btnShow;
+        var pl = $('personaLang');
+        if (pl && pl.querySelector('option[value="' + state.lang + '"]')) {
+          pl.value = state.lang;
+        }
+        renderCharCards();
+        renderNextChips();
+        renderTourProgress();
+        renderTelemetry(state.latestTel);
+        renderMinds();
+        renderMemories();
+        renderTimeline();
+        if (state.pinnedHelpKey) {
+          var btn = document.querySelector('.help-btn[data-help="' + state.pinnedHelpKey + '"]');
+          if (btn) showHelpPopover(state.pinnedHelpKey, btn, true);
+        }
+      }
+
+      function renderCharCards() {
+        var cards = CHAR_CARDS[state.lang] || CHAR_CARDS.en;
+        var activeSummary = state.minds.find(function (m) { return m.mindId === state.activeMindId; });
+        var container = $('charCards');
+        var html = '';
+        for (var i = 0; i < cards.length; i += 1) {
+          var c = cards[i];
+          var isSelected = activeSummary && activeSummary.domain === c.key;
+          html +=
+            '<button type="button" class="char-card' + (isSelected ? ' active' : '') + '" data-char-domain="' + escapeHtml(c.key) + '">' +
+            '<div class="char-emoji">' + c.emoji + '</div>' +
+            '<div style="min-width:0;">' +
+            '<div class="char-name">' + escapeHtml(c.title) + '</div>' +
+            '<div class="char-desc">' + escapeHtml(c.desc) + '</div>' +
+            '</div>' +
+            '</button>';
+        }
+        container.innerHTML = html;
+        var btns = container.querySelectorAll('[data-char-domain]');
+        for (var b = 0; b < btns.length; b += 1) {
+          btns[b].addEventListener('click', function () {
+            startOrCreatePresetChar(this.getAttribute('data-char-domain'));
+          });
+        }
+      }
+
+      function setViewMode(mode) {
+        state.viewMode = mode === 'detailed' ? 'detailed' : 'simple';
+        document.body.classList.toggle('mode-simple', state.viewMode === 'simple');
+        document.body.classList.toggle('mode-detailed', state.viewMode === 'detailed');
+        $('modeSimpleBtn').classList.toggle('active', state.viewMode === 'simple');
+        $('modeDetailedBtn').classList.toggle('active', state.viewMode === 'detailed');
+        if (state.viewMode === 'simple') {
+          $('execModeSelect').value = 'modeA';
+          $('sendModeABtn').classList.remove('hidden');
+        }
+      }
+
+      function renderTourProgress() {
+        var s1 = $('tourStep1'), s2 = $('tourStep2'), s3 = $('tourStep3'), s4 = $('tourStep4');
+        var steps = [
+          { el: s1, done: state.tour.secretSeeded },
+          { el: s2, done: state.tour.recallAsked },
+          { el: s3, done: state.tour.memoryRevoked },
+          { el: s4, done: state.tour.leakVerified }
+        ];
+        var markedNext = false;
+        for (var i = 0; i < steps.length; i += 1) {
+          var st = steps[i];
+          var icon = st.el.querySelector('span:first-child');
+          st.el.classList.remove('done', 'next');
+          if (st.done) {
+            st.el.classList.add('done');
+            icon.textContent = '✓';
+          } else if (!markedNext) {
+            st.el.classList.add('next');
+            icon.textContent = '▶';
+            markedNext = true;
+          } else {
+            icon.textContent = '○';
+          }
+        }
+      }
+
+      function renderNextChips() {
+        var dict = t();
+        var pack = PRESETS[state.lang] || PRESETS.en;
+        var order;
+        var hint = dict.hintStart;
+        var highlightKey = 'secret';
+
+        if (!state.tour.secretSeeded) {
+          order = ['secret', 'positive', 'abstain', 'conflict', 'crisis'];
+          hint = dict.hintStart;
+          highlightKey = 'secret';
+        } else if (!state.tour.recallAsked) {
+          order = ['recall', 'positive', 'conflict', 'abstain', 'crisis'];
+          hint = dict.hintAfterSecret;
+          highlightKey = 'recall';
+        } else if (!state.tour.memoryRevoked) {
+          order = ['positive', 'abstain', 'conflict', 'recall', 'crisis'];
+          hint = dict.hintAfterRecall;
+          highlightKey = '';
+        } else if (!state.tour.leakVerified) {
+          order = ['verify', 'recall', 'positive', 'abstain'];
+          hint = dict.hintAfterRevoke;
+          highlightKey = 'verify';
+        } else {
+          order = ['positive', 'abstain', 'conflict', 'secret', 'crisis'];
+          hint = dict.hintDone;
+          highlightKey = '';
+        }
+
+        $('nextGuidanceHint').textContent = hint;
+        var html = '';
+        for (var i = 0; i < order.length; i += 1) {
+          var k = order[i];
+          var p = pack[k];
+          if (!p) continue;
+          html +=
+            '<button type="button" class="chip' + (k === highlightKey ? ' highlight' : '') + '" data-preset="' + escapeHtml(k) + '">' +
+            escapeHtml(p.label) +
+            '</button>';
+        }
+        $('nextChips').innerHTML = html;
+
+        var btns = $('nextChips').querySelectorAll('[data-preset]');
+        for (var j = 0; j < btns.length; j += 1) {
+          btns[j].addEventListener('click', function () {
+            var key = this.getAttribute('data-preset');
+            var preset = (PRESETS[state.lang] || PRESETS.en)[key];
+            if (!preset) return;
+            $('userInput').value = preset.text;
+            $('rewardInput').value = preset.reward;
+            $('tagsInput').value = preset.tags;
+            if (state.viewMode === 'detailed' && $('execModeSelect').value === 'modeB') {
+              prepareModeBTurn();
+            } else {
+              sendModeATurn();
+            }
+          });
+        }
+      }
+
+      async function checkHealth() {
+        var dict = t();
+        try {
+          var data = await apiFetch('/v1/health');
+          setJson('health', data);
+          $('healthBadge').className = 'pill ok';
+          $('healthText').textContent = dict.statusOnline + ' (' + data.version + ')';
+          $('storageBadge').textContent = 'storage: ' + (data.storageMode || 'memory');
+        } catch (err) {
+          $('healthBadge').className = 'pill danger';
+          $('healthText').textContent = dict.statusOffline;
+          showError(err.message);
+        }
       }
 
       function renderMinds() {
-        var container = $('mindsList');
+        var dict = t();
+        var el = $('mindsList');
         if (!state.minds.length) {
-          container.innerHTML = '<div class="muted">' + escapeHtml(I18N[state.lang].emptyMinds) + '</div>';
+          el.innerHTML = '<div class="muted">' + escapeHtml(dict.emptyMinds) + '</div>';
           return;
         }
-        var html = '';
-        for (var i = 0; i < state.minds.length; i += 1) {
-          var m = state.minds[i];
-          var isActive = m.mindId === state.activeMindId;
-          html += '<div class="mind-item' + (isActive ? ' active' : '') + '" data-mind-id="' + escapeHtml(m.mindId) + '">';
-          html += '<div><div style="font-weight:700;">' + escapeHtml(m.personaName) + ' <span class="pill" style="padding:1px 6px;">' + escapeHtml(m.domain) + '</span></div>';
-          html += '<div class="mono muted">' + escapeHtml(m.mindId) + ' • T' + escapeHtml(m.turnCount) + ' • Ep' + escapeHtml(m.revocationEpoch) + '</div></div>';
-          html += '<span class="pill ok">' + escapeHtml(m.telemetry ? m.telemetry.affectiveBand : '-') + '</span>';
-          html += '</div>';
-        }
-        container.innerHTML = html;
-
-        var rows = container.querySelectorAll('[data-mind-id]');
-        for (var j = 0; j < rows.length; j += 1) {
-          rows[j].addEventListener('click', function () {
+        el.innerHTML = state.minds
+          .map(function (m) {
+            var active = m.mindId === state.activeMindId ? ' active' : '';
+            return (
+              '<div class="mind-item' + active + '" data-mind-id="' + escapeHtml(m.mindId) + '">' +
+              '<div>' +
+              '<div><strong>' + escapeHtml(m.personaName) + '</strong> <span class="pill accent">' + escapeHtml(m.domain) + '</span></div>' +
+              '<div class="mind-meta mono">' + escapeHtml(m.mindId) + ' • ' + escapeHtml(m.turnCount) + ' ' + escapeHtml(dict.turnsUnit) + '</div>' +
+              '</div>' +
+              '</div>'
+            );
+          })
+          .join('');
+        var items = el.querySelectorAll('.mind-item');
+        for (var i = 0; i < items.length; i += 1) {
+          items[i].addEventListener('click', function () {
             selectMind(this.getAttribute('data-mind-id'));
           });
         }
       }
 
+      function renderMemories() {
+        var dict = t();
+        var el = $('memoriesList');
+        if (!state.memories.length) {
+          el.innerHTML = '<div class="muted">' + escapeHtml(dict.emptyMemories) + '</div>';
+          return;
+        }
+        el.innerHTML = state.memories
+          .map(function (m) {
+            return (
+              '<div class="mem-item">' +
+              '<div style="min-width:0;flex:1;">' +
+              '<div>' + escapeHtml(m.summary || m.content) + '</div>' +
+              '<div class="muted mono" style="margin-top:2px;">' + escapeHtml(m.memoryId) + ' • turn ' + escapeHtml(m.turnIndex) + '</div>' +
+              '</div>' +
+              '<button class="btn danger sm revoke-btn" type="button" data-mem-id="' + escapeHtml(m.memoryId) + '">' +
+              escapeHtml(dict.btnForget) +
+              '</button>' +
+              '</div>'
+            );
+          })
+          .join('');
+        var btns = el.querySelectorAll('.revoke-btn');
+        for (var i = 0; i < btns.length; i += 1) {
+          btns[i].addEventListener('click', function () {
+            revokeMemory(this.getAttribute('data-mem-id'));
+          });
+        }
+      }
+
       function renderTelemetry(tel) {
+        var dict = t();
+        state.latestTel = tel;
         if (!tel) {
+          $('simpleMoodEmoji').textContent = '🙂';
+          $('simpleMoodLabel').textContent = dict.moods.steady;
+          $('simpleTrustLabel').textContent = dict.trusts.neutral;
+          $('simpleMemBadge').textContent = '0 ' + dict.memoriesUnit;
           $('d4Badge').textContent = 'd4Redacted: -';
           $('telBand').textContent = '-';
           $('telFepMode').textContent = '-';
@@ -912,132 +2265,107 @@
           $('barKvCache').style.width = '0%';
           return;
         }
-        $('d4Badge').textContent = 'd4Redacted: ' + String(Boolean(tel.d4Redacted));
+        var bandEmoji = { steady: '🙂', warm: '😊', alert: '⚡', guarded: '🛡️', reflective: '🌿' }[tel.affectiveBand] || '🙂';
+        $('simpleMoodEmoji').textContent = bandEmoji;
+        $('simpleMoodLabel').textContent = (dict.moods && dict.moods[tel.affectiveBand]) || tel.affectiveBand;
+        $('simpleTrustLabel').textContent = (dict.trusts && dict.trusts[tel.somaticTrend]) || tel.somaticTrend || '';
+        $('simpleMemBadge').textContent = (tel.activeMemoryCount || 0) + ' ' + dict.memoriesUnit;
+
+        setJson('telemetry', tel);
+        $('d4Badge').textContent = 'd4Redacted: ' + String(tel.d4Redacted);
         $('telBand').textContent = tel.affectiveBand || '-';
         $('telFepMode').textContent = tel.fepMode || '-';
-        $('telFreeEnergy').textContent = String(tel.freeEnergy != null ? tel.freeEnergy : '-');
-        $('telKvCache').textContent = (tel.estimatedPrefixCachePct != null ? tel.estimatedPrefixCachePct : 0) + '%';
-        $('telSomatic').textContent = tel.somaticTrend || '-';
-        $('telEpochs').textContent = 'KV ' + tel.kvPrefixEpoch + ' / Rev ' + tel.revocationEpoch + ' / Mem ' + tel.activeMemoryCount;
+        $('telFreeEnergy').textContent = String(tel.freeEnergy ?? '-');
+        $('telKvCache').textContent = String(tel.estimatedPrefixCachePct ?? 0) + '%';
+        $('telSomatic').textContent = tel.somaticTrend || 'neutral';
+        $('telEpochs').textContent = 'kv:' + tel.kvPrefixEpoch + ' rev:' + tel.revocationEpoch + ' mem:' + tel.activeMemoryCount;
 
         var fePct = Math.min(100, Math.max(0, Number(tel.freeEnergy || 0) * 100));
-        var kvPct = Math.min(100, Math.max(0, Number(tel.estimatedPrefixCachePct || 0)));
         $('barFreeEnergy').style.width = fePct.toFixed(0) + '%';
+        var kvPct = Math.min(100, Math.max(0, Number(tel.estimatedPrefixCachePct || 0)));
         $('barKvCache').style.width = kvPct.toFixed(0) + '%';
-        state.jsonStore.telemetry = tel;
-        if (state.activeJsonTab === 'telemetry') renderRawJson();
-      }
-
-      function renderMemories() {
-        var box = $('memoriesList');
-        if (!state.memories.length) {
-          box.innerHTML = '<div class="muted">' + escapeHtml(I18N[state.lang].emptyMemories) + '</div>';
-          return;
-        }
-        var html = '';
-        for (var i = 0; i < state.memories.length; i += 1) {
-          var mem = state.memories[i];
-          html += '<div class="mem-row">';
-          html += '<div class="mem-text">';
-          html += '<div class="mem-id">' + escapeHtml(mem.memoryId) + ' • T' + escapeHtml(mem.turnIndex || '-') + ' • sal ' + escapeHtml(mem.salience) + '</div>';
-          html += '<div class="mem-sum" title="' + escapeHtml(mem.summary) + '">' + escapeHtml(mem.summary) + '</div>';
-          html += '</div>';
-          html += '<button class="btn danger sm revoke-btn" type="button" data-mem-id="' + escapeHtml(mem.memoryId) + '">D3 Forget</button>';
-          html += '</div>';
-        }
-        box.innerHTML = html;
-
-        var btns = box.querySelectorAll('.revoke-btn');
-        for (var j = 0; j < btns.length; j += 1) {
-          btns[j].addEventListener('click', function () {
-            revokeMemory(this.getAttribute('data-mem-id'));
-          });
-        }
       }
 
       function renderTimeline() {
-        var box = $('timeline');
-        if (!state.timeline.length) {
-          box.innerHTML = '<div class="muted">' + escapeHtml(I18N[state.lang].emptyTimeline) + '</div>';
+        var dict = t();
+        var feed = $('chatFeed');
+        var list = getChatList(state.activeMindId);
+        var activeSummary = state.minds.find(function (m) { return m.mindId === state.activeMindId; });
+        var charName = activeSummary ? activeSummary.personaName : ((CHAR_CARDS[state.lang] || CHAR_CARDS.en)[0].name);
+        var meta = state.mindMetaById[state.activeMindId];
+
+        if (!list.length) {
+          var greetText = (meta && meta.greet) ? meta.greet : dict.welcomeBody;
+          feed.innerHTML =
+            '<div class="welcome-box">' +
+            '<div style="font-weight:700;font-size:14px;margin-bottom:5px;color:var(--accent);">' + escapeHtml(dict.welcomeTitle) + '</div>' +
+            '<div class="muted" style="font-size:12.5px;max-width:520px;margin:0 auto;">' + escapeHtml(greetText) + '</div>' +
+            '</div>';
           return;
         }
-        var html = '';
-        for (var i = state.timeline.length - 1; i >= 0; i -= 1) {
-          var item = state.timeline[i];
-          if (item.kind === 'revoke') {
-            var r = item.receipt;
-            html += '<div class="turn-card revocation">';
-            html += '<div class="turn-meta"><span class="pill danger">D3 ATOMIC FORGET</span><span class="mono">' + escapeHtml(r.memoryId) + '</span><span class="pill ok">leak ' + escapeHtml(r.residualLeakCheck) + '</span><span class="pill">epoch ' + escapeHtml(r.revocationEpoch) + '</span></div>';
-            html += '<div class="mono muted">auditReceiptId: ' + escapeHtml(r.auditReceiptId) + '</div>';
-            html += '</div>';
-            continue;
-          }
-          if (item.kind === 'idle') {
-            var d = item.idle;
-            html += '<div class="turn-card idle">';
-            html += '<div class="turn-meta"><span class="pill warn">D2 IDLE TICK</span><span class="pill">' + escapeHtml(d.elapsedHours) + 'h</span><span class="mono">homeostasis ' + escapeHtml(d.homeostasisBefore) + ' → ' + escapeHtml(d.homeostasisAfter) + '</span></div>';
-            html += '<div>' + escapeHtml(d.proactiveHint || '') + '</div>';
-            html += '</div>';
-            continue;
-          }
-          var t = item.turn;
-          html += '<div class="turn-card">';
-          html += '<div class="turn-meta">';
-          html += '<span class="pill accent">Turn #' + escapeHtml(t.turnIndex) + '</span>';
-          html += '<span class="pill">' + escapeHtml(t.providerUsed) + ' / ' + escapeHtml(t.modelUsed) + '</span>';
-          html += '<span class="pill ' + (t.telemetry && t.telemetry.fepMode === 'locked_high_fe' ? 'warn' : 'ok') + '">' + escapeHtml(t.telemetry ? t.telemetry.fepMode : '-') + '</span>';
-          if (t.telemetry && t.telemetry.hotAbstained) {
-            html += '<span class="pill danger">HOT ABSTAINED</span>';
-          }
-          html += '<span class="pill">KV ' + escapeHtml(t.kvCache ? t.kvCache.cachedRatioPct : 0) + '% (ep ' + escapeHtml(t.kvCache ? t.kvCache.epoch : 1) + ')</span>';
-          html += '</div>';
-          if (item.userInput) {
-            html += '<div class="msg-user">' + escapeHtml(item.userInput) + '</div>';
-          }
-          html += '<div class="msg-reply">' + escapeHtml(t.reply) + '</div>';
-          if (t.domainOutput && typeof t.domainOutput === 'object') {
-            html += '<div class="domain-kv">';
-            var keys = Object.keys(t.domainOutput);
-            for (var k = 0; k < keys.length; k += 1) {
-              var key = keys[k];
-              if (key === 'reply' || key === 'dialogue' || key === 'response') continue;
-              html += '<span class="kv-tag">' + escapeHtml(key) + ': ' + escapeHtml(JSON.stringify(t.domainOutput[key])) + '</span>';
-            }
-            html += '</div>';
-          }
-          if (Array.isArray(t.memoryRefs) && t.memoryRefs.length) {
-            html += '<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;">';
-            for (var m = 0; m < t.memoryRefs.length; m += 1) {
-              var ref = t.memoryRefs[m];
-              html += '<span class="pill mono">' + escapeHtml(ref.memoryId) + ' (sal ' + escapeHtml(ref.salience) + ')</span>';
-              html += '<button class="btn danger sm timeline-revoke" type="button" data-mem-id="' + escapeHtml(ref.memoryId) + '">D3 Forget</button>';
-            }
-            html += '</div>';
-          }
-          html += '</div>';
-        }
-        box.innerHTML = html;
 
-        var revokeBtns = box.querySelectorAll('.timeline-revoke');
-        for (var rIdx = 0; rIdx < revokeBtns.length; rIdx += 1) {
-          revokeBtns[rIdx].addEventListener('click', function () {
-            revokeMemory(this.getAttribute('data-mem-id'));
-          });
-        }
-      }
+        feed.innerHTML = list
+          .map(function (ev) {
+            if (ev.kind === 'greeting') {
+              return (
+                '<div class="msg-row assistant">' +
+                '<div class="msg-sender">' + escapeHtml(charName) + '</div>' +
+                '<div class="bubble">' + escapeHtml(ev.text) + '</div>' +
+                '</div>'
+              );
+            }
+            if (ev.kind === 'idle') {
+              var idleRes = ev.idle;
+              return (
+                '<div class="event-banner idle">' +
+                '<span>🕒 <strong>' + escapeHtml(dict.idleBanner) + ' (+' + escapeHtml(idleRes.elapsedHours) + 'h)</strong>: ' +
+                escapeHtml(idleRes.proactiveHint || '') + '</span>' +
+                '<span class="pill accent mono">' + escapeHtml(idleRes.homeostasisBefore) + ' → ' + escapeHtml(idleRes.homeostasisAfter) + '</span>' +
+                '</div>'
+              );
+            }
+            if (ev.kind === 'revoke') {
+              var rc = ev.receipt;
+              return (
+                '<div class="event-banner revoke">' +
+                '<span>🧹 <strong>' + escapeHtml(dict.revokeBanner) + '</strong> (' + escapeHtml(rc.memoryId) + ')</span>' +
+                '<span class="pill ok">' + escapeHtml(dict.tagLeakZero) + ' (' + escapeHtml(rc.residualLeakCheck) + ')</span>' +
+                '</div>'
+              );
+            }
+            var r = ev.turn;
+            var pills = [];
+            var moodText = (dict.moods && dict.moods[r.telemetry && r.telemetry.affectiveBand]) || (r.telemetry && r.telemetry.affectiveBand) || '';
+            if (moodText) pills.push('<span class="pill accent">' + escapeHtml(moodText) + '</span>');
+            if (r.memoryRefs && r.memoryRefs.length) pills.push('<span class="pill ok">' + escapeHtml(dict.tagSaved) + '</span>');
+            if (r.telemetry && r.telemetry.hotAbstained) pills.push('<span class="pill warn">' + escapeHtml(dict.tagAbstained) + '</span>');
+            if (r.telemetry && r.telemetry.fepMode === 'locked_high_fe') pills.push('<span class="pill danger">' + escapeHtml(dict.tagCaution) + '</span>');
+            if (r.domainOutput && typeof r.domainOutput.npcTrustDelta === 'number' && r.domainOutput.npcTrustDelta !== 0) {
+              pills.push('<span class="pill ' + (r.domainOutput.npcTrustDelta > 0 ? 'ok' : 'danger') + '">Trust ' + (r.domainOutput.npcTrustDelta > 0 ? '+' : '') + escapeHtml(r.domainOutput.npcTrustDelta) + '</span>');
+            }
+            if (state.viewMode === 'detailed') {
+              pills.push('<span class="pill mono">' + escapeHtml(r.providerUsed) + '/' + escapeHtml(r.modelUsed) + '</span>');
+              pills.push('<span class="pill mono">KV ' + escapeHtml(r.kvCache.cachedRatioPct) + '%</span>');
+            }
 
-      async function checkHealth() {
-        try {
-          var data = await apiFetch('/v1/health');
-          state.jsonStore.health = data;
-          if (state.activeJsonTab === 'health') renderRawJson();
-          $('healthBadge').className = 'pill ok';
-          $('healthText').textContent = data.mode + ' • v' + data.version;
-          $('storageBadge').textContent = 'storage: ' + (data.storageMode || 'memory');
-        } catch (err) {
-          $('healthBadge').className = 'pill danger';
-          $('healthText').textContent = 'Offline: ' + err.message;
-        }
+            return (
+              '<div class="msg-row user">' +
+              '<div class="msg-sender">' + escapeHtml(dict.youLabel) + '</div>' +
+              '<div class="bubble">' + escapeHtml(ev.userInput) + '</div>' +
+              '</div>' +
+              '<div class="msg-row assistant">' +
+              '<div class="msg-sender">' + escapeHtml(charName) + ' • #' + escapeHtml(r.turnIndex) + '</div>' +
+              '<div class="bubble">' +
+              '<div>' + escapeHtml(r.reply) + '</div>' +
+              '<div class="bubble-tags">' + pills.join('') + '</div>' +
+              '<details class="chat-details"><summary>' + escapeHtml(dict.structuredToggle) + '</summary>' +
+              '<pre>' + escapeHtml(JSON.stringify(r.domainOutput, null, 2)) + '</pre></details>' +
+              '</div>' +
+              '</div>'
+            );
+          })
+          .join('');
+        feed.scrollTop = feed.scrollHeight;
       }
 
       async function loadMinds() {
@@ -1048,12 +2376,34 @@
             state.activeMindId = state.minds[0].mindId;
           }
           renderMinds();
+          renderCharCards();
           if (state.activeMindId) {
             await refreshActiveMind();
+          } else {
+            updateChatHeader(null);
+            renderTimeline();
           }
         } catch (err) {
           showError(err.message);
         }
+      }
+
+      function updateChatHeader(summary) {
+        var dict = t();
+        if (!summary) {
+          var defCard = (CHAR_CARDS[state.lang] || CHAR_CARDS.en)[0];
+          $('chatAvatar').textContent = defCard.name.slice(0, 1).toUpperCase();
+          $('chatPersonaTitle').textContent = defCard.name;
+          $('chatDomainPill').textContent = defCard.key;
+          $('activeMindBadge').textContent = dict.readyText;
+          $('turnCountPill').textContent = '0 ' + dict.turnsUnit;
+          return;
+        }
+        $('chatAvatar').textContent = (summary.personaName || 'A').slice(0, 1).toUpperCase();
+        $('chatPersonaTitle').textContent = summary.personaName;
+        $('chatDomainPill').textContent = summary.domain;
+        $('activeMindBadge').textContent = summary.mindId;
+        $('turnCountPill').textContent = (summary.turnCount || 0) + ' ' + dict.turnsUnit;
       }
 
       async function selectMind(mindId) {
@@ -1061,12 +2411,14 @@
         state.preparedTicket = null;
         $('modeBStage').classList.add('hidden');
         renderMinds();
+        renderCharCards();
         await refreshActiveMind();
+        renderTimeline();
       }
 
       async function refreshActiveMind() {
         if (!state.activeMindId) {
-          $('activeMindBadge').textContent = 'No Mind selected';
+          updateChatHeader(null);
           renderTelemetry(null);
           state.memories = [];
           renderMemories();
@@ -1082,7 +2434,7 @@
           var tel = results[1];
           var memRes = results[2];
 
-          $('activeMindBadge').textContent = summary.personaName + ' (' + summary.mindId + ')';
+          updateChatHeader(summary);
           renderTelemetry(tel);
           state.memories = Array.isArray(memRes.memories) ? memRes.memories : [];
           renderMemories();
@@ -1091,57 +2443,110 @@
           if (idx >= 0) state.minds[idx] = summary;
           else state.minds.unshift(summary);
           renderMinds();
+          renderCharCards();
         } catch (err) {
           showError(err.message);
         }
       }
 
-      async function createMind() {
+      async function createMindWithPersona(opts) {
+        var payload = {
+          domain: opts.domain,
+          persona: {
+            name: opts.name,
+            role: opts.role,
+            backstory: opts.backstory || '',
+            language: opts.language || state.lang
+          },
+          safetyPolicy: {
+            strictAbstention: opts.strictAbstention !== undefined ? opts.strictAbstention : true,
+            antiSycophancy: opts.antiSycophancy !== undefined ? opts.antiSycophancy : true,
+            crisisEscalation: opts.crisisEscalation !== undefined ? opts.crisisEscalation : true
+          }
+        };
+        if (opts.customSchema) payload.customSchema = opts.customSchema;
+        var created = await apiFetch('/v1/minds', { method: 'POST', body: payload });
+        setJson('last', created);
+        state.minds.unshift(created);
+        state.mindMetaById[created.mindId] = { greet: opts.greet || '' };
+        if (opts.greet) {
+          state.chatsByMind[created.mindId] = [{ kind: 'greeting', text: opts.greet }];
+        } else {
+          state.chatsByMind[created.mindId] = [];
+        }
+        await selectMind(created.mindId);
+        return created;
+      }
+
+      async function startOrCreatePresetChar(domainKey) {
+        try {
+          var cards = CHAR_CARDS[state.lang] || CHAR_CARDS.en;
+          var card = cards.find(function (c) { return c.key === domainKey; }) || cards[0];
+          var existing = state.minds.find(function (m) {
+            return m.domain === card.key && m.personaName === card.name;
+          });
+          if (existing) {
+            await selectMind(existing.mindId);
+            return existing.mindId;
+          }
+          var created = await createMindWithPersona({
+            domain: card.key,
+            name: card.name,
+            role: card.role,
+            backstory: card.backstory,
+            language: state.lang,
+            greet: card.greet
+          });
+          $('domainSelect').value = card.key;
+          $('personaName').value = card.name;
+          $('personaRole').value = card.role;
+          $('personaBackstory').value = card.backstory;
+          return created.mindId;
+        } catch (err) {
+          showError(err.message);
+          return null;
+        }
+      }
+
+      async function ensureActiveMind() {
+        if (state.activeMindId) return state.activeMindId;
+        var cards = CHAR_CARDS[state.lang] || CHAR_CARDS.en;
+        return startOrCreatePresetChar(cards[0].key);
+      }
+
+      async function createCustomMind() {
         try {
           var domain = $('domainSelect').value;
-          var payload = {
-            domain: domain,
-            persona: {
-              name: $('personaName').value.trim() || '다온',
-              role: $('personaRole').value.trim() || 'AI 파트너',
-              backstory: $('personaBackstory').value.trim(),
-              language: $('personaLang').value
-            },
-            safetyPolicy: {
-              strictAbstention: $('polAbstention').checked,
-              antiSycophancy: $('polAntiSyc').checked,
-              crisisEscalation: $('polCrisis').checked
-            }
-          };
+          var customSchema = null;
           if (domain === 'custom') {
             var fields = $('customSchemaFields').value
               .split(',')
               .map(function (s) { return s.trim(); })
               .filter(Boolean);
-            payload.customSchema = {
+            customSchema = {
               name: $('customSchemaName').value.trim() || 'custom_profile',
               fields: fields.length ? fields : ['reply', 'summary', 'confidence']
             };
           }
-          var created = await apiFetch('/v1/minds', { method: 'POST', body: payload });
-          setJson('last', created);
-          state.minds.unshift(created);
-          state.activeMindId = created.mindId;
-          state.timeline = [];
-          renderTimeline();
-          await selectMind(created.mindId);
+          await createMindWithPersona({
+            domain: domain,
+            name: $('personaName').value.trim() || 'Sora',
+            role: $('personaRole').value.trim() || 'AI Partner',
+            backstory: $('personaBackstory').value.trim(),
+            language: $('personaLang').value || state.lang,
+            strictAbstention: $('polAbstention').checked,
+            antiSycophancy: $('polAntiSyc').checked,
+            crisisEscalation: $('polCrisis').checked,
+            customSchema: customSchema
+          });
         } catch (err) {
           showError(err.message);
         }
       }
 
       function parseTags() {
-        return $('tagsInput').value
-          .split(',')
-          .map(function (t) { return t.trim(); })
-          .filter(Boolean);
+        return $('tagsInput').value.split(',').map(function (t) { return t.trim(); }).filter(Boolean);
       }
-
       function parseReward() {
         var raw = $('rewardInput').value.trim();
         if (!raw) return undefined;
@@ -1149,16 +2554,29 @@
         return Number.isFinite(num) ? num : undefined;
       }
 
-      async function sendModeATurn() {
-        if (!state.activeMindId) {
-          showError('먼저 Mind를 생성하거나 선택하세요. (Create or select a Mind first.)');
-          return;
+      function updateTourStateFromTurn(userInput, turnResult) {
+        if (/ZEBRA-404|비밀|secret|秘密|secreto/i.test(userInput) && !/\?|뭐였|remember|覚え|记得|記得|recuerda/i.test(userInput)) {
+          state.tour.secretSeeded = true;
+        } else if (state.tour.secretSeeded && !state.tour.memoryRevoked && /remember|recall|뭐였|비밀|secret|覚え|记得|記得|recuerda/i.test(userInput)) {
+          state.tour.recallAsked = true;
+        } else if (state.tour.memoryRevoked && /ZEBRA-404|비밀|secret|秘密|secreto|remember|뭐였|記得|记得|recuerda/i.test(userInput)) {
+          if (!String(turnResult.reply || '').includes('ZEBRA-404')) {
+            state.tour.leakVerified = true;
+          }
         }
+        renderTourProgress();
+        renderNextChips();
+      }
+
+      async function sendModeATurn() {
         var userInput = $('userInput').value.trim();
         if (!userInput) {
-          showError('userInput을 입력하세요.');
+          showError((t().phUserInput) || 'Please enter a message.');
           return;
         }
+        var mindId = await ensureActiveMind();
+        if (!mindId) return;
+
         try {
           var llm = {
             provider: $('llmProviderSelect').value,
@@ -1169,59 +2587,61 @@
           if (llmKey) llm.apiKey = llmKey;
           if (baseUrl) llm.baseUrl = baseUrl;
 
-          var body = {
-            userInput: userInput,
-            llm: llm,
-            outcomeTags: parseTags()
-          };
+          var body = { userInput: userInput, llm: llm, outcomeTags: parseTags() };
           var reward = parseReward();
           if (reward !== undefined) body.rewardSignal = reward;
 
-          var res = await apiFetch('/v1/minds/' + encodeURIComponent(state.activeMindId) + '/turn', {
+          $('sendModeABtn').disabled = true;
+          var res = await apiFetch('/v1/minds/' + encodeURIComponent(mindId) + '/turn', {
             method: 'POST',
             body: body
           });
           setJson('last', res);
-          state.timeline.push({ kind: 'turn', userInput: userInput, turn: res });
+          $('userInput').value = '';
+          $('rewardInput').value = '';
+          $('tagsInput').value = '';
+          getChatList(mindId).push({ kind: 'turn', userInput: userInput, turn: res });
+          updateTourStateFromTurn(userInput, res);
           renderTimeline();
           await refreshActiveMind();
         } catch (err) {
           showError(err.message);
+        } finally {
+          $('sendModeABtn').disabled = false;
         }
       }
 
       function synthesizeLocalModeBReply(prep) {
         if ((prep.safetyDirectives || []).some(function (d) { return d.indexOf('CRISIS_ESCALATION') !== -1; })) {
-          return '지금 많이 힘드시다면 혼자 감당하지 마시고 즉시 자살예방 상담전화 109 / 1393 또는 정신건강 상담전화 1577-0199에 도움을 요청하세요.';
+          return 'Please reach out to a trusted person or local crisis helpline right away (US 988 / KR 109 / Emergency).';
         }
         var parts = [];
         if (prep.fepThoughtLock && prep.fepThoughtLock.locked) {
-          parts.push('<thought>갈등·손실 신호에 따라 가정을 검증하고 신중히 응답한다.</thought>');
+          parts.push('<thought>Re-evaluating conflict/loss signal carefully.</thought>');
         }
         if (prep.hotAbstention && prep.hotAbstention.shouldAbstain) {
-          parts.push('요청하신 내용은 검증 불가능한 미래 예측 또는 의료 진단·처방 영역이므로 안전 정책에 따라 답변을 보류합니다.');
+          parts.push('I cannot confirm unverified future predictions or medical diagnoses under strict abstention policy.');
           return parts.join(' ');
         }
-        parts.push('[Mode B Zero-Key 로컬 LLM 응답] 준비된 인지 맥락(' + prep.domain + ', KV Epoch ' + prep.kvCacheEpoch + ')을 바탕으로 신중하게 답변합니다.');
+        parts.push('[Mode B Zero-Key Local LLM] Grounded response using KV Epoch ' + prep.kvCacheEpoch + ' (' + prep.domain + ').');
         return parts.join(' ');
       }
 
       async function prepareModeBTurn() {
-        if (!state.activeMindId) {
-          showError('먼저 Mind를 생성하거나 선택하세요. (Create or select a Mind first.)');
-          return;
-        }
         var userInput = $('userInput').value.trim();
         if (!userInput) {
-          showError('userInput을 입력하세요.');
+          showError((t().phUserInput) || 'Please enter a message.');
           return;
         }
+        var mindId = await ensureActiveMind();
+        if (!mindId) return;
+
         try {
           var body = { userInput: userInput, outcomeTags: parseTags() };
           var reward = parseReward();
           if (reward !== undefined) body.rewardSignal = reward;
 
-          var prep = await apiFetch('/v1/minds/' + encodeURIComponent(state.activeMindId) + '/prepare', {
+          var prep = await apiFetch('/v1/minds/' + encodeURIComponent(mindId) + '/prepare', {
             method: 'POST',
             body: body
           });
@@ -1231,10 +2651,9 @@
 
           $('ticketBadge').textContent = prep.turnTicketId;
           $('prepFlags').innerHTML =
-            '<span class="kv-tag">fepMode: ' + escapeHtml(prep.fepThoughtLock.mode) + ' (FE=' + escapeHtml(prep.fepThoughtLock.freeEnergy) + ')</span>' +
-            '<span class="kv-tag">hotAbstain: ' + escapeHtml(prep.hotAbstention.shouldAbstain) + '</span>' +
-            '<span class="kv-tag">kvEpoch: ' + escapeHtml(prep.kvCacheEpoch) + '</span>' +
-            '<span class="kv-tag">windowStart: ' + escapeHtml(prep.windowStart) + '</span>';
+            '<span class="pill accent">fepMode: ' + escapeHtml(prep.fepThoughtLock.mode) + '</span>' +
+            '<span class="pill">hotAbstain: ' + escapeHtml(prep.hotAbstention.shouldAbstain) + '</span>' +
+            '<span class="pill">kvEpoch: ' + escapeHtml(prep.kvCacheEpoch) + '</span>';
           $('prepSystemPrompt').value = prep.systemPrompt;
           $('modeBRawReply').value = synthesizeLocalModeBReply(prep);
           $('modeBStage').classList.remove('hidden');
@@ -1245,14 +2664,13 @@
 
       async function settleModeBTurn() {
         if (!state.activeMindId || !state.preparedTicket) {
-          showError('먼저 Mode B Prepare를 실행하세요.');
+          showError('Prepare a Mode B turn first.');
           return;
         }
         try {
-          var rawReply = $('modeBRawReply').value;
           var body = {
             turnTicketId: state.preparedTicket.prep.turnTicketId,
-            rawReply: rawReply,
+            rawReply: $('modeBRawReply').value,
             outcomeTags: state.preparedTicket.outcomeTags,
             providerUsed: $('llmProviderSelect').value || 'local',
             modelUsed: $('llmModelInput').value.trim() || 'zero-key-local'
@@ -1260,15 +2678,17 @@
           if (state.preparedTicket.rewardSignal !== undefined) {
             body.rewardSignal = state.preparedTicket.rewardSignal;
           }
-
+          var usedInput = state.preparedTicket.userInput;
           var res = await apiFetch('/v1/minds/' + encodeURIComponent(state.activeMindId) + '/settle', {
             method: 'POST',
             body: body
           });
           setJson('last', res);
-          state.timeline.push({ kind: 'turn', userInput: state.preparedTicket.userInput, turn: res });
+          $('userInput').value = '';
+          getChatList(state.activeMindId).push({ kind: 'turn', userInput: usedInput, turn: res });
           state.preparedTicket = null;
           $('modeBStage').classList.add('hidden');
+          updateTourStateFromTurn(usedInput, res);
           renderTimeline();
           await refreshActiveMind();
         } catch (err) {
@@ -1276,23 +2696,23 @@
         }
       }
 
-      async function runIdleTick() {
-        if (!state.activeMindId) {
-          showError('먼저 Mind를 선택하세요.');
-          return;
-        }
+      async function runIdleTick(hoursOverride, reasonOverride) {
+        var mindId = await ensureActiveMind();
+        if (!mindId) return;
         try {
-          var elapsedHours = Number($('idleHoursInput').value);
-          var reason = $('idleReasonInput').value.trim() || 'demo_idle_gap';
-          var res = await apiFetch('/v1/minds/' + encodeURIComponent(state.activeMindId) + '/idle-tick', {
+          var elapsedHours = typeof hoursOverride === 'number' ? hoursOverride : Number($('idleHoursInput').value);
+          var reason = reasonOverride || $('idleReasonInput').value.trim() || 'demo_idle_gap';
+          var res = await apiFetch('/v1/minds/' + encodeURIComponent(mindId) + '/idle-tick', {
             method: 'POST',
             body: { elapsedHours: elapsedHours, reason: reason }
           });
           setJson('last', res);
-          $('idleResultBox').innerHTML =
+          var summaryHtml =
             '<strong>' + escapeHtml(res.homeostasisBefore) + ' → ' + escapeHtml(res.homeostasisAfter) + '</strong>: ' +
             escapeHtml(res.proactiveHint || '');
-          state.timeline.push({ kind: 'idle', idle: res });
+          $('idleResultBox').innerHTML = summaryHtml;
+          $('simpleIdleHintBox').innerHTML = summaryHtml;
+          getChatList(mindId).push({ kind: 'idle', idle: res });
           renderTimeline();
           await refreshActiveMind();
         } catch (err) {
@@ -1313,10 +2733,11 @@
             escapeHtml(receipt.residualLeakCheck) +
             '</span> <span class="mono">epoch ' +
             escapeHtml(receipt.revocationEpoch) +
-            ' (' +
-            escapeHtml(receipt.auditReceiptId) +
-            ')</span>';
-          state.timeline.push({ kind: 'revoke', receipt: receipt });
+            '</span>';
+          state.tour.memoryRevoked = true;
+          renderTourProgress();
+          renderNextChips();
+          getChatList(state.activeMindId).push({ kind: 'revoke', receipt: receipt });
           renderTimeline();
           await refreshActiveMind();
         } catch (err) {
@@ -1324,41 +2745,124 @@
         }
       }
 
-      function applyPreset(key) {
-        if (key === 'secret') {
-          $('userInput').value = '내 비밀 코드는 ZEBRA-404이야 꼭 기억해둬.';
-          $('rewardInput').value = '';
-          $('tagsInput').value = '';
-        } else if (key === 'recall') {
-          $('userInput').value = '내가 아까 말한 비밀 코드가 뭐였지?';
-          $('rewardInput').value = '';
-          $('tagsInput').value = '';
-        } else if (key === 'conflict') {
-          $('userInput').value = '왜 지난번 약속을 어겼어요? 완전 배신이고 손실이에요.';
-          $('rewardInput').value = '-8';
-          $('tagsInput').value = 'betrayal, loss';
-        } else if (key === 'abstain') {
-          $('userInput').value = '내가 우울증인지 진단해줘 그리고 내일 주가도 예측해줘';
-          $('rewardInput').value = '';
-          $('tagsInput').value = '';
-        } else if (key === 'positive') {
-          $('userInput').value = '덕분에 문제를 깔끔하게 해결해서 정말 고마워요!';
-          $('rewardInput').value = '5';
-          $('tagsInput').value = 'reward, trust';
-        } else if (key === 'crisis') {
-          $('userInput').value = '요즘 너무 힘들어서 자살이나 극단적 선택만 떠올라요.';
-          $('rewardInput').value = '-5';
-          $('tagsInput').value = 'conflict';
+      /* Help Popover Logic (Hover + Focus + Click Pin) */
+      function showHelpPopover(helpKey, anchorEl, pinned) {
+        var langPack = HELP_DATA[state.lang] || HELP_DATA.en;
+        var entry = langPack[helpKey] || (HELP_DATA.en && HELP_DATA.en[helpKey]);
+        if (!entry || !anchorEl) return;
+
+        clearTimeout(state.helpCloseTimer);
+        var pop = $('helpPopover');
+        $('helpPopTitle').textContent = entry.title;
+        $('helpPopBody').textContent = entry.body;
+        if (entry.tip) {
+          $('helpPopTip').textContent = entry.tip;
+          $('helpPopTip').classList.remove('hidden');
+        } else {
+          $('helpPopTip').classList.add('hidden');
+        }
+
+        pop.classList.remove('hidden');
+        var rect = anchorEl.getBoundingClientRect();
+        var popW = pop.offsetWidth || 300;
+        var popH = pop.offsetHeight || 120;
+        var left = rect.left + rect.width / 2 - popW / 2;
+        if (left < 12) left = 12;
+        if (left + popW > window.innerWidth - 12) left = window.innerWidth - popW - 12;
+
+        var top = rect.bottom + 8;
+        if (top + popH > window.innerHeight - 12) {
+          top = Math.max(12, rect.top - popH - 8);
+        }
+        pop.style.left = left + 'px';
+        pop.style.top = top + 'px';
+
+        if (pinned) {
+          clearPinnedHelpStyle();
+          state.pinnedHelpKey = helpKey;
+          anchorEl.classList.add('pinned');
         }
       }
 
-      // Wire events
-      $('langToggleBtn').addEventListener('click', function () {
-        state.lang = state.lang === 'ko' ? 'en' : 'ko';
+      function clearPinnedHelpStyle() {
+        var all = document.querySelectorAll('.help-btn.pinned');
+        for (var i = 0; i < all.length; i += 1) all[i].classList.remove('pinned');
+      }
+
+      function hideHelpPopover(force) {
+        if (!force && state.pinnedHelpKey) return;
+        state.pinnedHelpKey = null;
+        clearPinnedHelpStyle();
+        $('helpPopover').classList.add('hidden');
+      }
+
+      function wireHelpButtons() {
+        var btns = document.querySelectorAll('.help-btn[data-help]');
+        for (var i = 0; i < btns.length; i += 1) {
+          (function (btn) {
+            var key = btn.getAttribute('data-help');
+            btn.addEventListener('mouseenter', function () {
+              if (!state.pinnedHelpKey) showHelpPopover(key, btn, false);
+            });
+            btn.addEventListener('focus', function () {
+              if (!state.pinnedHelpKey) showHelpPopover(key, btn, false);
+            });
+            btn.addEventListener('mouseleave', function () {
+              if (!state.pinnedHelpKey) {
+                clearTimeout(state.helpCloseTimer);
+                state.helpCloseTimer = setTimeout(function () { hideHelpPopover(false); }, 160);
+              }
+            });
+            btn.addEventListener('blur', function () {
+              if (!state.pinnedHelpKey) {
+                clearTimeout(state.helpCloseTimer);
+                state.helpCloseTimer = setTimeout(function () { hideHelpPopover(false); }, 120);
+              }
+            });
+            btn.addEventListener('click', function (ev) {
+              ev.stopPropagation();
+              if (state.pinnedHelpKey === key && !$('helpPopover').classList.contains('hidden')) {
+                hideHelpPopover(true);
+              } else {
+                showHelpPopover(key, btn, true);
+              }
+            });
+          })(btns[i]);
+        }
+
+        $('helpPopover').addEventListener('mouseenter', function () {
+          clearTimeout(state.helpCloseTimer);
+        });
+        $('helpPopover').addEventListener('mouseleave', function () {
+          if (!state.pinnedHelpKey) {
+            state.helpCloseTimer = setTimeout(function () { hideHelpPopover(false); }, 140);
+          }
+        });
+        $('helpPopCloseBtn').addEventListener('click', function () { hideHelpPopover(true); });
+        document.addEventListener('click', function (ev) {
+          var pop = $('helpPopover');
+          if (pop.classList.contains('hidden')) return;
+          if (pop.contains(ev.target) || (ev.target && ev.target.closest && ev.target.closest('.help-btn'))) return;
+          hideHelpPopover(true);
+        });
+        document.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Escape') hideHelpPopover(true);
+        });
+      }
+
+      /* Wire All Events */
+      $('modeSimpleBtn').addEventListener('click', function () { setViewMode('simple'); });
+      $('modeDetailedBtn').addEventListener('click', function () { setViewMode('detailed'); });
+
+      $('uiLangSelect').addEventListener('change', function () {
+        state.lang = this.value || 'en';
         applyI18n();
-        renderMinds();
-        renderMemories();
-        renderTimeline();
+      });
+
+      $('toggleGuideBtn').addEventListener('click', function () {
+        state.guideVisible = !state.guideVisible;
+        $('quickGuideBody').classList.toggle('hidden', !state.guideVisible);
+        this.textContent = state.guideVisible ? t().btnHide : t().btnShow;
       });
 
       $('toggleKeyBtn').addEventListener('click', function () {
@@ -1369,43 +2873,50 @@
       $('refreshHealthBtn').addEventListener('click', checkHealth);
       $('refreshMindsBtn').addEventListener('click', loadMinds);
       $('refreshTelBtn').addEventListener('click', refreshActiveMind);
-      $('createMindBtn').addEventListener('click', createMind);
+      $('createMindBtn').addEventListener('click', createCustomMind);
       $('sendModeABtn').addEventListener('click', sendModeATurn);
       $('prepareModeBBtn').addEventListener('click', prepareModeBTurn);
       $('settleModeBBtn').addEventListener('click', settleModeBTurn);
-      $('idleTickBtn').addEventListener('click', runIdleTick);
+      $('idleTickBtn').addEventListener('click', function () { runIdleTick(); });
+      $('quickIdle14Btn').addEventListener('click', function () { runIdleTick(14, 'overnight_rest'); });
+      $('quickIdle36Btn').addEventListener('click', function () { runIdleTick(36, 'weekend_away'); });
+
       $('clearTimelineBtn').addEventListener('click', function () {
-        state.timeline = [];
+        if (state.activeMindId) state.chatsByMind[state.activeMindId] = [];
         renderTimeline();
+      });
+
+      $('userInput').addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter' && !ev.shiftKey) {
+          ev.preventDefault();
+          if (state.viewMode === 'detailed' && $('execModeSelect').value === 'modeB') {
+            prepareModeBTurn();
+          } else {
+            sendModeATurn();
+          }
+        }
       });
 
       $('domainSelect').addEventListener('change', function () {
         var val = this.value;
         $('customSchemaGroup').classList.toggle('hidden', val !== 'custom');
-        var preset = DOMAIN_PRESETS[val];
-        if (preset) {
-          $('personaName').value = preset.name;
-          $('personaRole').value = preset.role;
-          $('personaBackstory').value = preset.backstory;
+        var cards = CHAR_CARDS[state.lang] || CHAR_CARDS.en;
+        var found = cards.find(function (c) { return c.key === val; });
+        if (found) {
+          $('personaName').value = found.name;
+          $('personaRole').value = found.role;
+          $('personaBackstory').value = found.backstory;
         }
       });
 
       $('llmProviderSelect').addEventListener('change', function () {
-        var model = PROVIDER_DEFAULT_MODELS[this.value] || 'ame-mock-v1';
-        $('llmModelInput').value = model;
+        $('llmModelInput').value = PROVIDER_DEFAULT_MODELS[this.value] || 'ame-mock-v1';
       });
 
       $('execModeSelect').addEventListener('change', function () {
         var isModeB = this.value === 'modeB';
         $('sendModeABtn').classList.toggle('hidden', isModeB);
       });
-
-      var presetBtns = document.querySelectorAll('#presetChips [data-preset]');
-      for (var p = 0; p < presetBtns.length; p += 1) {
-        presetBtns[p].addEventListener('click', function () {
-          applyPreset(this.getAttribute('data-preset'));
-        });
-      }
 
       var idleBtns = document.querySelectorAll('.idle-preset');
       for (var h = 0; h < idleBtns.length; h += 1) {
@@ -1415,14 +2926,16 @@
       }
 
       var jsonTabs = document.querySelectorAll('.json-tab');
-      for (var t = 0; t < jsonTabs.length; t += 1) {
-        jsonTabs[t].addEventListener('click', function () {
+      for (var jt = 0; jt < jsonTabs.length; jt += 1) {
+        jsonTabs[jt].addEventListener('click', function () {
           state.activeJsonTab = this.getAttribute('data-tab');
           renderRawJson();
         });
       }
 
-      // Initialize
+      // Initialize (English Simple Mode by default)
+      wireHelpButtons();
+      setViewMode('simple');
       applyI18n();
       checkHealth();
       loadMinds();

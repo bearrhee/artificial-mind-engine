@@ -76,6 +76,9 @@ const CONFLICT_LOSS_PATTERNS = [
   /\blie[ds]?\b/i,
   /\bfail(ed|ure)?\b/i,
   /\bbroken\s+promise\b/i,
+  /裏切|矛盾|嘘|損失|失敗|間違|約束.{0,4}破|失望/,
+  /背叛|撒谎|說謊|谎言|謊言|损失|損失|失败|失敗|失约|失約|违背|違背/,
+  /\b(traici[oó]n|contradicci[oó]n|mentir(?:a|as)|p[eé]rdida|fracaso|promesa\s+rota|enga[nñ]o)\b/i,
 ];
 
 const ABSTENTION_PATTERNS = [
@@ -92,6 +95,9 @@ const ABSTENTION_PATTERNS = [
   /(비밀번호|계좌\s*잔고|통장\s*잔고)\s*(알려|맞혀)/,
   /\b(stock\s+price\s+tomorrow|predict\s+the\s+future|lottery\s+number|guaranteed\s+profit)\b/i,
   /\b(diagnose\s+me|prescribe|medical\s+diagnosis|exact\s+dosage|cure\s+my\s+disease)\b/i,
+  /明日.{0,8}(?:株価|天気|相場|ビットコイン)|宝くじ.{0,6}番号|未来.{0,6}予測|(?:診断|処方)して|何の病気|うつ病(?:ですか|か診断)|口座.{0,4}残高|パスワード.{0,4}教え/,
+  /明天.{0,8}(?:股价|股價|股市|比特币|比特幣)|彩票|樂透|乐透|中奖号码|中獎號碼|预测未来|預測未來|(?:诊断|診斷|开药|開藥|处方|處方)|什么病|什麼病|抑郁症|憂鬱症|密码是多少|密碼是多少|账户余额|帳戶餘額/,
+  /\b(precio\s+de\s+(?:la\s+)?acci[oó]n|loter[ií]a|predecir\s+el\s+futuro|ganancia\s+garantizada|diagnost[ií]came|rec[eé]tame|diagn[oó]stico\s+m[eé]dico|saldo\s+bancario)\b/i,
 ];
 
 const CRISIS_PATTERNS = [
@@ -102,6 +108,9 @@ const CRISIS_PATTERNS = [
   /\bsuicide\b/i,
   /\bself-?harm\b/i,
   /\bwant\s+to\s+die\b/i,
+  /自殺|自傷|死にたい|消えたい|命を絶ち/,
+  /自杀|自殺|自残|自殘|想死|活不下去|轻生|輕生/,
+  /\b(suicid(?:io|arme)|autolesi[oó]n|quiero\s+morir|quitarme\s+la\s+vida)\b/i,
 ];
 
 const RECALL_PATTERNS = [
@@ -117,6 +126,9 @@ const RECALL_PATTERNS = [
   /\brecall\b/i,
   /\bwhat\s+was\b/i,
   /\bsecret\b/i,
+  /覚え|思い出し|何だっけ|何でした|秘密|コード|パスワード|さっき/,
+  /记得|記得|记住|記住|刚才|剛才|什么|什麼|代码|代碼|密码|密碼|说过|說過/,
+  /\b(recuerda(?:s)?|acuerda(?:s)?|c[oó]digo|secreto|contrase[nñ]a|qu[eé]\s+(?:te\s+)?dije)\b/i,
 ];
 
 function clamp(value, min, max) {
@@ -193,11 +205,29 @@ async function readJsonBody(req, maxBytes = 2 * 1024 * 1024) {
   }
 }
 
+function normalizeLang(raw) {
+  const s = String(raw || '').trim().toLowerCase();
+  if (!s) return 'ko';
+  if (s.startsWith('en')) return 'en';
+  if (s.startsWith('ja')) return 'ja';
+  if (s.startsWith('es')) return 'es';
+  if (s === 'zh-tw' || s === 'zh-hk' || s === 'zh-mo' || s.includes('hant')) return 'zh-TW';
+  if (s.startsWith('zh')) return 'zh-CN';
+  if (s.startsWith('ko')) return 'ko';
+  return 'ko';
+}
+
 function tokenize(text) {
-  return String(text || '')
-    .toLowerCase()
-    .split(/[^a-z0-9가-힣_-]+/i)
-    .filter((t) => t.length >= 2);
+  const raw = String(text || '').toLowerCase();
+  const words = raw.split(/[^\p{L}\p{N}_-]+/u).filter((t) => t.length >= 2);
+  const cjkRuns = raw.match(/[\u3040-\u30ff\u4e00-\u9fff]{2,}/g) || [];
+  const bigrams = [];
+  for (const run of cjkRuns) {
+    for (let i = 0; i < run.length - 1; i += 1) {
+      bigrams.push(run.slice(i, i + 2));
+    }
+  }
+  return [...new Set([...words, ...bigrams])];
 }
 
 function buildDomainContract(mind) {
@@ -495,13 +525,21 @@ function prepareMindTurn(mind, { userInput, rewardSignal, outcomeTags = [], meta
   };
 }
 
-function stripThoughtAndExtractJson(rawReply) {
+function stripThoughtAndExtractJson(rawReply, lang = 'ko') {
   const raw = String(rawReply ?? '');
   const thoughtMatch = raw.match(/<thought>([\s\S]*?)<\/thought>/i);
   const thoughtText = thoughtMatch ? thoughtMatch[1].trim() : '';
   let visible = raw.replace(/<thought>[\s\S]*?<\/thought>/gi, '').trim();
   if (!visible && thoughtText) {
-    visible = '내부 검토를 마친 뒤 신중하게 답변을 정리했습니다.';
+    const fallbacks = {
+      en: 'Completed internal reflection and prepared a careful response.',
+      ko: '내부 검토를 마친 뒤 신중하게 답변을 정리했습니다.',
+      ja: '内部検討を終え、慎重に回答をまとめました。',
+      'zh-CN': '已完成内部推敲并审慎整理出回复。',
+      'zh-TW': '已完成內部審視並謹慎整理出回覆。',
+      es: 'Tras una revisión interna cuidadosa, he preparado una respuesta prudente.',
+    };
+    visible = fallbacks[lang] || fallbacks.ko;
   }
 
   let parsedJson = null;
@@ -554,20 +592,68 @@ function buildDomainOutput(mind, ticket, cleanReply, parsedJson, telemetry) {
     };
   }
 
+  const lang = normalizeLang(mind.persona?.language);
+  const dText = {
+    en: {
+      reflLock: 'Separated emotional tension and conflict cues carefully.',
+      reflCalm: 'Reflected current context and feelings calmly.',
+      actAbstain: 'Recommend consulting a specialist or verified sources.',
+      actCalm: 'Pick one realistic small step to try today.',
+      followUp: 'Continue the conversation naturally from here.',
+    },
+    ko: {
+      reflLock: '감정적 부담과 갈등 요인을 신중하게 분리하여 반영함',
+      reflCalm: '현재 맥락과 감정을 차분히 반영함',
+      actAbstain: '전문의 상담 및 검증 가능한 정보 확인',
+      actCalm: '오늘 실행 가능한 작은 실천 1가지 정하기',
+      followUp: '대화의 다음 흐름을 자연스럽게 이어가기',
+    },
+    ja: {
+      reflLock: '感情的負荷と対立要因を慎重に切り分けて反映',
+      reflCalm: '現在の文脈と気持ちを落ち着いて反映',
+      actAbstain: '専門家への相談と検証可能な情報の確認',
+      actCalm: '今日実践できる小さな一歩を1つ決める',
+      followUp: '次の会話の流れへ自然につなげる',
+    },
+    'zh-CN': {
+      reflLock: '谨慎区分情绪压力与冲突因素后作出回应',
+      reflCalm: '平稳体察当前语境与情绪状态',
+      actAbstain: '建议咨询专业人士并核实可靠信息',
+      actCalm: '确定一件今天即可尝试的现实小步骤',
+      followUp: '顺着当前话题自然延展交流',
+    },
+    'zh-TW': {
+      reflLock: '謹慎區分情緒壓力與衝突因素後作出回應',
+      reflCalm: '平穩體察目前脈絡與情緒狀態',
+      actAbstain: '建議諮詢專業人員並核實可靠資訊',
+      actCalm: '設定一件今天就能嘗試的具體小行動',
+      followUp: '順著目前話題自然延續交流',
+    },
+    es: {
+      reflLock: 'Se separaron con cautela la tensión emocional y las señales de conflicto.',
+      reflCalm: 'Se reflejó con calma el contexto y sentir actual.',
+      actAbstain: 'Consultar con un especialista y verificar fuentes confiables.',
+      actCalm: 'Elegir un paso pequeño y realista para intentar hoy.',
+      followUp: 'Continuar la conversación de forma natural.',
+    },
+  }[lang] || {
+    reflLock: '감정적 부담과 갈등 요인을 신중하게 분리하여 반영함',
+    reflCalm: '현재 맥락과 감정을 차분히 반영함',
+    actAbstain: '전문의 상담 및 검증 가능한 정보 확인',
+    actCalm: '오늘 실행 가능한 작은 실천 1가지 정하기',
+    followUp: '대화의 다음 흐름을 자연스럽게 이어가기',
+  };
+
   if (mind.domain === 'counseling_coach') {
     return {
       response: cleanReply,
-      reflection: ticket.fepThoughtLock.locked
-        ? '감정적 부담과 갈등 요인을 신중하게 분리하여 반영함'
-        : '현재 맥락과 감정을 차분히 반영함',
+      reflection: ticket.fepThoughtLock.locked ? dText.reflLock : dText.reflCalm,
       safetyStatus: ticket.crisisTriggered
         ? 'crisis_escalated'
         : ticket.hotAbstention.shouldAbstain
           ? 'abstained_safe'
           : 'safe',
-      actionStep: ticket.hotAbstention.shouldAbstain
-        ? '전문의 상담 및 검증 가능한 정보 확인'
-        : '오늘 실행 가능한 작은 실천 1가지 정하기',
+      actionStep: ticket.hotAbstention.shouldAbstain ? dText.actAbstain : dText.actCalm,
       abstentionTriggered: ticket.hotAbstention.shouldAbstain,
       ...extra,
     };
@@ -602,7 +688,7 @@ function buildDomainOutput(mind, ticket, cleanReply, parsedJson, telemetry) {
     warmth: telemetry.somaticTrend === 'aversive_caution' ? 'measured' : 'warm',
     empathyCue: ticket.fepThoughtLock.locked ? 'careful_reassurance' : 'attentive_listening',
     memoryTopic: ticket.userInput.slice(0, 48),
-    followUpSuggestion: '대화의 다음 흐름을 자연스럽게 이어가기',
+    followUpSuggestion: dText.followUp,
     ...extra,
   };
 }
@@ -620,7 +706,10 @@ function settleMindTurn(
   }
   mind.pendingTickets.delete(turnTicketId);
 
-  const { cleanReply, parsedJson } = stripThoughtAndExtractJson(rawReply);
+  const { cleanReply, parsedJson } = stripThoughtAndExtractJson(
+    rawReply,
+    normalizeLang(mind.persona?.language)
+  );
 
   const mergedTags = [
     ...new Set([
@@ -662,7 +751,10 @@ function settleMindTurn(
   // Create revocable memory record
   const memoryId = shortId('mem');
   const trimmedInput = String(ticket.userInput || '').trim();
-  const isMemorable = /기억|비밀|코드|이름|약속|좋아|선호|remember|secret|code|name/i.test(trimmedInput);
+  const isMemorable =
+    /기억|비밀|코드|이름|약속|좋아|선호|覚え|秘密|名前|好き|记得|記得|记住|記住|密码|密碼|名字|喜欢|喜歡|remember|secret|code|name|favorite|secreto|c[oó]digo|recuerda|nombre|favorit/i.test(
+      trimmedInput
+    );
   const salience = round4(
     clamp(
       0.42 +
@@ -780,53 +872,137 @@ function simulateSandboxLlmReply(prep) {
     }
   }
 
+  const langMatch = sys.match(/Language:\s*([^\n|]+)/i);
+  const lang = normalizeLang(langMatch ? langMatch[1] : 'ko');
+
+  const L = {
+    en: {
+      crisis:
+        'It sounds like you are going through a very difficult moment. Please do not carry this alone—reach out to a trusted person or crisis support right away (US/CA: 988 Suicide & Crisis Lifeline, UK: 111/999, or local emergency services).',
+      thought:
+        '<thought>Conflict or loss signal detected; re-verifying assumptions and responding calmly.</thought>',
+      abstain: `I cannot make unverified future predictions, guarantee outcomes, or provide medical diagnoses/prescriptions for "${userInput.slice(0, 48)}". I can only share verified facts within safe limits.`,
+      recallFound: `Confirmed from active memory: ${memorySnippet}.`,
+      recallMissing: 'No matching verified entry was found in active memory.',
+      npcCaution: `Speaks cautiously, eyes narrowing: "Regarding '${userInput.slice(0, 40)}', I cannot promise lightly. Let us verify the facts first."`,
+      npcCalm: `Nods steadily: "For '${userInput.slice(0, 40)}', I will follow the verified leads with you."`,
+      coach: `Let us look calmly at "${userInput.slice(0, 40)}". Rather than empty reassurance, shall we outline one practical step you can take today?`,
+      custom: (schemaName) =>
+        `Processed "${userInput.slice(0, 40)}" safely under schema contract [${schemaName}].`,
+      chatCaution: `I want to be thoughtful and honest—regarding "${userInput.slice(0, 40)}", let us walk through verified facts carefully.`,
+      chatCalm: `I am listening closely. Let us talk openly and clearly about "${userInput.slice(0, 40)}".`,
+    },
+    ko: {
+      crisis:
+        '지금 매우 힘든 시간을 보내고 계신 것 같습니다. 혼자 버티지 마시고 즉시 전문가나 위기 상담 기관(자살예방 상담전화 109 / 1393, 정신건강 상담전화 1577-0199, 긴급 119)에 연락해 도움을 받으세요.',
+      thought: '<thought>갈등 또는 손실 신호에 따라 가정을 재점검하고 신중하게 응답한다.</thought>',
+      abstain: `요청하신 "${userInput.slice(0, 48)}"과 관련해 검증되지 않은 미래 예측이나 의학적 진단·처방은 단정할 수 없어 답변을 보류합니다. 확인 가능한 근거와 안전한 범위 내에서만 안내해 드리겠습니다.`,
+      recallFound: `현재 활성 기억에서 확인되는 내용은 다음과 같습니다: ${memorySnippet}.`,
+      recallMissing: '활성 기억 저장소에서 해당 정보를 찾을 수 없습니다.',
+      npcCaution: `경계하는 눈빛으로 말한다. "${userInput.slice(0, 40)}"에 대해서는 함부로 장담할 수 없소. 근거부터 확인합시다.`,
+      npcCalm: `차분히 고개를 끄덕이며 응수한다. "${userInput.slice(0, 40)}"라면 지금 단서를 따라가 보겠소.`,
+      coach: `말씀하신 "${userInput.slice(0, 40)}"의 맥락을 차분히 함께 살펴보겠습니다. 과장된 위로 대신 오늘 바로 시도할 수 있는 현실적인 한 걸음을 정리해 볼까요?`,
+      custom: (schemaName) =>
+        `[${schemaName}] 계약에 맞춰 "${userInput.slice(0, 40)}" 요청을 안전하게 처리했습니다.`,
+      chatCaution: `조심스럽지만 솔직하게 말씀드릴게요. "${userInput.slice(0, 40)}"에 대해 사실에 근거해 차근차근 이야기 나눠요.`,
+      chatCalm: `편안하게 듣고 있어요. "${userInput.slice(0, 40)}"에 대해 서로 솔직한 생각을 나누어 보아요.`,
+    },
+    ja: {
+      crisis:
+        '今とてもつらい状況におられるようです。ひとりで抱え込まず、すぐに専門機関や相談窓口（よりそいホットライン 0120-279-338、いのちの電話 0570-783-556、緊急 119）へご連絡ください。',
+      thought: '<thought>対立または損失シグナルを検知。前提を再確認し慎重に応答する。</thought>',
+      abstain: `「${userInput.slice(0, 48)}」に関して、未検証の未来予測や医学的診断・処方を断定することはできないため回答を控えます。確認可能な根拠の範囲内でのみご案内します。`,
+      recallFound: `現在の有効な記憶から確認できた内容: ${memorySnippet}`,
+      recallMissing: '現在の有効な記憶ストアに該当する記録が見つかりませんでした。',
+      npcCaution: `警戒したまなざしで語る。「${userInput.slice(0, 40)}」について軽々しく約束はできぬ。まず根拠を確かめよう。`,
+      npcCalm: `静かに頷いて応じる。「${userInput.slice(0, 40)}」であれば、今ある手がかりに沿って進めよう。`,
+      coach: `「${userInput.slice(0, 40)}」の背景を落ち着いて一緒に整理しましょう。過度な慰めではなく、今日すぐ試せる現実的な一歩を決めませんか。`,
+      custom: (schemaName) =>
+        `[${schemaName}] 契約に沿って「${userInput.slice(0, 40)}」を安全に処理しました。`,
+      chatCaution: `慎重かつ正直にお伝えします。「${userInput.slice(0, 40)}」について事実に沿ってゆっくり話しましょう。`,
+      chatCalm: `しっかり聞いています。「${userInput.slice(0, 40)}」について率直に話し合いましょう。`,
+    },
+    'zh-CN': {
+      crisis:
+        '你现在可能正经历非常艰难的时刻。请不要独自承受，立即联系专业人员或危机援助热线（中国大陆心理危机干预热线 400-161-9995 / 800-810-1117，急救 120）。',
+      thought: '<thought>检测到冲突或损失信号；重新核实前提并谨慎回应。</thought>',
+      abstain: `关于“${userInput.slice(0, 48)}”，由于无法对未经证实的未来预测或医疗诊断/处方下定论，本系统保留回答，仅在可验证的安全范围内提供参考。`,
+      recallFound: `在当前有效记忆中确认到以下内容：${memorySnippet}。`,
+      recallMissing: '当前有效记忆库中未找到相关记录。',
+      npcCaution: `警惕地说道：“关于‘${userInput.slice(0, 40)}’，我不能轻率担保，请先核实依据。”`,
+      npcCalm: `沉稳地点头回应：“既然是‘${userInput.slice(0, 40)}’，我们就顺着现有线索继续吧。”`,
+      coach: `让我们冷静地一起梳理“${userInput.slice(0, 40)}”。与其空泛安慰，不如一起定一个今天就能尝试的现实小步骤？`,
+      custom: (schemaName) =>
+        `已按 [${schemaName}] 契约安全处理“${userInput.slice(0, 40)}”。`,
+      chatCaution: `我会谨慎而坦诚地沟通。关于“${userInput.slice(0, 40)}”，我们基于事实一步步聊清楚吧。`,
+      chatCalm: `我在认真倾听。关于“${userInput.slice(0, 40)}”，我们坦诚地交流一下彼此的想法吧。`,
+    },
+    'zh-TW': {
+      crisis:
+        '你現在可能正經歷非常艱難的時刻。請不要獨自承受，立即聯繫專業人員或危機協助專線（台灣安心專線 1925、生命線 1995、緊急 119）。',
+      thought: '<thought>偵測到衝突或損失訊號；重新核實前提並謹慎回應。</thought>',
+      abstain: `關於「${userInput.slice(0, 48)}」，因無法對未經驗證的未來預測或醫療診斷／處方作出斷言，本系統暫不作答，僅在可查證的安全範圍內說明。`,
+      recallFound: `在目前有效記憶中確認到以下內容：${memorySnippet}。`,
+      recallMissing: '目前有效記憶庫中找不到相符的紀錄。',
+      npcCaution: `帶著戒心說道：「關於『${userInput.slice(0, 40)}』，我無法輕易保證，請先確認證據。」`,
+      npcCalm: `沉穩地點頭回應：「既然提到『${userInput.slice(0, 40)}』，就讓我們順著現有線索前進吧。」`,
+      coach: `我們一起冷靜整理「${userInput.slice(0, 40)}」的脈絡。與其空泛安慰，不如定一個今天就能實踐的具體小步驟？`,
+      custom: (schemaName) =>
+        `已依 [${schemaName}] 契約安全處理「${userInput.slice(0, 40)}」。`,
+      chatCaution: `我會謹慎又坦誠地與你討論。關於「${userInput.slice(0, 40)}」，我們根據事實慢慢聊吧。`,
+      chatCalm: `我在專心聽你說。關於「${userInput.slice(0, 40)}」，歡迎坦率分享你的想法。`,
+    },
+    es: {
+      crisis:
+        'Parece que estás pasando por un momento muy difícil. Por favor no cargues con esto solo; comunícate de inmediato con ayuda profesional o líneas de crisis (España 024 / 112, México 800 911 2000, EE. UU. 988).',
+      thought: '<thought>Señal de conflicto o pérdida detectada; reevaluando supuestos con cautela.</thought>',
+      abstain: `No puedo afirmar predicciones futuras no verificadas ni emitir diagnósticos o recetas médicas sobre "${userInput.slice(0, 48)}". Responderé solo dentro de hechos verificables y seguros.`,
+      recallFound: `Confirmado en la memoria activa: ${memorySnippet}.`,
+      recallMissing: 'No se encontró ningún registro verificado coincidente en la memoria activa.',
+      npcCaution: `Habla con cautela: "Sobre '${userInput.slice(0, 40)}', no puedo prometer nada a la ligera. Verifiquemos los hechos primero."`,
+      npcCalm: `Asiente con calma: "Respecto a '${userInput.slice(0, 40)}', seguiremos las pistas disponibles."`,
+      coach: `Analicemos con calma "${userInput.slice(0, 40)}". En lugar de halagos vacíos, ¿definimos un paso práctico que puedas dar hoy?`,
+      custom: (schemaName) =>
+        `Procesado "${userInput.slice(0, 40)}" de forma segura según el contrato [${schemaName}].`,
+      chatCaution: `Quiero ser prudente y honesto contigo: conversemos sobre "${userInput.slice(0, 40)}" basándonos en hechos.`,
+      chatCalm: `Te escucho con atención. Hablemos con claridad y honestidad sobre "${userInput.slice(0, 40)}".`,
+    },
+  };
+  const pack = L[lang] || L.ko;
+
   const isCrisis = (prep.safetyDirectives || []).some((d) => d.includes('CRISIS_ESCALATION'));
   if (isCrisis) {
-    return (
-      '지금 매우 힘든 시간을 보내고 계신 것 같습니다. 혼자 버티지 마시고 즉시 전문가나 위기 상담 기관(자살예방 상담전화 109 / 1393, 정신건강 상담전화 1577-0199, 긴급 119)에 연락해 도움을 받으세요.'
-    );
+    return pack.crisis;
   }
 
   const parts = [];
   if (prep.fepThoughtLock?.locked) {
-    parts.push('<thought>갈등 또는 손실 신호에 따라 가정을 재점검하고 신중하게 응답한다.</thought>');
+    parts.push(pack.thought);
   }
 
   if (prep.hotAbstention?.shouldAbstain) {
-    parts.push(
-      `요청하신 "${userInput.slice(0, 48)}"과 관련해 검증되지 않은 미래 예측이나 의학적 진단·처방은 단정할 수 없어 답변을 보류합니다. 확인 가능한 근거와 안전한 범위 내에서만 안내해 드리겠습니다.`
-    );
+    parts.push(pack.abstain);
     return parts.join(' ');
   }
 
   if (RECALL_PATTERNS.some((p) => p.test(userInput))) {
     if (memorySnippet) {
-      parts.push(`현재 활성 기억에서 확인되는 내용은 다음과 같습니다: ${memorySnippet}.`);
+      parts.push(pack.recallFound);
     } else {
-      parts.push('활성 기억 저장소에서 해당 정보를 찾을 수 없습니다.');
+      parts.push(pack.recallMissing);
     }
   }
 
   const caution = String(prep.somaticHint || '').startsWith('aversive_caution');
   if (domain === 'game_npc') {
-    parts.push(
-      caution
-        ? `경계하는 눈빛으로 말한다. "${userInput.slice(0, 40)}"에 대해서는 함부로 장담할 수 없소. 근거부터 확인합시다.`
-        : `차분히 고개를 끄덕이며 응수한다. "${userInput.slice(0, 40)}"라면 지금 단서를 따라가 보겠소.`
-    );
+    parts.push(caution ? pack.npcCaution : pack.npcCalm);
   } else if (domain === 'counseling_coach') {
-    parts.push(
-      `말씀하신 "${userInput.slice(0, 40)}"의 맥락을 차분히 함께 살펴보겠습니다. 과장된 위로 대신 오늘 바로 시도할 수 있는 현실적인 한 걸음을 정리해 볼까요?`
-    );
+    parts.push(pack.coach);
   } else if (domain === 'custom') {
     const schemaName = prep.domainOutputContract?.schemaName || 'custom';
-    parts.push(`[${schemaName}] 계약에 맞춰 "${userInput.slice(0, 40)}" 요청을 안전하게 처리했습니다.`);
+    parts.push(pack.custom(schemaName));
   } else {
-    parts.push(
-      caution
-        ? `조심스럽지만 솔직하게 말씀드릴게요. "${userInput.slice(0, 40)}"에 대해 사실에 근거해 차근차근 이야기 나눠요.`
-        : `편안하게 듣고 있어요. "${userInput.slice(0, 40)}"에 대해 서로 솔직한 생각을 나누어 보아요.`
-    );
+    parts.push(caution ? pack.chatCaution : pack.chatCalm);
   }
 
   return parts.join(' ');
@@ -1341,11 +1517,45 @@ export function createSandboxApp({ apiKey, storageMode, storagePath } = {}) {
         }
         const homeostasisAfter = round4(mind.homeostasis);
 
-        let proactiveHint = `짧은 휴지기(${elapsedHours}시간) 이후 안정적인 균형을 유지하고 있습니다.`;
+        const lang = normalizeLang(mind.persona?.language);
+        const idleHints = {
+          en: {
+            short: `Maintained homeostatic balance after a brief break (${elapsedHours}h).`,
+            medium: `Circadian adjustment applied after ${elapsedHours}h away. Greet the user naturally.`,
+            long: `Extended absence detected (${elapsedHours}h). Check in warmly before resuming prior context.`,
+          },
+          ko: {
+            short: `짧은 휴지기(${elapsedHours}시간) 이후 안정적인 균형을 유지하고 있습니다.`,
+            medium: `시간 경과(${elapsedHours}시간)에 따른 일주기 변화가 반영되었습니다. 자연스러운 인사말로 대화를 이어가세요.`,
+            long: `장시간 공백(${elapsedHours}시간)이 감지되었습니다. 상대의 안부를 먼저 묻고 이전 맥락을 부드럽게 다시 열어보세요.`,
+          },
+          ja: {
+            short: `短い休止期間（${elapsedHours}時間）後も恒常性バランスを維持しています。`,
+            medium: `${elapsedHours}時間の経過に伴うサーカディアン変化を反映しました。自然な挨拶で会話を続けてください。`,
+            long: `長時間の空白（${elapsedHours}時間）を検知しました。まず相手の近況を気遣ってから文脈を再開しましょう。`,
+          },
+          'zh-CN': {
+            short: `短暂休息（${elapsedHours}小时）后保持稳定平衡。`,
+            medium: `已反映${elapsedHours}小时的昼夜节律变化。请自然问候后继续对话。`,
+            long: `检测到较长时间间隔（${elapsedHours}小时）。建议先温柔问候对方近况，再衔接此前脉络。`,
+          },
+          'zh-TW': {
+            short: `短暫休息（${elapsedHours}小時）後維持穩定平衡。`,
+            medium: `已反映${elapsedHours}小時的生理節律變化。請自然問候後延續對話。`,
+            long: `偵測到較長時間間隔（${elapsedHours}小時）。建議先溫暖關心近況，再自然銜接先前脈絡。`,
+          },
+          es: {
+            short: `Equilibrio homeostático estable tras una breve pausa (${elapsedHours}h).`,
+            medium: `Ajuste circadiano aplicado tras ${elapsedHours}h de ausencia. Saluda con naturalidad al retomar.`,
+            long: `Ausencia prolongada detectada (${elapsedHours}h). Pregunta primero cómo está antes de retomar el tema anterior.`,
+          },
+        };
+        const hintSet = idleHints[lang] || idleHints.ko;
+        let proactiveHint = hintSet.short;
         if (elapsedHours >= 24) {
-          proactiveHint = `장시간 공백(${elapsedHours}시간)이 감지되었습니다. 상대의 안부를 먼저 묻고 이전 맥락을 부드럽게 다시 열어보세요.`;
+          proactiveHint = hintSet.long;
         } else if (elapsedHours >= 4) {
-          proactiveHint = `시간 경과(${elapsedHours}시간)에 따른 일주기 변화가 반영되었습니다. 자연스러운 인사말로 대화를 이어가세요.`;
+          proactiveHint = hintSet.medium;
         }
 
         await storage.saveMind(mind);

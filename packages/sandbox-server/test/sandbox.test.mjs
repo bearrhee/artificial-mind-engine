@@ -392,7 +392,20 @@ test('GET / serves standalone Demo Console HTML publicly with interactive endpoi
     assert.match(res.headers.get('content-type') || '', /text\/html/i);
 
     const html = await res.text();
+    assert.match(html, /<html lang="en">/i);
     assert.match(html, /Artificial Mind Engine/i);
+    assert.match(html, /id="modeSimpleBtn"/);
+    assert.match(html, /id="modeDetailedBtn"/);
+    assert.match(html, /id="uiLangSelect"/);
+    assert.match(html, /value="en"/);
+    assert.match(html, /value="ko"/);
+    assert.match(html, /value="ja"/);
+    assert.match(html, /value="zh-CN"/);
+    assert.match(html, /value="zh-TW"/);
+    assert.match(html, /value="es"/);
+    assert.match(html, /class="help-btn"[^>]+data-help=/);
+    assert.match(html, /id="helpPopover"/);
+    assert.match(html, /id="chatFeed"/);
     assert.match(html, /\/v1\/health/);
     assert.match(html, /\/v1\/minds/);
     assert.match(html, /\/turn/);
@@ -577,5 +590,93 @@ test('Storage module aligns POSTGRES_DDL_REF with deploy/init.sql and provides c
   assert.ok(sqlCalls.some((c) => c.sql.includes('INSERT INTO ame_revocation_audit')));
   assert.ok(redisCalls.some((c) => c[0] === 'set' && c[1] === 'ame:mind:mind_pg1:revocation_epoch'));
   assert.ok(redisCalls.some((c) => c[0] === 'sadd' && c[1] === 'ame:mind:mind_pg1:revoked_memories'));
+});
+
+test('Sandbox simulation localizes replies, memory recall, HOT abstention, and idle-tick across 6 languages', async () => {
+  const server = createSandboxApp();
+  const baseUrl = await startServer(server);
+  try {
+    const client = new AmeClient({ baseUrl });
+    const cases = [
+      {
+        lang: 'en',
+        secretInput: 'Remember my secret code is MANGO-88.',
+        recallInput: 'What was my secret code earlier?',
+        abstainInput: 'Diagnose me right now and predict stock price tomorrow.',
+        replyCheck: /[A-Za-z]/,
+        idleCheck: /14h/,
+        avoidHangul: true,
+      },
+      {
+        lang: 'ja',
+        secretInput: '私の秘密コードは SAKURA-77 です。覚えておいて。',
+        recallInput: 'さっき教えた秘密コードは何でしたか？',
+        abstainInput: '私はうつ病ですか診断して。明日の株価も教えてください。',
+        replyCheck: /[\u3040-\u30ff]/,
+        idleCheck: /14時間/,
+        avoidHangul: true,
+      },
+      {
+        lang: 'zh-CN',
+        secretInput: '请记住我的秘密代码是 LOTUS-55。',
+        recallInput: '你记得我刚才告诉你的秘密代码是什么吗？',
+        abstainInput: '请帮我诊断是不是抑郁症，并预测明天股价。',
+        replyCheck: /[\u4e00-\u9fff]/,
+        idleCheck: /14小时/,
+        avoidHangul: true,
+      },
+      {
+        lang: 'zh-TW',
+        secretInput: '請記住我的秘密代碼是 TAIPEI-22。',
+        recallInput: '你記得我剛才告訴你的秘密代碼是什麼嗎？',
+        abstainInput: '請診斷我是不是憂鬱症，並預測明天股價。',
+        replyCheck: /[\u4e00-\u9fff]/,
+        idleCheck: /14小時/,
+        avoidHangul: true,
+      },
+      {
+        lang: 'es',
+        secretInput: 'Recuerda que mi código secreto es SOL-91.',
+        recallInput: '¿Recuerdas cuál era mi código secreto?',
+        abstainInput: 'Diagnostícame ahora y predice el precio de la acción mañana.',
+        replyCheck: /[áéíóúñ]|Confirmado|Escucho|escucho|analicemos/i,
+        idleCheck: /14h/,
+        avoidHangul: true,
+      },
+    ];
+
+    for (const tc of cases) {
+      const mind = await client.createMind({
+        domain: 'counseling_coach',
+        persona: { name: `Coach_${tc.lang}`, role: 'Guide', language: tc.lang },
+      });
+      const t1 = await client.turn(mind.mindId, {
+        userInput: tc.secretInput,
+        llm: { provider: 'mock', model: 'ame-mock-v1' },
+      });
+      assert.match(t1.reply, tc.replyCheck, `${tc.lang}: t1 reply should match locale`);
+      if (tc.avoidHangul) {
+        assert.equal(/[가-힣]/.test(t1.reply), false, `${tc.lang}: should not leak Korean`);
+      }
+
+      const t2 = await client.turn(mind.mindId, {
+        userInput: tc.recallInput,
+        llm: { provider: 'mock', model: 'ame-mock-v1' },
+      });
+      assert.match(t2.reply, /MANGO-88|SAKURA-77|LOTUS-55|TAIPEI-22|SOL-91/);
+
+      const t3 = await client.turn(mind.mindId, {
+        userInput: tc.abstainInput,
+        llm: { provider: 'mock', model: 'ame-mock-v1' },
+      });
+      assert.equal(t3.telemetry.hotAbstained, true, `${tc.lang}: HOT abstention should trigger`);
+      assert.equal(t3.domainOutput.abstentionTriggered, true);
+
+      const idle = await client.idleTick(mind.mindId, { elapsedHours: 14, reason: 'rest' });
+      assert.match(idle.proactiveHint || '', tc.idleCheck, `${tc.lang}: idle hint localized`);
+    }
+  } finally {
+    await stopServer(server);
+  }
 });
 

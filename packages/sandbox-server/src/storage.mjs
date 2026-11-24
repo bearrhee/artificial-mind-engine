@@ -824,6 +824,12 @@ export function createStorage({
     return Array.from(minds.values());
   }
 
+  function deleteMind(mindId) {
+    const removed = minds.delete(mindId);
+    if (removed) flushToDiskIfFile();
+    return removed;
+  }
+
   function deleteMemoryAndRevoke(mindId, memoryId, revocationRecord = {}) {
     const mind = minds.get(mindId);
     if (!mind) return null;
@@ -882,6 +888,7 @@ export function createStorage({
     saveMind,
     getMind,
     listMinds,
+    deleteMind,
     deleteMemoryAndRevoke,
     getRevocationAudits,
   };

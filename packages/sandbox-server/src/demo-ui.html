@@ -1986,17 +1986,20 @@
         return headers;
       }
 
+      var API_BASE = (window.location.pathname || '/').replace(/\/index\.html$/i, '').replace(/\/+$/, '');
+
       async function apiFetch(url, options) {
         showError('');
         var opts = options || {};
         var fetchOpts = { method: opts.method || 'GET', headers: buildHeaders() };
         if (opts.body !== undefined) fetchOpts.body = JSON.stringify(opts.body);
-        var res = await fetch(url, fetchOpts);
+        var targetUrl = url.charAt(0) === '/' ? API_BASE + url : url;
+        var res = await fetch(targetUrl, fetchOpts);
         var text = await res.text();
         var data = null;
         try { data = text ? JSON.parse(text) : {}; } catch (e) { data = { rawText: text }; }
         if (!res.ok) {
-          throw new Error((data && data.message) || 'HTTP ' + res.status + ' on ' + url);
+          throw new Error((data && data.message) || 'HTTP ' + res.status + ' on ' + targetUrl);
         }
         return data;
       }

@@ -351,6 +351,8 @@ test('LongMemEval-S paired comparison (ame-gateway vs bare-frontier) proves O(1)
 });
 
 test('LongMemEval-S Mode A (client.turn) arm executes cleanly against sandbox and HTTP LLM stub', async () => {
+  const prevAllowPrivate = process.env.AME_ALLOW_PRIVATE_LLM_BASE_URL;
+  process.env.AME_ALLOW_PRIVATE_LLM_BASE_URL = '1';
   const sandbox = createSandboxApp();
   const { server: llmStub } = createFrontierStubServer();
   const [ameBaseUrl, llmBaseUrl] = await Promise.all([
@@ -377,6 +379,8 @@ test('LongMemEval-S Mode A (client.turn) arm executes cleanly against sandbox an
     assert.equal(report.bareFrontier, null);
     assert.equal(report.pairedDelta, null);
   } finally {
+    if (prevAllowPrivate === undefined) delete process.env.AME_ALLOW_PRIVATE_LLM_BASE_URL;
+    else process.env.AME_ALLOW_PRIVATE_LLM_BASE_URL = prevAllowPrivate;
     await Promise.all([stopServer(sandbox), stopServer(llmStub)]);
   }
 });

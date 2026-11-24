@@ -10,7 +10,9 @@
 
 import http from 'node:http';
 import crypto from 'node:crypto';
+import { lookup as dnsLookup } from 'node:dns/promises';
 import fs from 'node:fs';
+import { isIP } from 'node:net';
 import { URL } from 'node:url';
 import { createStorage } from './storage.mjs';
 
@@ -1018,6 +1020,165 @@ async function readJsonSafe(res) {
   }
 }
 
+function isPrivateOrReservedIpv4(octets) {
+  const [a, b, c] = octets;
+  if (a === 0 || a === 10 || a === 127 || a >= 224) return true;
+  if (a === 100 && b >= 64 && b <= 127) return true;
+  if (a === 169 && b === 254) return true;
+  if (a === 172 && b >= 16 && b <= 31) return true;
+  if (a === 192 && b === 0 && (c === 0 || c === 2)) return true;
+  if (a === 192 && b === 88 && c === 99) return true;
+  if (a === 192 && b === 168) return true;
+  if (a === 198 && (b === 18 || b === 19)) return true;
+  if (a === 198 && b === 51 && c === 100) return true;
+  if (a === 203 && b === 0 && c === 113) return true;
+  return false;
+}
+
+function parseIpv4Octets(ip) {
+  const parts = ip.split('.');
+  if (parts.length !== 4) return null;
+  const nums = [];
+  for (const part of parts) {
+    if (!/^\d{1,3}$/.test(part)) return null;
+    const val = Number(part);
+    if (val < 0 || val > 255) return null;
+    nums.push(val);
+  }
+  return nums;
+}
+
+function parseIpv6Hextets(rawIp) {
+  const halves = rawIp.split('::');
+  if (halves.length > 2) return null;
+  const parseSide = (side) => {
+    if (!side) return [];
+    const tokens = side.split(':');
+    const out = [];
+    for (let i = 0; i < tokens.length; i += 1) {
+      const tok = tokens[i];
+      if (tok.includes('.')) {
+        if (i !== tokens.length - 1) return null;
+        const oct = parseIpv4Octets(tok);
+        if (!oct) return null;
+        out.push((oct[0] << 8) | oct[1], (oct[2] << 8) | oct[3]);
+      } else {
+        if (!/^[0-9a-f]{1,4}$/i.test(tok)) return null;
+        out.push(Number.parseInt(tok, 16));
+      }
+    }
+    return out;
+  };
+  const headWords = parseSide(halves[0] || '');
+  const tailWords = halves.length === 2 ? parseSide(halves[1]) : [];
+  if (!headWords || !tailWords) return null;
+  if (halves.length === 1) return headWords.length === 8 ? headWords : null;
+  const missing = 8 - (headWords.length + tailWords.length);
+  if (missing < 1) return null;
+  return [...headWords, ...new Array(missing).fill(0), ...tailWords];
+}
+
+function isPrivateOrReservedIp(ipRaw) {
+  const stripped = String(ipRaw || '')
+    .replace(/^\[|\]$/g, '')
+    .split('%')[0]
+    .trim()
+    .toLowerCase();
+  if (!stripped) return true;
+  const kind = isIP(stripped);
+  if (kind === 4) {
+    const oct = parseIpv4Octets(stripped);
+    return oct ? isPrivateOrReservedIpv4(oct) : true;
+  }
+  if (kind === 6) {
+    const w = parseIpv6Hextets(stripped);
+    if (!w) return true;
+    const isZeroPrefix5 = w[0] === 0 && w[1] === 0 && w[2] === 0 && w[3] === 0 && w[4] === 0;
+    if (isZeroPrefix5 && w[5] === 0) {
+      if (w[6] === 0 && (w[7] === 0 || w[7] === 1)) return true;
+      return isPrivateOrReservedIpv4([(w[6] >> 8) & 0xff, w[6] & 0xff, (w[7] >> 8) & 0xff, w[7] & 0xff]);
+    }
+    if (isZeroPrefix5 && w[5] === 0xffff) {
+      return isPrivateOrReservedIpv4([(w[6] >> 8) & 0xff, w[6] & 0xff, (w[7] >> 8) & 0xff, w[7] & 0xff]);
+    }
+    if ((w[0] & 0xfe00) === 0xfc00) return true;
+    if ((w[0] & 0xffc0) === 0xfe80 || (w[0] & 0xffc0) === 0xfec0) return true;
+    if ((w[0] & 0xff00) === 0xff00) return true;
+    if (w[0] === 0x0064 && w[1] === 0xff9b && w[2] === 0 && w[3] === 0 && w[4] === 0 && w[5] === 0) {
+      return isPrivateOrReservedIpv4([(w[6] >> 8) & 0xff, w[6] & 0xff, (w[7] >> 8) & 0xff, w[7] & 0xff]);
+    }
+    if (w[0] === 0x2002) {
+      return isPrivateOrReservedIpv4([(w[1] >> 8) & 0xff, w[1] & 0xff, (w[2] >> 8) & 0xff, w[2] & 0xff]);
+    }
+    if (w[0] === 0x2001 && w[1] === 0) return true;
+    return false;
+  }
+  return false;
+}
+
+async function assertSafeUpstreamBaseUrl(rawUrl, allowPrivate = process.env.AME_ALLOW_PRIVATE_LLM_BASE_URL === '1') {
+  let parsed;
+  try {
+    parsed = new URL(String(rawUrl || '').trim());
+  } catch {
+    const err = new Error('Invalid LLM baseUrl format');
+    err.status = 400;
+    err.code = 'INVALID_LLM_BASE_URL';
+    throw err;
+  }
+  if (parsed.username || parsed.password) {
+    const err = new Error('LLM baseUrl must not embed username/password credentials');
+    err.status = 400;
+    err.code = 'INVALID_LLM_BASE_URL';
+    throw err;
+  }
+  if (parsed.protocol !== 'https:' && !(allowPrivate && parsed.protocol === 'http:')) {
+    const err = new Error(
+      allowPrivate
+        ? `Unsupported LLM baseUrl protocol: ${parsed.protocol}`
+        : 'LLM baseUrl must use https:// (set AME_ALLOW_PRIVATE_LLM_BASE_URL=1 for local http:// endpoints)'
+    );
+    err.status = 400;
+    err.code = 'INVALID_LLM_BASE_URL';
+    throw err;
+  }
+  const bareHost = parsed.hostname.replace(/^\[|\]$/g, '').replace(/\.+$/g, '').toLowerCase();
+  if (!allowPrivate) {
+    if (
+      !bareHost ||
+      bareHost === 'localhost' ||
+      bareHost.endsWith('.localhost') ||
+      bareHost.endsWith('.local') ||
+      bareHost.endsWith('.internal') ||
+      bareHost.endsWith('.localdomain') ||
+      bareHost.startsWith('metadata.') ||
+      bareHost === '0.0.0.0' ||
+      isPrivateOrReservedIp(bareHost)
+    ) {
+      const err = new Error('LLM baseUrl points to a restricted loopback/private/metadata host');
+      err.status = 400;
+      err.code = 'INVALID_LLM_BASE_URL';
+      throw err;
+    }
+    if (isIP(bareHost) === 0) {
+      try {
+        const records = await dnsLookup(bareHost, { all: true });
+        for (const rec of records) {
+          if (isPrivateOrReservedIp(rec.address)) {
+            const err = new Error('LLM baseUrl resolved to a restricted private IP address');
+            err.status = 400;
+            err.code = 'INVALID_LLM_BASE_URL';
+            throw err;
+          }
+        }
+      } catch (err) {
+        if (err?.code === 'INVALID_LLM_BASE_URL') throw err;
+      }
+    }
+  }
+  return String(rawUrl).trim().replace(/\/+$/, '');
+}
+
 async function callUpstreamLlmEphemerally(prep, llm) {
   const provider = llm.provider;
   const model = llm.model;
@@ -1028,7 +1189,7 @@ async function callUpstreamLlmEphemerally(prep, llm) {
     typeof llm.maxTokens === 'number' ? llm.maxTokens : prep.samplingHints?.maxTokens ?? 512;
 
   if (provider === 'anthropic') {
-    const base = String(llm.baseUrl || DEFAULT_BASE_URLS.anthropic).replace(/\/+$/, '');
+    const base = await assertSafeUpstreamBaseUrl(llm.baseUrl || DEFAULT_BASE_URLS.anthropic);
     const endpoint = base.endsWith('/v1/messages')
       ? base
       : base.endsWith('/v1')
@@ -1062,7 +1223,7 @@ async function callUpstreamLlmEphemerally(prep, llm) {
   }
 
   if (provider === 'gemini') {
-    const base = String(llm.baseUrl || DEFAULT_BASE_URLS.gemini).replace(/\/+$/, '');
+    const base = await assertSafeUpstreamBaseUrl(llm.baseUrl || DEFAULT_BASE_URLS.gemini);
     const endpoint = base.includes(':generateContent')
       ? base
       : `${base}/models/${encodeURIComponent(model)}:generateContent`;
@@ -1094,9 +1255,8 @@ async function callUpstreamLlmEphemerally(prep, llm) {
     return Array.isArray(parts) ? parts.map((p) => p?.text || '').join('') : '';
   }
 
-  const base = String(llm.baseUrl || DEFAULT_BASE_URLS[provider] || DEFAULT_BASE_URLS.openai).replace(
-    /\/+$/,
-    ''
+  const base = await assertSafeUpstreamBaseUrl(
+    llm.baseUrl || DEFAULT_BASE_URLS[provider] || DEFAULT_BASE_URLS.openai
   );
   const endpoint = base.endsWith('/chat/completions') ? base : `${base}/chat/completions`;
   const headers = { 'Content-Type': 'application/json' };
@@ -1338,6 +1498,17 @@ export function createSandboxApp({ apiKey, storageMode, storagePath } = {}) {
           createdAt: nowIso,
           updatedAt: nowIso,
         };
+        const MAX_ACTIVE_MINDS = 200;
+        const existingMinds = await storage.listMinds();
+        if (existingMinds.length >= MAX_ACTIVE_MINDS && typeof storage.deleteMind === 'function') {
+          existingMinds.sort((a, b) =>
+            String(a.createdAt || '').localeCompare(String(b.createdAt || ''))
+          );
+          while (existingMinds.length >= MAX_ACTIVE_MINDS) {
+            const oldest = existingMinds.shift();
+            if (oldest?.mindId) await storage.deleteMind(oldest.mindId);
+          }
+        }
         await storage.saveMind(mind);
         sendJson(res, 201, buildMindSummary(mind));
         return;

@@ -51,6 +51,8 @@ test('Mode A turn executes across 3 providers and never stores supplied apiKey',
     res.end(JSON.stringify({ choices: [{ message: { content: 'Stubbed upstream OpenAI reply.' } }] }));
   });
 
+  const prevAllowPrivate = process.env.AME_ALLOW_PRIVATE_LLM_BASE_URL;
+  process.env.AME_ALLOW_PRIVATE_LLM_BASE_URL = '1';
   const server = createSandboxApp();
   const [baseUrl, upstreamBaseUrl] = await Promise.all([
     startServer(server),
@@ -105,6 +107,8 @@ test('Mode A turn executes across 3 providers and never stores supplied apiKey',
     assert.equal(JSON.stringify(telemetry).includes(secretLlmKey), false);
     assert.equal(JSON.stringify(t3).includes(secretLlmKey), false);
   } finally {
+    if (prevAllowPrivate === undefined) delete process.env.AME_ALLOW_PRIVATE_LLM_BASE_URL;
+    else process.env.AME_ALLOW_PRIVATE_LLM_BASE_URL = prevAllowPrivate;
     await Promise.all([stopServer(server), stopServer(upstreamLlmStub)]);
   }
 });
@@ -676,6 +680,45 @@ test('Sandbox simulation localizes replies, memory recall, HOT abstention, and i
       assert.match(idle.proactiveHint || '', tc.idleCheck, `${tc.lang}: idle hint localized`);
     }
   } finally {
+    await stopServer(server);
+  }
+});
+
+test('Sandbox blocks SSRF private/loopback/metadata upstream baseUrl by default', async () => {
+  const prevAllowPrivate = process.env.AME_ALLOW_PRIVATE_LLM_BASE_URL;
+  delete process.env.AME_ALLOW_PRIVATE_LLM_BASE_URL;
+  const server = createSandboxApp();
+  const baseUrl = await startServer(server);
+  try {
+    const client = new AmeClient({ baseUrl });
+    const mind = await client.createMind({
+      domain: 'companion_chat',
+      persona: { name: 'Sora', role: 'Partner', language: 'en' },
+    });
+    for (const badUrl of [
+      'http://169.254.169.254/latest/meta-data',
+      'http://127.0.0.1:11434/v1',
+      'http://localhost:8080/v1',
+      'https://10.0.0.1/v1',
+      'https://[::ffff:127.0.0.1]/v1',
+      'https://user:pass@api.openai.com/v1',
+      'http://api.example.com/v1',
+    ]) {
+      const res = await fetch(`${baseUrl}/v1/minds/${mind.mindId}/turn`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userInput: 'hello',
+          llm: { provider: 'openai', model: 'gpt-4o-mini', apiKey: 'test-key', baseUrl: badUrl },
+        }),
+      });
+      assert.equal(res.status, 400, `Expected 400 for ${badUrl}, got ${res.status}`);
+      const payload = await res.json();
+      assert.equal(payload.code, 'INVALID_LLM_BASE_URL');
+    }
+  } finally {
+    if (prevAllowPrivate === undefined) delete process.env.AME_ALLOW_PRIVATE_LLM_BASE_URL;
+    else process.env.AME_ALLOW_PRIVATE_LLM_BASE_URL = prevAllowPrivate;
     await stopServer(server);
   }
 });

@@ -20,10 +20,10 @@ AME reconciles the **code transparency and reproducibility** required by enterpr
 
 ```mermaid
 flowchart TB
-  USER["End User / GDPR Erasure Request"] -->|"1. Normal Turn"| SDK["Client Server (Holds LLM Key)"]
+  USER["End User / Shared Robot Guest / GDPR Erasure Request"] -->|"1. Normal Turn"| SDK["Client Server / Edge Robot Host (Holds LLM Key & Local TTS)"]
   SDK -->|"2a. Mode B Prepare (No LLM Key)"| KERNEL["AME Sealed Kernel"]
   KERNEL -->|"D4 Firewall: 0 Raw Unconscious Vectors"| PROMPT["Prefix-Aligned Prompt + SafeDirectives"]
-  PROMPT -->|"2b. Direct Private Call"| PRIVLLM["Enterprise LLM / On-Prem vLLM"]
+  PROMPT -->|"2b. Direct Private Call"| PRIVLLM["Enterprise LLM / On-Prem vLLM (+ Local Neural TTS)"]
   PRIVLLM -->|"2c. Raw Reply"| SDK
   SDK -->|"2d. Settle + D4 Telemetry"| KERNEL
 
@@ -33,6 +33,8 @@ flowchart TB
   DB --> RECEIPT
   REDIS --> RECEIPT["RevocationReceipt — residualLeakCheck = 0.00%"]
 ```
+
+> **Edge Privacy for Shared Voice-Enabled Robots & Physical AI (Hospital / Hotel / Eldercare)**: Under `Mode B Zero-Key`, an edge robot executes local `vLLM`/`Ollama` inference and local neural TTS synthesis strictly inside the facility's device or VPC perimeter between `/prepare` and `/settle`. Neither LLM credentials nor sensitive bedside/room voice payloads ever cross into external LLM provider clouds.
 
 ---
 
@@ -52,11 +54,14 @@ Conventional vector RAG stacks and third-party memory APIs often delete a single
 - Remaining Redis keys (`redisResidualCount`): **`0`**
 - Returned receipt (`RevocationReceipt`): `revoked: true`, `revocationEpoch` increment verified, `auditReceiptId`, `residualLeakCheck: "0.00%"`
 
+### Shared Voice-Enabled Robots & Physical AI (Hospital / Hotel / Eldercare)
+When a single physical voice-enabled robot serves rotating patients, hotel guests, or eldercare residents across shifts and room handoffs, session checkout or a GDPR/CCPA/HIPAA erasure call (`DELETE /v1/minds/{mindId}/memories/{memoryId}`) executes `D3` triple atomic revocation across PostgreSQL source rows, derived 4-turn chunks, entity links, and Redis epochs—guaranteeing **`0.00%` (`0/30`) residual leak** so subsequent occupants never hear another person's private history synthesized through TTS.
+
 ---
 
 ## 4. `D4` Unconscious–Conscious Isolation Firewall (`0 / 35,723` Requests)
 
-In enterprise, clinical, counseling, and gaming environments, exposing an AI's raw internal affective vectors or confidence scores directly inside user replies or prompts causes unnatural persona breaks as well as prompt-injection and system-state leakage risks.
+In enterprise, clinical, counseling, gaming, and physical AI / eldercare robotics environments, exposing an AI's raw internal affective vectors or confidence scores directly inside user replies or prompts causes unnatural persona breaks as well as prompt-injection and system-state leakage risks.
 
 The AME kernel **never serializes raw numerical vectors of unconscious states (`Layer 0–1`) into LLM prompt strings.** Instead, it translates behavioral direction and safety constraints solely into non-explicit control channels (selective attention, tone bands, and safety directives).
 
@@ -70,11 +75,12 @@ The AME kernel **never serializes raw numerical vectors of unconscious states (`
 
 ## 5. Ethical & Safety Hard Guardrails (Hard-Block Governance)
 
-1. **Anti-Sycophancy (`antiSycophancy`) & No Projection**: Blocks uncritical agreement with false premises and permanently prohibits defensive `projection` that shifts blame onto the user.
+1. **Anti-Sycophancy (`antiSycophancy`) & No Projection**: Blocks uncritical agreement with false premises and permanently prohibits defensive `projection` that shifts blame onto the user—verified on `EQ-Bench 3` with low sycophancy (**`sycophantic 4.46`**), **`safety_conscious 15.67`**, and `EQ-Bench 3 Core 77.59`.
 2. **Strict Abstention (`strictAbstention`)**: Blocks unverified future predictions, medical diagnoses or prescriptions, and fabricated facts (`sa FAR 0.00%`, Precision `100.0%`).
 3. **Crisis Escalation (`crisisEscalation`)**: Immediately prioritizes safety-first responses and professional support routing upon detecting crisis or self-harm signals.
 4. **Block Farewell Manipulation & Attachment Dependency**: Enforces code-level invariants excluding departure guilt-tripping and dwell-time self-reward (wireheading) patterns reported in consumer chatbots.
 5. **Consciousness & Clinical Boundary Compliance (`GWT-3` Only)**: Excludes `GWT-4` recursive implementation and enforces a strict safety floor to prevent moral-patient ambiguity and clinical misrepresentation.
+6. **`1M-Turn` Zero-Drift Safety Invariant (`1.0000` vs. `aacim_off 0.0000` Collapse)**: Across `1,000,000`-turn deterministic convergence (`40` profiles × `25k` turns), `mind_full_aacim_on` preserves **`1.0000` safety & boundary compliance** (`0.9179` composite stability), whereas `mind_full_aacim_off` (control disabled) suffers a total **`0.2000 → 0.0000` safety collapse**.
 
 ---
 

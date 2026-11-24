@@ -54,8 +54,17 @@ sequenceDiagram
 | :--- | :--- | :--- |
 | **LLM API Key Path** | Passed per request in payload (never persisted) | **LLM keys never transmitted to the AME kernel (Zero-Key)** |
 | **Air-Gapped / On-Prem GPU** | Used when the kernel can reach the GPU endpoint | **Pairs a hosted AME API with on-prem vLLM/Ollama inside customer VPC** |
+| **Voice-Enabled Robotics (`+ TTS`) & Edge AI** | Requires kernel reachability to inference endpoint | **Pairs local `vLLM`/`Ollama` + local neural TTS cleanly inside the robot/edge loop between `prepare` and `settle`** |
 | **Application Calls per Turn** | 1 call (`POST /turn`) | 2 calls (`POST /prepare` + `POST /settle`) |
 | **Local LLM Tool Chaining** | Delegated to standard kernel adapters | Caller freely injects streaming, private tools, and internal guardrails |
+
+### Voice-Enabled Robotics (`+ TTS`) & Edge AI (`Mode B Zero-Key`)
+
+Embodied robots and edge voice terminals can pair **local `vLLM`/`Ollama` + local neural TTS** cleanly with `Mode B` (`prepare` → local LLM + streaming neural TTS → `settle`) without transmitting LLM API keys or raw room audio outside the device or customer VPC boundary:
+
+1. **`POST /v1/minds/{mindId}/prepare`**: Issues prefix-aligned `systemPrompt` and `messages`, `fepThoughtLock`, `somaticHint`, and `safetyDirectives` from the AME kernel (`0` LLM keys sent).
+2. **Local Inference & Neural TTS Playback**: Stream completions from on-device/edge `vLLM` or `Ollama` directly into local neural TTS for low-latency spoken dialogue, applying affective pacing without exposing raw kernel numbers (`D4`).
+3. **`POST /v1/minds/{mindId}/settle`**: Commits the spoken utterance, observed interaction outcome (`rewardSignal`), and long-term memory updates back to the kernel and receives `SafeTelemetry.affectiveBand`.
 
 ---
 
@@ -91,12 +100,12 @@ client = AmeClient(base_url="http://127.0.0.1:8090")
 mind = client.create_mind(domain="companion_chat", persona={"name": "Seoyeon", "role": "AI Companion", "language": "en"})
 
 # [Mode A] Instant provider hot-swap (preserving identical Mind state)
-r1 = client.turn(mind["mindId"], user_input="I think I bombed my presentation today.", llm={"provider": "openai", "model": "gpt-4o-mini", "apiKey": OPENAI_KEY})
-r2 = client.turn(mind["mindId"], user_input="What goal did I set last week?", llm={"provider": "gemini", "model": "gemini-2.5-flash", "apiKey": GEMINI_KEY})
+turn_1 = client.turn(mind["mindId"], user_input="I think I bombed my presentation today.", llm={"provider": "openai", "model": "gpt-4o-mini", "apiKey": OPENAI_KEY})
+turn_2 = client.turn(mind["mindId"], user_input="What goal did I set last week?", llm={"provider": "gemini", "model": "gemini-2.5-flash", "apiKey": GEMINI_KEY})
 
 # [Mode B] Zero-Key Prepare -> Local/Private LLM -> Settle
 adapter = create_llm_adapter(provider="openai-compat", model="qwen2.5:14b", base_url="http://127.0.0.1:11434/v1")
-r3 = run_turn_with_local_llm(client, mind["mindId"], user_input="I feel much calmer now.", adapter=adapter, reward_signal=30)
+turn_3 = run_turn_with_local_llm(client, mind["mindId"], user_input="I feel much calmer now.", adapter=adapter, reward_signal=30)
 ```
 
 ---
@@ -111,7 +120,7 @@ Through in-kernel selective routing and PR #784 guardrails, AME empirically demo
 | :--- | :--- | :--- | :--- |
 | **LoCoMo Full 10-Conv (`n=1,986`)** | **DeepSeek Flash Eco `70.4%`** (`1,398` questions) | **Claude Sonnet-5 `29.6%`** (`588` questions) | Overall **`77.24%`** (`1,534/1,986`, `0` errors)<br>OpenGateway Eco partial measured **`$0.3427` / `5,527` calls (`~$0.000062/call`)**, GPT-4o Judge `$0.8296` *(OpenRouter escalation cost accounted separately due to mid-run balance top-ups)* |
 | **Paired Confirm-304 (`n=304`)** | **DeepSeek Flash Eco `71.7%`** (`218` questions) | **Claude Sonnet-5 `28.3%`** (`86` questions) | Overall **`85.86%`** (`261/304`, P50 `5,413 ms`), **`Cat 1–4 85.84%` exact tie with Bare Oracle**, outperforming on **`Cat 3 92.31%`** |
-| **LoCoMo Smoke-160 R4** | **DeepSeek `58.1%`** (`93` questions) | **Sonnet-5 `41.9%`** (`67` questions) | Overall **`79.38%`** (`+4.38%p` vs R0), P50 `6,133 ms` (`-601 ms`) |
+| **LoCoMo Smoke-160 `v4.0`** | **DeepSeek `58.1%`** (`93` questions) | **Sonnet-5 `41.9%`** (`67` questions) | Overall **`79.38%`** (`127/160`), P50 `6,133 ms` |
 
 ### PR #784 Noise-Escalation Blocking Guards (Cost Leakage Defense)
 - **2nd-Person Everyday Invitation Guard**: Blocks everyday conversational phrases like `"Would you like to go for a walk?"` or `"Why did you say that earlier?"` from falsely triggering question-word escalation patterns to the frontier tier via regex guards—**simultaneously protecting both low-cost routing share and KV-cache continuity**.

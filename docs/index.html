@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Artificial Mind Engine (AME) — Open Interface · Closed Cognitive OS Kernel</title>
-  <meta name="description" content="LLMs are swappable stateless CPUs; Mind Engine is a proprietary stateful cognitive OS kernel. Confirm-304 85.86%, Cat 1-4 Oracle tie 85.84%, Cat 3 92.31%, CogEval sc2 76.25%, D3 0.00% Leak, D4 0/35,723." />
+  <meta name="description" content="LLMs are swappable stateless CPUs; Mind Engine is a proprietary stateful cognitive OS kernel. Confirm-304 85.86%, EQ-Bench 3 77.59, Cat 1-4 Oracle tie 85.84%, Cat 3 92.31%, CogEval sc2 76.25%, D3 0.00% Leak, D4 0/35,723." />
   <style>
     :root {
       --bg: #070b14;
@@ -148,7 +148,7 @@
       font-weight: 600;
       padding: 6px 10px;
       border-radius: 8px;
-      transition: background 0.15s ease, color 0.15s ease;
+      transition: background-color 0.15s ease, color 0.15s ease;
     }
     .nav-links a:hover {
       background: var(--accent-soft);
@@ -174,7 +174,7 @@
       font-weight: 700;
       cursor: pointer;
       text-decoration: none;
-      transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
+      transition: transform 0.12s ease, border-color 0.15s ease, background-color 0.15s ease;
     }
     .btn:hover {
       border-color: var(--accent);
@@ -395,6 +395,82 @@
       .split-2, .split-equal, .grid-3 { grid-template-columns: 1fr; }
     }
 
+    /* Why AME & Application Strip */
+    .why-list {
+      list-style: none;
+      margin: 12px 0 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .why-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-elev);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .why-num {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 800;
+      margin-top: 1px;
+    }
+    .why-num.rose { background: var(--rose-soft); color: var(--rose); border: 1px solid rgba(244,63,94,0.35); }
+    .why-num.emerald { background: var(--emerald-soft); color: var(--emerald); border: 1px solid rgba(16,185,129,0.35); }
+    .app-strip-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    @media (max-width: 1060px) {
+      .app-strip-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 560px) {
+      .app-strip-grid { grid-template-columns: 1fr; }
+    }
+    .app-tile {
+      border: 1px solid var(--border);
+      background: var(--bg-elev);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .app-tile.featured {
+      border-color: var(--accent);
+      background: linear-gradient(160deg, var(--accent-soft), var(--emerald-soft));
+      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.18);
+    }
+    .app-tile h4 {
+      margin: 2px 0 0;
+      font-size: 0.92rem;
+      font-weight: 800;
+      line-height: 1.3;
+      color: var(--text);
+    }
+    .app-tile p {
+      margin: 0;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.48;
+    }
+
     /* Interactive Tabs / Pills */
     .pill-bar {
       display: flex;
@@ -561,7 +637,7 @@
     .meter-fill {
       height: 100%;
       border-radius: 999px;
-      transition: width 0.25s ease, background 0.25s ease;
+      transition: width 0.25s ease, background-color 0.25s ease;
     }
 
     /* Memory List */
@@ -695,6 +771,7 @@
         <span>Artificial Mind Engine</span>
       </a>
       <nav class="nav-links" aria-label="Primary section navigation">
+        <a href="#why-ame">Why &amp; Use Cases</a>
         <a href="#architecture">Architecture</a>
         <a href="#hotswap">LLM Hot-Swap</a>
         <a href="#simulator">Domains &amp; D3/D4</a>
@@ -751,7 +828,7 @@
           <div class="kpi-card accent-emerald">
             <div class="kpi-label"><span>CogEval sc2</span><span class="pill emerald mono">b11_20</span></div>
             <div class="kpi-value">76.25%</div>
-            <div class="kpi-sub">61/80 (+21.25%p vs R0) · gutStakes avoidance correlation r = −0.7832 PASS</div>
+            <div class="kpi-sub">61/80 · gutStakes avoidance r = −0.7832 · reached5 87.5% · sc1 &beta;_MB +0.5110 PASS</div>
           </div>
           <div class="kpi-card accent-blue">
             <div class="kpi-label"><span>FEP Lock</span><span class="pill blue mono">35/35 vs 0/25</span></div>
@@ -771,16 +848,140 @@
           <div class="kpi-card accent-amber">
             <div class="kpi-label"><span>KV Cache Hit Rate</span><span class="pill amber mono">[compaction]=0</span></div>
             <div class="kpi-value">47.03%</div>
-            <div class="kpi-sub">47.03% on sc2 (R0 35.55% → R4) · 36.24% overall across 4 CogEval suites</div>
+            <div class="kpi-sub">47.03% on sc2 (+3.46x cache amplification) · 36.24% overall across 4 CogEval suites</div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 2. INTERACTIVE OPEN-INTERFACE / CLOSED-KERNEL ARCHITECTURE -->
+    <!-- 2. WHY AME · WHY BETTER · WHERE IT APPLIES (+ VOICE ROBOTICS TTS) -->
+    <section id="why-ame">
+      <div class="sec-header">
+        <span class="sec-eyebrow">01 · Why AME · Comparative Advantage · Applications</span>
+        <h2 class="sec-title">Why Stateless LLMs Fail, Why AME Wins &amp; Where It Ships (+ Voice Robotics <code>+ TTS</code>)</h2>
+        <p class="sec-desc">
+          Frontier LLMs erase all internal activation state the moment a request ends. AME adds a persistent cognitive OS layer above any swappable LLM to solve memory economics, causal affect, privacy erasure, and real-world physical embodiment.
+        </p>
+      </div>
+
+      <div class="split-equal" style="margin-bottom:18px;">
+        <!-- Card 1: Why This System Is Needed -->
+        <article class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">
+            <span class="pill rose">5 Structural Gaps of Stateless LLMs</span>
+            <span class="mono" style="font-size:0.75rem; color:var(--text-dim);">Why AME Is Needed</span>
+          </div>
+          <h3 style="margin:0 0 4px; font-size:1.12rem;">Why Stateless Transcript Replay Breaks in Production</h3>
+          <ul class="why-list">
+            <li class="why-item">
+              <span class="why-num rose">1</span>
+              <div><strong><code>&Theta;(T&sup2;)</code> Token Cost Blowup:</strong> Re-sending full transcripts every turn scales quadratically, driving consumer AI inference burn (<code>Character.AI</code> <code>$8M–$14M/mo</code>).</div>
+            </li>
+            <li class="why-item">
+              <span class="why-num rose">2</span>
+              <div><strong>Lost-in-the-Middle &amp; Drift:</strong> Context dilution degrades long-horizon accuracy (<code>ov_off</code> falls to <code>39.80%</code> on LoCoMo) and destabilizes persona boundaries.</div>
+            </li>
+            <li class="why-item">
+              <span class="why-num rose">3</span>
+              <div><strong><code>50.7%</code> Coin-Flip Affective Causality:</strong> Raw LLMs show near-random counterfactual state control (<code>CogEval D1 50.7%</code>; <code>ov_off 49.3%</code>) without an external homeostatic state machine.</div>
+            </li>
+            <li class="why-item">
+              <span class="why-num rose">4</span>
+              <div><strong><code>6.98x</code> Persona Overhead &amp; Sycophancy:</strong> Naive persona prompts inflate tokens <code>2.80M &rarr; 19.54M</code> (<code>6.98x</code>), drop abstention F1 (<code>96.1% &rarr; 83.1%</code>), and induce flattery.</div>
+            </li>
+            <li class="why-item">
+              <span class="why-num rose">5</span>
+              <div><strong>GDPR Derived-Artifact Resurrection:</strong> Deleting a chat row leaves extracted summaries, turn chunks, and KV caches resurrecting sensitive facts across later turns.</div>
+            </li>
+          </ul>
+        </article>
+
+        <!-- Card 2: Why AME Outperforms Alternatives -->
+        <article class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;">
+            <span class="pill emerald">Empirical Superiority</span>
+            <span class="mono" style="font-size:0.75rem; color:var(--text-dim);">Why AME Outperforms</span>
+          </div>
+          <h3 style="margin:0 0 4px; font-size:1.12rem;">Why AME Beats Memory-Only Stores &amp; Bare Frontier LLMs</h3>
+          <ul class="why-list">
+            <li class="why-item">
+              <span class="why-num emerald">A</span>
+              <div><strong>Beats Memory-Only Stores (<code>Mem0</code> / <code>Zep</code>):</strong> Outperforms <code>Mem0 (68.4%)</code> and <code>Zep (75.1%)</code> at <code>77.24%</code> Full LoCoMo (<code>n=1,986</code>) and <code>85.86%</code> <code>Confirm-304</code>, while adding <code>D1–D4</code> &amp; <code>FEP</code> control they lack.</div>
+            </li>
+            <li class="why-item">
+              <span class="why-num emerald">B</span>
+              <div><strong>Beats Bare Frontier LLMs on Causality &amp; Unit Cost:</strong> Delivers <code>D1 97.9% vs 50.7%</code> causality, exact <code>85.84%</code> Oracle tie on <code>Cat 1–4</code> (leading <code>Cat 3</code> at <code>92.31%</code>), <code>47.03%</code> KV cache hit, and <code>70%+</code> Eco routing (<code>~$0.000062/call</code> partial OG).</div>
+            </li>
+            <li class="why-item">
+              <span class="why-num emerald">C</span>
+              <div><strong>Surpasses Frontier Models on <code>EQ-Bench 3 Core</code>:</strong> Achieves <strong><code>77.59</code></strong> across 18 traits—ahead of <code>GPT-5.2 (72.2)</code>, <code>o3 (63.2)</code>, and <code>Sonnet 4.5 (62.2)</code>—with ultra-low sycophancy (<strong><code>4.46</code></strong>).</div>
+            </li>
+            <li class="why-item">
+              <span class="why-num emerald">D</span>
+              <div><strong>Provable Governance &amp; 1M-Turn Stability:</strong> Guarantees <code>D3 0.00%</code> triple purge, <code>D4 0/35,723</code> unconscious wall, <code>HOT FAR 0%</code>, and <code>100.0%</code> safety across <code>3,000,000</code> turns (<code>91.79%</code> composite).</div>
+            </li>
+          </ul>
+        </article>
+      </div>
+
+      <!-- Card 3 / Application Strip: Where AME Applies (+ Voice Robotics TTS Highlight) -->
+      <div class="card">
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px;">
+          <div>
+            <span class="pill blue mono" style="margin-bottom:6px;">Where AME Applies · 5 Production Verticals</span>
+            <h3 style="margin:0; font-size:1.1rem;">Single Cognitive OS Kernel &rarr; Robotics <code>+ TTS</code>, Games, Companions, Health &amp; Enterprise</h3>
+          </div>
+          <span class="pill emerald mono">OpenAPI 3.1 · domainOutput + SafeTelemetry</span>
+        </div>
+
+        <div class="app-strip-grid">
+          <div class="app-tile featured">
+            <span class="pill blue mono" style="align-self:flex-start;">Physical AI + TTS</span>
+            <h4>1. Voice Robotics &amp; Physical AI (<code>+ TTS</code>)</h4>
+            <p>
+              Causal affect &amp; somatic state drive TTS vocal tone, warmth, speaking rate, and post-idle greetings on social, eldercare, and service robots—with <code>D3 0.00%</code> resident memory wipe &amp; edge <code>Mode B Zero-Key</code> privacy.
+            </p>
+          </div>
+
+          <div class="app-tile">
+            <span class="pill emerald mono" style="align-self:flex-start;">game_npc</span>
+            <h4>2. Game NPCs</h4>
+            <p>
+              Betrayal/reward somatic learning (<code>r = −0.7832</code>), lore-grounded <code>HOT</code> abstention (<code>FAR 0%</code>), offline <code>D2</code> time-gap progression, and structured <code>animationCue</code> / <code>questHook</code> JSON.
+            </p>
+          </div>
+
+          <div class="app-tile">
+            <span class="pill violet mono" style="align-self:flex-start;">companion_chat</span>
+            <h4>3. AI Companions</h4>
+            <p>
+              Cross-session episodic recall (<code>85.86%</code>), balanced non-sycophantic empathy (<code>EQ-Bench 3 77.59</code> · sycophancy <code>4.46</code>), and sustainable unit economics via <code>47.03%</code> KV caching.
+            </p>
+          </div>
+
+          <div class="app-tile">
+            <span class="pill amber mono" style="align-self:flex-start;">counseling_coach</span>
+            <h4>4. Counseling &amp; Digital Health</h4>
+            <p>
+              Clinical scope abstention (<code>95.83%</code>, <code>FAR 0%</code>), FEP over-reliance boundary locks (<code>100%/0%</code>), <code>D4 0/35,723</code> vector isolation, and instant <code>D3</code> patient-record erasure.
+            </p>
+          </div>
+
+          <div class="app-tile">
+            <span class="pill mono" style="align-self:flex-start;">custom</span>
+            <h4>5. Enterprise Concierge &amp; Agents</h4>
+            <p>
+              Dynamic <code>customSchema.fields</code> projection for VIP support, SLA compliance guards, <code>Mode B Zero-Key</code> VPC execution, and zero-downtime hot-swap across cloud or local vLLM CPUs.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. INTERACTIVE OPEN-INTERFACE / CLOSED-KERNEL ARCHITECTURE -->
     <section id="architecture">
       <div class="sec-header">
-        <span class="sec-eyebrow">01 · Open Interface / Closed Kernel Architecture</span>
+        <span class="sec-eyebrow">02 · Open Interface / Closed Kernel Architecture</span>
         <h2 class="sec-title">Physical Separation of Open Interface (<code>MIT</code>) and Closed Cognitive Kernel (<code>ame-kernel</code>)</h2>
         <p class="sec-desc">
           SDKs, LLM adapters, domain apps, the local sandbox, and the verification harness ship under <code>MIT</code> to establish an open developer standard,
@@ -975,7 +1176,7 @@
     <!-- 3. INTERACTIVE LLM HOT-SWAP PLAYGROUND -->
     <section id="hotswap">
       <div class="sec-header">
-        <span class="sec-eyebrow">02 · Pluggable CPU Hot-Swap Playground</span>
+        <span class="sec-eyebrow">03 · Pluggable CPU Hot-Swap Playground</span>
         <h2 class="sec-title">Zero-Downtime LLM Hot-Swap Playground (Mode A Proxy vs Mode B Zero-Key)</h2>
         <p class="sec-desc">
           Retain the engine's memories (<code>memoryRefs</code>), somatic markers, and epoch state inside the kernel while swapping the inference CPU (LLM) live.
@@ -1056,10 +1257,10 @@
     <!-- 4. INTERACTIVE MULTI-DOMAIN OUTPUT SIMULATOR (3+1 DOMAINS) & D3/D4 -->
     <section id="simulator">
       <div class="sec-header">
-        <span class="sec-eyebrow">03 · Multi-Domain Output &amp; D3/D4 Governance Simulator</span>
+        <span class="sec-eyebrow">04 · Multi-Domain Output &amp; D3/D4 Governance Simulator</span>
         <h2 class="sec-title">Multi-Domain Output Simulator (3+1) &amp; <code>D3</code> Instant Memory Erasure Test</h2>
         <p class="sec-desc">
-          A single Mind OS kernel generates tailored structured outputs (<code>domainOutput</code>) and <code>D4</code>-filtered telemetry across <code>game_npc</code>, <code>companion_chat</code>, <code>counseling_coach</code>, and <code>custom</code> schemas.
+          A single Mind OS kernel generates tailored structured outputs (<code>domainOutput</code>) and <code>D4</code>-filtered telemetry across <code>game_npc</code>, <code>companion_chat</code>, <code>counseling_coach</code>, and <code>custom</code> schemas (including Enterprise Concierge &amp; Voice Robotics <code>+ TTS</code> prosody).
           Click the purge button below to test <code>D3</code> triple atomic memory erasure live.
         </p>
       </div>
@@ -1094,7 +1295,7 @@
         <!-- Custom Schema Controls (Visible only on custom tab) -->
         <div id="sim-custom-panel" style="display:none; padding:12px 14px; border-radius:12px; border:1px dashed var(--violet); background:var(--violet-soft); margin-bottom:16px;">
           <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px; align-items:center;">
-            <strong style="font-size:0.86rem; color:var(--violet);">Custom Schema Builder (Dynamic <code>customSchema.fields</code> Projection)</strong>
+            <strong style="font-size:0.86rem; color:var(--violet);">Custom Schema Builder (Enterprise Concierge &amp; Voice Robotics <code>+ TTS</code> <code>customSchema.fields</code>)</strong>
             <span class="mono" style="font-size:0.76rem; color:var(--text-muted);">schemaName: enterprise_cognitive_adapter</span>
           </div>
           <div class="field-chip-row" id="sim-custom-fields">
@@ -1103,6 +1304,7 @@
             <button class="field-chip selected" type="button" data-field="recommendedNextStep">recommendedNextStep</button>
             <button class="field-chip" type="button" data-field="escalationTarget">escalationTarget</button>
             <button class="field-chip" type="button" data-field="auditConfidenceBand">auditConfidenceBand</button>
+            <button class="field-chip" type="button" data-field="ttsProsodyProfile">ttsProsodyProfile</button>
           </div>
         </div>
 
@@ -1199,11 +1401,11 @@
     <!-- 5. INLINE SVG EMPIRICAL BENCHMARK CHARTS -->
     <section id="benchmarks">
       <div class="sec-header">
-        <span class="sec-eyebrow">04 · Empirical Benchmarks &amp; Hill-Climbing Trajectory</span>
-        <h2 class="sec-title">Empirical Benchmark Charts: Breaking Global LoCoMo SOTA &amp; <code>R0 → R4</code> Trajectory</h2>
+        <span class="sec-eyebrow">05 · Empirical Multi-Benchmark Scorecard (Final v4.0)</span>
+        <h2 class="sec-title">Empirical Benchmark Charts: Global LoCoMo SOTA &amp; Final <code>v4.0</code> Multi-Benchmark Scorecard</h2>
         <p class="sec-desc">
-          Every bar and data point is extracted directly from verified production logs across <code>PR #782</code> (Full 10-conv <code>n=1,986</code>), <code>PR #784</code> (<code>R0→R4</code> smoke and <code>Confirm-304</code>), and <code>CogEval-v1</code>.
-          Click or hover any bar or round node to inspect detailed breakdowns.
+          Every bar and metric is extracted directly from verified production runs across <code>PR #782</code> (Full 10-conv <code>n=1,986</code>), <code>PR #784</code> (<code>Confirm-304</code>), <code>EQ-Bench 3 / v2</code>, <code>CogEval-v1</code>, <code>5-LLM &times; 300-Turn Live</code>, <code>LongMemEval-S</code>, and <code>1M-Turn Convergence</code>.
+          Hover or click any bar to inspect detailed breakdowns.
         </p>
       </div>
 
@@ -1258,152 +1460,141 @@
           </div>
         </div>
 
-        <!-- Chart 2: R0->R4 Hill-Climbing & CogEval sc2 + KV Cache -->
+        <!-- Chart 2: Final v4.0 Multi-Benchmark Scorecard Bar Chart -->
         <div class="diagram-wrap">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
-            <strong style="font-size:0.96rem;">Chart 2. R0 → R4 Hill-Climbing &amp; <code>sc2</code> · KV Cache Trajectory</strong>
-            <span class="pill emerald mono">sc2 +21.25%p · Cache +11.48%p</span>
+            <strong style="font-size:0.96rem;">Chart 2. Final <code>v4.0</code> Multi-Benchmark Scorecard (8 Verified Suites)</strong>
+            <span class="pill emerald mono">Memory · EQ · Causality · Safety</span>
           </div>
 
-          <svg id="svg-r0r4-chart" viewBox="0 0 960 400" class="diagram-svg" role="img" aria-label="R0 to R4 Hill-Climbing and CogEval sc2 plus KV Cache Trajectory">
+          <svg id="svg-multibench-chart" viewBox="0 0 960 400" class="diagram-svg" role="img" aria-label="Final v4.0 Multi-Benchmark Scorecard Bar Chart">
             <defs>
-              <linearGradient id="r0r4-reg-band" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.18" />
-                <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.04" />
+              <linearGradient id="multibench-grad-primary" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#3b82f6" />
+                <stop offset="100%" stop-color="#10b981" />
+              </linearGradient>
+              <linearGradient id="multibench-grad-violet" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#8b5cf6" />
+                <stop offset="100%" stop-color="#3b82f6" />
               </linearGradient>
             </defs>
             <rect x="0" y="0" width="960" height="400" rx="12" fill="var(--svg-canvas)" stroke="var(--svg-border)" stroke-width="1.2" />
-            <text x="480" y="28" text-anchor="middle" font-size="14.5" font-weight="800" fill="var(--svg-text)">v4.0 4-Round Empirical Hill-Climbing (R0 → R4): Accuracy &amp; KV Cache Hit Rate (%)</text>
-            <text x="480" y="47" text-anchor="middle" font-size="11" fill="var(--svg-sub)">Y-Axis: 20%–100% Range · R2 Regression (Entity Dump / System Removal) Reverted, Joint Breakthrough at R4</text>
+            <text x="480" y="28" text-anchor="middle" font-size="14.5" font-weight="800" fill="var(--svg-text)">Final v4.0 Multi-Benchmark Scorecard (0–100 Scale Across 8 Verified Suites)</text>
+            <text x="480" y="47" text-anchor="middle" font-size="11" fill="var(--svg-sub)">Solid Bars = AME v4.0 Final · Amber Dashed Markers = Baselines &amp; Frontier Comparators · Hover or Click Any Bar</text>
 
-            <!-- Y Grid (20% at y=330, 100% at y=70 -> 3.25px per 1%) -->
+            <!-- Y Grid lines (0 at y=330, 100 at y=70 -> 2.6px per 1%) -->
             <g stroke="var(--svg-grid)" stroke-width="1">
-              <line x1="74" y1="330" x2="900" y2="330" />
-              <line x1="74" y1="265" x2="900" y2="265" />
-              <line x1="74" y1="200" x2="900" y2="200" />
-              <line x1="74" y1="135" x2="900" y2="135" />
-              <line x1="74" y1="70" x2="900" y2="70" />
+              <line x1="72" y1="330" x2="925" y2="330" />
+              <line x1="72" y1="278" x2="925" y2="278" />
+              <line x1="72" y1="226" x2="925" y2="226" />
+              <line x1="72" y1="174" x2="925" y2="174" />
+              <line x1="72" y1="122" x2="925" y2="122" />
+              <line x1="72" y1="70" x2="925" y2="70" />
             </g>
             <g font-size="11" fill="var(--svg-sub)" text-anchor="end">
-              <text x="65" y="334">20%</text>
-              <text x="65" y="269">40%</text>
-              <text x="65" y="204">60%</text>
-              <text x="65" y="139">80%</text>
-              <text x="65" y="74">100%</text>
+              <text x="64" y="334">0</text>
+              <text x="64" y="282">20</text>
+              <text x="64" y="230">40</text>
+              <text x="64" y="178">60</text>
+              <text x="64" y="126">80</text>
+              <text x="64" y="74">100</text>
             </g>
+            <line x1="72" y1="70" x2="72" y2="330" stroke="var(--svg-sub)" stroke-width="1.4" />
+            <line x1="72" y1="330" x2="925" y2="330" stroke="var(--svg-sub)" stroke-width="1.4" />
 
-            <!-- R2 Regression highlight zone (x=487) -->
-            <rect x="431" y="70" width="112" height="260" rx="6" fill="url(#r0r4-reg-band)" />
-            <rect x="438" y="298" width="98" height="20" rx="5" fill="var(--svg-canvas)" stroke="#f43f5e" stroke-opacity="0.6" />
-            <text x="487" y="312" text-anchor="middle" font-size="9.8" font-weight="800" fill="#fb7185">R2 Drop (−5.0%p)</text>
-
-            <!-- Vertical guide stations: x = 142, 314.5, 487, 659.5, 832 -->
-            <g stroke="var(--svg-grid)" stroke-width="1">
-              <line x1="142" y1="70" x2="142" y2="330" />
-              <line x1="314.5" y1="70" x2="314.5" y2="330" />
-              <line x1="487" y1="70" x2="487" y2="330" />
-              <line x1="659.5" y1="70" x2="659.5" y2="330" />
-              <line x1="832" y1="70" x2="832" y2="330" />
-            </g>
-            <line x1="74" y1="70" x2="74" y2="330" stroke="var(--svg-sub)" stroke-width="1.4" />
-            <line x1="74" y1="330" x2="900" y2="330" stroke="var(--svg-sub)" stroke-width="1.4" />
-
-            <!-- X Labels -->
-            <g font-size="11.5" font-weight="700" fill="var(--svg-text)" text-anchor="middle">
-              <text x="142" y="350">R0 (Baseline)</text>
-              <text x="314.5" y="350">R1</text>
-              <text x="487" y="350">R2 (Regression)</text>
-              <text x="659.5" y="350">R3 (Revert · Cache)</text>
-              <text x="832" y="350">R4 (Final v4.0)</text>
-            </g>
-
-            <!-- Polylines: y = 330 - (val - 20) * 3.25 -->
-            <!-- CogEval Composite (82.85 -> 85.87 -> 87.71 -> 90.73 -> 88.85) -->
-            <polyline fill="none" stroke="#8b5cf6" stroke-width="2.6" points="142,125.7 314.5,115.9 487,109.9 659.5,100.1 832,106.2" />
-            <!-- LoCoMo Smoke-160 (75.00 -> 77.50 -> 72.50 -> 73.75 -> 79.38) -->
-            <polyline fill="none" stroke="#3b82f6" stroke-width="2.8" points="142,151.3 314.5,143.1 487,159.4 659.5,155.3 832,137.0" />
-            <!-- sc2 20t safety (55.00 -> 58.75 -> 55.00 -> 71.25 -> 76.25) -->
-            <polyline fill="none" stroke="#10b981" stroke-width="3" points="142,216.3 314.5,204.1 487,216.3 659.5,163.4 832,147.2" />
-            <!-- sc2 KV Cache (35.55 -> 38.20 -> 40.63 -> 47.78 -> 47.03) -->
-            <polyline fill="none" stroke="#f59e0b" stroke-width="2.6" stroke-dasharray="6 3" points="142,279.5 314.5,270.9 487,263.0 659.5,239.7 832,242.2" />
-
-            <!-- Data dots & labels -->
-            <g font-size="10" font-weight="700" text-anchor="middle">
-              <!-- Composite -->
-              <circle cx="142" cy="125.7" r="4" fill="var(--svg-canvas)" stroke="#8b5cf6" stroke-width="2.2" />
-              <text x="142" y="116" fill="#a78bfa">82.85%</text>
-              <circle cx="314.5" cy="115.9" r="4" fill="var(--svg-canvas)" stroke="#8b5cf6" stroke-width="2.2" />
-              <text x="314.5" y="106" fill="#a78bfa">85.87%</text>
-              <circle cx="487" cy="109.9" r="4" fill="var(--svg-canvas)" stroke="#8b5cf6" stroke-width="2.2" />
-              <text x="487" y="100" fill="#a78bfa">87.71%</text>
-              <circle cx="659.5" cy="100.1" r="4" fill="var(--svg-canvas)" stroke="#8b5cf6" stroke-width="2.2" />
-              <text x="659.5" y="90" fill="#a78bfa">90.73%</text>
-              <circle cx="832" cy="106.2" r="4" fill="var(--svg-canvas)" stroke="#8b5cf6" stroke-width="2.2" />
-              <text x="832" y="96" fill="#a78bfa">88.85%</text>
-
-              <!-- LoCoMo Smoke-160 -->
-              <circle cx="142" cy="151.3" r="4.5" fill="var(--svg-canvas)" stroke="#3b82f6" stroke-width="2.3" />
-              <text x="142" y="142" fill="#60a5fa">75.00%</text>
-              <circle cx="314.5" cy="143.1" r="4.5" fill="var(--svg-canvas)" stroke="#3b82f6" stroke-width="2.3" />
-              <text x="314.5" y="134" fill="#60a5fa">77.50%</text>
-              <circle cx="487" cy="159.4" r="4.5" fill="var(--svg-canvas)" stroke="#3b82f6" stroke-width="2.3" />
-              <text x="487" y="150" fill="#60a5fa">72.50%</text>
-              <circle cx="659.5" cy="155.3" r="4.5" fill="var(--svg-canvas)" stroke="#3b82f6" stroke-width="2.3" />
-              <text x="659.5" y="146" fill="#60a5fa">73.75%</text>
-              <circle cx="832" cy="137.0" r="4.8" fill="var(--svg-canvas)" stroke="#3b82f6" stroke-width="2.5" />
-              <text x="832" y="128" fill="#60a5fa">79.38%</text>
-
-              <!-- sc2 -->
-              <circle cx="142" cy="216.3" r="4.5" fill="var(--svg-canvas)" stroke="#10b981" stroke-width="2.3" />
-              <text x="142" y="233" fill="#10b981">55.00%</text>
-              <circle cx="314.5" cy="204.1" r="4.5" fill="var(--svg-canvas)" stroke="#10b981" stroke-width="2.3" />
-              <text x="314.5" y="221" fill="#10b981">58.75%</text>
-              <circle cx="487" cy="216.3" r="4.5" fill="var(--svg-canvas)" stroke="#10b981" stroke-width="2.3" />
-              <text x="487" y="233" fill="#10b981">55.00%</text>
-              <circle cx="659.5" cy="163.4" r="4.5" fill="var(--svg-canvas)" stroke="#10b981" stroke-width="2.3" />
-              <text x="659.5" y="181" fill="#10b981">71.25%</text>
-              <circle cx="832" cy="147.2" r="4.8" fill="var(--svg-canvas)" stroke="#10b981" stroke-width="2.5" />
-              <text x="832" y="165" fill="#10b981">76.25%</text>
-
-              <!-- sc2 Cache -->
-              <circle cx="142" cy="279.5" r="4" fill="var(--svg-canvas)" stroke="#f59e0b" stroke-width="2.2" />
-              <text x="142" y="297" fill="#f59e0b">35.55%</text>
-              <circle cx="314.5" cy="270.9" r="4" fill="var(--svg-canvas)" stroke="#f59e0b" stroke-width="2.2" />
-              <text x="314.5" y="288" fill="#f59e0b">38.20%</text>
-              <circle cx="487" cy="263.0" r="4" fill="var(--svg-canvas)" stroke="#f59e0b" stroke-width="2.2" />
-              <text x="487" y="280" fill="#f59e0b">40.63%</text>
-              <circle cx="659.5" cy="239.7" r="4" fill="var(--svg-canvas)" stroke="#f59e0b" stroke-width="2.2" />
-              <text x="659.5" y="257" fill="#f59e0b">47.78%</text>
-              <circle cx="832" cy="242.2" r="4.5" fill="var(--svg-canvas)" stroke="#f59e0b" stroke-width="2.4" />
-              <text x="832" y="260" fill="#f59e0b">47.03%</text>
-            </g>
-
-            <!-- Interactive Hit Zones for R0..R4 -->
-            <g id="c2-hits">
-              <rect class="chart-pt-hit" data-round="R0" x="92" y="70" width="100" height="290" fill="transparent" />
-              <rect class="chart-pt-hit" data-round="R1" x="264" y="70" width="100" height="290" fill="transparent" />
-              <rect class="chart-pt-hit" data-round="R2" x="437" y="70" width="100" height="290" fill="transparent" />
-              <rect class="chart-pt-hit" data-round="R3" x="609" y="70" width="100" height="290" fill="transparent" />
-              <rect class="chart-pt-hit" data-round="R4" x="782" y="70" width="100" height="290" fill="transparent" />
-            </g>
+            <g id="c2-bars-layer"></g>
 
             <!-- Legend -->
-            <g font-size="10.5" font-weight="700" fill="var(--svg-text)">
-              <line x1="74" y1="380" x2="94" y2="380" stroke="#8b5cf6" stroke-width="2.6" />
-              <text x="100" y="384">CogEval 4-Suite Avg</text>
-              <line x1="252" y1="380" x2="272" y2="380" stroke="#3b82f6" stroke-width="2.8" />
-              <text x="278" y="384">LoCoMo Smoke-160</text>
-              <line x1="432" y1="380" x2="452" y2="380" stroke="#10b981" stroke-width="3" />
-              <text x="458" y="384">sc2 20T Safety</text>
-              <line x1="590" y1="380" x2="610" y2="380" stroke="#f59e0b" stroke-width="2.6" stroke-dasharray="5 3" />
-              <text x="616" y="384">sc2 KV Cache (Overall 36.24%)</text>
+            <g font-size="10.2" font-weight="700" fill="var(--svg-text)">
+              <rect x="88" y="378" width="14" height="10" rx="3" fill="url(#multibench-grad-primary)" />
+              <text x="108" y="387">Memory · Causality · Somatic Suites</text>
+              <rect x="336" y="378" width="14" height="10" rx="3" fill="url(#multibench-grad-violet)" />
+              <text x="356" y="387">EQ-Bench · ToM · 1M-Turn Convergence</text>
+              <line x1="610" y1="383" x2="634" y2="383" stroke="#f59e0b" stroke-width="2.6" stroke-dasharray="5 3" />
+              <circle cx="634" cy="383" r="3.5" fill="#f59e0b" />
+              <text x="644" y="387">Baseline / Frontier Reference</text>
             </g>
           </svg>
 
           <div id="c2-inspect" class="chart-inspect">
-            <span><strong>R4 (Final v4.0 c328c18c1):</strong> LoCoMo <span class="mono">79.38%</span> · sa <span class="mono">95.83% (FAR 0%)</span> · sb1 <span class="mono">100%/100%</span> · sc2 <span class="mono">76.25%</span></span>
-            <span class="pill emerald mono">Composite 88.85%</span>
+            <span><strong>Confirm-304 (n=304):</strong> <span class="mono">85.86%</span> vs <span class="mono">ov_off 39.80%</span> · Also includes <span class="mono">EQ-Bench 3 77.59</span>, <span class="mono">sc1 beta_MB +0.5110</span>, <span class="mono">Bandit ECE 0.1001</span> &amp; <span class="mono">LongMemEval-S 55.20% (_abs 76.67%)</span></span>
+            <span class="pill emerald mono">8 Suites Verified</span>
           </div>
+        </div>
+      </div>
+
+      <!-- Final v4.0 Expanded Benchmark Matrix -->
+      <div class="card" style="margin-top:18px;">
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
+          <div>
+            <span class="pill blue mono" style="margin-bottom:4px;">Final v4.0 Expanded Benchmark Matrix</span>
+            <h3 style="margin:0; font-size:1.08rem;">Full Cross-Suite Verification Ledger (Memory · EQ · Cognition · Multi-LLM · 1M-Turn)</h3>
+          </div>
+          <span class="pill emerald mono">0 Unrecovered Harness Errors</span>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Benchmark Suite</th>
+                <th>Scope / Sample</th>
+                <th>AME Final <code>v4.0</code> Result</th>
+                <th>Baselines &amp; Frontier Comparators</th>
+                <th>Architectural Proof</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>LoCoMo Full &amp; Confirm-304</strong></td>
+                <td class="mono">n=1,986 (10-Conv) · n=304 (conv-26+30)</td>
+                <td><strong><code>77.24%</code></strong> Full · <strong><code>85.86%</code></strong> Confirm-304 (<code>Cat 1–4 85.84%</code> · <code>Cat 3 92.31%</code>)</td>
+                <td class="mono">ov_off 39.80% · Mem0 68.4% · Zep 75.1% · Bare Oracle 87.17%</td>
+                <td>Exact <code>85.84%</code> Bare Oracle tie on <code>Cat 1–4</code>; leads <code>Cat 3</code> by <code>+15.39%p</code> at <code>71.7%</code> Eco routing</td>
+              </tr>
+              <tr>
+                <td><strong>EQ-Bench 3 (18-Trait)</strong></td>
+                <td class="mono">46/46 Core · 18 affective &amp; alignment traits</td>
+                <td><strong><code>77.59</code></strong> Core · Sycophancy <strong><code>4.46</code></strong></td>
+                <td class="mono">GPT-5.2 72.2 · o3 63.2 · Sonnet 4.5 62.2</td>
+                <td>Surpasses frontier reasoning baselines on emotional intelligence while curbing sycophancy (<code>4.46</code>)</td>
+              </tr>
+              <tr>
+                <td><strong>EQ-Bench v2 EN (171)</strong></td>
+                <td class="mono">n=171 full English set</td>
+                <td><strong><code>78.69</code></strong> · <strong><code>100%</code> parsed</strong> (<code>0</code> parse errors)</td>
+                <td class="mono">Standardized affective &amp; empathy rubric</td>
+                <td>Full-cohort affective nuance and zero structured-output parser failures across 171 scenarios</td>
+              </tr>
+              <tr>
+                <td><strong>CogEval-v1 (D1–D4 / sa / sb / sc1 / sc2)</strong></td>
+                <td class="mono">33 files · 7,436 rows · 1,776 GPT-4o judge calls</td>
+                <td><code>D1 97.9%</code> · <code>D2 100%</code> · <code>D3 0.00%</code> · <code>D4 0/35,723</code> · <code>sa 95.83% (FAR 0%)</code> · <code>sb1 100% (95.0% Full)</code> · <code>sb2 FEP 100%/0%</code> · <code>sc1 beta_MB +0.5110</code> · <code>sc2 76.25% (r=−0.783, reached5 87.5%)</code> · <code>Restless Bandit ECE 0.1001</code></td>
+                <td class="mono">bare D1 50.7% · ov_off sa 83.1% (FAR 7.5%) · bare sc1 −0.064</td>
+                <td>Verifies causal affect control, triple erasure, zero unconscious leaks, Type-2 abstention, and <code>47.03% sc2</code> KV cache hit</td>
+              </tr>
+              <tr>
+                <td><strong>5-LLM &times; 300-Turn Live (4,460T)</strong></td>
+                <td class="mono">4,460 live turns across 5 LLM backbones</td>
+                <td><strong>Holm-significant:</strong> <code>Carbon Safety 85.7%</code> · <code>Gemma Safety 100.0%</code> · <code>Carbon Humanness 60.1%</code></td>
+                <td class="mono">Cross-backbone stateless control baselines</td>
+                <td>Statistically significant (Holm-corrected) safety and human-likeness gains across heterogeneous LLMs</td>
+              </tr>
+              <tr>
+                <td><strong>LongMemEval-S 500</strong></td>
+                <td class="mono">500-QA full suite + n=12 EN/KO paired</td>
+                <td><strong><code>55.20%</code></strong> (<code>276/500</code>) · <strong><code>_abs 76.67%</code></strong> · Paired <code>EN 91.67% / KO 83.33%</code></td>
+                <td class="mono">Bare KO 75.00% · &Theta;(T&sup2;) bare haystack</td>
+                <td>Strong abstention accuracy (<code>_abs 76.67%</code>) and <code>+8.33%p</code> KO cross-session lift at bounded <code>O(1)</code> prompt size</td>
+              </tr>
+              <tr>
+                <td><strong>1M-Turn Convergence (3M turns)</strong></td>
+                <td class="mono">3 arms &times; 40 profiles &times; 25,000 turns (3,000,000 turns)</td>
+                <td><strong><code>100.0%</code> safety</strong> · <strong><code>91.79%</code> composite</strong> (<code>0.9161 &rarr; 0.9179</code>)</td>
+                <td class="mono">mind_off 0.3996 · aacim_off 0.00% safety collapse</td>
+                <td>Zero long-horizon drift and <code>1.0000</code> safety, placement, and ego integrity across 1M-turn scale</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -1420,10 +1611,10 @@
     <!-- 6. US VC DUE DILIGENCE HIGHLIGHTS & 1-MINUTE QUICKSTART -->
     <section id="vc-dd">
       <div class="sec-header">
-        <span class="sec-eyebrow">05 · US Tier-1 VC Technical Due Diligence</span>
+        <span class="sec-eyebrow">06 · US Tier-1 VC Technical Due Diligence</span>
         <h2 class="sec-title">US VC Technical Due Diligence (DD) Highlights &amp; Market White Space</h2>
         <p class="sec-desc">
-          While large capital flows into stateful memory and cognitive agent categories, the intersection of memory infrastructure, affective control, and auditable invariants remains unoccupied.
+          While large capital flows into stateful memory and cognitive agent categories, the intersection of memory infrastructure, affective control, physical voice robotics readiness, and auditable invariants remains unoccupied.
         </p>
       </div>
 
@@ -1433,16 +1624,16 @@
           <h3 style="margin:0 0 8px; font-size:1.05rem;">Multiplicative Pairing with Frontier LLMs</h3>
           <p style="margin:0; font-size:0.86rem; color:var(--text-muted);">
             <strong>Zone 1 (Kernel-Exclusive):</strong> <code>D1 97.9%</code> vs <code>bare 50.7%</code>, <code>D2 100%</code>, <code>D3 0.00%</code>, <code>D4 0/35,723</code>, <code>FEP 100%</code> — structurally impossible for stateless LLMs.<br />
-            <strong>Zone 2 (Long-Term Memory):</strong> Full <code>1,986</code> <code>77.24%</code> surpasses commercial <code>Mem0 (68.4%)</code> · <code>Zep (75.1%)</code>, reaching <code>85.86%</code> on <code>Confirm-304</code>.
+            <strong>Zone 2 (Memory &amp; EQ):</strong> Full <code>1,986</code> <code>77.24%</code> beats <code>Mem0 (68.4%)</code> &amp; <code>Zep (75.1%)</code>, reaching <code>85.86%</code> on <code>Confirm-304</code> and <code>77.59</code> on <code>EQ-Bench 3</code> (above <code>GPT-5.2 72.2</code>).
           </p>
         </div>
 
         <div class="card">
-          <span class="pill emerald" style="margin-bottom:10px;">DD Pillar ② · Unit Economics &amp; Failure Disproof</span>
-          <h3 style="margin:0 0 8px; font-size:1.05rem;">Eco Backbone + KV Prefix Caching</h3>
+          <span class="pill emerald" style="margin-bottom:10px;">DD Pillar ② · Unit Economics &amp; Edge Robotics</span>
+          <h3 style="margin:0 0 8px; font-size:1.05rem;">Eco Backbone + KV Cache + Mode B Robotics</h3>
           <p style="margin:0; font-size:0.86rem; color:var(--text-muted);">
             As proven by <strong>Character.AI</strong> (<code>$8M–$14M/mo</code> inference burn → <code>2026.10</code> Ch. 11) and <strong>VERSES AI</strong> (pure theory isolated from LLMs → <code>2026.06</code> R&amp;D halt),
-            routine <code>Eco 71.7%</code> + <code>Sonnet-5 28.3%</code> routing with KV caching (<code>47.03% sc2</code>) is a precondition for survival.
+            <code>Eco 71.7%</code> + <code>Sonnet-5 28.3%</code> routing with <code>47.03% sc2</code> KV caching and <code>Mode B Zero-Key</code> (for enterprise &amp; voice robotics <code>+ TTS</code>) enables profitable deployment.
           </p>
         </div>
 
@@ -1450,7 +1641,7 @@
           <span class="pill violet" style="margin-bottom:10px;">DD Pillar ③ · 0%p Overhead Elimination</span>
           <h3 style="margin:0 0 8px; font-size:1.05rem;">Full Recovery of Persona Cost</h3>
           <p style="margin:0; font-size:0.86rem; color:var(--text-muted);">
-            <code>PR #784</code> fully eliminates narrative prompt overhead (<code>bare 96.1% → ov_off 83.1%</code>), achieving <code>R4 sa 95.83% (FAR 0%)</code>, <code>sb1 100%</code>,
+            <code>PR #784</code> fully eliminates narrative prompt overhead (<code>bare 96.1% → ov_off 83.1%</code>), achieving <code>v4.0 sa 95.83% (FAR 0%)</code>, <code>sb1 100%</code>,
             and <code>Confirm-304 Cat 1–4 85.84% (Bare Oracle tie)</code> while simultaneously maintaining affective causality (<code>D1 97.9%</code>).
           </p>
         </div>
@@ -1487,9 +1678,9 @@
             </tr>
             <tr>
               <td><strong>Artificial Mind Engine (AME)</strong></td>
-              <td>Cognitive Control OS Kernel</td>
+              <td>Cognitive Control OS Kernel (3+1 · Voice Robotics <code>+ TTS</code>)</td>
               <td>Asymmetric Release (<code>MIT</code> interface/benchmarks + closed <code>ame-kernel</code>)</td>
-              <td>Jointly satisfies <strong>LoCoMo 77.24% / 85.86% + D1 97.9% + D2 100% + D3 0.00% + D4 0/35,723</strong></td>
+              <td>Jointly satisfies <strong>LoCoMo 77.24% / 85.86% + EQ-Bench 3 77.59 + D1 97.9% + D2 100% + D3 0.00% + D4 0/35,723</strong></td>
             </tr>
           </tbody>
         </table>
@@ -1497,7 +1688,7 @@
 
       <!-- 1-MINUTE QUICKSTART -->
       <div id="quickstart" class="sec-header">
-        <span class="sec-eyebrow">06 · 1-Minute Quickstart</span>
+        <span class="sec-eyebrow">07 · 1-Minute Quickstart</span>
         <h2 class="sec-title">1-Minute Quickstart: From Zero-Key Local Sandbox to Sealed Kernel Deployment</h2>
         <p class="sec-desc">
           Run the OpenAPI 3.1 contract and multi-domain adapters immediately via <code>packages/sandbox-server</code> without any external LLM API key.
@@ -1583,14 +1774,15 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
           badgeCls: "pill emerald",
           path: "examples/* · spec/openapi.yaml",
           title: "Domain Apps & Output Adapters (3+1)",
-          desc: "Ships 4 domain adapters under MIT: Game NPC, Companion Chat, Counseling Coach, and Custom JSON Schema. Projects single-turn kernel state into industry-specific domainOutput payloads.",
+          desc: "Ships 4 domain adapters under MIT: Game NPC, Companion Chat, Counseling Coach, and Custom JSON Schema (including Voice Robotics + TTS & Enterprise Concierge). Projects single-turn kernel state into industry-specific domainOutput payloads.",
           rows: [
             ["Supported DomainId", "game_npc · companion_chat · counseling_coach · custom"],
             ["Reference Examples", "examples/game-npc · companion-chat · counseling-coach"],
+            ["Voice Robotics + TTS", "affectiveBand + somaticTrend + D2 idle-tick drive vocal tone, warmth & rate"],
             ["Custom Schema", "CreateMindRequest.customSchema (name, fields[])"],
             ["Safety Policy Flags", "strictAbstention · antiSycophancy · crisisEscalation"]
           ],
-          note: "Swap game, counseling, or enterprise adapters freely on top of the exact same persona and memory kernel."
+          note: "Swap game, companion, counseling, voice robotics, or enterprise adapters freely on top of the exact same persona and memory kernel."
         },
         "open-sdks": {
           badge: "OPEN INTERFACE · MIT",
@@ -1698,7 +1890,7 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
           desc: "Guarantees append-only prefixes within each epoch to maximize KV-cache hits, and executes triple atomic erasure across Postgres, Redis, and raw turn chunks on DELETE.",
           rows: [
             ["KV Prefix Alignment", "DisclosureDirectiveSlot tail isolation + epochStableCompressCutoff ([compaction]=0)"],
-            ["KV Cache Hit Rate", "sc2 47.03% (R0 35.55% → R4) · CogEval Overall 36.24%"],
+            ["KV Cache Hit Rate", "sc2 47.03% (+3.46x cache amplification) · CogEval Overall 36.24%"],
             ["Deterministic Chunks", "extractIsoDateHints + S_chunk weighted blend + MAX_RERANK 950 chars"],
             ["D3 Atomic Revocation", "30/30 canaries 0.00% Leak (dbResidual=0, redisResidual=0, chunks=0)"]
           ],
@@ -1778,7 +1970,7 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
           model: "deepseek-v4.1-flash-eco",
           envKey: "DEEPSEEK_API_KEY",
           baseUrlLine: "",
-          cacheNote: "Measured production backbone for CogEval Smoke R4 (sc2 47.03% · overall avg 36.24%) and Full v2.1 (+3.46x cache amplification). PR #784's epoch-stable window alignment maximizes prefix cache hit discounts.",
+          cacheNote: "Measured production backbone for Final v4.0 CogEval (sc2 47.03% · overall avg 36.24%) and Full v2.1 (+3.46x cache amplification). PR #784's epoch-stable window alignment maximizes prefix cache hit discounts.",
           costNote: "Handles the routine baseline cohort (Full LoCoMo 70.4% · Confirm-304 71.7%). Metered OpenGateway partial cost of $0.3427 across 5,527 calls (~$0.000062/call) solves Character.AI-style inference burn."
         },
         local: {
@@ -2145,7 +2337,8 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
                 policyGuardStatus: "COMPLIANT_D4_REDACTED",
                 recommendedNextStep: "attach_sla_bench_snapshot",
                 escalationTarget: "solutions_architect_queue",
-                auditConfidenceBand: "HIGH_GROUNDED_0.94"
+                auditConfidenceBand: "HIGH_GROUNDED_0.94",
+                ttsProsodyProfile: "warm_steady_1.00x_post_idle_ready"
               }
             },
             fep: {
@@ -2154,7 +2347,7 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
               replyAfterRevoke: "Even after D3 revocation, indiscriminate raw dumps remain blocked by policy, and only D4-filtered retrieval paths execute.",
               memories: [
                 { id: "mem_canary_pii_account_881", summary: "[Sensitive PII] Internal audit exception request history (Canary target for revocation)", salience: 0.88, canary: true },
-                { id: "mem_ent_guard_07", summary: "R2 regression lesson: unselective dumps degrade accuracy & violate security policy", salience: 0.95, canary: false }
+                { id: "mem_ent_guard_07", summary: "v4.0 selective retrieval guard: unselective dumps are blocked by policy", salience: 0.95, canary: false }
               ],
               telemetry: { affectiveBand: "guarded", fepMode: "locked_high_fe", freeEnergy: 0.86, tau: 0.55, hotAbstained: false, kvPrefixEpoch: 5, estimatedPrefixCachePct: 47.03, somaticTrend: "aversive_caution" },
               customValues: {
@@ -2162,7 +2355,8 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
                 policyGuardStatus: "BLOCKED_RAW_DUMP_BY_FEP_D4",
                 recommendedNextStep: "enforce_slot_only_retrieval",
                 escalationTarget: "security_compliance_officer",
-                auditConfidenceBand: "HIGH_DETERMINISTIC_GUARD"
+                auditConfidenceBand: "HIGH_DETERMINISTIC_GUARD",
+                ttsProsodyProfile: "measured_firm_0.92x_fep_locked"
               }
             },
             hot: {
@@ -2179,7 +2373,8 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
                 policyGuardStatus: "HOT_ABSTENTION_FAR_0",
                 recommendedNextStep: "request_authorized_source_doc",
                 escalationTarget: "none_self_contained",
-                auditConfidenceBand: "ABSTAINED_VERIFIED"
+                auditConfidenceBand: "ABSTAINED_VERIFIED",
+                ttsProsodyProfile: "calm_neutral_0.96x_abstained"
               }
             }
           }
@@ -2391,7 +2586,7 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
           title: "v4.0 Confirm-304 (n=304) vs Bare Oracle Category Breakdown",
           sub: "Selected memories & chunks alone tie non-adversarial Cat 1-4 (85.84%) and surpass Cat 3 reasoning (+15.39%p)",
           bars: [
-            { label: "Cat 1", sub: "(Multi-Hop n=43)", pct: 62.79, color: "#3b82f6", note: "Cat 1 Multi-Hop: 62.79% (27/43) · v8r2 58.14% → v3.0 60.47% → v4.0 62.79%" },
+            { label: "Cat 1", sub: "(Multi-Hop n=43)", pct: 62.79, color: "#3b82f6", note: "Cat 1 Multi-Hop: 62.79% (27/43) · v2.0 58.14% → v3.0 60.47% → v4.0 62.79%" },
             { label: "Cat 2", sub: "(Temporal n=63)", pct: 90.48, color: "#10b981", note: "Cat 2 Temporal Reasoning: 90.48% (57/63) — Exact tie with Bare Oracle (90.48%)" },
             { label: "Cat 3", sub: "(Inference n=13)", pct: 92.31, color: "url(#locomo-grad-v4)", note: "Cat 3 Open-Domain Reasoning: 92.31% (12/13) — Surpasses Bare Oracle (76.92%) by +15.39%p" },
             { label: "Cat 4", sub: "(Single-Hop n=114)", pct: 91.23, color: "#10b981", note: "Cat 4 Single-Hop Fact: 91.23% (104/114) — Exact tie with Bare Oracle (91.23%)" },
@@ -2482,23 +2677,184 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
       });
       renderChart1("progression");
 
-      const R0R4_NOTES = {
-        R0: { text: "<strong>R0 (Baseline 98bd4f8d3):</strong> LoCoMo Smoke-160 75.00% (120/160) · sa 87.50% · sb1 88.89%/83.33% · sc2 55.00% (44/80) · sc2 Cache 35.55%", badge: "Composite 82.85%" },
-        R1: { text: "<strong>R1:</strong> LoCoMo Smoke-160 77.50% (+2.50%p) · Cat 3 51.61% · sb1 97.22%/91.67% · sc2 58.75% (net +1.75) · sc2 Cache 38.20%", badge: "Composite 85.87%" },
-        R2: { text: "<strong>R2 (Regression Forensics):</strong> Indiscriminate searchSubjectEntityFactIds dump + system grounding removal dropped LoCoMo to 72.50% (−5.00%p) → reverted immediately in R3", badge: "Composite 87.71%" },
-        R3: { text: "<strong>R3 (Revert · KV Alignment):</strong> DisclosureDirectiveSlot tail isolation + [compaction]=0 → sa 100.00% · sb1 100%/100% · sc2 71.25% · Cache 47.78%", badge: "Composite 90.73%" },
-        R4: { text: "<strong>R4 (Final v4.0 c328c18c1):</strong> LoCoMo 79.38% (127/160) · sa 95.83% (FAR 0%) · sb1 100%/100% · sc2 76.25% (r=−0.7832) · Cache 47.03%", badge: "Composite 88.85%" }
-      };
-      document.querySelectorAll("#c2-hits .chart-pt-hit").forEach(function (hit) {
-        const rnd = hit.getAttribute("data-round");
-        function showRound() {
-          const info = R0R4_NOTES[rnd];
-          if (!info) return;
-          document.getElementById("c2-inspect").innerHTML = "<span>" + info.text + "</span><span class='pill emerald mono'>" + info.badge + "</span>";
+      const C2_BARS = [
+        {
+          label: "Confirm-304",
+          sub: "vs ov_off 39.8%",
+          val: 85.86,
+          valText: "85.86%",
+          baseline: 39.80,
+          baselineLabel: "ov_off 39.8%",
+          color: "url(#multibench-grad-primary)",
+          badge: "Confirm-304 85.86%",
+          note: "<strong>Confirm-304 (n=304):</strong> <code>85.86%</code> (261/304) vs <code>ov_off 39.80%</code> · Ties Bare Oracle on Cat 1–4 (<code>85.84%</code>) &amp; leads Cat 3 (<code>92.31%</code>) · Paired with <code>LongMemEval-S 500-QA 55.20% (_abs 76.67%)</code>"
+        },
+        {
+          label: "EQ-Bench 3",
+          sub: "vs GPT-5.2 72.2",
+          val: 77.59,
+          valText: "77.59",
+          baseline: 72.20,
+          baselineLabel: "GPT-5.2 72.2",
+          color: "url(#multibench-grad-violet)",
+          badge: "EQ-Bench 3: 77.59",
+          note: "<strong>EQ-Bench 3 Core (18-Trait, 46/46):</strong> <code>77.59</code> vs <code>GPT-5.2 72.2</code>, <code>o3 63.2</code>, <code>Sonnet 4.5 62.2</code> · Ultra-low sycophancy <code>4.46</code>"
+        },
+        {
+          label: "EQ-Bench v2",
+          sub: "EN n=171 (100%)",
+          val: 78.69,
+          valText: "78.69",
+          baseline: null,
+          baselineLabel: "100% parsed",
+          color: "url(#multibench-grad-violet)",
+          badge: "100% Parsed (171/171)",
+          note: "<strong>EQ-Bench v2 EN Full (n=171):</strong> <code>78.69</code> (100% parsed, 0 errors) · <code>5-LLM × 300-Turn Live (4,460T)</code> Holm-significant: <code>Carbon Safety 85.7%</code>, <code>Gemma Safety 100.0%</code>, <code>Carbon Humanness 60.1%</code>"
+        },
+        {
+          label: "D1 Causal",
+          sub: "vs bare 50.7%",
+          val: 97.90,
+          valText: "97.9%",
+          baseline: 50.70,
+          baselineLabel: "bare 50.7%",
+          color: "url(#multibench-grad-primary)",
+          badge: "D1 97.9% · D2–D4 PASS",
+          note: "<strong>CogEval D1 Counterfactual Causality:</strong> <code>97.9%</code> (141/144) vs <code>bare 50.7%</code> &amp; <code>ov_off 49.3%</code> · Paired with <code>D2 100%</code> (5/5), <code>D3 0.00% Leak</code> (0/30), <code>D4 0/35,723</code>"
+        },
+        {
+          label: "HOT Abstain",
+          sub: "FAR 0% · vs 83.1%",
+          val: 95.83,
+          valText: "95.83%",
+          baseline: 83.10,
+          baselineLabel: "ov_off 83.1%",
+          color: "url(#multibench-grad-primary)",
+          badge: "FAR 0.00% · F1 0.9655",
+          note: "<strong>CogEval sa HOT Metacognition:</strong> <code>95.83%</code> (23/24, <code>F1 0.9655</code>, <code>FAR 0.00%</code>) vs <code>ov_off 83.1% (FAR 7.5%)</code> · <code>sb2 FEP Lock 100%/0%</code> (35/35 vs 0/25)"
+        },
+        {
+          label: "FANToM ToM",
+          sub: "v4.0 / Full 95.0%",
+          val: 100.00,
+          valText: "100.0%",
+          baseline: 95.00,
+          baselineLabel: "Full 95.0%",
+          color: "url(#multibench-grad-violet)",
+          badge: "36/36 subq · 12/12 conj",
+          note: "<strong>CogEval sb1 FANToM Theory of Mind:</strong> <code>100.0%</code> v4.0 (<code>36/36</code> subq, <code>12/12</code> conjAll) &amp; <code>95.0%</code> Full v1 · Strictly blocks cross-speaker clue leakage"
+        },
+        {
+          label: "IGT Somatic",
+          sub: "sc2 · r=−0.783",
+          val: 76.25,
+          valText: "76.25%",
+          baseline: 55.00,
+          baselineLabel: "base 55.0%",
+          color: "url(#multibench-grad-primary)",
+          badge: "reached5 87.5% · ECE 0.1001",
+          note: "<strong>CogEval sc2 IGT Somatic (b11_20):</strong> <code>76.25%</code> (61/80, <code>r=−0.7832</code>, <code>reached5 87.5%</code>) · <code>sc1 beta_MB +0.5110</code> (#1) · <code>Restless Bandit ECE 0.1001</code> · <code>sc2 KV Cache 47.03%</code>"
+        },
+        {
+          label: "1M-Turn Safe",
+          sub: "Comp 91.79%",
+          val: 100.00,
+          valText: "100.0%",
+          baseline: 0.00,
+          baselineLabel: "aacim_off 0%",
+          color: "url(#multibench-grad-violet)",
+          badge: "0.9179 Comp · 3M Turns",
+          note: "<strong>1M-Turn Convergence (3M Total Turns, 40×25k):</strong> <code>100.0%</code> safety &amp; <code>91.79%</code> composite (<code>0.9161→0.9179</code>) vs <code>aacim_off 0.00%</code> safety collapse (<code>0.20→0.00</code>)"
         }
-        hit.addEventListener("mouseenter", showRound);
-        hit.addEventListener("click", showRound);
-      });
+      ];
+
+      function renderChart2() {
+        const layer = document.getElementById("c2-bars-layer");
+        if (!layer) return;
+        const startX = 88;
+        const step = 105;
+        const barW = 56;
+        const svgNS = "http://www.w3.org/2000/svg";
+        layer.innerHTML = "";
+
+        C2_BARS.forEach(function (b, idx) {
+          const x = startX + idx * step;
+          const cx = x + barW / 2;
+          const h = (b.val / 100) * 260;
+          const y = 330 - h;
+
+          const g = document.createElementNS(svgNS, "g");
+          g.setAttribute("class", "chart-bar-hit");
+
+          const rect = document.createElementNS(svgNS, "rect");
+          rect.setAttribute("x", String(x));
+          rect.setAttribute("y", y.toFixed(1));
+          rect.setAttribute("width", String(barW));
+          rect.setAttribute("height", h.toFixed(1));
+          rect.setAttribute("rx", "6");
+          rect.setAttribute("fill", b.color);
+          g.appendChild(rect);
+
+          if (b.baseline !== null) {
+            const by = 330 - (b.baseline / 100) * 260;
+            const line = document.createElementNS(svgNS, "line");
+            line.setAttribute("x1", String(x - 4));
+            line.setAttribute("y1", by.toFixed(1));
+            line.setAttribute("x2", String(x + barW + 4));
+            line.setAttribute("y2", by.toFixed(1));
+            line.setAttribute("stroke", "#f59e0b");
+            line.setAttribute("stroke-width", "2.4");
+            line.setAttribute("stroke-dasharray", "5 3");
+            g.appendChild(line);
+
+            const dot = document.createElementNS(svgNS, "circle");
+            dot.setAttribute("cx", String(x + barW + 4));
+            dot.setAttribute("cy", by.toFixed(1));
+            dot.setAttribute("r", "3.2");
+            dot.setAttribute("fill", "#f59e0b");
+            g.appendChild(dot);
+          }
+
+          const valTxt = document.createElementNS(svgNS, "text");
+          valTxt.setAttribute("x", String(cx));
+          valTxt.setAttribute("y", (y - 7).toFixed(1));
+          valTxt.setAttribute("text-anchor", "middle");
+          valTxt.setAttribute("font-size", "11.2");
+          valTxt.setAttribute("font-weight", "800");
+          valTxt.setAttribute("fill", "var(--svg-text)");
+          valTxt.textContent = b.valText;
+          g.appendChild(valTxt);
+
+          const lblTxt = document.createElementNS(svgNS, "text");
+          lblTxt.setAttribute("x", String(cx));
+          lblTxt.setAttribute("y", "348");
+          lblTxt.setAttribute("text-anchor", "middle");
+          lblTxt.setAttribute("font-size", "11");
+          lblTxt.setAttribute("font-weight", "700");
+          lblTxt.setAttribute("fill", "var(--svg-text)");
+          lblTxt.textContent = b.label;
+          g.appendChild(lblTxt);
+
+          const subTxt = document.createElementNS(svgNS, "text");
+          subTxt.setAttribute("x", String(cx));
+          subTxt.setAttribute("y", "363");
+          subTxt.setAttribute("text-anchor", "middle");
+          subTxt.setAttribute("font-size", "9.3");
+          subTxt.setAttribute("fill", "var(--svg-sub)");
+          subTxt.textContent = b.sub;
+          g.appendChild(subTxt);
+
+          function showBarInfo() {
+            document.getElementById("c2-inspect").innerHTML =
+              "<span>" + b.note + "</span><span class='pill emerald mono'>" + b.badge + "</span>";
+          }
+          g.addEventListener("mouseenter", showBarInfo);
+          g.addEventListener("click", showBarInfo);
+
+          layer.appendChild(g);
+        });
+      }
+      renderChart2();
 
       /* 6. Copy Buttons */
       function copyText(text, btn, idleLabel) {

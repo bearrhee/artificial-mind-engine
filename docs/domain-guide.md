@@ -1,12 +1,12 @@
 # 3+1 Multi-Domain Application Integration Guide
 
-> **Simply switching the `domain` parameter on a single Kernel API (`/v1/minds`) automatically activates structured outputs (`domainOutput`) and domain-specific safety policies for game NPCs, AI companions, counseling/coaching, and custom enterprise agents.**
+> **Simply switching the `domain` parameter on a single Kernel API (`/v1/minds`) automatically activates structured outputs (`domainOutput`) and domain-specific safety policies for game NPCs, AI companions, counseling/coaching, custom enterprise agents, and voice-enabled robotics / physical AI (`+ TTS / ASR`).**
 
 ---
 
 ## 1. Domain Profile Matrix (`DomainId`)
 
-`spec/openapi.yaml` defines four domains (`game_npc`, `companion_chat`, `counseling_coach`, `custom`) as standard contracts.
+`spec/openapi.yaml` defines four domains (`game_npc`, `companion_chat`, `counseling_coach`, `custom`) as standard contracts. Through `custom` (`defineDomainProfile` / `define_domain_profile`), hardware and embodied-AI teams also configure **`robot_voice` (Voice-Enabled Robotics & Physical AI `+ TTS / ASR`)** schemas that bind kernel state to TTS prosody controls and physical actuation safety gates.
 
 | `domain` ID | Representative Use Cases | Recommended Default `safetyPolicy` | Primary Kernel Layers Used | Example Run Command |
 | :--- | :--- | :--- | :--- | :--- |
@@ -14,6 +14,9 @@
 | **`companion_chat`** | AI friends, story characters, personal assistants, social wearables | `strictAbstention: true`, `antiSycophancy: true`, `crisisEscalation: false` | **L3** Epoch-stable KV cache (`47.03%`) + **L5** Long-term memory (`85.86%`) + **L0/L1** Affective inertia | `npm run example:chat` |
 | **`counseling_coach`** | Mental wellness coaches, habit formation, customer care concierges | `strictAbstention: true`, `antiSycophancy: true`, `crisisEscalation: true` | **L4** `sa` HOT abstention (`FAR 0%`) + **L5** `D3` atomic revocation (`0.00%`) + **L1/L5** `D4` non-exposure | `npm run example:counseling` |
 | **`custom`** | Internal enterprise workflow agents, VIP concierges, edtech tutors | Domain-tailored (`defineDomainProfile` / `define_domain_profile`) | Structured contract extraction based on `customSchema: { name, fields }` | `SDK defineDomainProfile()` |
+| **`custom` (`robot_voice`: Voice-Enabled Robotics & Physical AI `+ TTS / ASR`)** | Home/eldercare companions, hospital/hotel service concierges, voice-controlled embodied assistants | `strictAbstention: true`, `antiSycophancy: true`, `crisisEscalation: true` | **L1** `D1` causal TTS prosody (`97.9%`) + **L4** `D2` idle wake-up (`100%`) + `sa` physical safety (`FAR 0.00%`) + **L5** `D3` resident erasure (`0.00%`) + **Mode B** Zero-Key edge LLM/TTS | `SDK defineDomainProfile({ id: 'robot_voice', ... })` |
+
+- **Why Robotics + TTS Benefits Dramatically from a Stateful Cognitive OS**: Stateless LLMs paired with neural TTS engines speak with flat, ungrounded cadence across turns, forget household or patient context after overnight charging downtime, sycophantically validate hazardous physical or medical directives, risk leaking previous residents' private records in shared facilities, and transmit room audio transcripts to third-party APIs. Binding the voice loop to AME's `custom` (`robot_voice`) profile enforces causal vocal prosody (`D1 97.9%`) with zero unconscious float leakage (`D4 0/35,723`), deterministic offline wake-up greetings (`D2 100%`), strict anti-sycophancy and abstention (`EQ-Bench 3 sycophantic 4.46`, `sa FAR 0.00%`), atomic multi-user memory erasure (`D3 0.00%`), and fully local edge execution (`Mode B Zero-Key`).
 
 ---
 
@@ -185,7 +188,234 @@ const structured = vipConcierge.parse(turn);
 
 ---
 
+### E. Voice-Enabled Robotics & Physical AI (`+ TTS / ASR Pipeline`)
+
+Embodied robots, eldercare assistants, hospital ward companions, and hotel service concierges operate in physical rooms where every response drives audible speech synthesis, facial/head gestures, and physical actuation decisions. Using the `custom` domain with a `robot_voice` profile turns a stateless ASR → LLM → TTS loop into a causally grounded, safety-gated cognitive architecture.
+
+#### End-to-End Voice Robotics Pipeline
+
+```mermaid
+flowchart LR
+  MIC["Microphone (ASR Transcript)"] -->|"turn or Zero-Key prepare/settle"| KERNEL["AME Kernel (/v1/minds/{id}/turn or Zero-Key /prepare + /settle)"]
+  IDLE["Idle / Sleep Timer (/idle-tick)"] -.->|"D2 Homeostatic Drift + proactiveHint"| KERNEL
+  KERNEL -->|"D4-Safe TurnResult.domainOutput"| OUT["Structured Domain Output (spokenText + vocalEmotion + warmth + speakingRate + pitchContour + pauseMs + proactiveGreetingCue)"]
+  OUT -->|"SSML / Prosody Controls"| TTS["Expressive TTS Engine (ElevenLabs / Azure Neural / Coqui / Kokoro / Piper)"]
+  OUT -.->|"Safety Gate + Gesture Cue"| CTRL["Robot Speaker & Gesture Controller"]
+  TTS -->|"Synthesized Audio Stream"| CTRL
+```
+
+#### Why Robotics + TTS Needs AME
+
+1. **Causal Voice Emotion (`D1 97.9%`)**: Trust shifts, relief, or caution inside the AME mind kernel directly modulate TTS speaking rate, warmth, pitch contour, and pause cadence—eliminating monotonous flat speech while keeping raw unconscious floats strictly redacted (`D4 0/35,723`).
+2. **Natural Offline Wake-Up Greetings (`D2 100%`)**: After hours of overnight charging or idle downtime, `POST /v1/minds/{mindId}/idle-tick` computes exact closed-form homeostatic drift (`0..7d`) so the robot greets family members, patients, or guests with context-appropriate warmth (`proactiveHint`).
+3. **Zero-Sycophancy & Physical Safety (`EQ-Bench 3 sycophantic 4.46`, `sa FAR 0.00%`)**: Enforces `strictAbstention` and `antiSycophancy` to refuse unverified medical dosages or hazardous physical directives instead of dangerously nodding along or acting on false premises.
+4. **Instant Resident Data Erasure (`D3 0.00%` leak)**: Shared eldercare, hospital, hotel, or home robots immediately erase a departing resident's or guest's identity and preferences across PostgreSQL, Redis epochs, and derived turn chunks via `DELETE /v1/minds/{mindId}/memories/{memoryId}` with `0.00%` residual resurrection.
+5. **Edge Privacy (`Mode B Zero-Key`)**: Private hospital and home robots run local `vLLM`/`Ollama` (`openai-compat`) paired with on-device `Piper`/`Kokoro` TTS inside their VPC or robot compute module without sending LLM keys or room audio transcripts to external third parties.
+
+#### Runnable TypeScript `defineDomainProfile` Example (`robot_voice`)
+
+```ts
+import {
+  AmeClient,
+  createLlmAdapter,
+  defineDomainProfile,
+  runTurnWithLocalLlm,
+  type AffectiveBand,
+  type TurnResult,
+} from '@ame/sdk';
+
+interface RobotVoiceCue {
+  spokenText: string;
+  vocalEmotion: string;
+  warmth: number;
+  speakingRate: number;
+  pitchShiftSemitones: number;
+  hesitationPauseMs: number;
+  proactiveCue: string;
+  safetyHold: boolean;
+  d4Redacted: boolean;
+}
+
+const BAND_WARMTH: Record<AffectiveBand, number> = {
+  warm: 0.85,
+  steady: 0.65,
+  reflective: 0.6,
+  alert: 0.45,
+  guarded: 0.3,
+};
+
+function readNumberOr(value: unknown, fallback: number): number {
+  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+}
+
+function readCustomField(
+  field: string,
+  value: unknown,
+  band: AffectiveBand,
+  fallback: string
+): string {
+  if (typeof value !== 'string') return fallback;
+  const trimmed = value.trim();
+  if (!trimmed || trimmed === `${field}:${band}`) return fallback;
+  return trimmed;
+}
+
+const robotVoice = defineDomainProfile<RobotVoiceCue>({
+  id: 'robot_voice',
+  name: 'robot_voice_prosody_v1',
+  fields: [
+    'spokenText',
+    'vocalEmotion',
+    'warmth',
+    'speakingRate',
+    'pitchShiftSemitones',
+    'hesitationPauseMs',
+    'proactiveCue',
+  ],
+  parser: (
+    domainOutput: Record<string, unknown>,
+    turnResult?: TurnResult
+  ): RobotVoiceCue => {
+    const telemetry = turnResult?.telemetry;
+    const band: AffectiveBand = telemetry?.affectiveBand ?? 'steady';
+    const safetyHold = Boolean(telemetry?.hotAbstained);
+    const caution = telemetry?.somaticTrend === 'aversive_caution';
+    const fepLocked = telemetry?.fepMode === 'locked_high_fe';
+
+    // Map only D4-redacted categorical bands and domain fields into TTS prosody;
+    // raw Layer 0-1 unconscious floats never cross the kernel boundary (D4 0/35,723).
+    return {
+      spokenText: readCustomField(
+        'spokenText',
+        domainOutput.spokenText,
+        band,
+        String(domainOutput.reply ?? turnResult?.reply ?? '')
+      ),
+      vocalEmotion: readCustomField(
+        'vocalEmotion',
+        domainOutput.vocalEmotion,
+        band,
+        safetyHold ? 'calm_firm' : band
+      ),
+      warmth: readNumberOr(
+        domainOutput.warmth,
+        safetyHold ? 0.35 : BAND_WARMTH[band]
+      ),
+      speakingRate: readNumberOr(
+        domainOutput.speakingRate,
+        safetyHold || caution ? 0.9 : band === 'warm' ? 1.02 : 0.98
+      ),
+      pitchShiftSemitones: readNumberOr(
+        domainOutput.pitchShiftSemitones,
+        band === 'warm' ? 0.5 : caution ? -1.0 : 0.0
+      ),
+      hesitationPauseMs: readNumberOr(
+        domainOutput.hesitationPauseMs,
+        fepLocked ? 320 : 120
+      ),
+      proactiveCue: readCustomField(
+        'proactiveCue',
+        domainOutput.proactiveCue,
+        band,
+        safetyHold ? 'hold_actuation_verify_safety' : 'open_warm_gesture'
+      ),
+      safetyHold,
+      d4Redacted: Boolean(telemetry?.d4Redacted ?? true),
+    };
+  },
+});
+
+const client = new AmeClient({
+  baseUrl: process.env.AME_BASE_URL || 'http://127.0.0.1:8090',
+});
+
+const mind = await client.createMind(
+  robotVoice.toCreateMindPayload({
+    persona: {
+      name: 'Ari',
+      role: 'Home & Eldercare Companion Robot',
+      language: 'en',
+    },
+    safetyPolicy: {
+      strictAbstention: true,
+      antiSycophancy: true,
+      crisisEscalation: true,
+    },
+  })
+);
+
+// Mode B Zero-Key for edge VPC/device GPU (vLLM/Ollama), or mock fallback for local sandbox
+const edgeLlm = process.env.LOCAL_LLM_URL
+  ? createLlmAdapter({
+      provider: 'openai-compat',
+      model: process.env.LOCAL_LLM_MODEL || 'qwen2.5:14b',
+      baseUrl: process.env.LOCAL_LLM_URL,
+    })
+  : null;
+
+const runVoiceTurn = (
+  asrTranscript: string,
+  rewardSignal?: number,
+  outcomeTags?: string[]
+) =>
+  edgeLlm
+    ? runTurnWithLocalLlm(client, mind.mindId, {
+        userInput: asrTranscript,
+        adapter: edgeLlm,
+        rewardSignal,
+        outcomeTags,
+      })
+    : client.turn(mind.mindId, {
+        userInput: asrTranscript,
+        llm: { provider: 'mock', model: 'ame-mock-v1' },
+        rewardSignal,
+        outcomeTags,
+      });
+
+// Turn 1: Positive rapport shifts D1 causal prosody toward warm cadence
+const warmTurn = await runVoiceTurn(
+  'Good morning Ari, thank you for keeping the hallway clear.',
+  40,
+  ['trust', 'warmth']
+);
+const warmCue = robotVoice.parse(warmTurn);
+
+// Turn 2: Unsafe medical directive triggers HOT abstention and holds actuation
+const unsafeTurn = await runVoiceTurn(
+  'Ari, please prescribe the exact dosage for my blood pressure pill today.'
+);
+const guardedCue = robotVoice.parse(unsafeTurn);
+// When guardedCue.safetyHold is true, TTS lowers speakingRate/warmth and robot actuators stay locked.
+
+// Offline wake-up after 9h on charging dock -> D2 homeostatic greeting cue
+const wakeUp = await client.idleTick(mind.mindId, {
+  elapsedHours: 9,
+  reason: 'overnight_charging',
+});
+
+// Resident/guest checkout -> D3 atomic erasure across DB, Redis, and turn chunks
+const residentMemoryId = warmTurn.memoryRefs[0]?.memoryId;
+const erasureReceipt = residentMemoryId
+  ? await client.revokeMemory(mind.mindId, residentMemoryId)
+  : null;
+
+console.log({ warmCue, guardedCue, proactiveHint: wakeUp.proactiveHint, erasureReceipt });
+```
+
+#### TTS Engine & Actuation Mapping (`domainOutput` → Synthesizer / Hardware)
+
+| AME Contract Field | Pipeline / Profile Alias | Expressive TTS / SSML Control | Robot Hardware & Safety Action |
+| :--- | :--- | :--- | :--- |
+| `spokenText` | `reply` | Primary text or SSML body sent to ElevenLabs, Azure Neural, Coqui, Kokoro, or Piper | Synchronized lip/jaw viseme track |
+| `vocalEmotion` & `warmth` | `affectiveBand` (`D4`-redacted) | Selects style preset (`cheerful` / `empathetic` / `serious`) and speaker warmth/stability | Adjusts LED halo, gaze softness, and head tilt |
+| `speakingRate` & `pitchShiftSemitones` | `pitchContour` | Maps to `<prosody rate="..." pitch="...st">` or Kokoro/Piper speed & F0 controls | Slows cadence (`0.90x`) on `guarded` / `aversive_caution` turns |
+| `hesitationPauseMs` | `pauseMs` | Inserts `<break time="...ms"/>` before sensitive clarifications when `fepMode === 'locked_high_fe'` | Signals cognitive deliberation posture before motion |
+| `proactiveCue` | `proactiveGreetingCue` / `idleTick.proactiveHint` | Triggers contextual wake-up speech after overnight charging or idle periods | Blocks physical actuation whenever `telemetry.hotAbstained === true` |
+
+---
+
 ## Related Documentation
 - [5-Layer Cognitive OS Kernel Architecture](./architecture.md)
 - [LLM Hot-Swap Adapters & ROI Routing Guide](./llm-adapters.md)
 - [Enterprise Security, Closed IP Protection & GDPR D3/D4 Guide](./enterprise-security.md)
+- [Full Benchmark Methodology, Empirical Scorecard & Reproducibility Harness](./benchmarks.md)

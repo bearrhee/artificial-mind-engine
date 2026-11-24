@@ -361,7 +361,7 @@ test('bin/serve.mjs CLI boots on AME_PORT=0, prints Sealed Kernel notice, and se
     child.stdout.on('data', (chunk) => {
       stdout += chunk.toString('utf8');
       const match = stdout.match(/Listening on (http:\/\/[^\s]+)/);
-      if (match) {
+      if (match && /Sealed Kernel/.test(stdout)) {
         clearTimeout(timer);
         resolve(match[1]);
       }

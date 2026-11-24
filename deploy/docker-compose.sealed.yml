@@ -1,0 +1,72 @@
+services:
+  ame-kernel:
+    image: ${AME_SEALED_IMAGE:-ghcr.io/bearrhee/ame-kernel-sealed:latest}
+    ports:
+      - "${AME_PORT:-8090}:8090"
+    environment:
+      AME_PORT: "8090"
+      AME_API_KEY: ${AME_API_KEY:-}
+      AME_LICENSE_KEY: ${AME_LICENSE_KEY:-}
+      AME_MODE: sealed-kernel
+      AME_D4_STRICT_REDACTION: "true"
+      AME_LOG_LEVEL: ${AME_LOG_LEVEL:-info}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-ame}:${POSTGRES_PASSWORD:-}@postgres:5432/${POSTGRES_DB:-ame}
+      AME_DATABASE_URL: postgresql://${POSTGRES_USER:-ame}:${POSTGRES_PASSWORD:-}@postgres:5432/${POSTGRES_DB:-ame}
+      REDIS_URL: redis://redis:6379/0
+      AME_REDIS_URL: redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          if command -v curl >/dev/null 2>&1; then
+          curl -fsS http://127.0.0.1:8090/v1/health >/dev/null;
+          elif command -v wget >/dev/null 2>&1; then
+          wget -q -O /dev/null http://127.0.0.1:8090/v1/health;
+          elif command -v node >/dev/null 2>&1; then
+          node -e "require('http').get('http://127.0.0.1:8090/v1/health',(r)=>process.exit(r.statusCode>=200&&r.statusCode<300?0:1)).on('error',()=>process.exit(1))";
+          else
+          exit 1;
+          fi
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ame}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+      POSTGRES_DB: ${POSTGRES_DB:-ame}
+    volumes:
+      - ame_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - ame_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+volumes:
+  ame_postgres_data:
+  ame_redis_data:

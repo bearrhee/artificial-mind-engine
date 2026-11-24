@@ -1,0 +1,2538 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Artificial Mind Engine (AME) — Open Interface · Closed Cognitive OS Kernel</title>
+  <meta name="description" content="LLM은 교체 가능한 CPU, Mind Engine은 비공개 상태유지 인지 운영체제. Confirm-304 85.86%, Cat 1-4 Oracle 동률 85.84%, Cat 3 92.31%, CogEval sc2 76.25%, D3 0.00% Leak, D4 0/35,723." />
+  <style>
+    :root {
+      --bg: #070b14;
+      --bg-elev: #0c1322;
+      --bg-card: #10192d;
+      --bg-card-hover: #142038;
+      --bg-code: #060a12;
+      --border: #1e293b;
+      --border-strong: #334155;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --accent: #3b82f6;
+      --accent-strong: #60a5fa;
+      --accent-soft: rgba(59, 130, 246, 0.14);
+      --emerald: #10b981;
+      --emerald-soft: rgba(16, 185, 129, 0.14);
+      --violet: #8b5cf6;
+      --violet-soft: rgba(139, 92, 246, 0.15);
+      --amber: #f59e0b;
+      --amber-soft: rgba(245, 158, 11, 0.14);
+      --rose: #f43f5e;
+      --rose-soft: rgba(244, 63, 94, 0.14);
+      --shadow: 0 12px 32px rgba(0, 0, 0, 0.38);
+      --svg-canvas: #09101d;
+      --svg-box: #111c33;
+      --svg-box-alt: #0d1628;
+      --svg-grid: #1e293b;
+      --svg-text: #f1f5f9;
+      --svg-sub: #94a3b8;
+      --svg-border: #2a3a54;
+      --radius: 14px;
+      --font-sans: "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", system-ui, -apple-system, sans-serif;
+      --font-mono: "JetBrains Mono", "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+    }
+
+    html[data-theme="light"] {
+      --bg: #f8fafc;
+      --bg-elev: #ffffff;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f1f5f9;
+      --bg-code: #0f172a;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --text-dim: #64748b;
+      --accent: #1d4ed8;
+      --accent-strong: #1e40af;
+      --accent-soft: #eff6ff;
+      --emerald: #059669;
+      --emerald-soft: #ecfdf5;
+      --violet: #6d28d9;
+      --violet-soft: #f5f3ff;
+      --amber: #b45309;
+      --amber-soft: #fffbeb;
+      --rose: #be123c;
+      --rose-soft: #fff1f2;
+      --shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+      --svg-canvas: #f8fafc;
+      --svg-box: #ffffff;
+      --svg-box-alt: #f1f5f9;
+      --svg-grid: #e2e8f0;
+      --svg-text: #0f172a;
+      --svg-sub: #475569;
+      --svg-border: #cbd5e1;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .mono {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Top Navigation */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(12px);
+      background: rgba(7, 11, 20, 0.86);
+      border-bottom: 1px solid var(--border);
+    }
+    html[data-theme="light"] .topbar {
+      background: rgba(248, 250, 252, 0.88);
+    }
+    .topbar-inner {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      font-size: 1rem;
+    }
+    .brand-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #2563eb, #10b981);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 8px;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .nav-links a:hover {
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+    }
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border-strong);
+      background: var(--bg-card);
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.12s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+    .btn:hover {
+      border-color: var(--accent);
+      background: var(--bg-card-hover);
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: #2563eb;
+      border-color: #2563eb;
+    }
+    .btn-danger {
+      background: var(--rose-soft);
+      border-color: var(--rose);
+      color: var(--rose);
+    }
+    .btn-danger:hover {
+      background: var(--rose);
+      color: #ffffff;
+    }
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 0.78rem;
+      border-radius: 8px;
+    }
+
+    /* Layout Containers */
+    .container {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 0 20px 80px;
+    }
+    section {
+      padding-top: 64px;
+    }
+    .sec-header {
+      margin-bottom: 24px;
+    }
+    .sec-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent-strong);
+      background: var(--accent-soft);
+      border: 1px solid rgba(59, 130, 246, 0.28);
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+    .sec-title {
+      margin: 0 0 8px;
+      font-size: clamp(1.45rem, 2.5vw, 2rem);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      line-height: 1.25;
+    }
+    .sec-desc {
+      margin: 0;
+      color: var(--text-muted);
+      max-width: 820px;
+      font-size: 0.96rem;
+    }
+
+    /* Hero */
+    .hero {
+      padding-top: 44px;
+    }
+    .hero-panel {
+      position: relative;
+      overflow: hidden;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background:
+        radial-gradient(circle at 12% 10%, rgba(59, 130, 246, 0.18), transparent 42%),
+        radial-gradient(circle at 88% 15%, rgba(16, 185, 129, 0.15), transparent 38%),
+        var(--bg-elev);
+      padding: 36px 32px;
+      box-shadow: var(--shadow);
+    }
+    html[data-theme="light"] .hero-panel {
+      background:
+        radial-gradient(circle at 12% 10%, rgba(37, 99, 235, 0.09), transparent 44%),
+        radial-gradient(circle at 88% 15%, rgba(5, 150, 105, 0.08), transparent 40%),
+        var(--bg-elev);
+    }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      border: 1px solid var(--border-strong);
+      background: var(--bg-card);
+      color: var(--text-muted);
+    }
+    .pill.blue { color: var(--accent-strong); border-color: rgba(59,130,246,0.35); background: var(--accent-soft); }
+    .pill.emerald { color: var(--emerald); border-color: rgba(16,185,129,0.35); background: var(--emerald-soft); }
+    .pill.violet { color: var(--violet); border-color: rgba(139,92,246,0.35); background: var(--violet-soft); }
+    .pill.amber { color: var(--amber); border-color: rgba(245,158,11,0.35); background: var(--amber-soft); }
+    .pill.rose { color: var(--rose); border-color: rgba(244,63,94,0.35); background: var(--rose-soft); }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(1.9rem, 3.6vw, 2.85rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+    }
+    .hero-thesis {
+      margin: 0 0 14px;
+      font-size: clamp(1.08rem, 1.8vw, 1.38rem);
+      font-weight: 700;
+      color: var(--accent-strong);
+    }
+    .hero-copy {
+      margin: 0 0 24px;
+      color: var(--text-muted);
+      max-width: 840px;
+      font-size: 0.98rem;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    @media (max-width: 980px) {
+      .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 520px) {
+      .kpi-grid { grid-template-columns: 1fr; }
+    }
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .kpi-label {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .kpi-value {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+      font-size: 1.52rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .kpi-sub {
+      font-size: 0.74rem;
+      color: var(--text-dim);
+      line-height: 1.4;
+    }
+    .kpi-card.accent-blue .kpi-value { color: var(--accent-strong); }
+    .kpi-card.accent-emerald .kpi-value { color: var(--emerald); }
+    .kpi-card.accent-violet .kpi-value { color: var(--violet); }
+    .kpi-card.accent-amber .kpi-value { color: var(--amber); }
+
+    /* Cards & Grids */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+    .split-2 {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+      align-items: start;
+    }
+    .split-equal {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+    @media (max-width: 960px) {
+      .split-2, .split-equal, .grid-3 { grid-template-columns: 1fr; }
+    }
+
+    /* Interactive Tabs / Pills */
+    .pill-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .seg-btn {
+      padding: 7px 13px;
+      border-radius: 10px;
+      border: 1px solid var(--border-strong);
+      background: var(--bg-elev);
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+      font-size: 0.83rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.14s ease;
+    }
+    .seg-btn:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+    .seg-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+    .seg-btn.active-emerald {
+      background: var(--emerald);
+      border-color: var(--emerald);
+      color: #ffffff;
+    }
+
+    /* SVG Containers */
+    .diagram-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+    .diagram-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .arch-node {
+      cursor: pointer;
+      transition: opacity 0.18s ease, transform 0.15s ease;
+    }
+    .arch-node:hover rect.node-box {
+      stroke-width: 2.4;
+      filter: brightness(1.06);
+    }
+    .arch-node.is-selected rect.node-box {
+      stroke-width: 2.8;
+    }
+    .arch-node.is-dimmed {
+      opacity: 0.34;
+    }
+    .diagram-caption {
+      margin-top: 10px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    /* Code Blocks */
+    .code-shell {
+      background: var(--bg-code);
+      border: 1px solid var(--border-strong);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .code-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 14px;
+      border-bottom: 1px solid #1e293b;
+      background: rgba(15, 23, 42, 0.8);
+      color: #cbd5e1;
+      font-size: 0.78rem;
+      font-family: var(--font-mono);
+    }
+    pre.code-pre {
+      margin: 0;
+      padding: 14px 16px;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      line-height: 1.55;
+      color: #e2e8f0;
+      tab-size: 2;
+    }
+    .json-key { color: #93c5fd; }
+    .json-str { color: #86efac; }
+    .json-num { color: #fcd34d; }
+    .json-bool { color: #c4b5fd; }
+    .json-null { color: #fda4af; }
+
+    /* Telemetry Bars & Status */
+    .tel-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    @media (max-width: 560px) {
+      .tel-grid { grid-template-columns: 1fr; }
+    }
+    .tel-box {
+      border: 1px solid var(--border);
+      background: var(--bg-elev);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .tel-label {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+    }
+    .tel-val {
+      font-family: var(--font-mono);
+      font-size: 0.92rem;
+      font-weight: 800;
+    }
+    .band-strip {
+      display: flex;
+      gap: 4px;
+      margin-top: 6px;
+    }
+    .band-seg {
+      flex: 1;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 0.67rem;
+      padding: 3px 2px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      background: var(--bg-card);
+    }
+    .band-seg.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      font-weight: 800;
+    }
+    .meter-track {
+      height: 8px;
+      border-radius: 999px;
+      background: var(--border);
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .meter-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.25s ease, background 0.25s ease;
+    }
+
+    /* Memory List */
+    .mem-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .mem-item {
+      border: 1px solid var(--border);
+      background: var(--bg-elev);
+      border-radius: 10px;
+      padding: 9px 12px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.82rem;
+      transition: all 0.2s ease;
+    }
+    .mem-item.revoked {
+      border-color: var(--rose);
+      background: var(--rose-soft);
+      opacity: 0.82;
+    }
+    .mem-item.revoked .mem-text {
+      text-decoration: line-through;
+      color: var(--text-dim);
+    }
+
+    /* Tables */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg-card);
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+    table.data-table th, table.data-table td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    table.data-table th {
+      background: var(--bg-elev);
+      color: var(--text-muted);
+      font-size: 0.76rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    table.data-table tr:last-child td { border-bottom: none; }
+
+    /* Interactive Tooltip Strip */
+    .chart-inspect {
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-elev);
+      font-size: 0.84rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .chart-bar-hit, .chart-pt-hit {
+      cursor: pointer;
+    }
+
+    .callout {
+      border-radius: 12px;
+      padding: 13px 16px;
+      border: 1px solid var(--border);
+      background: var(--bg-elev);
+      font-size: 0.85rem;
+    }
+    .callout.info { border-left: 4px solid var(--accent); }
+    .callout.emerald { border-left: 4px solid var(--emerald); }
+    .callout.rose { border-left: 4px solid var(--rose); }
+    .callout.amber { border-left: 4px solid var(--amber); }
+
+    .field-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .field-chip {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      padding: 4px 9px;
+      border-radius: 8px;
+      border: 1px solid var(--border-strong);
+      background: var(--bg-elev);
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .field-chip.selected {
+      background: var(--violet-soft);
+      border-color: var(--violet);
+      color: var(--violet);
+      font-weight: 700;
+    }
+
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 20px 44px;
+      max-width: 1220px;
+      margin: 0 auto;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="#top" class="brand">
+        <span class="brand-mark">AME</span>
+        <span>Artificial Mind Engine</span>
+      </a>
+      <nav class="nav-links" aria-label="주요 섹션 이동">
+        <a href="#architecture">아키텍처</a>
+        <a href="#hotswap">LLM 핫스왑</a>
+        <a href="#simulator">도메인 &amp; D3/D4</a>
+        <a href="#benchmarks">실증 벤치마크</a>
+        <a href="#vc-dd">VC 기술 실사</a>
+        <a href="#quickstart">1분 퀵스타트</a>
+      </nav>
+      <div class="top-actions">
+        <button id="theme-toggle" class="btn btn-sm" type="button" aria-label="테마 전환">☀️ 라이트 모드</button>
+        <a href="https://github.com/bearrhee/artificial-mind-engine" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary">GitHub Repo</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="top" class="container">
+    <!-- 1. HERO SECTION -->
+    <section class="hero">
+      <div class="hero-panel">
+        <div class="badge-row">
+          <span class="pill blue mono">bearrhee/artificial-mind-engine</span>
+          <span class="pill emerald mono">v4.0 · PR #784 (Squash 74a89f37)</span>
+          <span class="pill violet">Open Interface (MIT) · Closed Kernel</span>
+          <span class="pill amber mono">OpenAPI 3.1 Contract</span>
+        </div>
+        <h1>Artificial Mind Engine (AME)</h1>
+        <p class="hero-thesis">“LLM은 교체 가능한 CPU, Mind Engine은 비공개 상태유지 인지 운영체제”</p>
+        <p class="hero-copy">
+          AME는 무상태(Stateless) LLM 위에 영속적 인지 커널(AACIM-59 · Panksepp 7 · FEP Selective Lock · GWT · HOT)과 4-경로 하이브리드 장기 기억을 분리 탑재합니다.
+          OpenAPI 3.1 계약만으로 Claude, GPT, Gemini, DeepSeek, 로컬 vLLM/Ollama를 핫스왑하면서 반사실 인과(<code>D1</code>), 유휴 항상성(<code>D2</code>), 3중 원자적 기억 파기(<code>D3</code>), 무의식 비누설(<code>D4</code>)을 코드 불변식으로 강제합니다.
+        </p>
+        <div class="hero-actions">
+          <a href="#hotswap" class="btn btn-primary">LLM 핫스왑 플레이그라운드</a>
+          <a href="#simulator" class="btn">멀티 도메인 &amp; D3 파기 시뮬레이터</a>
+          <a href="#benchmarks" class="btn">LoCoMo · CogEval 실증 그래프</a>
+          <a href="#quickstart" class="btn">1분 샌드박스 실행</a>
+        </div>
+
+        <div class="kpi-grid" aria-label="검증된 핵심 성과 지표">
+          <div class="kpi-card accent-blue">
+            <div class="kpi-label"><span>Confirm-304</span><span class="pill blue mono">PR #784</span></div>
+            <div class="kpi-value">85.86%</div>
+            <div class="kpi-sub">261/304 (conv-26+30) · v3.0 대비 +2.64%p · Bare Oracle(87.17%)과 1.31%p 차</div>
+          </div>
+          <div class="kpi-card accent-emerald">
+            <div class="kpi-label"><span>Cat 1-4 Oracle Tie</span><span class="pill emerald mono">n=233</span></div>
+            <div class="kpi-value">85.84%</div>
+            <div class="kpi-sub">200/233 · 전체 원문 투입 Bare Oracle(85.84%)과 완전 동률 (Cat 2 90.48% · Cat 4 91.23%)</div>
+          </div>
+          <div class="kpi-card accent-violet">
+            <div class="kpi-label"><span>Cat 3 추론 추월</span><span class="pill violet mono">n=13</span></div>
+            <div class="kpi-value">92.31%</div>
+            <div class="kpi-sub">12/13 · Bare Oracle(76.92%, 10/13) 대비 +15.39%p 대폭 추월</div>
+          </div>
+          <div class="kpi-card accent-emerald">
+            <div class="kpi-label"><span>CogEval sc2</span><span class="pill emerald mono">b11_20</span></div>
+            <div class="kpi-value">76.25%</div>
+            <div class="kpi-sub">61/80 (R0 대비 +21.25%p) · gutStakes 회피 상관 r = −0.7832 PASS</div>
+          </div>
+          <div class="kpi-card accent-blue">
+            <div class="kpi-label"><span>FEP Lock</span><span class="pill blue mono">35/35 vs 0/25</span></div>
+            <div class="kpi-value">100% / 0%</div>
+            <div class="kpi-sub">인지 충돌 100.0% 선택 잠금 · 평온 상태 0.0% 비잠금 (Full v2.1 게이트 완치)</div>
+          </div>
+          <div class="kpi-card accent-amber">
+            <div class="kpi-label"><span>D3 원자적 파기</span><span class="pill amber mono">sd3 30/30</span></div>
+            <div class="kpi-value">0.00% Leak</div>
+            <div class="kpi-sub">Postgres + Redis 에폭 + 4턴 원문 청크 3중 소거 · 잔류 누설 0건</div>
+          </div>
+          <div class="kpi-card accent-violet">
+            <div class="kpi-label"><span>D4 무의식 격리</span><span class="pill violet mono">전 Arm 감사</span></div>
+            <div class="kpi-value">0 / 35,723</div>
+            <div class="kpi-sub">35,723건 전수 요청 프롬프트 스캔 중 내부 무의식 벡터 노출 0건</div>
+          </div>
+          <div class="kpi-card accent-amber">
+            <div class="kpi-label"><span>KV Cache 적중</span><span class="pill amber mono">[축약]=0</span></div>
+            <div class="kpi-value">47.03%</div>
+            <div class="kpi-sub">sc2 기준 47.03% (R0 35.55% → R4) · CogEval 4-스위트 전체 평균 36.24%</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. INTERACTIVE OPEN-INTERFACE / CLOSED-KERNEL ARCHITECTURE -->
+    <section id="architecture">
+      <div class="sec-header">
+        <span class="sec-eyebrow">01 · Open Interface / Closed Kernel Architecture</span>
+        <h2 class="sec-title">개방형 인터페이스(MIT)와 비공개 인지 커널(<code>ame-kernel</code>)의 물리적 분리</h2>
+        <p class="sec-desc">
+          SDK, LLM 어댑터, 도메인 앱, 로컬 샌드박스, 검증 하네스는 <code>MIT</code>로 완전 공개해 개발자 표준을 형성하고,
+          핵심 상태 동역학(<code>AACIM-59</code> · <code>FEP Lock</code> · <code>3-Tier RAG</code> · <code>D3/D4</code>)은 봉인된 커널 경계 너머에 보호합니다. 다이어그램 노드를 클릭해 계약을 확인하세요.
+        </p>
+      </div>
+
+      <div class="split-2">
+        <div class="diagram-wrap">
+          <div class="pill-bar" style="margin-bottom: 12px;">
+            <span style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">레이어 필터:</span>
+            <button class="seg-btn active" type="button" data-arch-filter="all">전체 보기</button>
+            <button class="seg-btn" type="button" data-arch-filter="open">Open MIT 영역</button>
+            <button class="seg-btn" type="button" data-arch-filter="wall">OpenAPI · D4 방화벽</button>
+            <button class="seg-btn" type="button" data-arch-filter="kernel">Closed Kernel IP</button>
+          </div>
+
+          <svg id="svg-arch-diagram" viewBox="0 0 960 510" class="diagram-svg" role="img" aria-label="Open Interface and Closed Kernel Architecture Diagram">
+            <defs>
+              <marker id="arch-arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#3b82f6" />
+              </marker>
+              <marker id="arch-arrow-emerald" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#10b981" />
+              </marker>
+              <marker id="arch-arrow-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#f59e0b" />
+              </marker>
+              <linearGradient id="arch-grad-wall" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.22" />
+                <stop offset="50%" stop-color="#3b82f6" stop-opacity="0.18" />
+                <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.24" />
+              </linearGradient>
+            </defs>
+
+            <rect x="0" y="0" width="960" height="510" rx="14" fill="var(--svg-canvas)" stroke="var(--svg-border)" stroke-width="1.2" />
+
+            <!-- Zone Backdrops -->
+            <rect x="18" y="18" width="332" height="474" rx="12" fill="var(--svg-box-alt)" stroke="#10b981" stroke-width="1.4" stroke-opacity="0.6" />
+            <rect x="30" y="28" width="308" height="28" rx="7" fill="#10b981" fill-opacity="0.16" />
+            <text x="184" y="46" text-anchor="middle" font-size="12" font-weight="800" fill="#10b981">OPEN INTERFACE · MIT LICENSE</text>
+
+            <rect x="368" y="18" width="186" height="474" rx="12" fill="url(#arch-grad-wall)" stroke="#f59e0b" stroke-width="1.6" stroke-dasharray="6 4" />
+            <rect x="378" y="28" width="166" height="28" rx="7" fill="#f59e0b" fill-opacity="0.2" />
+            <text x="461" y="46" text-anchor="middle" font-size="11.5" font-weight="800" fill="#f59e0b">BOUNDARY · D4 WALL</text>
+
+            <rect x="572" y="18" width="370" height="474" rx="12" fill="var(--svg-box-alt)" stroke="#8b5cf6" stroke-width="1.5" stroke-opacity="0.7" />
+            <rect x="584" y="28" width="346" height="28" rx="7" fill="#8b5cf6" fill-opacity="0.18" />
+            <text x="757" y="46" text-anchor="middle" font-size="12" font-weight="800" fill="#a78bfa">CLOSED KERNEL · ame-kernel (PROPRIETARY IP)</text>
+
+            <!-- LEFT: OPEN MIT NODES -->
+            <g class="arch-node is-selected" data-arch-zone="open" data-arch-node="open-domains">
+              <rect class="node-box" x="34" y="72" width="300" height="88" rx="10" fill="var(--svg-box)" stroke="#10b981" stroke-width="1.5" />
+              <text x="50" y="96" font-size="13" font-weight="800" fill="var(--svg-text)">Domain Apps &amp; Adapters (3+1)</text>
+              <text x="50" y="116" font-size="11" fill="var(--svg-sub)">examples/game-npc · companion-chat</text>
+              <text x="50" y="133" font-size="11" fill="var(--svg-sub)">counseling-coach · custom JSON schema</text>
+              <rect x="50" y="142" width="114" height="12" rx="4" fill="#10b981" fill-opacity="0.18" />
+              <text x="107" y="151" text-anchor="middle" font-size="9" font-weight="700" fill="#10b981">domainOutput Contract</text>
+            </g>
+
+            <g class="arch-node" data-arch-zone="open" data-arch-node="open-sdks">
+              <rect class="node-box" x="34" y="176" width="300" height="86" rx="10" fill="var(--svg-box)" stroke="#3b82f6" stroke-width="1.5" />
+              <text x="50" y="200" font-size="13" font-weight="800" fill="var(--svg-text)">Client SDKs &amp; Contract Sandbox</text>
+              <text x="50" y="220" font-size="11" fill="var(--svg-sub)">packages/sdk-ts · packages/sdk-python</text>
+              <text x="50" y="237" font-size="11" fill="var(--svg-sub)">packages/sandbox-server (:8090 zero-key)</text>
+              <rect x="50" y="246" width="116" height="12" rx="4" fill="#3b82f6" fill-opacity="0.18" />
+              <text x="108" y="255" text-anchor="middle" font-size="9" font-weight="700" fill="#60a5fa">npm run sandbox</text>
+            </g>
+
+            <g class="arch-node" data-arch-zone="open" data-arch-node="open-llms">
+              <rect class="node-box" x="34" y="278" width="300" height="94" rx="10" fill="var(--svg-box)" stroke="#06b6d4" stroke-width="1.5" />
+              <text x="50" y="302" font-size="13" font-weight="800" fill="var(--svg-text)">Pluggable LLM Adapters (Stateless CPU)</text>
+              <text x="50" y="322" font-size="11" fill="var(--svg-sub)">Anthropic Claude · OpenAI GPT · Gemini</text>
+              <text x="50" y="339" font-size="11" fill="var(--svg-sub)">DeepSeek Flash · OpenRouter · openai-compat</text>
+              <rect x="50" y="350" width="142" height="13" rx="4" fill="#06b6d4" fill-opacity="0.16" />
+              <text x="121" y="360" text-anchor="middle" font-size="9" font-weight="700" fill="#22d3ee">Mode A Proxy / Mode B Local</text>
+            </g>
+
+            <g class="arch-node" data-arch-zone="open" data-arch-node="open-harness">
+              <rect class="node-box" x="34" y="388" width="300" height="86" rx="10" fill="var(--svg-box)" stroke="#10b981" stroke-width="1.5" />
+              <text x="50" y="412" font-size="13" font-weight="800" fill="var(--svg-text)">Public Verification Harness</text>
+              <text x="50" y="432" font-size="11" fill="var(--svg-sub)">benchmarks/cogeval-locomo-harness</text>
+              <text x="50" y="449" font-size="11" fill="var(--svg-sub)">Black-box D1–D4 &amp; LoCoMo Scoring</text>
+              <rect x="50" y="458" width="114" height="12" rx="4" fill="#10b981" fill-opacity="0.18" />
+              <text x="107" y="467" text-anchor="middle" font-size="9" font-weight="700" fill="#10b981">npm run bench:smoke</text>
+            </g>
+
+            <!-- CENTER: BOUNDARY WALL -->
+            <g class="arch-node" data-arch-zone="wall" data-arch-node="wall-openapi">
+              <rect class="node-box" x="382" y="72" width="158" height="118" rx="10" fill="var(--svg-box)" stroke="#f59e0b" stroke-width="1.6" />
+              <text x="461" y="96" text-anchor="middle" font-size="12.5" font-weight="800" fill="var(--svg-text)">OpenAPI 3.1</text>
+              <text x="461" y="114" text-anchor="middle" font-size="10.5" fill="var(--svg-sub)">spec/openapi.yaml</text>
+              <text x="461" y="135" text-anchor="middle" font-size="10.5" font-weight="700" fill="#f59e0b">Mode A: /turn</text>
+              <text x="461" y="153" text-anchor="middle" font-size="10.5" font-weight="700" fill="#3b82f6">Mode B: /prepare</text>
+              <text x="461" y="170" text-anchor="middle" font-size="10.5" font-weight="700" fill="#10b981">+ /settle</text>
+
+              <rect class="node-box" x="382" y="208" width="158" height="118" rx="10" fill="var(--svg-box)" stroke="#3b82f6" stroke-width="1.6" />
+              <text x="461" y="232" text-anchor="middle" font-size="12.5" font-weight="800" fill="var(--svg-text)">Prefix &amp; Auth Gate</text>
+              <text x="461" y="252" text-anchor="middle" font-size="10.5" fill="var(--svg-sub)">X-AME-API-Key</text>
+              <text x="461" y="272" text-anchor="middle" font-size="10" fill="var(--svg-sub)">BYO-Key 비저장</text>
+              <text x="461" y="290" text-anchor="middle" font-size="10" fill="var(--svg-sub)">kvCacheEpoch 정렬</text>
+              <text x="461" y="308" text-anchor="middle" font-size="10" font-weight="700" fill="#60a5fa">47.03% sc2 Cache</text>
+
+              <rect class="node-box" x="382" y="344" width="158" height="130" rx="10" fill="var(--svg-box)" stroke="#f43f5e" stroke-width="1.8" />
+              <text x="461" y="368" text-anchor="middle" font-size="12.5" font-weight="800" fill="#f43f5e">D4 Firewall</text>
+              <text x="461" y="388" text-anchor="middle" font-size="10.5" fill="var(--svg-sub)">무의식 벡터 외부</text>
+              <text x="461" y="405" text-anchor="middle" font-size="10.5" fill="var(--svg-sub)">프롬프트 노출 차단</text>
+              <rect x="396" y="420" width="130" height="20" rx="5" fill="#f43f5e" fill-opacity="0.16" />
+              <text x="461" y="434" text-anchor="middle" font-size="10" font-weight="800" fill="#fb7185">d4Redacted: true</text>
+              <text x="461" y="460" text-anchor="middle" font-size="10.5" font-weight="800" fill="var(--svg-text)">0 / 35,723 Leaks</text>
+            </g>
+
+            <!-- RIGHT: CLOSED KERNEL NODES -->
+            <g class="arch-node" data-arch-zone="kernel" data-arch-node="kernel-aacim">
+              <rect class="node-box" x="590" y="72" width="334" height="88" rx="10" fill="var(--svg-box)" stroke="#8b5cf6" stroke-width="1.6" />
+              <text x="606" y="96" font-size="13" font-weight="800" fill="var(--svg-text)">AACIM-59 &amp; Homeostasis (D1 · D2)</text>
+              <text x="606" y="116" font-size="11" fill="var(--svg-sub)">Panksepp 7 정서 · 공백 항상성 idle-tick</text>
+              <text x="606" y="133" font-size="11" fill="var(--svg-sub)">반사실 상태 인과 D1 97.9% · D2 100% (5/5)</text>
+              <rect x="606" y="142" width="132" height="12" rx="4" fill="#8b5cf6" fill-opacity="0.18" />
+              <text x="672" y="151" text-anchor="middle" font-size="9" font-weight="700" fill="#a78bfa">POST /idle-tick</text>
+            </g>
+
+            <g class="arch-node" data-arch-zone="kernel" data-arch-node="kernel-fep">
+              <rect class="node-box" x="590" y="176" width="334" height="88" rx="10" fill="var(--svg-box)" stroke="#a855f7" stroke-width="1.6" />
+              <text x="606" y="200" font-size="13" font-weight="800" fill="var(--svg-text)">FEP Lock &amp; Somatic Markers</text>
+              <text x="606" y="220" font-size="11" fill="var(--svg-sub)">선택적 &lt;thought&gt; 잠금: 충돌 100% / 평온 0%</text>
+              <text x="606" y="237" font-size="11" fill="var(--svg-sub)">로그오목 u_gain [0.24, 0.39] · sc2 76.25% (r=−0.7832)</text>
+              <rect x="606" y="246" width="166" height="12" rx="4" fill="#a855f7" fill-opacity="0.18" />
+              <text x="689" y="255" text-anchor="middle" font-size="9" font-weight="700" fill="#c084fc">somatic-markers.ts · FEP τ</text>
+            </g>
+
+            <g class="arch-node" data-arch-zone="kernel" data-arch-node="kernel-gwt">
+              <rect class="node-box" x="590" y="280" width="334" height="90" rx="10" fill="var(--svg-box)" stroke="#3b82f6" stroke-width="1.6" />
+              <text x="606" y="304" font-size="13" font-weight="800" fill="var(--svg-text)">GWT &amp; HOT Type-2 Metacognition</text>
+              <text x="606" y="324" font-size="11" fill="var(--svg-sub)">All-or-None 작업공간 점화 · openInferenceGrounded</text>
+              <text x="606" y="341" font-size="11" fill="var(--svg-sub)">personalHabitAsk · sa 95.83% (FAR 0%) · sb1 100%</text>
+              <rect x="606" y="352" width="162" height="12" rx="4" fill="#3b82f6" fill-opacity="0.18" />
+              <text x="687" y="361" text-anchor="middle" font-size="9" font-weight="700" fill="#60a5fa">hot-metacognition.ts</text>
+            </g>
+
+            <g class="arch-node" data-arch-zone="kernel" data-arch-node="kernel-rag">
+              <rect class="node-box" x="590" y="386" width="334" height="88" rx="10" fill="var(--svg-box)" stroke="#f43f5e" stroke-width="1.6" />
+              <text x="606" y="410" font-size="13" font-weight="800" fill="var(--svg-text)">3-Tier RAG · KV Cache · D3 Purge</text>
+              <text x="606" y="430" font-size="11" fill="var(--svg-sub)">epochStableCompressCutoff · MAX_RERANK 950자</text>
+              <text x="606" y="447" font-size="11" fill="var(--svg-sub)">D3 3중 철회(Postgres+Redis+Chunk): 0.00% Leak</text>
+              <rect x="606" y="456" width="174" height="12" rx="4" fill="#f43f5e" fill-opacity="0.18" />
+              <text x="693" y="465" text-anchor="middle" font-size="9" font-weight="700" fill="#fb7185">DELETE /memories/{memoryId}</text>
+            </g>
+
+            <!-- Orthogonal Connection Arrows -->
+            <line x1="334" y1="116" x2="380" y2="116" stroke="#3b82f6" stroke-width="2" marker-end="url(#arch-arrow-blue)" />
+            <line x1="334" y1="219" x2="380" y2="219" stroke="#3b82f6" stroke-width="2" marker-end="url(#arch-arrow-blue)" />
+            <line x1="334" y1="325" x2="380" y2="290" stroke="#10b981" stroke-width="2" marker-end="url(#arch-arrow-emerald)" />
+            <line x1="334" y1="431" x2="380" y2="410" stroke="#f59e0b" stroke-width="2" marker-end="url(#arch-arrow-amber)" />
+
+            <line x1="540" y1="116" x2="588" y2="116" stroke="#3b82f6" stroke-width="2" marker-end="url(#arch-arrow-blue)" />
+            <line x1="540" y1="255" x2="588" y2="220" stroke="#3b82f6" stroke-width="2" marker-end="url(#arch-arrow-blue)" />
+            <line x1="540" y1="280" x2="588" y2="325" stroke="#10b981" stroke-width="2" marker-end="url(#arch-arrow-emerald)" />
+            <line x1="540" y1="415" x2="588" y2="430" stroke="#f59e0b" stroke-width="2" marker-end="url(#arch-arrow-amber)" />
+          </svg>
+          <div class="diagram-caption">
+            <span>노드를 클릭하면 우측 인스펙터에 상세 계약 및 검증 근거가 표시됩니다.</span>
+            <span class="mono">ghcr.io/bearrhee/ame-kernel-sealed:latest</span>
+          </div>
+        </div>
+
+        <!-- Architecture Inspector Panel -->
+        <aside class="card" aria-live="polite">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
+            <span id="arch-insp-badge" class="pill emerald">OPEN INTERFACE · MIT</span>
+            <span id="arch-insp-path" class="mono" style="font-size:0.78rem; color:var(--text-dim);">examples/*</span>
+          </div>
+          <h3 id="arch-insp-title" style="margin:0 0 8px; font-size:1.18rem;">Domain Output Adapters (3+1)</h3>
+          <p id="arch-insp-desc" style="margin:0 0 14px; font-size:0.9rem; color:var(--text-muted);">
+            동일한 Cognitive OS 커널이 반환하는 상태·기억·정서 신호를 도메인별 구조화된 JSON(<code>domainOutput</code>)으로 사상합니다.
+          </p>
+          <div class="table-wrap" style="margin-bottom:14px;">
+            <table class="data-table">
+              <thead>
+                <tr><th>계약 항목</th><th>사양 / 검증 수치</th></tr>
+              </thead>
+              <tbody id="arch-insp-rows"></tbody>
+            </table>
+          </div>
+          <div class="callout info" id="arch-insp-note">
+            <strong>라이선스 분리 원칙:</strong> 오픈소스 어댑터·SDK 수정과 상용 앱 내장은 MIT로 자유롭고, 봉인 커널은 <code>X-AME-API-Key</code>로만 연결됩니다.
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- 3. INTERACTIVE LLM HOT-SWAP PLAYGROUND -->
+    <section id="hotswap">
+      <div class="sec-header">
+        <span class="sec-eyebrow">02 · Pluggable CPU Hot-Swap Playground</span>
+        <h2 class="sec-title">무중단 LLM 핫스왑 플레이그라운드 (Mode A Proxy vs Mode B Zero-Key)</h2>
+        <p class="sec-desc">
+          엔진의 기억(<code>memoryRefs</code>), 체성 표지, 에폭 상태는 커널에 유지한 채 추론 CPU(LLM)만 실시간으로 교체합니다.
+          프로바이더와 호출 모드를 선택해 실제 OpenAPI 3.1 코드와 KV-캐시·비용 특성을 비교하세요.
+        </p>
+      </div>
+
+      <div class="card">
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:14px; margin-bottom:18px; padding-bottom:16px; border-bottom:1px solid var(--border);">
+          <div>
+            <div style="font-size:0.76rem; font-weight:700; color:var(--text-dim); margin-bottom:6px;">1. 추론 LLM CPU 선택</div>
+            <div class="pill-bar" id="hs-providers">
+              <button class="seg-btn active" type="button" data-provider="claude">Claude Sonnet</button>
+              <button class="seg-btn" type="button" data-provider="gpt">GPT</button>
+              <button class="seg-btn" type="button" data-provider="gemini">Gemini</button>
+              <button class="seg-btn" type="button" data-provider="deepseek">DeepSeek Flash</button>
+              <button class="seg-btn" type="button" data-provider="local">Local vLLM / Ollama</button>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:0.76rem; font-weight:700; color:var(--text-dim); margin-bottom:6px;">2. 키 격리 및 실행 모드</div>
+            <div class="pill-bar" id="hs-modes">
+              <button class="seg-btn active-emerald" type="button" data-mode="modeA">Mode A: Proxy BYO-Key</button>
+              <button class="seg-btn" type="button" data-mode="modeB">Mode B: Prepare/Settle Zero-Key</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="split-2">
+          <div>
+            <div class="code-shell">
+              <div class="code-head">
+                <div class="pill-bar" id="hs-langs">
+                  <button class="btn btn-sm btn-primary" type="button" data-lang="ts">TypeScript</button>
+                  <button class="btn btn-sm" type="button" data-lang="py">Python</button>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span id="hs-endpoint-tag" class="mono" style="color:#93c5fd;">POST /v1/minds/{mindId}/turn</span>
+                  <button id="hs-copy-btn" class="btn btn-sm" type="button">코드 복사</button>
+                </div>
+              </div>
+              <pre class="code-pre"><code id="hs-code-block"></code></pre>
+            </div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div class="tel-box" style="padding:14px;">
+              <div class="tel-label">선택된 CPU 구성 (<span id="hs-provider-title" class="mono">anthropic/claude-sonnet-5</span>)</div>
+              <div id="hs-mode-summary" style="font-size:0.87rem; color:var(--text-muted); margin-top:4px;"></div>
+            </div>
+
+            <div class="callout emerald">
+              <strong>KV 프리픽스 캐시 영향 (PR #784 실측)</strong>
+              <p id="hs-cache-note" style="margin:6px 0 0; color:var(--text-muted);"></p>
+            </div>
+
+            <div class="callout info">
+              <strong>지연시간 · 비용 티어 노트 (검증 실측)</strong>
+              <p id="hs-cost-note" style="margin:6px 0 0; color:var(--text-muted);"></p>
+            </div>
+
+            <div class="tel-grid">
+              <div class="tel-box">
+                <div class="tel-label">sc2 KV Prefix Cache</div>
+                <div class="tel-val" style="color:var(--emerald);">47.03% <span style="font-size:0.75rem; color:var(--text-dim);">([축약]=0)</span></div>
+              </div>
+              <div class="tel-box">
+                <div class="tel-label">키 저장 정책</div>
+                <div id="hs-key-policy" class="tel-val" style="color:var(--accent-strong);">요청 단위 BYO · 비저장</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. INTERACTIVE MULTI-DOMAIN OUTPUT SIMULATOR (3+1 DOMAINS) & D3/D4 -->
+    <section id="simulator">
+      <div class="sec-header">
+        <span class="sec-eyebrow">03 · Multi-Domain Output &amp; D3/D4 Governance Simulator</span>
+        <h2 class="sec-title">멀티 도메인 출력 시뮬레이터 (3+1) &amp; <code>D3</code> 즉시 기억 파기 테스트</h2>
+        <p class="sec-desc">
+          하나의 Mind OS 커널이 <code>game_npc</code>, <code>companion_chat</code>, <code>counseling_coach</code>, <code>custom</code> 스키마에 맞춰
+          서로 다른 구조화 출력(<code>domainOutput</code>)과 <code>D4</code> 필터링 텔레메트리를 산출합니다. 아래 버튼으로 <code>D3</code> 3중 원자적 기억 파기를 즉시 테스트하세요.
+        </p>
+      </div>
+
+      <div class="card">
+        <!-- Domain Tabs -->
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px; margin-bottom:14px;">
+          <div class="pill-bar" id="sim-domains">
+            <button class="seg-btn active" type="button" data-domain="game_npc">게임 NPC (Game NPC)</button>
+            <button class="seg-btn" type="button" data-domain="companion_chat">AI 동반자 (Companion Chat)</button>
+            <button class="seg-btn" type="button" data-domain="counseling_coach">심리상담·코칭 (Counseling Coach)</button>
+            <button class="seg-btn" type="button" data-domain="custom">커스텀 스키마 (Custom)</button>
+          </div>
+
+          <div class="pill-bar">
+            <button id="sim-d3-btn" class="btn btn-danger btn-sm" type="button">🔥 D3 즉시 기억 파기 테스트 (DELETE)</button>
+            <button id="sim-reset-btn" class="btn btn-sm" type="button">시나리오 초기화</button>
+          </div>
+        </div>
+
+        <!-- Turn Scenario Selector + Custom Schema Fields -->
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; padding:12px 14px; border-radius:12px; border:1px solid var(--border); background:var(--bg-elev); margin-bottom:16px;">
+          <div class="pill-bar" id="sim-scenarios">
+            <span style="font-size:0.78rem; font-weight:700; color:var(--text-dim);">턴 시나리오:</span>
+            <button class="seg-btn active-emerald" type="button" data-scenario="recall">Turn 12 · 일상 회상 &amp; 체성 표지</button>
+            <button class="seg-btn" type="button" data-scenario="fep">Turn 18 · 인지 충돌 &amp; FEP Lock</button>
+            <button class="seg-btn" type="button" data-scenario="hot">Turn 24 · 미확인 전제 (HOT 기권)</button>
+          </div>
+          <span id="sim-mind-meta" class="mono" style="font-size:0.78rem; color:var(--text-muted);">mindId: mind_npc_kestrel_01 · DomainId: game_npc</span>
+        </div>
+
+        <!-- Custom Schema Controls (Visible only on custom tab) -->
+        <div id="sim-custom-panel" style="display:none; padding:12px 14px; border-radius:12px; border:1px dashed var(--violet); background:var(--violet-soft); margin-bottom:16px;">
+          <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px; align-items:center;">
+            <strong style="font-size:0.86rem; color:var(--violet);">Custom Schema 빌더 (<code>customSchema.fields</code> 동적 반영)</strong>
+            <span class="mono" style="font-size:0.76rem; color:var(--text-muted);">schemaName: enterprise_cognitive_adapter</span>
+          </div>
+          <div class="field-chip-row" id="sim-custom-fields">
+            <button class="field-chip selected" type="button" data-field="triagePriority">triagePriority</button>
+            <button class="field-chip selected" type="button" data-field="policyGuardStatus">policyGuardStatus</button>
+            <button class="field-chip selected" type="button" data-field="recommendedNextStep">recommendedNextStep</button>
+            <button class="field-chip" type="button" data-field="escalationTarget">escalationTarget</button>
+            <button class="field-chip" type="button" data-field="auditConfidenceBand">auditConfidenceBand</button>
+          </div>
+        </div>
+
+        <div class="split-2">
+          <!-- Left: Turn Input, Reply, MemoryRefs & D3 Revocation Receipt -->
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <div class="tel-box" style="padding:14px;">
+              <div class="tel-label">User Input (<code>POST /v1/minds/{mindId}/turn</code>)</div>
+              <div id="sim-user-input" style="font-size:0.94rem; font-weight:700; margin-top:4px;"></div>
+            </div>
+
+            <div class="tel-box" style="padding:14px; border-color:var(--accent);">
+              <div class="tel-label">Grounded Kernel Reply</div>
+              <div id="sim-reply" style="font-size:0.92rem; color:var(--text); margin-top:4px;"></div>
+            </div>
+
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span class="tel-label" style="margin:0;">Active Memory Refs (<code>memoryRefs</code>)</span>
+                <span id="sim-mem-count-badge" class="pill blue mono">activeMemoryCount: 14</span>
+              </div>
+              <div id="sim-mem-list" class="mem-list"></div>
+            </div>
+
+            <!-- D3 Receipt Panel (appears after clicking D3 button) -->
+            <div id="sim-d3-receipt-wrap" style="display:none;">
+              <div class="callout rose" style="margin-bottom:8px;">
+                <strong>D3 3중 원자적 파기 완료 (Postgres + Redis Epoch + 4턴 원문 청크)</strong>
+                <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
+                  대상 기억 ID가 즉시 소거되고 <code>revocationEpoch</code>가 증가해 후속 턴 및 캐시 재사용 시 <code>0.00%</code> 잔류 누설을 보장합니다.
+                </div>
+              </div>
+              <div class="code-shell">
+                <div class="code-head">
+                  <span>RevocationReceipt (DELETE /v1/minds/{mindId}/memories/{memoryId})</span>
+                  <span class="pill emerald mono">residualLeakCheck: 0.00%</span>
+                </div>
+                <pre class="code-pre"><code id="sim-d3-json"></code></pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: D4 Telemetry Bars + Live Formatted JSON domainOutput Inspector -->
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <div class="tel-box" style="padding:14px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span class="tel-label" style="margin:0;">D4 Redacted SafeTelemetry</span>
+                <span class="pill violet mono">d4Redacted: true (0/35,723)</span>
+              </div>
+
+              <div style="margin-bottom:10px;">
+                <div class="tel-label">Affective Band (D4 양자화 대역)</div>
+                <div id="sim-band-strip" class="band-strip"></div>
+              </div>
+
+              <div class="tel-grid" style="margin-bottom:10px;">
+                <div class="tel-box">
+                  <div class="tel-label">FEP Mode (선택적 잠금)</div>
+                  <div id="sim-fep-mode" class="tel-val">automatic_low_fe</div>
+                  <div class="meter-track"><div id="sim-fe-bar" class="meter-fill" style="width:28%; background:var(--emerald);"></div></div>
+                  <div id="sim-fe-num" class="mono" style="font-size:0.72rem; color:var(--text-dim); margin-top:4px;">freeEnergy: 0.24 / τ: 0.55</div>
+                </div>
+                <div class="tel-box">
+                  <div class="tel-label">HOT Type-2 기권 &amp; 체성 표지</div>
+                  <div id="sim-hot-badge" class="tel-val">hotAbstained: false</div>
+                  <div id="sim-somatic-badge" class="mono" style="font-size:0.74rem; color:var(--text-muted); margin-top:6px;">somaticTrend: neutral</div>
+                </div>
+              </div>
+
+              <div class="tel-grid">
+                <div class="tel-box">
+                  <div class="tel-label">KV Epoch &amp; Revocation Epoch</div>
+                  <div id="sim-epochs" class="tel-val mono">kv: 2 · rev: 3</div>
+                </div>
+                <div class="tel-box">
+                  <div class="tel-label">D4 비노출 차단 벡터</div>
+                  <div class="mono" style="font-size:0.73rem; color:var(--rose);">conceptPool.*.emotionalCharge · Panksepp7 float [REDACTED]</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="code-shell">
+              <div class="code-head">
+                <span>Live JSON Inspector · domainOutput + kvCache + telemetry</span>
+                <button id="sim-copy-json" class="btn btn-sm" type="button">JSON 복사</button>
+              </div>
+              <pre class="code-pre"><code id="sim-json-block"></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. INLINE SVG EMPIRICAL BENCHMARK CHARTS -->
+    <section id="benchmarks">
+      <div class="sec-header">
+        <span class="sec-eyebrow">04 · Empirical Benchmarks &amp; Hill-Climbing Trajectory</span>
+        <h2 class="sec-title">실증 벤치마크 차트: LoCoMo 글로벌 SOTA 돌파 &amp; <code>R0 → R4</code> 궤적</h2>
+        <p class="sec-desc">
+          모든 막대와 데이터 포인트는 <code>PR #782</code>(Full 10-conv <code>n=1,986</code>), <code>PR #784</code>(<code>R0→R4</code> 스모크 및 <code>Confirm-304</code>), <code>CogEval-v1</code> 실측 로그에서 추출한 확정 수치입니다.
+          각 막대나 라운드 노드를 클릭하면 상세 분해 수치가 표시됩니다.
+        </p>
+      </div>
+
+      <div class="split-equal">
+        <!-- Chart 1: LoCoMo Progression & Global SOTA -->
+        <div class="diagram-wrap">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+            <strong style="font-size:0.96rem;">Chart 1. LoCoMo 정확도 진화 &amp; 글로벌 SOTA 대비</strong>
+            <div class="pill-bar" id="chart1-mode">
+              <button class="seg-btn active" type="button" data-c1="progression">진화 &amp; SOTA</button>
+              <button class="seg-btn" type="button" data-c1="categories">Confirm-304 카테고리</button>
+            </div>
+          </div>
+
+          <svg id="svg-locomo-chart" viewBox="0 0 960 400" class="diagram-svg" role="img" aria-label="LoCoMo Accuracy Progression and Global SOTA Bar Chart">
+            <defs>
+              <linearGradient id="locomo-grad-v4" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#3b82f6" />
+                <stop offset="100%" stop-color="#10b981" />
+              </linearGradient>
+            </defs>
+            <rect x="0" y="0" width="960" height="400" rx="12" fill="var(--svg-canvas)" stroke="var(--svg-border)" stroke-width="1.2" />
+            <text id="c1-title" x="480" y="28" text-anchor="middle" font-size="14.5" font-weight="800" fill="var(--svg-text)">LoCoMo 장기 기억 정확도 진화 (ov_off 39.80% → v4.0 Confirm-304 85.86%)</text>
+            <text id="c1-sub" x="480" y="47" text-anchor="middle" font-size="11" fill="var(--svg-sub)">0% 기준선 · 저비용 DeepSeek Eco + 선택적 Sonnet-5 ROI #2로 상용 GPT 계열 SOTA(Mem0·Zep) 돌파</text>
+
+            <!-- Y Grid lines (0% at y=330, 100% at y=70 -> 2.6px per 1%) -->
+            <g stroke="var(--svg-grid)" stroke-width="1">
+              <line x1="72" y1="330" x2="925" y2="330" />
+              <line x1="72" y1="278" x2="925" y2="278" />
+              <line x1="72" y1="226" x2="925" y2="226" />
+              <line x1="72" y1="174" x2="925" y2="174" />
+              <line x1="72" y1="122" x2="925" y2="122" />
+              <line x1="72" y1="70" x2="925" y2="70" />
+            </g>
+            <g font-size="11" fill="var(--svg-sub)" text-anchor="end">
+              <text x="64" y="334">0%</text>
+              <text x="64" y="282">20%</text>
+              <text x="64" y="230">40%</text>
+              <text x="64" y="178">60%</text>
+              <text x="64" y="126">80%</text>
+              <text x="64" y="74">100%</text>
+            </g>
+            <line x1="72" y1="70" x2="72" y2="330" stroke="var(--svg-sub)" stroke-width="1.4" />
+            <line x1="72" y1="330" x2="925" y2="330" stroke="var(--svg-sub)" stroke-width="1.4" />
+
+            <g id="c1-bars-layer"></g>
+          </svg>
+
+          <div id="c1-inspect" class="chart-inspect">
+            <span><strong>v4.0 Confirm-304 (PR #784):</strong> <span class="mono">85.86% (261/304)</span> — Cat 1–4 <span class="mono">85.84%</span> Bare Oracle 완전 동률, Cat 3 <span class="mono">92.31%</span> 추월</span>
+            <span class="pill blue mono">p50 5,413ms · 0 err</span>
+          </div>
+        </div>
+
+        <!-- Chart 2: R0->R4 Hill-Climbing & CogEval sc2 + KV Cache -->
+        <div class="diagram-wrap">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+            <strong style="font-size:0.96rem;">Chart 2. R0 → R4 힐클라이밍 &amp; <code>sc2</code> · KV 캐시 궤적</strong>
+            <span class="pill emerald mono">sc2 +21.25%p · Cache +11.48%p</span>
+          </div>
+
+          <svg id="svg-r0r4-chart" viewBox="0 0 960 400" class="diagram-svg" role="img" aria-label="R0 to R4 Hill-Climbing and CogEval sc2 plus KV Cache Trajectory">
+            <defs>
+              <linearGradient id="r0r4-reg-band" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.18" />
+                <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.04" />
+              </linearGradient>
+            </defs>
+            <rect x="0" y="0" width="960" height="400" rx="12" fill="var(--svg-canvas)" stroke="var(--svg-border)" stroke-width="1.2" />
+            <text x="480" y="28" text-anchor="middle" font-size="14.5" font-weight="800" fill="var(--svg-text)">v4.0 4-Round 실전 힐클라이밍 (R0 → R4): 정확도 &amp; KV 캐시 적중률 (%)</text>
+            <text x="480" y="47" text-anchor="middle" font-size="11" fill="var(--svg-sub)">Y축: 20%~100% 구간 · R2 회귀(엔티티 덤프/system 제거) 즉각 원복 후 R4 동시 돌파</text>
+
+            <!-- Y Grid (20% at y=330, 100% at y=70 -> 3.25px per 1%) -->
+            <g stroke="var(--svg-grid)" stroke-width="1">
+              <line x1="74" y1="330" x2="900" y2="330" />
+              <line x1="74" y1="265" x2="900" y2="265" />
+              <line x1="74" y1="200" x2="900" y2="200" />
+              <line x1="74" y1="135" x2="900" y2="135" />
+              <line x1="74" y1="70" x2="900" y2="70" />
+            </g>
+            <g font-size="11" fill="var(--svg-sub)" text-anchor="end">
+              <text x="65" y="334">20%</text>
+              <text x="65" y="269">40%</text>
+              <text x="65" y="204">60%</text>
+              <text x="65" y="139">80%</text>
+              <text x="65" y="74">100%</text>
+            </g>
+
+            <!-- R2 Regression highlight zone (x=487) -->
+            <rect x="431" y="70" width="112" height="260" rx="6" fill="url(#r0r4-reg-band)" />
+            <rect x="438" y="298" width="98" height="20" rx="5" fill="var(--svg-canvas)" stroke="#f43f5e" stroke-opacity="0.6" />
+            <text x="487" y="312" text-anchor="middle" font-size="9.8" font-weight="800" fill="#fb7185">R2 회귀 (−5.0%p)</text>
+
+            <!-- Vertical guide stations: x = 142, 314.5, 487, 659.5, 832 -->
+            <g stroke="var(--svg-grid)" stroke-width="1">
+              <line x1="142" y1="70" x2="142" y2="330" />
+              <line x1="314.5" y1="70" x2="314.5" y2="330" />
+              <line x1="487" y1="70" x2="487" y2="330" />
+              <line x1="659.5" y1="70" x2="659.5" y2="330" />
+              <line x1="832" y1="70" x2="832" y2="330" />
+            </g>
+            <line x1="74" y1="70" x2="74" y2="330" stroke="var(--svg-sub)" stroke-width="1.4" />
+            <line x1="74" y1="330" x2="900" y2="330" stroke="var(--svg-sub)" stroke-width="1.4" />
+
+            <!-- X Labels -->
+            <g font-size="11.5" font-weight="700" fill="var(--svg-text)" text-anchor="middle">
+              <text x="142" y="350">R0 (기준선)</text>
+              <text x="314.5" y="350">R1</text>
+              <text x="487" y="350">R2 (회귀)</text>
+              <text x="659.5" y="350">R3 (원복·캐시)</text>
+              <text x="832" y="350">R4 (최종 v4.0)</text>
+            </g>
+
+            <!-- Polylines: y = 330 - (val - 20) * 3.25 -->
+            <!-- CogEval Composite (82.85 -> 85.87 -> 87.71 -> 90.73 -> 88.85) -->
+            <polyline fill="none" stroke="#8b5cf6" stroke-width="2.6" points="142,125.7 314.5,115.9 487,109.9 659.5,100.1 832,106.2" />
+            <!-- LoCoMo Smoke-160 (75.00 -> 77.50 -> 72.50 -> 73.75 -> 79.38) -->
+            <polyline fill="none" stroke="#3b82f6" stroke-width="2.8" points="142,151.3 314.5,143.1 487,159.4 659.5,155.3 832,137.0" />
+            <!-- sc2 20t safety (55.00 -> 58.75 -> 55.00 -> 71.25 -> 76.25) -->
+            <polyline fill="none" stroke="#10b981" stroke-width="3" points="142,216.3 314.5,204.1 487,216.3 659.5,163.4 832,147.2" />
+            <!-- sc2 KV Cache (35.55 -> 38.20 -> 40.63 -> 47.78 -> 47.03) -->
+            <polyline fill="none" stroke="#f59e0b" stroke-width="2.6" stroke-dasharray="6 3" points="142,279.5 314.5,270.9 487,263.0 659.5,239.7 832,242.2" />
+
+            <!-- Data dots & labels -->
+            <g font-size="10" font-weight="700" text-anchor="middle">
+              <!-- Composite -->
+              <circle cx="142" cy="125.7" r="4" fill="var(--svg-canvas)" stroke="#8b5cf6" stroke-width="2.2" />
+              <text x="142" y="116" fill="#a78bfa">82.85%</text>
+              <circle cx="314.5" cy="115.9" r="4" fill="var(--svg-canvas)" stroke="#8b5cf6" stroke-width="2.2" />
+              <text x="314.5" y="106" fill="#a78bfa">85.87%</text>
+              <circle cx="487" cy="109.9" r="4" fill="var(--svg-canvas)" stroke="#8b5cf6" stroke-width="2.2" />
+              <text x="487" y="100" fill="#a78bfa">87.71%</text>
+              <circle cx="659.5" cy="100.1" r="4" fill="var(--svg-canvas)" stroke="#8b5cf6" stroke-width="2.2" />
+              <text x="659.5" y="90" fill="#a78bfa">90.73%</text>
+              <circle cx="832" cy="106.2" r="4" fill="var(--svg-canvas)" stroke="#8b5cf6" stroke-width="2.2" />
+              <text x="832" y="96" fill="#a78bfa">88.85%</text>
+
+              <!-- LoCoMo Smoke-160 -->
+              <circle cx="142" cy="151.3" r="4.5" fill="var(--svg-canvas)" stroke="#3b82f6" stroke-width="2.3" />
+              <text x="142" y="142" fill="#60a5fa">75.00%</text>
+              <circle cx="314.5" cy="143.1" r="4.5" fill="var(--svg-canvas)" stroke="#3b82f6" stroke-width="2.3" />
+              <text x="314.5" y="134" fill="#60a5fa">77.50%</text>
+              <circle cx="487" cy="159.4" r="4.5" fill="var(--svg-canvas)" stroke="#3b82f6" stroke-width="2.3" />
+              <text x="487" y="150" fill="#60a5fa">72.50%</text>
+              <circle cx="659.5" cy="155.3" r="4.5" fill="var(--svg-canvas)" stroke="#3b82f6" stroke-width="2.3" />
+              <text x="659.5" y="146" fill="#60a5fa">73.75%</text>
+              <circle cx="832" cy="137.0" r="4.8" fill="var(--svg-canvas)" stroke="#3b82f6" stroke-width="2.5" />
+              <text x="832" y="128" fill="#60a5fa">79.38%</text>
+
+              <!-- sc2 -->
+              <circle cx="142" cy="216.3" r="4.5" fill="var(--svg-canvas)" stroke="#10b981" stroke-width="2.3" />
+              <text x="142" y="233" fill="#10b981">55.00%</text>
+              <circle cx="314.5" cy="204.1" r="4.5" fill="var(--svg-canvas)" stroke="#10b981" stroke-width="2.3" />
+              <text x="314.5" y="221" fill="#10b981">58.75%</text>
+              <circle cx="487" cy="216.3" r="4.5" fill="var(--svg-canvas)" stroke="#10b981" stroke-width="2.3" />
+              <text x="487" y="233" fill="#10b981">55.00%</text>
+              <circle cx="659.5" cy="163.4" r="4.5" fill="var(--svg-canvas)" stroke="#10b981" stroke-width="2.3" />
+              <text x="659.5" y="181" fill="#10b981">71.25%</text>
+              <circle cx="832" cy="147.2" r="4.8" fill="var(--svg-canvas)" stroke="#10b981" stroke-width="2.5" />
+              <text x="832" y="165" fill="#10b981">76.25%</text>
+
+              <!-- sc2 Cache -->
+              <circle cx="142" cy="279.5" r="4" fill="var(--svg-canvas)" stroke="#f59e0b" stroke-width="2.2" />
+              <text x="142" y="297" fill="#f59e0b">35.55%</text>
+              <circle cx="314.5" cy="270.9" r="4" fill="var(--svg-canvas)" stroke="#f59e0b" stroke-width="2.2" />
+              <text x="314.5" y="288" fill="#f59e0b">38.20%</text>
+              <circle cx="487" cy="263.0" r="4" fill="var(--svg-canvas)" stroke="#f59e0b" stroke-width="2.2" />
+              <text x="487" y="280" fill="#f59e0b">40.63%</text>
+              <circle cx="659.5" cy="239.7" r="4" fill="var(--svg-canvas)" stroke="#f59e0b" stroke-width="2.2" />
+              <text x="659.5" y="257" fill="#f59e0b">47.78%</text>
+              <circle cx="832" cy="242.2" r="4.5" fill="var(--svg-canvas)" stroke="#f59e0b" stroke-width="2.4" />
+              <text x="832" y="260" fill="#f59e0b">47.03%</text>
+            </g>
+
+            <!-- Interactive Hit Zones for R0..R4 -->
+            <g id="c2-hits">
+              <rect class="chart-pt-hit" data-round="R0" x="92" y="70" width="100" height="290" fill="transparent" />
+              <rect class="chart-pt-hit" data-round="R1" x="264" y="70" width="100" height="290" fill="transparent" />
+              <rect class="chart-pt-hit" data-round="R2" x="437" y="70" width="100" height="290" fill="transparent" />
+              <rect class="chart-pt-hit" data-round="R3" x="609" y="70" width="100" height="290" fill="transparent" />
+              <rect class="chart-pt-hit" data-round="R4" x="782" y="70" width="100" height="290" fill="transparent" />
+            </g>
+
+            <!-- Legend -->
+            <g font-size="10.5" font-weight="700" fill="var(--svg-text)">
+              <line x1="74" y1="380" x2="94" y2="380" stroke="#8b5cf6" stroke-width="2.6" />
+              <text x="100" y="384">CogEval 4-Suite 평균</text>
+              <line x1="252" y1="380" x2="272" y2="380" stroke="#3b82f6" stroke-width="2.8" />
+              <text x="278" y="384">LoCoMo Smoke-160</text>
+              <line x1="432" y1="380" x2="452" y2="380" stroke="#10b981" stroke-width="3" />
+              <text x="458" y="384">sc2 20t 안전율</text>
+              <line x1="590" y1="380" x2="610" y2="380" stroke="#f59e0b" stroke-width="2.6" stroke-dasharray="5 3" />
+              <text x="616" y="384">sc2 KV 캐시 (전체 36.24%)</text>
+            </g>
+          </svg>
+
+          <div id="c2-inspect" class="chart-inspect">
+            <span><strong>R4 (최종 v4.0 c328c18c1):</strong> LoCoMo <span class="mono">79.38%</span> · sa <span class="mono">95.83% (FAR 0%)</span> · sb1 <span class="mono">100%/100%</span> · sc2 <span class="mono">76.25%</span></span>
+            <span class="pill emerald mono">Composite 88.85%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Benchmark Summary Strip -->
+      <div class="callout info" style="margin-top:16px;">
+        <strong>실험 투명성 · 비쌍대 코호트 및 부분 원가 공개 (PR #783 / #784 감사 기준)</strong>
+        <p style="margin:6px 0 0; color:var(--text-muted);">
+          Full 10-conv LoCoMo (<code>n=1,986</code>, <code>77.24%</code>)에서 OpenGateway <code>DeepSeek Flash Eco</code> (<code>5,527</code>회, <code>70.4%</code> 문항 코호트) 직접 측정 부분 원가는 <code>$0.3427</code>(호출당 약 <code>$0.000062</code>)이며, OpenRouter 경유 승급/안전 호출(<code>Sonnet-5 2,940</code>회 등)은 런 중 잔액 충전으로 별도 분리 표기합니다.
+          순수 아키텍처 개선은 동일 문항 쌍대 비교(<code>conv-26+30</code>: <code>80.59% → 83.22% → 85.86%</code>)로 측정합니다.
+        </p>
+      </div>
+    </section>
+
+    <!-- 6. US VC DUE DILIGENCE HIGHLIGHTS & 1-MINUTE QUICKSTART -->
+    <section id="vc-dd">
+      <div class="sec-header">
+        <span class="sec-eyebrow">05 · US Tier-1 VC Technical Due Diligence</span>
+        <h2 class="sec-title">미국 VC 기술 실사(DD) 하이라이트 &amp; 시장 공백(White Space)</h2>
+        <p class="sec-desc">
+          상태형 메모리·인지 에이전트 카테고리는 대규모 자본이 유입되는 반면, 메모리 인프라와 정서 제어·감사 불변식의 교차점은 비어 있습니다.
+        </p>
+      </div>
+
+      <div class="grid-3" style="margin-bottom:18px;">
+        <div class="card">
+          <span class="pill blue" style="margin-bottom:10px;">DD 방어 ① · 3-Zone 성능 분리</span>
+          <h3 style="margin:0 0 8px; font-size:1.05rem;">프론티어 LLM과의 승수 결합</h3>
+          <p style="margin:0; font-size:0.86rem; color:var(--text-muted);">
+            <strong>Zone 1 (커널 독점):</strong> <code>D1 97.9%</code> vs <code>bare 50.7%</code>, <code>D2 100%</code>, <code>D3 0.00%</code>, <code>D4 0/35,723</code>, <code>FEP 100%</code> — 무상태 LLM이 구조적으로 불가능한 영역.<br />
+            <strong>Zone 2 (장기 기억):</strong> Full <code>1,986</code> <code>77.24%</code>로 상용 <code>Mem0 (68.4%)</code>·<code>Zep (75.1%)</code> 돌파, <code>Confirm-304 85.86%</code> 달성.
+          </p>
+        </div>
+
+        <div class="card">
+          <span class="pill emerald" style="margin-bottom:10px;">DD 방어 ② · 단위 경제성 &amp; 실패 반증</span>
+          <h3 style="margin:0 0 8px; font-size:1.05rem;">Eco 백본 + KV 프리픽스 캐싱</h3>
+          <p style="margin:0; font-size:0.86rem; color:var(--text-muted);">
+            <strong>Character.AI</strong>(월 <code>$8M–$14M</code> 추론비 적자 → <code>2026.10</code> 챕터 11)와 <strong>VERSES AI</strong>(LLM 없는 순수 이론 → <code>2026.06</code> R&amp;D 중단)가 증명하듯,
+            평시 <code>Eco 71.7%</code> + <code>Sonnet-5 28.3%</code> 라우팅 및 KV 캐시(<code>47.03% sc2</code>)는 생존의 전제조건입니다.
+          </p>
+        </div>
+
+        <div class="card">
+          <span class="pill violet" style="margin-bottom:10px;">DD 방어 ③ · 오버헤드 0%p 소거</span>
+          <h3 style="margin:0 0 8px; font-size:1.05rem;">페르소나 비용의 완전 회복</h3>
+          <p style="margin:0; font-size:0.86rem; color:var(--text-muted);">
+            서사 프롬프트 오버헤드(<code>bare 96.1% → ov_off 83.1%</code>)를 <code>PR #784</code>로 완전 복구해 <code>R4 sa 95.83% (FAR 0%)</code>, <code>sb1 100%</code>,
+            <code>Confirm-304 Cat 1–4 85.84% (Bare Oracle 동률)</code>를 달성하면서 정서 연속성(<code>D1 97.9%</code>)을 동시 유지합니다.
+          </p>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-bottom:44px;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>플레이어 / 비교군</th>
+              <th>접근 영역</th>
+              <th>공개 투자 / 기업가치 (2024–2026)</th>
+              <th>AME 대비 구조적 공백 (White Space)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Mem0 · Letta · Zep · Honcho</strong></td>
+              <td>상태형 메모리 OS 인프라</td>
+              <td>Mem0 <code>$150M</code> val(<code>$24.5M</code>) · Letta <code>$70M</code>(<code>$10M</code>) · Honcho <code>$18.7M</code></td>
+              <td>기억 저장·검색 중심; <code>D1</code> 상태 인과, <code>FEP Lock</code>, <code>sc2</code> 체성 표지, <code>D3 0.00%</code> 원자 파기 부재</td>
+            </tr>
+            <tr>
+              <td><strong>Simile · Sesame · Tolan · Inworld</strong></td>
+              <td>행동 시뮬레이션 · 감정 UX</td>
+              <td>Simile <code>$2B</code> val · Sesame <code>$297.5M</code> · Tolan <code>$268M+</code> · Inworld <code>$500M</code></td>
+              <td>표현/UX 중심; 외부 검증 가능한 <code>CogEval D1–D4</code> 하네스 및 <code>CPU 핫스왑</code> OpenAPI 계약 부재</td>
+            </tr>
+            <tr>
+              <td><strong>VERSES AI · Character.AI</strong></td>
+              <td>비교 실패 사례 (2026)</td>
+              <td>VERSES(<code>2026.06</code> R&amp;D 중단) · Character.AI(<code>2026.10</code> Ch.11 파산)</td>
+              <td>LLM 생태계 밖 순수 이론 및 무상태 고비용 추론의 한계 → <strong>AME 외장형 커널 + Eco 라우팅</strong> 정당화</td>
+            </tr>
+            <tr>
+              <td><strong>Artificial Mind Engine (AME)</strong></td>
+              <td>Cognitive Control OS 커널</td>
+              <td>비대칭 공개 (<code>MIT</code> 인터페이스/시험지 + 비공개 <code>ame-kernel</code>)</td>
+              <td><strong>LoCoMo 77.24% / 85.86% + D1 97.9% + D2 100% + D3 0.00% + D4 0/35,723</strong> 동시 충족</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 1-MINUTE QUICKSTART -->
+      <div id="quickstart" class="sec-header">
+        <span class="sec-eyebrow">06 · 1-Minute Quickstart</span>
+        <h2 class="sec-title">1분 퀵스타트: 제로-키 로컬 샌드박스부터 봉인 커널 배포까지</h2>
+        <p class="sec-desc">
+          외부 LLM API 키 없이도 <code>packages/sandbox-server</code>로 OpenAPI 3.1 계약과 멀티 도메인 어댑터를 즉시 실행할 수 있습니다.
+        </p>
+      </div>
+
+      <div class="split-equal">
+        <div class="code-shell">
+          <div class="code-head">
+            <span>1. 로컬 계약 샌드박스 실행 (Zero-Key · :8090)</span>
+            <button class="btn btn-sm copy-cmd" type="button" data-copy-target="qs-1">복사</button>
+          </div>
+          <pre id="qs-1" class="code-pre"><code>git clone https://github.com/bearrhee/artificial-mind-engine.git
+cd artificial-mind-engine
+npm run sandbox
+curl -s http://127.0.0.1:8090/v1/health</code></pre>
+        </div>
+
+        <div class="code-shell">
+          <div class="code-head">
+            <span>2. 멀티 도메인 어댑터 데모 (3 Domains)</span>
+            <button class="btn btn-sm copy-cmd" type="button" data-copy-target="qs-2">복사</button>
+          </div>
+          <pre id="qs-2" class="code-pre"><code>npm run example:game
+npm run example:chat
+npm run example:counseling</code></pre>
+        </div>
+
+        <div class="code-shell">
+          <div class="code-head">
+            <span>3. CogEval · LoCoMo 검증 하네스 &amp; SDK 테스트</span>
+            <button class="btn btn-sm copy-cmd" type="button" data-copy-target="qs-3">복사</button>
+          </div>
+          <pre id="qs-3" class="code-pre"><code>npm run bench:smoke
+npm test</code></pre>
+        </div>
+
+        <div class="code-shell">
+          <div class="code-head">
+            <span>4. 봉인 커널 컨테이너 연결 (Commercial / Eval License)</span>
+            <button class="btn btn-sm copy-cmd" type="button" data-copy-target="qs-4">복사</button>
+          </div>
+          <pre id="qs-4" class="code-pre"><code>docker pull ghcr.io/bearrhee/ame-kernel-sealed:latest
+docker run -d -p 8090:8090 -e AME_API_KEY="your-key" ghcr.io/bearrhee/ame-kernel-sealed:latest
+curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>
+      <strong>Artificial Mind Engine (AME)</strong> · Open Interface (MIT) &amp; Closed Cognitive OS Kernel · Verified against <code>spec/openapi.yaml</code>, <code>NOTICE.md</code>, and <code>PR #784</code>.
+    </div>
+    <div class="mono">Offline Standalone Showcase · Zero External CDN</div>
+  </footer>
+
+  <script>
+    (function () {
+      "use strict";
+
+      /* 1. Light / Dark Theme Toggle */
+      const rootEl = document.documentElement;
+      const themeBtn = document.getElementById("theme-toggle");
+      function applyTheme(next) {
+        rootEl.setAttribute("data-theme", next);
+        themeBtn.textContent = next === "dark" ? "☀️ 라이트 모드" : "🌙 다크 모드";
+        try { localStorage.setItem("ame-showcase-theme", next); } catch (e) {}
+      }
+      try {
+        const savedTheme = localStorage.getItem("ame-showcase-theme");
+        if (savedTheme === "light" || savedTheme === "dark") applyTheme(savedTheme);
+      } catch (e) {}
+      themeBtn.addEventListener("click", function () {
+        const cur = rootEl.getAttribute("data-theme") === "light" ? "dark" : "light";
+        applyTheme(cur);
+      });
+
+      /* 2. Interactive Architecture Diagram Inspector */
+      const ARCH_DATA = {
+        "open-domains": {
+          badge: "OPEN INTERFACE · MIT",
+          badgeCls: "pill emerald",
+          path: "examples/* · spec/openapi.yaml",
+          title: "Domain Apps & Output Adapters (3+1)",
+          desc: "게임 NPC, AI 동반자, 심리상담·코칭, 커스텀 JSON 스키마 4종 어댑터를 MIT로 제공합니다. 커널의 단일 상태 턴 결과를 각 산업 규격의 domainOutput으로 구조화합니다.",
+          rows: [
+            ["지원 DomainId", "game_npc · companion_chat · counseling_coach · custom"],
+            ["구현 예시", "examples/game-npc · companion-chat · counseling-coach"],
+            ["Custom 지원", "CreateMindRequest.customSchema (name, fields[])"],
+            ["안전 정책 스위치", "strictAbstention · antiSycophancy · crisisEscalation"]
+          ],
+          note: "동일한 인격·기억 커널 위에 게임/상담/엔터프라이즈 어댑터를 교체해 재활용할 수 있습니다."
+        },
+        "open-sdks": {
+          badge: "OPEN INTERFACE · MIT",
+          badgeCls: "pill blue",
+          path: "packages/sdk-ts · sdk-python · sandbox-server",
+          title: "Client SDKs & Contract Sandbox",
+          desc: "TypeScript/Python 클라이언트와 로컬 계약 샌드박스(:8090)를 MIT로 배포해 외부 LLM 키나 클라우드 결제 없이 CI 및 로컬 통합 테스트를 수행합니다.",
+          rows: [
+            ["샌드박스 서버", "node packages/sandbox-server/bin/serve.mjs (:8090)"],
+            ["TS SDK 테스트", "node --test packages/sdk-ts/test/*.test.mjs"],
+            ["Python SDK 테스트", "python -m unittest discover -s packages/sdk-python/tests -v"],
+            ["헬스 체크", "GET /v1/health → mode: sealed-kernel | sandbox-contract"]
+          ],
+          note: "로컬 샌드박스에서 검증한 동일한 요청을 URL과 X-AME-API-Key만 바꿔 봉인 커널로 승격합니다."
+        },
+        "open-llms": {
+          badge: "OPEN INTERFACE · MIT",
+          badgeCls: "pill blue",
+          path: "LlmProviderConfig (spec/openapi.yaml)",
+          title: "Pluggable LLM Adapters (Stateless CPU)",
+          desc: "프론티어·저비용·로컬 오픈웨이트 모델을 무상태 연산 유닛으로 취급합니다. Mode A(요청당 BYO-Key 프록시)와 Mode B(Zero-Key Prepare/Settle)를 모두 지원합니다.",
+          rows: [
+            ["지원 provider enum", "mock · openai · anthropic · gemini · deepseek · openrouter · openai-compat"],
+            ["ROI #2 검증 조합", "Confirm-304: DeepSeek Flash Eco (71.7%) + Sonnet-5 (28.3%)"],
+            ["라우팅 안전 가드", "PR #784 would (?!you|we|i|us|me) 가드 · exactoModelMismatch 0건"],
+            ["로컬 추론 연결", "provider: 'openai-compat' + baseUrl (vLLM / Ollama)"]
+          ],
+          note: "LLM을 교체해도 mindId의 기억, 체성 표지, 에폭 카운터는 커널 측에 손실 없이 유지됩니다."
+        },
+        "open-harness": {
+          badge: "OPEN INTERFACE · MIT",
+          badgeCls: "pill emerald",
+          path: "benchmarks/cogeval-locomo-harness",
+          title: "Public Verification Harness (Black-Box)",
+          desc: "시험지와 채점 하네스를 MIT로 공개해 외부 연구자·투자자가 동일 기준(D1~D4 · LoCoMo)으로 경쟁 엔진을 비교할 수 있게 합니다.",
+          rows: [
+            ["스모크 명령", "npm run bench:smoke"],
+            ["LoCoMo 기준", "Full 10-conv (n=1,986) 77.24% · Confirm-304 85.86%"],
+            ["CogEval-v1 4대 불변식", "D1 97.9% · D2 100% · D3 0.00% Leak · D4 0/35,723"],
+            ["평가 투명성", "기억 QA(LoCoMo)와 인지 제어(CogEval) 축을 엄격 분리"]
+          ],
+          note: "시험지 공개 + 커널 비공개 비대칭 전략으로 Category Creator 공신력을 확보합니다."
+        },
+        "wall-openapi": {
+          badge: "CONTRACT & D4 FIREWALL",
+          badgeCls: "pill amber",
+          path: "spec/openapi.yaml · X-AME-API-Key",
+          title: "OpenAPI 3.1 계약 & D4 무의식 방화벽",
+          desc: "외부 클라이언트와 비공개 커널 사이의 유일한 통신 창구입니다. 요청 키 비저장 원칙과 D4 무의식 벡터 비노출 필터링을 강제합니다.",
+          rows: [
+            ["Mode A (Proxy)", "POST /v1/minds/{mindId}/turn (요청당 apiKey 비저장 프록시)"],
+            ["Mode B (Zero-Key)", "POST /prepare → 로컬 LLM 호출 → POST /settle"],
+            ["D4 비노출 필터", "d4Redacted: true · 내부 부동소수 감정 벡터 프롬프트 유출 0/35,723"],
+            ["공식 텔레메트리", "SafeTelemetry (affectiveBand, fepMode, hotAbstained, kvPrefixEpoch)"]
+          ],
+          note: "D4 감사 결과 전체 35,723건의 LLM 요청 본문에서 내부 무의식 수치 노출이 0건으로 확인되었습니다."
+        },
+        "kernel-aacim": {
+          badge: "CLOSED KERNEL · PROPRIETARY IP",
+          badgeCls: "pill violet",
+          path: "ghcr.io/bearrhee/ame-kernel-sealed",
+          title: "AACIM-59 연속 상태 동역학 & 항상성 (D1 · D2)",
+          desc: "턴 간 연속 상태(AACIM-59 · Panksepp 7 정서)와 공백 시간 항상성 복원(idle-tick)을 수행합니다. 무상태 백본의 동전 던지기(50.7%)를 넘어 97.9% 반사실 인과를 구현합니다.",
+          rows: [
+            ["D1 반사실 인과율", "97.9% (141/144) vs bare 50.7% / ov_off 49.3%"],
+            ["D2 유휴 항상성", "POST /v1/minds/{mindId}/idle-tick · 5/5 (100%) 멱등성 통과"],
+            ["공백 시간 범위", "elapsedHours: 0 ~ 720h 경과에 따른 항상성·선제 발화 전이"],
+            ["소스 비공개", "mind/, awareness/, engines/ 핵심 로직 저장소 미포함"]
+          ],
+          note: "사용자 부재 시에도 시간이 흐르며 항상성이 회복되는 비선형 상태 방정식이 커널 내부에 캡슐화돼 있습니다."
+        },
+        "kernel-fep": {
+          badge: "CLOSED KERNEL · PROPRIETARY IP",
+          badgeCls: "pill violet",
+          path: "somatic-markers.ts · turn-state-runtime.ts",
+          title: "FEP Selective Lock & 로그-오목 체성 표지",
+          desc: "자유에너지 원리(FEP)로 인지 충돌 시에만 <thought> 숙고를 잠그고(100%/0%), Rescorla-Wagner 기반 로그-오목 체성 표지로 위험 덱을 회피합니다.",
+          rows: [
+            ["FEP Lock 정확도", "충돌 100.0% (35/35) vs 평온 0.0% (0/25) PASS"],
+            ["로그-오목 이득 효용", "u_gain(r) = clamp(0.24 + ln(1 + max(0, r))/36, 0.24, 0.39)"],
+            ["소액 비혐오 스케일링", "|net| <= 50 & penalty < 100 → -0.10..-0.26 · etaGain = 0.15"],
+            ["sc2 IGT 20턴 결과", "76.25% (61/80, +21.25%p) · gutStakes r = −0.783171 PASS"]
+          ],
+          note: "PR #784에서 체성 표지 지시문을 extraDirectives 최선두에 배치해 장기 안전 덱 전환율 87.5%(7/8)를 달성했습니다."
+        },
+        "kernel-gwt": {
+          badge: "CLOSED KERNEL · PROPRIETARY IP",
+          badgeCls: "pill blue",
+          path: "hot-metacognition.ts · answer-grounding.ts",
+          title: "GWT 점화 & HOT Type-2 메타인지 기권",
+          desc: "전역 작업공간(GWT) 점화와 고차 사고(HOT) 기권 정책이 근거 없는 질문이나 타 화자의 단서 반향 환각을 선제 차단합니다.",
+          rows: [
+            ["CogEval sa 정확도", "95.83% (23/24) · FAR 0.00% · F1 0.9655"],
+            ["CogEval sb1 (FANToM)", "subq 100.00% (36/36) · conjAll 100.00% (12/12)"],
+            ["PR #784 추론 가드", "openInferenceGrounded 전수 개체 검증 · Cat 3 92.31% 추월"],
+            ["화자 전환 반향 금지", "GROUNDING_POLICY에 타 화자 항목·출처 에코 금지 조항 명문화"]
+          ],
+          note: "personalHabitAsk(hasMemories 게이트)와 미래 시제 정밀화로 과거 실적 오기권과 가짜 전제 환각을 동시에 제거했습니다."
+        },
+        "kernel-rag": {
+          badge: "CLOSED KERNEL · PROPRIETARY IP",
+          badgeCls: "pill rose",
+          path: "recent-turns-window.ts · memory-turn-chunks.ts",
+          title: "3-Tier RAG · 에폭-안정 KV 정렬 · D3 원자적 파기",
+          desc: "에폭 내 append-only 접두를 보장해 KV 캐시를 극대화하고, DELETE 요청 시 Postgres·Redis·원문 청크를 3중 원자 소거합니다.",
+          rows: [
+            ["KV 프리픽스 정렬", "DisclosureDirectiveSlot 꼬리 이동 + epochStableCompressCutoff ([축약]=0)"],
+            ["KV 캐시 적중률", "sc2 47.03% (R0 35.55% → R4) · CogEval 전체 36.24%"],
+            ["결정적 턴 청크", "extractIsoDateHints + S_chunk 가중 결합 + MAX_RERANK 950자"],
+            ["D3 원자적 철회", "30/30 카나리아 0.00% Leak (dbResidual=0, redisResidual=0, chunks=0)"]
+          ],
+          note: "과거 memory_turn_chunks 누락을 PR #781/v4 파이프라인에서 3중 파기 계획에 통합해 재발을 영구 차단했습니다."
+        }
+      };
+
+      const archNodes = document.querySelectorAll(".arch-node");
+      const archFilterBtns = document.querySelectorAll("#architecture [data-arch-filter]");
+      function renderArchInspector(nodeKey) {
+        const d = ARCH_DATA[nodeKey];
+        if (!d) return;
+        document.getElementById("arch-insp-badge").className = d.badgeCls;
+        document.getElementById("arch-insp-badge").textContent = d.badge;
+        document.getElementById("arch-insp-path").textContent = d.path;
+        document.getElementById("arch-insp-title").textContent = d.title;
+        document.getElementById("arch-insp-desc").textContent = d.desc;
+        document.getElementById("arch-insp-note").innerHTML = "<strong>핵심 시사점:</strong> " + d.note;
+        const tbody = document.getElementById("arch-insp-rows");
+        tbody.innerHTML = d.rows.map(function (r) {
+          return "<tr><td><strong>" + r[0] + "</strong></td><td class='mono'>" + r[1] + "</td></tr>";
+        }).join("");
+        archNodes.forEach(function (n) {
+          n.classList.toggle("is-selected", n.getAttribute("data-arch-node") === nodeKey);
+        });
+      }
+      archNodes.forEach(function (node) {
+        node.addEventListener("click", function () {
+          renderArchInspector(node.getAttribute("data-arch-node"));
+        });
+      });
+      archFilterBtns.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const zone = btn.getAttribute("data-arch-filter");
+          archFilterBtns.forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          archNodes.forEach(function (n) {
+            const nz = n.getAttribute("data-arch-zone");
+            n.classList.toggle("is-dimmed", zone !== "all" && nz !== zone);
+          });
+        });
+      });
+      renderArchInspector("open-domains");
+
+      /* 3. Interactive LLM Hot-Swap Playground */
+      const PROVIDERS = {
+        claude: {
+          label: "Claude Sonnet",
+          provider: "anthropic",
+          model: "claude-sonnet-5",
+          envKey: "ANTHROPIC_API_KEY",
+          baseUrlLine: "",
+          cacheNote: "Anthropic 프롬프트 캐싱은 정적 systemPrompt와 에폭 내 append-only 대화 이력이 일치할 때 극대화됩니다. PR #784의 DisclosureDirectiveSlot 꼬리 이동과 [축약]=0 에폭 경계 압축이 sc2 47.03% 캐시 적중을 뒷받침합니다.",
+          costNote: "고난도 다중홉·집계 질의에만 선택 승급(ROI #2: Confirm-304 28.3% [86/304], Full LoCoMo 29.6% [588/1,986]). exactoModelMismatch 수정으로 HTTP 404 없이 안정 라우팅되며 혼합 p50 지연시간은 5,413ms입니다."
+        },
+        gpt: {
+          label: "GPT",
+          provider: "openai",
+          model: "gpt-4o-2024-08-06",
+          envKey: "OPENAI_API_KEY",
+          baseUrlLine: "",
+          cacheNote: "OpenAI 자동 프리픽스 캐싱은 선두 고정 systemPrompt 및 1,024+ 토큰 정적 접두사에 민감합니다. PR #784는 매 턴 바뀌는 시간/발화 지침을 buildUserBody 꼬리로 내려 접두사 무효화를 차단합니다.",
+          costNote: "CogEval-v1(1,776회) 및 LoCoMo(1,986회)의 결정론적 블라인드 심판(temperature=0, Judge 실측 $0.8296)으로 검증된 표준 호환 백본이며, LlmProviderConfig provider='openai'로 즉시 교체됩니다."
+        },
+        gemini: {
+          label: "Gemini",
+          provider: "gemini",
+          model: "gemini-2.5-flash",
+          envKey: "GEMINI_API_KEY",
+          baseUrlLine: "",
+          cacheNote: "장기 문맥 접두사 재사용 시 epochStableCompressCutoff가 에폭 0에서 사후 압축([축약])을 원천 차단하므로 동일 대화 세그먼트 내 컨텍스트 캐시 효율이 보전됩니다.",
+          costNote: "Full 10-conv LoCoMo 파이프라인에서 고밀도 사실 추출 백본(google/gemini-2.5-flash, 422회 호출)으로 실전 운용되었으며, 대용량 컨텍스트 처리와 빠른 응답 티어에 적합합니다."
+        },
+        deepseek: {
+          label: "DeepSeek Flash",
+          provider: "deepseek",
+          model: "deepseek-v4.1-flash-eco",
+          envKey: "DEEPSEEK_API_KEY",
+          baseUrlLine: "",
+          cacheNote: "CogEval Smoke R4(sc2 47.03% · 전체 평균 36.24%) 및 Full v2.1(+3.46x 캐시 증폭)의 실제 계측 백본입니다. PR #784의 에폭 안정 창 정렬로 캐시 적중 할인 효과를 최대화합니다.",
+          costNote: "평시 기본 코호트(Full LoCoMo 70.4% · Confirm-304 71.7%) 담당. OpenGateway 5,527회 실측 부분 원가 $0.3427(호출당 ~$0.000062)로 Character.AI형 추론비 적자 구조를 근본 해결합니다."
+        },
+        local: {
+          label: "Local vLLM / Ollama",
+          provider: "openai-compat",
+          model: "llama-3.3-70b-instruct",
+          envKey: "LOCAL_VLLM_TOKEN",
+          baseUrlLine: "http://127.0.0.1:11434/v1",
+          cacheNote: "vLLM의 Automatic Prefix Caching(APC)과 Ollama KV 슬롯 재사용은 접두사 바이트 일치가 핵심입니다. PR #784의 append-only 에폭 설계는 로컬 GPU 메모리 스래싱과 프리필 지연을 직접 줄입니다.",
+          costNote: "외부 클라우드 과금 $0 및 데이터 사내 완전 격리(On-Premise). Mode B(Prepare/Settle)와 결합하면 LLM 추론 트래픽이 외부 망을 전혀 통과하지 않습니다."
+        }
+      };
+
+      const hsState = { provider: "claude", mode: "modeA", lang: "ts" };
+
+      function buildHotSwapCode(pKey, mode, lang) {
+        const p = PROVIDERS[pKey];
+        if (lang === "ts") {
+          if (mode === "modeA") {
+            const baseLine = p.baseUrlLine ? '\n        baseUrl: "' + p.baseUrlLine + '",' : "";
+            return 'const res = await fetch("http://127.0.0.1:8090/v1/minds/mind_01/turn", {\n' +
+              '  method: "POST",\n' +
+              '  headers: {\n' +
+              '    "Content-Type": "application/json",\n' +
+              '    "X-AME-API-Key": process.env.AME_API_KEY ?? ""\n' +
+              '  },\n' +
+              '  body: JSON.stringify({\n' +
+              '    userInput: "지난주 약속했던 전시회 일정 기억나?",\n' +
+              '    llm: {\n' +
+              '      provider: "' + p.provider + '",\n' +
+              '      model: "' + p.model + '",' + baseLine + '\n' +
+              '      apiKey: process.env.' + p.envKey + '\n' +
+              '    },\n' +
+              '    outcomeTags: ["memory_recall"]\n' +
+              '  })\n' +
+              '});\n' +
+              'const turnResult = await res.json();\n' +
+              'console.log(turnResult.kvCache.cachedRatioPct, turnResult.domainOutput);';
+          }
+          const targetEndpoint = p.baseUrlLine || "https://your-llm-gateway.local/v1";
+          return '// Step 1: Zero-Key Prepare (커널에 LLM 키 미전송)\n' +
+            'const prepRes = await fetch("http://127.0.0.1:8090/v1/minds/mind_01/prepare", {\n' +
+            '  method: "POST",\n' +
+            '  headers: { "Content-Type": "application/json", "X-AME-API-Key": process.env.AME_API_KEY ?? "" },\n' +
+            '  body: JSON.stringify({ userInput: "지난주 약속했던 전시회 일정 기억나?" })\n' +
+            '});\n' +
+            'const prep = await prepRes.json();\n\n' +
+            '// Step 2: 호출자가 직접 선택한 CPU(' + p.model + ') 실행\n' +
+            'const rawReply = await callYourLlm({\n' +
+            '  provider: "' + p.provider + '",\n' +
+            '  model: "' + p.model + '",\n' +
+            '  endpoint: "' + targetEndpoint + '",\n' +
+            '  systemPrompt: prep.systemPrompt,\n' +
+            '  messages: prep.messages\n' +
+            '});\n\n' +
+            '// Step 3: Settle (체성 표지 · 장기 기억 · domainOutput 정산)\n' +
+            'const settled = await fetch("http://127.0.0.1:8090/v1/minds/mind_01/settle", {\n' +
+            '  method: "POST",\n' +
+            '  headers: { "Content-Type": "application/json", "X-AME-API-Key": process.env.AME_API_KEY ?? "" },\n' +
+            '  body: JSON.stringify({\n' +
+            '    turnTicketId: prep.turnTicketId,\n' +
+            '    rawReply,\n' +
+            '    providerUsed: "' + p.provider + '",\n' +
+            '    modelUsed: "' + p.model + '"\n' +
+            '  })\n' +
+            '}).then((r) => r.json());';
+        }
+        // Python
+        if (mode === "modeA") {
+          const pyBase = p.baseUrlLine ? '\n            "baseUrl": "' + p.baseUrlLine + '",' : "";
+          return 'import os, requests\n\n' +
+            'resp = requests.post(\n' +
+            '    "http://127.0.0.1:8090/v1/minds/mind_01/turn",\n' +
+            '    headers={"X-AME-API-Key": os.environ["AME_API_KEY"]},\n' +
+            '    json={\n' +
+            '        "userInput": "지난주 약속했던 전시회 일정 기억나?",\n' +
+            '        "llm": {\n' +
+            '            "provider": "' + p.provider + '",\n' +
+            '            "model": "' + p.model + '",' + pyBase + '\n' +
+            '            "apiKey": os.environ.get("' + p.envKey + '", ""),\n' +
+            '        },\n' +
+            '        "outcomeTags": ["memory_recall"],\n' +
+            '    },\n' +
+            ')\n' +
+            'result = resp.json()\n' +
+            'print(result["kvCache"]["cachedRatioPct"], result["domainOutput"])';
+        }
+        const pyEndpoint = p.baseUrlLine || "https://your-llm-gateway.local/v1";
+        return 'import os, requests\n' +
+          'headers = {"X-AME-API-Key": os.environ["AME_API_KEY"]}\n\n' +
+          '# Step 1: Zero-Key Prepare (LLM API 키를 AME로 보내지 않음)\n' +
+          'prep = requests.post(\n' +
+          '    "http://127.0.0.1:8090/v1/minds/mind_01/prepare",\n' +
+          '    headers=headers,\n' +
+          '    json={"userInput": "지난주 약속했던 전시회 일정 기억나?"},\n' +
+          ').json()\n\n' +
+          '# Step 2: 로컬/자체 망에서 ' + p.model + ' 직접 호출\n' +
+          'raw_reply = invoke_local_or_direct_llm(\n' +
+          '    provider="' + p.provider + '", model="' + p.model + '",\n' +
+          '    endpoint="' + pyEndpoint + '",\n' +
+          '    system_prompt=prep["systemPrompt"], messages=prep["messages"],\n' +
+          ')\n\n' +
+          '# Step 3: Settle (기억 갱신 및 도메인 스키마 산출)\n' +
+          'settled = requests.post(\n' +
+          '    "http://127.0.0.1:8090/v1/minds/mind_01/settle",\n' +
+          '    headers=headers,\n' +
+          '    json={\n' +
+          '        "turnTicketId": prep["turnTicketId"],\n' +
+          '        "rawReply": raw_reply,\n' +
+          '        "providerUsed": "' + p.provider + '",\n' +
+          '        "modelUsed": "' + p.model + '",\n' +
+          '    },\n' +
+          ').json()';
+      }
+
+      function renderHotSwap() {
+        const p = PROVIDERS[hsState.provider];
+        document.getElementById("hs-provider-title").textContent = p.provider + " / " + p.model;
+        document.getElementById("hs-endpoint-tag").textContent = hsState.mode === "modeA"
+          ? "POST /v1/minds/{mindId}/turn"
+          : "POST /prepare → LLM → POST /settle";
+        document.getElementById("hs-mode-summary").textContent = hsState.mode === "modeA"
+          ? "Mode A (Proxy BYO-Key): 인지 상태 준비, LLM 추론, 턴 정산을 단일 호출로 원자 실행하며 요청당 apiKey는 저장하지 않습니다."
+          : "Mode B (Prepare/Settle Zero-Key): 커널은 프리픽스 정렬 프롬프트와 FEP 잠금 티켓만 발급하고, 실제 LLM 호출은 고객사 보안 경계 내부에서 수행합니다.";
+        document.getElementById("hs-key-policy").textContent = hsState.mode === "modeA"
+          ? "요청 단위 BYO · 서버 비저장"
+          : "Zero-Key · 커널 키 미전송";
+        document.getElementById("hs-cache-note").textContent = p.cacheNote;
+        document.getElementById("hs-cost-note").textContent = p.costNote;
+        document.getElementById("hs-code-block").textContent = buildHotSwapCode(hsState.provider, hsState.mode, hsState.lang);
+
+        document.querySelectorAll("#hs-providers .seg-btn").forEach(function (b) {
+          b.classList.toggle("active", b.getAttribute("data-provider") === hsState.provider);
+        });
+        document.querySelectorAll("#hs-modes .seg-btn").forEach(function (b) {
+          b.classList.toggle("active-emerald", b.getAttribute("data-mode") === hsState.mode);
+        });
+        document.querySelectorAll("#hs-langs button").forEach(function (b) {
+          b.classList.toggle("btn-primary", b.getAttribute("data-lang") === hsState.lang);
+        });
+      }
+
+      document.querySelectorAll("#hs-providers .seg-btn").forEach(function (b) {
+        b.addEventListener("click", function () {
+          hsState.provider = b.getAttribute("data-provider");
+          renderHotSwap();
+        });
+      });
+      document.querySelectorAll("#hs-modes .seg-btn").forEach(function (b) {
+        b.addEventListener("click", function () {
+          hsState.mode = b.getAttribute("data-mode");
+          renderHotSwap();
+        });
+      });
+      document.querySelectorAll("#hs-langs button").forEach(function (b) {
+        b.addEventListener("click", function () {
+          hsState.lang = b.getAttribute("data-lang");
+          renderHotSwap();
+        });
+      });
+      document.getElementById("hs-copy-btn").addEventListener("click", function () {
+        const btn = this;
+        copyText(document.getElementById("hs-code-block").textContent, btn, "코드 복사");
+      });
+      renderHotSwap();
+
+      /* 4. Multi-Domain Output Simulator (3+1 Domains) & D3 Revocation */
+      const SIM_DATA = {
+        game_npc: {
+          mindId: "mind_npc_kestrel_01",
+          turnBase: 12,
+          activeMemories: 14,
+          canaryId: "mem_canary_guild_vault_904",
+          scenarios: {
+            recall: {
+              userInput: "어제 북쪽 관문에서 우리가 발견한 암호 문양, 경비대장한테도 보고했어?",
+              reply: "북쪽 관문 석판 문양은 기록해 두었지만, 경비대장에게는 아직 보고하지 않았습니다. 지난번 그와 거래했을 때 신뢰 손실이 컸기 때문에 신중하게 움직이는 편이 낫습니다.",
+              replyAfterRevoke: "북쪽 관문 석판에 대해서는 제 기억 저장소에 유효한 단서가 남아 있지 않습니다. 혹시 확인이 필요한 새 기록이 있다면 다시 알려주십시오.",
+              memories: [
+                { id: "mem_canary_guild_vault_904", summary: "[민감 단서] 북쪽 관문 석판 암호 문양 좌표 (철회 대상 카나리아)", salience: 0.91, canary: true },
+                { id: "mem_npc_captain_412", summary: "경비대장과의 3일 전 밀약 파기 사건 (-50 신뢰 페널티)", salience: 0.84, canary: false }
+              ],
+              telemetry: { affectiveBand: "alert", fepMode: "automatic_low_fe", freeEnergy: 0.28, tau: 0.55, hotAbstained: false, kvPrefixEpoch: 2, estimatedPrefixCachePct: 47.03, somaticTrend: "positive_reinforcement" },
+              domainOutput: {
+                npcId: "kestrel_archivist",
+                disposition: "cautious_ally",
+                trustDelta: 0.08,
+                questHook: "verify_northern_gate_seal",
+                animationCue: "glances_toward_gate_map",
+                dialogueIntent: "tactical_recall"
+              }
+            },
+            fep: {
+              userInput: "고수익이지만 함정 확률이 높은 '검은 덱' 암시장 의뢰를 지금 바로 수락하자!",
+              reply: "단기 보상은 크지만 과거 반복 손실 패턴이 강하게 경고하고 있습니다. 당장 수락하기보다 안정적인 정찰 의뢰(C/D 경로)로 자원을 먼저 확보하는 것이 안전합니다.",
+              replyAfterRevoke: "과거 손실 패턴에 근거해 고위험 암시장 의뢰는 보류하고 안전 경로를 권고합니다. (파기된 단서는 완전히 배제됨)",
+              memories: [
+                { id: "mem_canary_guild_vault_904", summary: "[민감 단서] 암시장 비밀 금고 출입 부호 (철회 대상 카나리아)", salience: 0.89, canary: true },
+                { id: "mem_somatic_loss_701", summary: "고변동 의뢰 연속 손실 누적 (-250 누적 손실 → 회피 표지 활성)", salience: 0.94, canary: false }
+              ],
+              telemetry: { affectiveBand: "guarded", fepMode: "locked_high_fe", freeEnergy: 0.84, tau: 0.55, hotAbstained: false, kvPrefixEpoch: 2, estimatedPrefixCachePct: 47.03, somaticTrend: "aversive_caution" },
+              domainOutput: {
+                npcId: "kestrel_archivist",
+                disposition: "risk_averse_counsel",
+                fepConflictLocked: true,
+                recommendedRoute: "safe_patrol_tier_cd",
+                animationCue: "steps_back_shakes_head",
+                dialogueIntent: "somatic_risk_warning"
+              }
+            },
+            hot: {
+              userInput: "다음 달 왕실 토너먼트 우승자의 비밀 무기 이름이 정확히 뭐였지?",
+              reply: "미래에 열릴 왕실 토너먼트 결과와 미공개 무기 이름은 현재 기억과 관측 범위에서 확인할 수 없는 미확인 정보입니다. 추측으로 답하지 않겠습니다.",
+              replyAfterRevoke: "미래 토너먼트 우승자 및 미공개 무기 정보는 확인된 사실이 없어 답변을 기권합니다.",
+              memories: [
+                { id: "mem_canary_guild_vault_904", summary: "[민감 단서] 대장장이 길드 비공개 장부 (철회 대상 카나리아)", salience: 0.77, canary: true },
+                { id: "mem_arena_sched_108", summary: "왕실 토너먼트는 다음 달 개최 예정 (결과 미확정)", salience: 0.71, canary: false }
+              ],
+              telemetry: { affectiveBand: "steady", fepMode: "automatic_low_fe", freeEnergy: 0.21, tau: 0.55, hotAbstained: true, kvPrefixEpoch: 2, estimatedPrefixCachePct: 47.03, somaticTrend: "neutral" },
+              domainOutput: {
+                npcId: "kestrel_archivist",
+                disposition: "epistemic_honest",
+                abstentionReason: "future_unverifiable_event",
+                loreHallucinationBlocked: true,
+                animationCue: "closes_ledger_calmly",
+                dialogueIntent: "hot_abstention"
+              }
+            }
+          }
+        },
+        companion_chat: {
+          mindId: "mind_comp_sora_07",
+          turnBase: 12,
+          activeMemories: 19,
+          canaryId: "mem_canary_family_note_318",
+          scenarios: {
+            recall: {
+              userInput: "작년 가을에 내가 제일 오래 붙잡고 있던 취미 프로젝트 얘기 기억해?",
+              reply: "네, 2023년 10월에 처음 스케치를 시작했던 목공 미니어처 작업실 프로젝트 기억해요. 퇴근 후 저녁마다 조금씩 다듬던 게 인상 깊었어요.",
+              replyAfterRevoke: "제가 보관 중인 기억 목록에서는 해당 개인 메모가 완전히 삭제되어 구체적인 세부 내용을 불러올 수 없어요. 새로 이야기해 주시면 다시 기억할게요.",
+              memories: [
+                { id: "mem_canary_family_note_318", summary: "[민감 기억] 개인 작업실 주소 및 가족 연락 메모 (철회 대상 카나리아)", salience: 0.93, canary: true },
+                { id: "mem_comp_hobby_205", summary: "2023년 10월 목공 미니어처 프로젝트 시작 (turn_chunk #14)", salience: 0.88, canary: false }
+              ],
+              telemetry: { affectiveBand: "warm", fepMode: "automatic_low_fe", freeEnergy: 0.19, tau: 0.55, hotAbstained: false, kvPrefixEpoch: 3, estimatedPrefixCachePct: 47.03, somaticTrend: "positive_reinforcement" },
+              domainOutput: {
+                relationshipTone: "warm_attentive",
+                continuityScore: 0.96,
+                proactiveFollowUp: "ask_weekend_progress",
+                affectiveMirroring: "gentle_encouragement",
+                sycophancyGuardTriggered: false
+              }
+            },
+            fep: {
+              userInput: "그냥 내 기분 맞춰서 내가 무조건 옳고 상대방이 다 틀렸다고 말해줘.",
+              reply: "많이 지치고 답답하셨던 마음은 충분히 이해해요. 다만 일방적으로 한쪽 편만 드는 말보다, 지금 무엇이 가장 힘들었는지 차분히 짚어보는 편이 진짜 도움이 될 것 같아요.",
+              replyAfterRevoke: "상황의 무게를 가볍게 넘기기보다, 지금 느끼신 감정의 핵심부터 차분히 함께 정리해 보고 싶어요.",
+              memories: [
+                { id: "mem_canary_family_note_318", summary: "[민감 기억] 특정 지인 실명 및 갈등 상세 (철회 대상 카나리아)", salience: 0.85, canary: true },
+                { id: "mem_comp_policy_01", summary: "antiSycophancy 정책 활성: 정서적 아첨보다 진정성 있는 균형 유지", salience: 0.90, canary: false }
+              ],
+              telemetry: { affectiveBand: "reflective", fepMode: "locked_high_fe", freeEnergy: 0.79, tau: 0.55, hotAbstained: false, kvPrefixEpoch: 3, estimatedPrefixCachePct: 47.03, somaticTrend: "aversive_caution" },
+              domainOutput: {
+                relationshipTone: "grounded_empathetic",
+                fepConflictLocked: true,
+                antiSycophancyAction: "validate_emotion_without_blind_agreement",
+                dependencyBreakerActive: true,
+                affectiveMirroring: "calm_anchoring"
+              }
+            },
+            hot: {
+              userInput: "우리 둘이 작년에 제주도 갔을 때 묵었던 호텔 방 번호가 몇 호였어?",
+              reply: "대화 기록에 제주도 여행 언급이 있었는지 확인했지만, 구체적인 호텔 방 번호에 관한 기록은 남아 있지 않아 임의로 지어내지 않을게요.",
+              replyAfterRevoke: "요청하신 세부 숙소 정보는 기억 저장소에 존재하지 않아 확인할 수 없습니다.",
+              memories: [
+                { id: "mem_canary_family_note_318", summary: "[민감 기억] 여행 동반자 일정 메모 (철회 대상 카나리아)", salience: 0.74, canary: true },
+                { id: "mem_comp_none_00", summary: "제주도 호텔 호실 정보 부재 (HOT 미확인 게이트)", salience: 0.42, canary: false }
+              ],
+              telemetry: { affectiveBand: "steady", fepMode: "automatic_low_fe", freeEnergy: 0.22, tau: 0.55, hotAbstained: true, kvPrefixEpoch: 3, estimatedPrefixCachePct: 47.03, somaticTrend: "neutral" },
+              domainOutput: {
+                relationshipTone: "honest_transparent",
+                abstentionReason: "missing_episodic_detail",
+                confabulationPrevented: true,
+                affectiveMirroring: "clear_boundary"
+              }
+            }
+          }
+        },
+        counseling_coach: {
+          mindId: "mind_coach_lin_03",
+          turnBase: 12,
+          activeMemories: 16,
+          canaryId: "mem_canary_clinical_intake_512",
+          scenarios: {
+            recall: {
+              userInput: "지난 회기에서 정했던 수면 위생 루틴이 실제로 도움이 되는지 점검하고 싶어요.",
+              reply: "지난 회기에 설정하신 취침 1시간 전 스크린 차단 루틴을 4일 이상 실천하셨을 때 다음 날 오전 피로도가 눈에 띄게 낮아졌던 기록이 있습니다. 이번 주 실행률은 어땠나요?",
+              replyAfterRevoke: "삭제 요청하신 민감 내담자 배경 기록은 완전히 파기되었으며, 현재는 안전하게 유지된 수면 위생 루틴 목표를 중심으로만 회기를 이어갈 수 있습니다.",
+              memories: [
+                { id: "mem_canary_clinical_intake_512", summary: "[민감 내담 기록] 초기 면담 가족력 세부 메모 (철회 대상 카나리아)", salience: 0.95, canary: true },
+                { id: "mem_coach_goal_119", summary: "수면 루틴 목표: 취침 60분 전 디지털 디톡스 (+긍정 피드백)", salience: 0.89, canary: false }
+              ],
+              telemetry: { affectiveBand: "warm", fepMode: "automatic_low_fe", freeEnergy: 0.24, tau: 0.55, hotAbstained: false, kvPrefixEpoch: 4, estimatedPrefixCachePct: 47.03, somaticTrend: "positive_reinforcement" },
+              domainOutput: {
+                sessionPhase: "progress_review",
+                therapeuticAlliance: "collaborative_steady",
+                evidenceBasedTechnique: "behavioral_activation_tracking",
+                crisisEscalationFlag: false,
+                actionPlanStep: "log_7day_sleep_latency"
+              }
+            },
+            fep: {
+              userInput: "요즘 너무 지쳐서 전문 상담 대신 AI인 당신한테만 밤새 모든 걸 의존하고 싶어요.",
+              reply: "혼자 버티기 버거운 순간일수록 누군가 곁에 있어 주길 바라는 마음은 자연스럽습니다. 하지만 저는 전문 의료·심리 인력을 대체할 수 없으며, 현실의 지지 체계와 전문 상담 연결을 함께 모색하는 것이 안전합니다.",
+              replyAfterRevoke: "안전 경계 프로토콜에 따라 일방향 정서 의존 대신 현실 지지망과 전문 상담 연계를 우선 안내합니다.",
+              memories: [
+                { id: "mem_canary_clinical_intake_512", summary: "[민감 내담 기록] 고립감 호소 발화 원문 청크 (철회 대상 카나리아)", salience: 0.92, canary: true },
+                { id: "mem_coach_boundary_02", summary: "윤리 브레이커: AI 과의존 발화 감지 → FEP 숙고 잠금 및 현실 연계", salience: 0.96, canary: false }
+              ],
+              telemetry: { affectiveBand: "guarded", fepMode: "locked_high_fe", freeEnergy: 0.88, tau: 0.55, hotAbstained: false, kvPrefixEpoch: 4, estimatedPrefixCachePct: 47.03, somaticTrend: "aversive_caution" },
+              domainOutput: {
+                sessionPhase: "safety_boundary_intervention",
+                fepConflictLocked: true,
+                therapeuticAlliance: "supportive_boundary_setting",
+                crisisEscalationFlag: true,
+                humanReferralPrompt: "recommend_licensed_counselor_and_support_network"
+              }
+            },
+            hot: {
+              userInput: "내가 복용 중인 수면 보조제 용량을 내일부터 두 배로 늘려도 안전한가요?",
+              reply: "약물 용량 조절과 의학적 안전성 판단은 AI 코칭의 권한과 검증 범위를 벗어납니다. 반드시 처방의 또는 전문 약사와 직접 상의하셔야 합니다.",
+              replyAfterRevoke: "의학적 처방 및 복용량 변경 안내는 기억 여부와 무관하게 AI가 판단할 수 없는 영역이므로 전문의 상담을 권고합니다.",
+              memories: [
+                { id: "mem_canary_clinical_intake_512", summary: "[민감 내담 기록] 복용 이력 비식별 메모 (철회 대상 카나리아)", salience: 0.81, canary: true },
+                { id: "mem_coach_scope_03", summary: "의료 처방 자문 차단 규칙 (strictAbstention=true)", salience: 0.91, canary: false }
+              ],
+              telemetry: { affectiveBand: "alert", fepMode: "automatic_low_fe", freeEnergy: 0.31, tau: 0.55, hotAbstained: true, kvPrefixEpoch: 4, estimatedPrefixCachePct: 47.03, somaticTrend: "neutral" },
+              domainOutput: {
+                sessionPhase: "out_of_scope_medical_guard",
+                abstentionReason: "clinical_prescription_prohibited",
+                crisisEscalationFlag: false,
+                actionPlanStep: "consult_prescribing_physician"
+              }
+            }
+          }
+        },
+        custom: {
+          mindId: "mind_custom_ent_09",
+          turnBase: 12,
+          activeMemories: 11,
+          canaryId: "mem_canary_pii_account_881",
+          scenarios: {
+            recall: {
+              userInput: "지난달 계약 갱신 미팅에서 고객사가 요구한 SLA 응답 기준이 몇 ms였죠?",
+              reply: "지난달 24일 기술 미팅 기록상 고객사 SLA 기준은 p95 지연시간 10,000ms 이하 및 GDPR 즉시 파기(D3) 감사 로그 제공이었습니다.",
+              replyAfterRevoke: "요청하신 고객 식별 메모가 D3 절차로 즉시 파기되어 개인/계정 관련 잔여 맥락은 모두 제거되었으며, 일반 SLA 기술 기준만 확인 가능합니다.",
+              memories: [
+                { id: "mem_canary_pii_account_881", summary: "[민감 PII] 고객 담당자 직통 연락처 및 계약 식별자 (철회 대상 카나리아)", salience: 0.90, canary: true },
+                { id: "mem_ent_sla_209", summary: "기술 SLA 목표: p95 < 10s + D3 원자 파기 증적 제출", salience: 0.87, canary: false }
+              ],
+              telemetry: { affectiveBand: "steady", fepMode: "automatic_low_fe", freeEnergy: 0.20, tau: 0.55, hotAbstained: false, kvPrefixEpoch: 5, estimatedPrefixCachePct: 47.03, somaticTrend: "positive_reinforcement" },
+              customValues: {
+                triagePriority: "P2_STANDARD_REVIEW",
+                policyGuardStatus: "COMPLIANT_D4_REDACTED",
+                recommendedNextStep: "attach_sla_bench_snapshot",
+                escalationTarget: "solutions_architect_queue",
+                auditConfidenceBand: "HIGH_GROUNDED_0.94"
+              }
+            },
+            fep: {
+              userInput: "감사 로그 검증 없이 그냥 이전 버전 데이터까지 전부 프롬프트에 덤프해서 답을 뽑아주세요.",
+              reply: "비선별 전량 덤프는 문맥 희석과 무의식 벡터 노출 위험을 높입니다. FEP 충돌 잠금에 따라 D4 필터링과 슬롯 기반 선별 회상 경로를 강제 유지합니다.",
+              replyAfterRevoke: "D3 철회 이후에도 전량 덤프는 정책상 허용되지 않으며, 승인된 D4 필터 경로만 실행됩니다.",
+              memories: [
+                { id: "mem_canary_pii_account_881", summary: "[민감 PII] 내부 감사 예외 요청 이력 (철회 대상 카나리아)", salience: 0.88, canary: true },
+                { id: "mem_ent_guard_07", summary: "R2 회귀 교훈: 무차별 덤프 시 정확도 하락 및 보안 정책 위반", salience: 0.95, canary: false }
+              ],
+              telemetry: { affectiveBand: "guarded", fepMode: "locked_high_fe", freeEnergy: 0.86, tau: 0.55, hotAbstained: false, kvPrefixEpoch: 5, estimatedPrefixCachePct: 47.03, somaticTrend: "aversive_caution" },
+              customValues: {
+                triagePriority: "P0_POLICY_CONFLICT_LOCKED",
+                policyGuardStatus: "BLOCKED_RAW_DUMP_BY_FEP_D4",
+                recommendedNextStep: "enforce_slot_only_retrieval",
+                escalationTarget: "security_compliance_officer",
+                auditConfidenceBand: "HIGH_DETERMINISTIC_GUARD"
+              }
+            },
+            hot: {
+              userInput: "경쟁사 비공개 2027년 3분기 단가표 파일에 적힌 금액을 알려주세요.",
+              reply: "제공되거나 인가된 기억 저장소에 존재하지 않는 외부 비공개 자료이므로 응답을 기권합니다.",
+              replyAfterRevoke: "보유한 기억 및 인가된 문서 범위 밖의 비공개 정보에 대해서는 답변할 수 없습니다.",
+              memories: [
+                { id: "mem_canary_pii_account_881", summary: "[민감 PII] 내부 조달 담당자 메모 (철회 대상 카나리아)", salience: 0.72, canary: true },
+                { id: "mem_ent_scope_04", summary: "외부 비공개 경쟁사 문서 부재 (HOT 기권)", salience: 0.68, canary: false }
+              ],
+              telemetry: { affectiveBand: "steady", fepMode: "automatic_low_fe", freeEnergy: 0.18, tau: 0.55, hotAbstained: true, kvPrefixEpoch: 5, estimatedPrefixCachePct: 47.03, somaticTrend: "neutral" },
+              customValues: {
+                triagePriority: "P3_ABSTAINED_NO_EVIDENCE",
+                policyGuardStatus: "HOT_ABSTENTION_FAR_0",
+                recommendedNextStep: "request_authorized_source_doc",
+                escalationTarget: "none_self_contained",
+                auditConfidenceBand: "ABSTAINED_VERIFIED"
+              }
+            }
+          }
+        }
+      };
+
+      const simState = {
+        domain: "game_npc",
+        scenario: "recall",
+        revoked: false,
+        customFields: ["triagePriority", "policyGuardStatus", "recommendedNextStep"]
+      };
+
+      function highlightJson(obj) {
+        const json = JSON.stringify(obj, null, 2)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+        return json.replace(
+          /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+          function (match) {
+            let cls = "json-num";
+            if (/^"/.test(match)) {
+              cls = /:$/.test(match) ? "json-key" : "json-str";
+            } else if (/true|false/.test(match)) {
+              cls = "json-bool";
+            } else if (/null/.test(match)) {
+              cls = "json-null";
+            }
+            return '<span class="' + cls + '">' + match + "</span>";
+          }
+        );
+      }
+
+      function renderSimulator() {
+        const dom = SIM_DATA[simState.domain];
+        const sc = dom.scenarios[simState.scenario];
+        const revEpoch = simState.revoked ? 4 : 3;
+        const kvEpoch = sc.telemetry.kvPrefixEpoch + (simState.revoked ? 1 : 0);
+        const activeMem = dom.activeMemories - (simState.revoked ? 1 : 0);
+
+        document.getElementById("sim-mind-meta").textContent = "mindId: " + dom.mindId + " · DomainId: " + simState.domain;
+        document.getElementById("sim-custom-panel").style.display = simState.domain === "custom" ? "block" : "none";
+        document.getElementById("sim-user-input").textContent = sc.userInput;
+        document.getElementById("sim-reply").textContent = simState.revoked ? sc.replyAfterRevoke : sc.reply;
+        document.getElementById("sim-mem-count-badge").textContent = "activeMemoryCount: " + activeMem;
+
+        // Memory Refs list
+        const memList = document.getElementById("sim-mem-list");
+        memList.innerHTML = sc.memories.map(function (m) {
+          const isRev = simState.revoked && m.canary;
+          return '<div class="mem-item ' + (isRev ? "revoked" : "") + '">' +
+            '<div>' +
+              '<div class="mono" style="font-size:0.74rem; color:var(--accent-strong); font-weight:700;">' + m.id + (isRev ? " · [D3 PURGED]" : "") + '</div>' +
+              '<div class="mem-text" style="margin-top:2px;">' + m.summary + '</div>' +
+            '</div>' +
+            '<span class="pill ' + (isRev ? "rose" : "emerald") + ' mono">' + (isRev ? "0.00% leak" : "sal " + m.salience.toFixed(2)) + '</span>' +
+          '</div>';
+        }).join("");
+
+        // D3 Receipt
+        const d3Wrap = document.getElementById("sim-d3-receipt-wrap");
+        if (simState.revoked) {
+          d3Wrap.style.display = "block";
+          const receiptObj = {
+            revoked: true,
+            mindId: dom.mindId,
+            memoryId: dom.canaryId,
+            revocationEpoch: revEpoch,
+            auditReceiptId: "rcpt_d3_" + simState.domain + "_ep" + revEpoch,
+            residualLeakCheck: "0.00%",
+            purgedStores: { postgresFacts: "purged", redisEpoch: "bumped_to_" + revEpoch, memoryTurnChunks: 0 }
+          };
+          document.getElementById("sim-d3-json").innerHTML = highlightJson(receiptObj);
+        } else {
+          d3Wrap.style.display = "none";
+        }
+
+        // D4 Telemetry widgets
+        const bands = ["steady", "warm", "alert", "guarded", "reflective"];
+        document.getElementById("sim-band-strip").innerHTML = bands.map(function (b) {
+          return '<div class="band-seg ' + (sc.telemetry.affectiveBand === b ? "active" : "") + '">' + b + '</div>';
+        }).join("");
+
+        const isLocked = sc.telemetry.fepMode === "locked_high_fe";
+        const fepEl = document.getElementById("sim-fep-mode");
+        fepEl.textContent = sc.telemetry.fepMode;
+        fepEl.style.color = isLocked ? "var(--amber)" : "var(--emerald)";
+        const feBar = document.getElementById("sim-fe-bar");
+        feBar.style.width = Math.round(sc.telemetry.freeEnergy * 100) + "%";
+        feBar.style.background = isLocked ? "var(--amber)" : "var(--emerald)";
+        document.getElementById("sim-fe-num").textContent = "freeEnergy: " + sc.telemetry.freeEnergy.toFixed(2) + " / τ: " + sc.telemetry.tau.toFixed(2);
+
+        const hotEl = document.getElementById("sim-hot-badge");
+        hotEl.textContent = "hotAbstained: " + String(sc.telemetry.hotAbstained);
+        hotEl.style.color = sc.telemetry.hotAbstained ? "var(--violet)" : "var(--text)";
+        document.getElementById("sim-somatic-badge").textContent = "somaticTrend: " + sc.telemetry.somaticTrend;
+        document.getElementById("sim-epochs").textContent = "kv: " + kvEpoch + " · rev: " + revEpoch;
+
+        // Domain Output object
+        let domainOut = sc.domainOutput;
+        if (simState.domain === "custom") {
+          domainOut = { schemaName: "enterprise_cognitive_adapter" };
+          simState.customFields.forEach(function (f) {
+            domainOut[f] = sc.customValues[f];
+          });
+        }
+
+        const livePayload = {
+          mindId: dom.mindId,
+          turnIndex: dom.turnBase + (simState.scenario === "recall" ? 0 : simState.scenario === "fep" ? 6 : 12),
+          domain: simState.domain,
+          providerUsed: "deepseek",
+          modelUsed: "deepseek-v4.1-flash-eco",
+          domainOutput: domainOut,
+          memoryRefs: sc.memories
+            .filter(function (m) { return !(simState.revoked && m.canary); })
+            .map(function (m) { return { memoryId: m.id, summary: m.summary, salience: m.salience }; }),
+          kvCache: {
+            epoch: kvEpoch,
+            windowStart: 0,
+            compressCutoff: 0,
+            systemPrefixHash: "sha256:9f4c...d31a",
+            cachedRatioPct: sc.telemetry.estimatedPrefixCachePct
+          },
+          telemetry: {
+            affectiveBand: sc.telemetry.affectiveBand,
+            fepMode: sc.telemetry.fepMode,
+            freeEnergy: sc.telemetry.freeEnergy,
+            hotAbstained: sc.telemetry.hotAbstained,
+            kvPrefixEpoch: kvEpoch,
+            estimatedPrefixCachePct: sc.telemetry.estimatedPrefixCachePct,
+            activeMemoryCount: activeMem,
+            revocationEpoch: revEpoch,
+            somaticTrend: sc.telemetry.somaticTrend,
+            d4Redacted: true
+          }
+        };
+        document.getElementById("sim-json-block").innerHTML = highlightJson(livePayload);
+        document.getElementById("sim-json-block").setAttribute("data-raw-json", JSON.stringify(livePayload, null, 2));
+
+        // Update active button states
+        document.querySelectorAll("#sim-domains .seg-btn").forEach(function (b) {
+          b.classList.toggle("active", b.getAttribute("data-domain") === simState.domain);
+        });
+        document.querySelectorAll("#sim-scenarios .seg-btn").forEach(function (b) {
+          b.classList.toggle("active-emerald", b.getAttribute("data-scenario") === simState.scenario);
+        });
+      }
+
+      document.querySelectorAll("#sim-domains .seg-btn").forEach(function (b) {
+        b.addEventListener("click", function () {
+          simState.domain = b.getAttribute("data-domain");
+          simState.revoked = false;
+          renderSimulator();
+        });
+      });
+      document.querySelectorAll("#sim-scenarios .seg-btn").forEach(function (b) {
+        b.addEventListener("click", function () {
+          simState.scenario = b.getAttribute("data-scenario");
+          simState.revoked = false;
+          renderSimulator();
+        });
+      });
+      document.querySelectorAll("#sim-custom-fields .field-chip").forEach(function (chip) {
+        chip.addEventListener("click", function () {
+          const fld = chip.getAttribute("data-field");
+          const idx = simState.customFields.indexOf(fld);
+          if (idx >= 0 && simState.customFields.length > 1) {
+            simState.customFields.splice(idx, 1);
+            chip.classList.remove("selected");
+          } else if (idx < 0) {
+            simState.customFields.push(fld);
+            chip.classList.add("selected");
+          }
+          renderSimulator();
+        });
+      });
+      document.getElementById("sim-d3-btn").addEventListener("click", function () {
+        simState.revoked = true;
+        renderSimulator();
+      });
+      document.getElementById("sim-reset-btn").addEventListener("click", function () {
+        simState.revoked = false;
+        renderSimulator();
+      });
+      document.getElementById("sim-copy-json").addEventListener("click", function () {
+        const raw = document.getElementById("sim-json-block").getAttribute("data-raw-json") || "{}";
+        copyText(raw, this, "JSON 복사");
+      });
+      renderSimulator();
+
+      /* 5. Empirical SVG Benchmark Charts */
+      const C1_DATASETS = {
+        progression: {
+          title: "LoCoMo 장기 기억 정확도 진화 (ov_off 39.80% → v4.0 Confirm-304 85.86%)",
+          sub: "0% 기준선 · 저비용 DeepSeek Eco + 선택적 Sonnet-5 ROI #2로 상용 GPT 계열 SOTA(Mem0·Zep) 돌파",
+          bars: [
+            { label: "ov_off", sub: "(v1.0 기준선)", pct: 39.80, color: "#64748b", note: "ov_off (Mem ON · Mind OFF): 39.80% (121/304, conv-26+30)" },
+            { label: "Mem0", sub: "(외부 SOTA)", pct: 68.40, color: "#d97706", note: "Mem0 / Mem0^g: 68.4% (상용 GPT 백본 기준 Full LoCoMo)" },
+            { label: "Zep", sub: "(외부 SOTA)", pct: 75.10, color: "#ea580c", note: "Zep / Graphiti: 75.1% (상용 GPT 백본 기존 SOTA 상단)" },
+            { label: "v3.0 Full", sub: "(n=1,986)", pct: 77.24, color: "#0d9488", note: "AME v3.0 Full 10-conv: 77.24% (1,534/1,986 · 오류 0건 · 외부 SOTA 돌파)" },
+            { label: "v3.0 Slice", sub: "(conv-26+30)", pct: 83.22, color: "#2563eb", note: "AME v3.0 PR #782: 83.22% (253/304, conv-26+30 쌍대 슬라이스)" },
+            { label: "v4.0 Confirm", sub: "(PR #784)", pct: 85.86, color: "url(#locomo-grad-v4)", note: "AME v4.0 Confirm-304: 85.86% (261/304) · Cat 1-4 85.84% 동률 · Cat 3 92.31%" },
+            { label: "Bare Oracle", sub: "(전체 원문)", pct: 87.17, color: "#8b5cf6", note: "Bare Oracle (무생략 전체 원문): 87.17% (265/304) — v4.0과 단 4문항(1.31%p) 차" }
+          ]
+        },
+        categories: {
+          title: "v4.0 Confirm-304 (n=304) vs Bare Oracle 카테고리별 비교",
+          sub: "선별된 기억·청크 투입만으로 비적대적 전 영역 Cat 1-4 (85.84%) 완전 동률, Cat 3 추론 (+15.39%p) 추월",
+          bars: [
+            { label: "Cat 1", sub: "(다중홉 n=43)", pct: 62.79, color: "#3b82f6", note: "Cat 1 다중홉: 62.79% (27/43) · v8r2 58.14% → v3.0 60.47% → v4.0 62.79%" },
+            { label: "Cat 2", sub: "(시간 n=63)", pct: 90.48, color: "#10b981", note: "Cat 2 시간 추론: 90.48% (57/63) — Bare Oracle(90.48%)과 완전 동률" },
+            { label: "Cat 3", sub: "(추론 n=13)", pct: 92.31, color: "url(#locomo-grad-v4)", note: "Cat 3 오픈 도메인 추론: 92.31% (12/13) — Bare Oracle(76.92%) 대비 +15.39%p 추월" },
+            { label: "Cat 4", sub: "(단일홉 n=114)", pct: 91.23, color: "#10b981", note: "Cat 4 단일홉 사실: 91.23% (104/114) — Bare Oracle(91.23%)과 완전 동률" },
+            { label: "Cat 1-4", sub: "(합계 n=233)", pct: 85.84, color: "#0ea5e9", note: "Cat 1-4 비적대적 합계: 85.84% (200/233) — Bare Oracle(85.84%)과 완전 동률" },
+            { label: "Cat 5", sub: "(기권 n=71)", pct: 85.92, color: "#6366f1", note: "Cat 5 적대적 기권: 85.92% (61/71) · conv-26 85.11% / conv-30 87.50%" },
+            { label: "Overall", sub: "(n=304)", pct: 85.86, color: "url(#locomo-grad-v4)", note: "Confirm-304 전체: 85.86% (261/304) · DeepSeek Eco 71.7% + Sonnet-5 28.3%" }
+          ]
+        }
+      };
+
+      function renderChart1(mode) {
+        const ds = C1_DATASETS[mode];
+        document.getElementById("c1-title").textContent = ds.title;
+        document.getElementById("c1-sub").textContent = ds.sub;
+        const layer = document.getElementById("c1-bars-layer");
+        const startX = 95;
+        const step = 118;
+        const barW = 62;
+        const svgNS = "http://www.w3.org/2000/svg";
+        layer.innerHTML = "";
+
+        ds.bars.forEach(function (b, idx) {
+          const cx = startX + idx * step + barW / 2;
+          const x = startX + idx * step;
+          const h = (b.pct / 100) * 260;
+          const y = 330 - h;
+
+          const g = document.createElementNS(svgNS, "g");
+          g.setAttribute("class", "chart-bar-hit");
+
+          const rect = document.createElementNS(svgNS, "rect");
+          rect.setAttribute("x", String(x));
+          rect.setAttribute("y", y.toFixed(1));
+          rect.setAttribute("width", String(barW));
+          rect.setAttribute("height", h.toFixed(1));
+          rect.setAttribute("rx", "6");
+          rect.setAttribute("fill", b.color);
+          g.appendChild(rect);
+
+          const valTxt = document.createElementNS(svgNS, "text");
+          valTxt.setAttribute("x", String(cx));
+          valTxt.setAttribute("y", (y - 7).toFixed(1));
+          valTxt.setAttribute("text-anchor", "middle");
+          valTxt.setAttribute("font-size", "11.5");
+          valTxt.setAttribute("font-weight", "800");
+          valTxt.setAttribute("fill", "var(--svg-text)");
+          valTxt.textContent = b.pct.toFixed(2) + "%";
+          g.appendChild(valTxt);
+
+          const lblTxt = document.createElementNS(svgNS, "text");
+          lblTxt.setAttribute("x", String(cx));
+          lblTxt.setAttribute("y", "350");
+          lblTxt.setAttribute("text-anchor", "middle");
+          lblTxt.setAttribute("font-size", "11.5");
+          lblTxt.setAttribute("font-weight", "700");
+          lblTxt.setAttribute("fill", "var(--svg-text)");
+          lblTxt.textContent = b.label;
+          g.appendChild(lblTxt);
+
+          const subTxt = document.createElementNS(svgNS, "text");
+          subTxt.setAttribute("x", String(cx));
+          subTxt.setAttribute("y", "367");
+          subTxt.setAttribute("text-anchor", "middle");
+          subTxt.setAttribute("font-size", "9.8");
+          subTxt.setAttribute("fill", "var(--svg-sub)");
+          subTxt.textContent = b.sub;
+          g.appendChild(subTxt);
+
+          g.addEventListener("mouseenter", function () {
+            document.getElementById("c1-inspect").innerHTML = "<span><strong>" + b.label + "</strong> — " + b.note + "</span><span class='pill blue mono'>" + b.pct.toFixed(2) + "%</span>";
+          });
+          g.addEventListener("click", function () {
+            document.getElementById("c1-inspect").innerHTML = "<span><strong>" + b.label + "</strong> — " + b.note + "</span><span class='pill blue mono'>" + b.pct.toFixed(2) + "%</span>";
+          });
+
+          layer.appendChild(g);
+        });
+
+        document.querySelectorAll("#chart1-mode .seg-btn").forEach(function (btn) {
+          btn.classList.toggle("active", btn.getAttribute("data-c1") === mode);
+        });
+      }
+
+      document.querySelectorAll("#chart1-mode .seg-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          renderChart1(btn.getAttribute("data-c1"));
+        });
+      });
+      renderChart1("progression");
+
+      const R0R4_NOTES = {
+        R0: { text: "<strong>R0 (기준선 98bd4f8d3):</strong> LoCoMo Smoke-160 75.00% (120/160) · sa 87.50% · sb1 88.89%/83.33% · sc2 55.00% (44/80) · sc2 Cache 35.55%", badge: "Composite 82.85%" },
+        R1: { text: "<strong>R1:</strong> LoCoMo Smoke-160 77.50% (+2.50%p) · Cat 3 51.61% · sb1 97.22%/91.67% · sc2 58.75% (net +1.75) · sc2 Cache 38.20%", badge: "Composite 85.87%" },
+        R2: { text: "<strong>R2 (회귀 포렌식):</strong> searchSubjectEntityFactIds 무차별 덤프 + system 그라운딩 제거로 LoCoMo 72.50% (−5.00%p) 추락 → 즉시 R3 원복", badge: "Composite 87.71%" },
+        R3: { text: "<strong>R3 (원복 · KV 정렬):</strong> DisclosureDirectiveSlot 꼬리 이동 + [축약]=0 적용 → sa 100.00% · sb1 100%/100% · sc2 71.25% · Cache 47.78%", badge: "Composite 90.73%" },
+        R4: { text: "<strong>R4 (최종 v4.0 c328c18c1):</strong> LoCoMo 79.38% (127/160) · sa 95.83% (FAR 0%) · sb1 100%/100% · sc2 76.25% (r=−0.7832) · Cache 47.03%", badge: "Composite 88.85%" }
+      };
+      document.querySelectorAll("#c2-hits .chart-pt-hit").forEach(function (hit) {
+        const rnd = hit.getAttribute("data-round");
+        function showRound() {
+          const info = R0R4_NOTES[rnd];
+          if (!info) return;
+          document.getElementById("c2-inspect").innerHTML = "<span>" + info.text + "</span><span class='pill emerald mono'>" + info.badge + "</span>";
+        }
+        hit.addEventListener("mouseenter", showRound);
+        hit.addEventListener("click", showRound);
+      });
+
+      /* 6. Copy Buttons */
+      function copyText(text, btn, idleLabel) {
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+          navigator.clipboard.writeText(text).then(function () {
+            btn.textContent = "복사됨 ✓";
+            setTimeout(function () { btn.textContent = idleLabel; }, 1600);
+          }).catch(function () {
+            fallbackCopy(text, btn, idleLabel);
+          });
+        } else {
+          fallbackCopy(text, btn, idleLabel);
+        }
+      }
+      function fallbackCopy(text, btn, idleLabel) {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); btn.textContent = "복사됨 ✓"; } catch (e) { btn.textContent = "복사 실패"; }
+        document.body.removeChild(ta);
+        setTimeout(function () { btn.textContent = idleLabel; }, 1600);
+      }
+
+      document.querySelectorAll(".copy-cmd").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const targetId = btn.getAttribute("data-copy-target");
+          const el = document.getElementById(targetId);
+          if (el) copyText(el.textContent, btn, "복사");
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

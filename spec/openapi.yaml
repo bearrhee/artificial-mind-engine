@@ -1,0 +1,384 @@
+openapi: 3.1.0
+info:
+  title: Artificial Mind Engine (AME) Gateway API
+  version: 1.0.0
+  description: |
+    Canonical OpenAPI 3.1 contract decoupling the stateful Cognitive OS Kernel (Closed IP)
+    from hot-swappable stateless LLMs (OpenAI, Anthropic, Gemini, DeepSeek, OpenRouter, local vLLM/Ollama)
+    and multi-domain application adapters (Game NPC, Companion Chat, Counseling/Coach, Custom).
+servers:
+  - url: http://127.0.0.1:8090
+    description: Local AME Sandbox or Sealed Kernel Gateway
+security:
+  - ApiKeyAuth: []
+paths:
+  /v1/health:
+    get:
+      summary: Gateway & sealed kernel health check
+      security: []
+      responses:
+        '200':
+          description: Service status and engine mode
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, service, version, mode, domains]
+                properties:
+                  ok: { type: boolean }
+                  service: { type: string }
+                  version: { type: string }
+                  mode: { type: string, enum: [sealed-kernel, sandbox-contract] }
+                  domains:
+                    type: array
+                    items: { $ref: '#/components/schemas/DomainId' }
+  /v1/minds:
+    post:
+      summary: Create an isolated persistent Mind instance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMindRequest'
+      responses:
+        '201':
+          description: Created Mind state summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MindSummary'
+  /v1/minds/{mindId}:
+    get:
+      summary: Retrieve Mind metadata & safe telemetry (D4 filtered)
+      parameters:
+        - $ref: '#/components/parameters/MindId'
+      responses:
+        '200':
+          description: Mind summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MindSummary'
+        '404':
+          description: Mind not found
+  /v1/minds/{mindId}/turn:
+    post:
+      summary: Mode A (Proxy BYO-LLM) — prepare cognitive state, invoke chosen LLM, and settle turn atomically
+      parameters:
+        - $ref: '#/components/parameters/MindId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProxyTurnRequest'
+      responses:
+        '200':
+          description: Grounded reply, domain-shaped structured output, KV cache stats & D4-filtered telemetry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TurnResult'
+  /v1/minds/{mindId}/prepare:
+    post:
+      summary: Mode B Step 1 (Zero-Key) — compute prefix-aligned prompts, FEP lock & safety directives without sending LLM keys
+      parameters:
+        - $ref: '#/components/parameters/MindId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrepareTurnRequest'
+      responses:
+        '200':
+          description: Ephemeral ticket and prefix-stable LLM invocation package
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrepareTurnResponse'
+  /v1/minds/{mindId}/settle:
+    post:
+      summary: Mode B Step 2 (Zero-Key) — settle raw LLM reply into somatic markers, memory & structured domain output
+      parameters:
+        - $ref: '#/components/parameters/MindId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SettleTurnRequest'
+      responses:
+        '200':
+          description: Settled turn result with domain payload and telemetry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TurnResult'
+  /v1/minds/{mindId}/idle-tick:
+    post:
+      summary: D2 Offline circadian/homeostasis progression during absence gaps
+      parameters:
+        - $ref: '#/components/parameters/MindId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [elapsedHours]
+              properties:
+                elapsedHours: { type: number, minimum: 0, maximum: 720 }
+                reason: { type: string }
+      responses:
+        '200':
+          description: Updated homeostasis & proactive state
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [mindId, elapsedHours, homeostasisBefore, homeostasisAfter, telemetry]
+                properties:
+                  mindId: { type: string }
+                  elapsedHours: { type: number }
+                  homeostasisBefore: { type: number }
+                  homeostasisAfter: { type: number }
+                  proactiveHint: { type: string }
+                  telemetry: { $ref: '#/components/schemas/SafeTelemetry' }
+  /v1/minds/{mindId}/memories/{memoryId}:
+    delete:
+      summary: D3 Triple atomic memory revocation (Postgres + Redis epoch + derivative purge)
+      parameters:
+        - $ref: '#/components/parameters/MindId'
+        - name: memoryId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Cryptographic-style revocation receipt with 0.00% residual leak assertion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RevocationReceipt'
+  /v1/minds/{mindId}/telemetry:
+    get:
+      summary: D4-filtered public telemetry (unconscious internal vectors strictly redacted)
+      parameters:
+        - $ref: '#/components/parameters/MindId'
+      responses:
+        '200':
+          description: Safe public telemetry snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SafeTelemetry'
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-AME-API-Key
+  parameters:
+    MindId:
+      name: mindId
+      in: path
+      required: true
+      schema: { type: string }
+  schemas:
+    DomainId:
+      type: string
+      enum: [game_npc, companion_chat, counseling_coach, custom]
+    LlmProviderConfig:
+      type: object
+      required: [provider, model]
+      properties:
+        provider:
+          type: string
+          enum: [mock, openai, anthropic, gemini, deepseek, openrouter, openai-compat]
+        model: { type: string }
+        apiKey: { type: string, description: "Supplied per request in Mode A Proxy; never stored by AME" }
+        baseUrl: { type: string }
+        temperature: { type: number, minimum: 0, maximum: 2 }
+        maxTokens: { type: integer, minimum: 16, maximum: 16384 }
+    CreateMindRequest:
+      type: object
+      required: [domain, persona]
+      properties:
+        domain: { $ref: '#/components/schemas/DomainId' }
+        persona:
+          type: object
+          required: [name, role]
+          properties:
+            name: { type: string }
+            role: { type: string }
+            traits:
+              type: object
+              additionalProperties: { type: number }
+            backstory: { type: string }
+            language: { type: string, default: ko }
+        customSchema:
+          type: object
+          description: Optional JSON schema metadata when domain is "custom"
+          properties:
+            name: { type: string }
+            fields:
+              type: array
+              items: { type: string }
+        safetyPolicy:
+          type: object
+          properties:
+            strictAbstention: { type: boolean, default: true }
+            antiSycophancy: { type: boolean, default: true }
+            crisisEscalation: { type: boolean, default: false }
+    MindSummary:
+      type: object
+      required: [mindId, domain, personaName, turnCount, revocationEpoch, telemetry]
+      properties:
+        mindId: { type: string }
+        domain: { $ref: '#/components/schemas/DomainId' }
+        personaName: { type: string }
+        turnCount: { type: integer }
+        revocationEpoch: { type: integer }
+        telemetry: { $ref: '#/components/schemas/SafeTelemetry' }
+    ProxyTurnRequest:
+      type: object
+      required: [userInput, llm]
+      properties:
+        userInput: { type: string }
+        llm: { $ref: '#/components/schemas/LlmProviderConfig' }
+        rewardSignal: { type: number, minimum: -1000, maximum: 1000 }
+        outcomeTags:
+          type: array
+          items: { type: string }
+        metadata:
+          type: object
+          additionalProperties: true
+    PrepareTurnRequest:
+      type: object
+      required: [userInput]
+      properties:
+        userInput: { type: string }
+        rewardSignal: { type: number, minimum: -1000, maximum: 1000 }
+        outcomeTags:
+          type: array
+          items: { type: string }
+        metadata:
+          type: object
+          additionalProperties: true
+    ChatMessage:
+      type: object
+      required: [role, content]
+      properties:
+        role: { type: string, enum: [system, user, assistant] }
+        content: { type: string }
+    PrepareTurnResponse:
+      type: object
+      required: [turnTicketId, mindId, domain, systemPrompt, messages, kvCacheEpoch, windowStart, compressCutoff, fepThoughtLock, hotAbstention, somaticHint, samplingHints, safetyDirectives, domainOutputContract]
+      properties:
+        turnTicketId: { type: string }
+        mindId: { type: string }
+        domain: { $ref: '#/components/schemas/DomainId' }
+        systemPrompt: { type: string }
+        messages:
+          type: array
+          items: { $ref: '#/components/schemas/ChatMessage' }
+        kvCacheEpoch: { type: integer }
+        windowStart: { type: integer }
+        compressCutoff: { type: integer }
+        fepThoughtLock:
+          type: object
+          required: [mode, freeEnergy, tau, locked]
+          properties:
+            mode: { type: string, enum: [automatic_low_fe, locked_high_fe] }
+            freeEnergy: { type: number }
+            tau: { type: number }
+            locked: { type: boolean }
+        hotAbstention:
+          type: object
+          required: [shouldAbstain, reason]
+          properties:
+            shouldAbstain: { type: boolean }
+            reason: { type: string }
+        somaticHint: { type: string }
+        samplingHints:
+          type: object
+          properties:
+            temperature: { type: number }
+            maxTokens: { type: integer }
+        safetyDirectives:
+          type: array
+          items: { type: string }
+        domainOutputContract:
+          type: object
+          additionalProperties: true
+    SettleTurnRequest:
+      type: object
+      required: [turnTicketId, rawReply]
+      properties:
+        turnTicketId: { type: string }
+        rawReply: { type: string }
+        rewardSignal: { type: number }
+        outcomeTags:
+          type: array
+          items: { type: string }
+        providerUsed: { type: string }
+        modelUsed: { type: string }
+    SafeTelemetry:
+      type: object
+      description: D4-compliant public telemetry; zero raw unconscious/endocrine internal state vectors leaked
+      required: [affectiveBand, fepMode, freeEnergy, hotAbstained, kvPrefixEpoch, estimatedPrefixCachePct, activeMemoryCount, revocationEpoch, d4Redacted]
+      properties:
+        affectiveBand: { type: string, enum: [steady, warm, alert, guarded, reflective] }
+        fepMode: { type: string, enum: [automatic_low_fe, locked_high_fe] }
+        freeEnergy: { type: number }
+        hotAbstained: { type: boolean }
+        kvPrefixEpoch: { type: integer }
+        estimatedPrefixCachePct: { type: number }
+        activeMemoryCount: { type: integer }
+        revocationEpoch: { type: integer }
+        somaticTrend: { type: string, enum: [neutral, positive_reinforcement, aversive_caution] }
+        d4Redacted: { type: boolean, enum: [true] }
+    RevocationReceipt:
+      type: object
+      required: [revoked, mindId, memoryId, revocationEpoch, auditReceiptId, residualLeakCheck]
+      properties:
+        revoked: { type: boolean }
+        mindId: { type: string }
+        memoryId: { type: string }
+        revocationEpoch: { type: integer }
+        auditReceiptId: { type: string }
+        residualLeakCheck: { type: string }
+    TurnResult:
+      type: object
+      required: [mindId, turnIndex, domain, providerUsed, modelUsed, reply, domainOutput, memoryRefs, kvCache, telemetry]
+      properties:
+        mindId: { type: string }
+        turnIndex: { type: integer }
+        domain: { $ref: '#/components/schemas/DomainId' }
+        providerUsed: { type: string }
+        modelUsed: { type: string }
+        reply: { type: string }
+        domainOutput:
+          type: object
+          additionalProperties: true
+        memoryRefs:
+          type: array
+          items:
+            type: object
+            required: [memoryId, summary, salience]
+            properties:
+              memoryId: { type: string }
+              summary: { type: string }
+              salience: { type: number }
+        kvCache:
+          type: object
+          required: [epoch, windowStart, compressCutoff, systemPrefixHash, cachedRatioPct]
+          properties:
+            epoch: { type: integer }
+            windowStart: { type: integer }
+            compressCutoff: { type: integer }
+            systemPrefixHash: { type: string }
+            cachedRatioPct: { type: number }
+        telemetry: { $ref: '#/components/schemas/SafeTelemetry' }

@@ -1,0 +1,20 @@
+{
+  "name": "artificial-mind-engine",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Artificial Mind Engine (AME): Pluggable-LLM Cognitive OS Kernel Interface, Multi-Domain SDKs & Benchmarks",
+  "scripts": {
+    "sandbox": "node packages/sandbox-server/bin/serve.mjs",
+    "test:ts": "node --test packages/sdk-ts/test/*.test.mjs packages/sandbox-server/test/*.test.mjs",
+    "test:py": "python -m unittest discover -s packages/sdk-python/tests -v",
+    "example:game": "node examples/game-npc/run.mjs",
+    "example:chat": "node examples/companion-chat/run.mjs",
+    "example:counseling": "node examples/counseling-coach/run.mjs",
+    "bench:smoke": "node benchmarks/cogeval-locomo-harness/run_harness.mjs",
+    "test": "npm run test:ts && npm run test:py"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

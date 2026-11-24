@@ -1,0 +1,26 @@
+{
+  "name": "@ame/sandbox-server",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Zero-key Contract Sandbox Server implementing the Artificial Mind Engine (AME) OpenAPI 3.1 Gateway",
+  "main": "./src/app.mjs",
+  "types": "./types/index.d.ts",
+  "bin": {
+    "ame-sandbox": "./bin/serve.mjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./src/app.mjs",
+      "default": "./src/app.mjs"
+    }
+  },
+  "scripts": {
+    "start": "node bin/serve.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "license": "MIT"
+}

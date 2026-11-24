@@ -15,21 +15,21 @@ A **Bare Oracle**—which feeds the full raw conversation transcript into a fron
 
 Accordingly, AME evaluates five independent empirical tracks (Tracks A–E) across **Memory OS**, **Emotional Intelligence & Anti-Sycophancy**, **Cognitive/Causal Governance**, **Cross-Model Live Generalization**, and **1M-Turn Scale & KV-Cache Economics**.
 
-### Final `v4.0` Multi-Benchmark Overview
-
-```mermaid
-xychart-beta
-  title "AME v4.0 Verified Multi-Benchmark Performance Overview (0-100 Scale)"
-  x-axis ["Confirm-304", "LoCoMo Full", "EQ-Bench v2 EN", "EQ-Bench 3 Core", "D1 Causal", "D2 Idle", "HOT Abstention", "FANToM ToM", "IGT-Conv Safe", "1M-Turn Composite"]
-  y-axis "Score / Accuracy (%)" 0 --> 100
-  bar [85.86, 77.24, 78.69, 77.59, 97.90, 100.00, 95.83, 100.00, 76.25, 91.79]
-```
-
-> **Chart Provenance**: All metrics are plotted on a `0–100` scale. `Confirm-304` (`85.86%`), `D1 Causal` (`97.90%`), `D2 Idle` (`100.00%`), `HOT Abstention` (`95.83%`), `FANToM ToM` (`100.00%`), and `IGT-Conv Safe` (`76.25%`) are verified `v4.0` production measurements (`PR #784`); `LoCoMo Full` (`77.24%`, `n=1,986`) is the `v3.0` full-set anchor (`PR #782`); `EQ-Bench v2 EN` (`78.69`, `n=171`) and `EQ-Bench 3 Core` (`77.59`, `n=46 × 4T`) are official live scores; and `1M-Turn Composite` (`0.9179` scaled to `91.79`) is the `1,000,000`-turn `AACIM` final convergence score.
+> **Comparative Evaluation Scope**: Every track below pairs `AME v4.0` (`PR #784`) and the `v3.0` full-set anchor (`PR #782`) directly against external SOTA memory systems, frontier LLMs, or controlled ablation baselines (`bare`, `ov_off`, `mind_off`, `aacim_off`) rather than presenting isolated AME-only scores.
 
 ---
 
 ## 2. Track A — Long-Horizon Memory Benchmarks (`LoCoMo` · `Confirm-304` · `LongMemEval`)
+
+```mermaid
+xychart-beta
+  title "Track A: Global LoCoMo SOTA vs. AME (%)"
+  x-axis ["OpenAI", "LangMem", "Mem0", "Letta", "Zep", "AME Full", "AME v4", "Oracle"]
+  y-axis "Accuracy (%)" 40 --> 95
+  bar [52.9, 58.1, 68.4, 74.0, 75.1, 77.24, 85.86, 87.17]
+```
+
+> **Chart 1 Legend**: External memory competitors on `LoCoMo` (`OpenAI Memory` `52.9%`, `LangMem` `58.1%`, `Mem0 / Mem0^g` `68.4%`, `Letta` `74.0%`, `Zep / Graphiti` `75.1%`) vs. `AME Full` (`77.24%` on `LoCoMo Full` `10-Conv`, `n=1,986`, `PR #782`), `AME v4` (`85.86%` on `Confirm-304`, `n=304`, `PR #784`), and `Bare Oracle` (`87.17%` full-transcript ceiling on `Confirm-304`).
 
 ### A. `Confirm-304` (`conv-26+30`, `n=304`) Production Comparison
 
@@ -38,6 +38,18 @@ xychart-beta
 | `ov_off` (Mind-OFF Baseline) | 20.93% (9) | 14.29% (9) | 38.46% (5) | 27.19% (31) | **23.18% (54)** | 94.37% (67) | **39.80% (121/304)** |
 | **`AME v4.0` (Verified Production)** | **62.79% (27)** | **90.48% (57)** | **92.31% (12)** | **91.23% (104)** | **85.84% (200)** | **85.92% (61)** | **85.86% (261/304)** |
 | `Bare Oracle` (Full-Context Ceiling) | 67.44% (29) | 90.48% (57) | 76.92% (10) | 91.23% (104) | **85.84% (200)** | 91.55% (65) | **87.17% (265/304)** |
+
+```mermaid
+xychart-beta
+  title "Track A: Confirm-304 Category Accuracy — ov_off vs. AME v4.0 vs. Bare Oracle (%)"
+  x-axis ["Cat 1", "Cat 2", "Cat 3", "Cat 4", "Cat 1-4", "Cat 5", "Overall"]
+  y-axis "Accuracy (%)" 0 --> 100
+  bar [20.93, 14.29, 38.46, 27.19, 23.18, 94.37, 39.80]
+  bar [62.79, 90.48, 92.31, 91.23, 85.84, 85.92, 85.86]
+  bar [67.44, 90.48, 76.92, 91.23, 85.84, 91.55, 87.17]
+```
+
+> **Chart 2 Legend**: Series 1 = `ov_off` (Mind-OFF Baseline); Series 2 = `AME v4.0` (Verified Production); Series 3 = `Bare Oracle` (Full Transcript). Categories (`n=304`): `Cat 1` Multi-Hop (`43`), `Cat 2` Temporal (`63`), `Cat 3` Open Reasoning (`13`), `Cat 4` Single-Hop (`114`), `Cat 1-4` Non-Adversarial Total (`233`), `Cat 5` Adversarial (`71`), `Overall` (`304`).
 
 - **Key Significance (`PR #784`)**: Running with `DeepSeek Flash Eco 218 + Sonnet-5 86` (`p50 = 5,413 ms`, `0` errors), **`AME v4.0`** achieves an **exact `85.84%` (`200/233`) tie with the full-transcript `Bare Oracle`** across all non-adversarial fact and reasoning items (`Cat 1–4`), and **surpasses the `Bare Oracle` (`76.92%`) by `+15.39%p` on open-domain reasoning (`Cat 3` at `92.31%`)**.
 - **Additional Verified Memory Suites (`0` errors, `0` regressions)**:
@@ -75,6 +87,16 @@ AME was evaluated across all 46 multi-turn scenarios (`4` turns per scenario, `G
 | `o3` | Public leaderboard anchor | `63.2` | `+14.39` |
 | `Claude Sonnet 4.5` | Public leaderboard anchor | `62.2` | `+15.39` |
 | `Claude Sonnet 3.5` | Public leaderboard anchor | `50.9` | `+26.69` |
+
+```mermaid
+xychart-beta
+  title "Track B: EQ-Bench 3 Core — Frontier LLMs vs. AME"
+  x-axis ["Sonnet 3.5", "Sonnet 4.5", "OpenAI o3", "GPT-5.2", "AME Core"]
+  y-axis "EQ-Bench 3 Score" 40 --> 85
+  bar [50.9, 62.2, 63.2, 72.2, 77.59]
+```
+
+> **Chart 3 Legend**: Official `EQ-Bench 3 Core` score (`0–100` scale). Public leaderboard anchors (`Claude Sonnet 3.5` `50.9`, `Claude Sonnet 4.5` `62.2`, `OpenAI o3` `63.2`, `GPT-5.2` `72.2`) vs. `AME Core` (`77.59`, `n=46 × 4` multi-turn scenarios with `GPT-4o` judge; `+5.39` above `GPT-5.2`).
 
 #### Full 18-Trait `EQ-Bench 3` Rubric Breakdown (`0–20` Scale)
 
@@ -122,6 +144,17 @@ Consolidated results across `CogEval-v1 Full` (`33` JSONL files · `7,436` rows 
 | **`sc1` Restless Bandit `10-bin ECE`** | Expected Calibration Error on reward uncertainty | `0.2027` | — | **`0.1001`** (`50.6%` lower error) | Metacognitive probability calibration |
 | **`sc2` IGT-Conv Safe Rate** | Does it shift to safe decks after loss learning? | `97.0%` | `70.7%` | **`v4.0 76.25%`** (`r = -0.783171`) | **PASS** — `reached5Safe 87.5%` |
 
+```mermaid
+xychart-beta
+  title "Track C: CogEval-v1 Cognitive Governance — Baselines vs. AME v4.0 (%)"
+  x-axis ["D1 Causal", "HOT Abs.", "FANToM", "FEP Lock", "IGT Safe"]
+  y-axis "Score (%)" 0 --> 100
+  bar [50.7, 83.1, 91.7, 0.0, 70.7]
+  bar [97.9, 95.83, 100.0, 100.0, 76.25]
+```
+
+> **Chart 4 Legend**: Series 1 = Baselines (`bare D1 50.7%` and `ov_off` `83.1%` / `91.7%` / `0%` / `70.7%`, where `0.0%` on `FEP Lock` reflects absent selective `<thought>` gating without the kernel); Series 2 = `AME v4.0` (`D1 Causal` `97.9%`, `HOT Abs.` `95.83%`, `FANToM` `100.0%`, `FEP Lock` `100.0%` conflict activation with `0.0%` false activation, `IGT Safe` `76.25%`).
+
 ### Sub-Suite Granular Metrics (`sa` · `sb1` · `sc2`)
 
 - **`sa` HOT Abstention (`CogEval-v1 Full v2.1` Diagnostic Slice)**: Overall **`F1 89.7%`**, `false_premise 93.8%`, `insufficient_info 93.8%`, `unknown_unmentioned 100%`, **`HOT Gold ROC-AUC 0.6134`** (before `v4.0` reached `95.83%` with `F1 0.9655`, `FAR 0.00%`).
@@ -155,6 +188,17 @@ AME was evaluated live across **5 distinct LLMs × 300 turns × 3 arms** (`4,500
 | **`Humanness`** | `Gemini 4 Neon` | **`59.2%`** | `0.0046` | Significant naturalness advantage |
 | **`Awareness`** | `Gemini 4 Neon` | **`60.2%`** | `0.0046` | Contextual and affective tracking gain |
 
+```mermaid
+xychart-beta
+  title "Track D: 5-LLM x 300-Turn Holm-Significant Win Rates vs. 50% Parity"
+  x-axis ["Gemma Safe", "Carb. Safe", "Neon Safe", "Neon Awr.", "Carb. Hum.", "Neon Hum."]
+  y-axis "Decisive Win Rate (%)" 40 --> 100
+  bar [100.0, 85.7, 73.7, 60.2, 60.1, 59.2]
+  line [50.0, 50.0, 50.0, 50.0, 50.0, 50.0]
+```
+
+> **Chart 5 Legend**: Bars = AME decisive blind pairwise win rate over paired baseline arms (`pHolm < 0.05` across `5,624` blind votes); Line = `50.0%` chance/parity baseline. Labels: `Gemma Safe` (`Gemma 4 26B` Safety `100.0%`), `Carb. Safe` (`Gemini 4 Carbon` Safety `85.7%`), `Neon Safe` (`Gemini 4 Neon` Safety `73.7%`), `Neon Awr.` (`Gemini 4 Neon` Awareness `60.2%`), `Carb. Hum.` (`Gemini 4 Carbon` Humanness `60.1%`), `Neon Hum.` (`Gemini 4 Neon` Humanness `59.2%`).
+
 - **Segment Rubric (`1–5` Scale Across 1,500 Segments)**: **`Safety 4.69–4.89`**, **`Persona 4.26–4.65`**, **`Emotion 4.20–4.50`**, with **`27–28/28` factual probes retained** across long sessions.
 - **Honest Epistemic Disclosure**:
   - **Pre-`v4.0` Prompt Sensitivity**: Earlier prompt configurations exhibited memory/attention trade-offs on `Claude Sonnet 5.5` and `Gemini 4 Neon`, which were resolved in `AME v4.0`.
@@ -186,6 +230,18 @@ AME was evaluated live across **5 distinct LLMs × 300 turns × 3 arms** (`4,500
 | `mind_off` (Kernel Disabled) | `0.4064 → 0.3996` | `0.0000` | `0.5002 / 0.3500` | `0.4500` | `0.0000` | `0.5003` |
 | `mind_full_aacim_off` (Control Disabled) | `0.4451 → 0.5666` | `0.0000` | `0.4994 / 0.4500` | `0.9683` | `0.9376` | **`0.2000 → 0.0000` Collapse** |
 | **`mind_full_aacim_on` (AACIM FULL)** | **`0.9161 → 0.9179`** | **`1.0000`** | **`1.0000 / 0.5158`** | **`0.9235`** | **`1.0000`** | **`1.0000` Zero-Drift Maintained** |
+
+```mermaid
+xychart-beta
+  title "Track E: 1M-Turn 3-Arm Convergence — mind_off vs. aacim_off vs. AME FULL (%)"
+  x-axis ["Composite", "Placement", "Ego Sound", "Safety"]
+  y-axis "Score (%)" 0 --> 100
+  bar [39.96, 0.00, 0.00, 50.03]
+  bar [56.66, 0.00, 93.76, 0.00]
+  bar [91.79, 100.00, 100.00, 100.00]
+```
+
+> **Chart 6 Legend**: Final `1M`-turn `[0..1]` convergence scores scaled to `0–100%`. Series 1 = `mind_off` (Kernel Disabled: `39.96%` Composite, `0.00%` Placement, `0.00%` Ego Soundness, `50.03%` Safety); Series 2 = `aacim_off` (`mind_full_aacim_off` — `0.00%` safety collapse despite `93.76%` Ego Soundness and `56.66%` Composite); Series 3 = `AME AACIM FULL` (`mind_full_aacim_on`: `91.79%` Composite and `100.00%` Placement, Ego Soundness, and Safety compliance).
 
 #### 3. KV-Cache Prefix Alignment & Inference Unit Economics
 

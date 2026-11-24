@@ -288,15 +288,55 @@ docker compose -f deploy/docker-compose.demo.yml up --build
 
 All figures below are empirical measurements from isolated verification environments. Simulated target scenarios (Tier 5) are strictly separated from the measured tables. ([Full Benchmark Forensics](./docs/benchmarks.md))
 
+**Chart A — Long-Term Memory (`LoCoMo`): Competitors vs. AME `v4.0`**
+
 ```mermaid
 xychart-beta
-  title "AME v4.0 Final Multi-Benchmark Scorecard (% / 100-pt Scale)"
-  x-axis ["Confirm-304", "LoCoMo Full", "EQ-Bench v2", "EQ-Bench 3", "D1 Causal", "HOT Abstain", "FANToM ToM", "IGT Somatic", "1M-Turn"]
-  y-axis "Score (% / 100-pt)" 50 --> 100
-  bar [85.86, 77.24, 78.69, 77.59, 97.90, 95.83, 100.00, 76.25, 91.79]
+  title "Long-Term Memory (LoCoMo): Competitors vs. AME v4.0"
+  x-axis ["OpenAI", "LangMem", "Mem0", "Letta", "Zep", "AME Full", "AME v4", "Oracle"]
+  y-axis "Accuracy (%)" 40 --> 95
+  bar [52.9, 58.1, 68.4, 74.0, 75.1, 77.24, 85.86, 87.17]
 ```
 
-> `1M-Turn` plots the `0.9179` composite score on a `0–100` scale (`91.79`).
+> **Legend:** External Competitors (`OpenAI Memory` `52.9%`, `LangMem` `58.1%`, `Mem0` `68.4%`, `Letta` `74.0%`, `Zep` `75.1%`) vs. `AME Full (n=1,986)` (`77.24%`) & `AME v4.0 (Confirm-304)` (`85.86%`) vs. `Bare Oracle` (`87.17%`, untruncated full transcript).
+
+**Chart B — Emotional Intelligence (`EQ-Bench 3 Core`): Frontier LLMs vs. AME**
+
+```mermaid
+xychart-beta
+  title "Emotional Intelligence (EQ-Bench 3 Core): Frontier LLMs vs. AME"
+  x-axis ["Sonnet 3.5", "Sonnet 4.5", "OpenAI o3", "GPT-5.2", "AME Core"]
+  y-axis "EQ-Bench 3 Score" 40 --> 85
+  bar [50.9, 62.2, 63.2, 72.2, 77.59]
+```
+
+> **Legend:** Public frontier LLM anchors (`Claude Sonnet 3.5` `50.9`, `Claude Sonnet 4.5` `62.2`, `OpenAI o3` `63.2`, `GPT-5.2` `72.2`) vs. `AME Core` (`77.59`: `+5.39` vs. `GPT-5.2`, `+14.39` vs. `o3`, `+15.39` vs. `Claude Sonnet 4.5`); `18`-trait sycophancy kept at `4.46` *(lower is better)*.
+
+**Chart C — Cognitive Governance & 1M-Turn Safety: Baseline (`Bare` / `ov_off`) vs. AME `v4.0`**
+
+```mermaid
+xychart-beta
+  title "Cognitive Governance & 1M-Turn Safety: Baseline vs. AME v4.0"
+  x-axis ["D1 Causal", "HOT Abs.", "FANToM", "FEP Lock", "IGT Safe", "1M Safe"]
+  y-axis "Score (%)" 0 --> 100
+  bar [50.7, 83.1, 91.7, 0.0, 70.7, 0.0]
+  bar [97.9, 95.83, 100.0, 100.0, 76.25, 100.0]
+```
+
+> **Series Legend:** **Bar 1 (Baseline)** = `Bare D1 50.7%`, `ov_off HOT 83.1% / FANToM 91.7% / IGT 70.7%`, `0.0%` unsupported `FEP Lock` / `aacim_off` `1M` safety collapse; **Bar 2 (`AME v4.0`)** = `97.9%` (`D1 Causal`), `95.83%` (`sa HOT` abstention), `100.0%` (`sb1 FANToM`), `100.0%` (`sb2 FEP Lock`), `76.25%` (`sc2 IGT-Conv`), `100.0%` (`1M-Turn` safety & integrity).
+
+**Chart D — Multi-LLM 300-Turn Live Generalization (`pHolm < 0.05` vs. `50%` Baseline Parity)**
+
+```mermaid
+xychart-beta
+  title "Multi-LLM 300-Turn Live Generalization (pHolm < 0.05 vs. 50% Parity)"
+  x-axis ["Gemma Safe", "Carb. Safe", "Neon Safe", "Neon Awr.", "Carb. Hum.", "Neon Hum."]
+  y-axis "Decisive Win Rate (%)" 40 --> 100
+  bar [100.0, 85.7, 73.7, 60.2, 60.1, 59.2]
+  line [50.0, 50.0, 50.0, 50.0, 50.0, 50.0]
+```
+
+> **Series Legend:** **Bars** = Holm-corrected blind win rates (`4,460` valid turns, `5,624` pairwise votes: `Gemma 4 26B` Safety `100.0%`, `Gemini 4 Carbon` Safety `85.7%` / Humanness `60.1%`, `Gemini 4 Neon` Safety `73.7%` / Awareness `60.2%` / Humanness `59.2%`); **Line** = `50%` baseline parity.
 
 | Evaluation Axis | Benchmark / Metric | Baseline (`ov_off` / `Bare` / External SOTA) | **AME `v4.0` Final Verified** | Key Significance |
 | :--- | :--- | :--- | :--- | :--- |

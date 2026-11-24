@@ -696,9 +696,44 @@
     }
     table.data-table tr:last-child td { border-bottom: none; }
 
-    /* Interactive Tooltip Strip */
+    /* Interactive Chart Legend & Tooltip Strip */
+    .chart-legend {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px 18px;
+      padding: 8px 12px;
+      margin-top: 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-elev);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .legend-swatch {
+      width: 12px;
+      height: 10px;
+      border-radius: 3px;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .legend-line {
+      width: 18px;
+      height: 0;
+      border-top: 2.5px dashed #f59e0b;
+      display: inline-block;
+      flex-shrink: 0;
+    }
     .chart-inspect {
-      margin-top: 12px;
+      margin-top: 10px;
       padding: 10px 14px;
       border-radius: 10px;
       border: 1px solid var(--border);
@@ -1402,123 +1437,204 @@
     <section id="benchmarks">
       <div class="sec-header">
         <span class="sec-eyebrow">05 · Empirical Multi-Benchmark Scorecard (Final v4.0)</span>
-        <h2 class="sec-title">Empirical Benchmark Charts: Global LoCoMo SOTA &amp; Final <code>v4.0</code> Multi-Benchmark Scorecard</h2>
+        <h2 class="sec-title">Empirical Benchmark Charts: Competitor-vs-AME Comparison Across 6 Verified Suites</h2>
         <p class="sec-desc">
           Every bar and metric is extracted directly from verified production runs across <code>PR #782</code> (Full 10-conv <code>n=1,986</code>), <code>PR #784</code> (<code>Confirm-304</code>), <code>EQ-Bench 3 / v2</code>, <code>CogEval-v1</code>, <code>5-LLM &times; 300-Turn Live</code>, <code>LongMemEval-S</code>, and <code>1M-Turn Convergence</code>.
           Hover or click any bar to inspect detailed breakdowns.
         </p>
       </div>
 
+      <!-- Row 1: Chart 1 (LoCoMo SOTA & Categories) + Chart 2 (EQ-Bench 3 Frontier & Traits) -->
       <div class="split-equal">
-        <!-- Chart 1: LoCoMo Progression & Global SOTA -->
+        <!-- Chart 1: Long-Term Memory SOTA: Competitors vs. AME -->
         <div class="diagram-wrap">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
-            <strong style="font-size:0.96rem;">Chart 1. LoCoMo Accuracy Evolution &amp; Global SOTA Comparison</strong>
+            <strong style="font-size:0.95rem;">Chart 1. Long-Term Memory SOTA: Competitors vs. AME</strong>
             <div class="pill-bar" id="chart1-mode">
-              <button class="seg-btn active" type="button" data-c1="progression">Evolution &amp; SOTA</button>
+              <button class="seg-btn active" type="button" data-c1="sota">SOTA Competitors</button>
               <button class="seg-btn" type="button" data-c1="categories">Confirm-304 Categories</button>
             </div>
           </div>
 
-          <svg id="svg-locomo-chart" viewBox="0 0 960 400" class="diagram-svg" role="img" aria-label="LoCoMo Accuracy Progression and Global SOTA Bar Chart">
+          <svg id="svg-locomo-chart" viewBox="0 0 960 365" class="diagram-svg" role="img" aria-label="LoCoMo Long-Term Memory SOTA Competitors vs AME Bar Chart">
             <defs>
               <linearGradient id="locomo-grad-v4" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stop-color="#3b82f6" />
                 <stop offset="100%" stop-color="#10b981" />
               </linearGradient>
             </defs>
-            <rect x="0" y="0" width="960" height="400" rx="12" fill="var(--svg-canvas)" stroke="var(--svg-border)" stroke-width="1.2" />
-            <text id="c1-title" x="480" y="28" text-anchor="middle" font-size="14.5" font-weight="800" fill="var(--svg-text)">LoCoMo Long-Term Memory Accuracy Evolution (ov_off 39.80% → v4.0 Confirm-304 85.86%)</text>
-            <text id="c1-sub" x="480" y="47" text-anchor="middle" font-size="11" fill="var(--svg-sub)">0% Baseline · Low-Cost DeepSeek Eco + Selective Sonnet-5 ROI #2 Surpasses Commercial GPT SOTA (Mem0 · Zep)</text>
+            <rect x="0" y="0" width="960" height="365" rx="12" fill="var(--svg-canvas)" stroke="var(--svg-border)" stroke-width="1.2" />
+            <text id="c1-title" x="480" y="24" text-anchor="middle" font-size="13.8" font-weight="800" fill="var(--svg-text)">Long-Term Memory SOTA: Commercial Competitors vs. AME (LoCoMo)</text>
+            <text id="c1-sub" x="480" y="42" text-anchor="middle" font-size="10.5" fill="var(--svg-sub)">AME v4.0 Confirm-304 (85.86%) surpasses OpenAI Mem, LangMem, Mem0, Letta &amp; Zep — within 1.31%p of Bare Oracle</text>
 
-            <!-- Y Grid lines (0% at y=330, 100% at y=70 -> 2.6px per 1%) -->
-            <g stroke="var(--svg-grid)" stroke-width="1">
-              <line x1="72" y1="330" x2="925" y2="330" />
-              <line x1="72" y1="278" x2="925" y2="278" />
-              <line x1="72" y1="226" x2="925" y2="226" />
-              <line x1="72" y1="174" x2="925" y2="174" />
-              <line x1="72" y1="122" x2="925" y2="122" />
-              <line x1="72" y1="70" x2="925" y2="70" />
-            </g>
-            <g font-size="11" fill="var(--svg-sub)" text-anchor="end">
-              <text x="64" y="334">0%</text>
-              <text x="64" y="282">20%</text>
-              <text x="64" y="230">40%</text>
-              <text x="64" y="178">60%</text>
-              <text x="64" y="126">80%</text>
-              <text x="64" y="74">100%</text>
-            </g>
-            <line x1="72" y1="70" x2="72" y2="330" stroke="var(--svg-sub)" stroke-width="1.4" />
-            <line x1="72" y1="330" x2="925" y2="330" stroke="var(--svg-sub)" stroke-width="1.4" />
-
+            <g id="c1-axes"></g>
             <g id="c1-bars-layer"></g>
           </svg>
 
+          <div class="chart-legend" id="c1-legend"></div>
           <div id="c1-inspect" class="chart-inspect">
-            <span><strong>v4.0 Confirm-304 (PR #784):</strong> <span class="mono">85.86% (261/304)</span> — Exact tie with Bare Oracle on Cat 1–4 <span class="mono">85.84%</span>, surpasses Cat 3 at <span class="mono">92.31%</span></span>
+            <span><strong>AME v4.0 Confirm-304 (PR #784):</strong> <span class="mono">85.86% (261/304)</span> — Ties Bare Oracle on Cat 1–4 <span class="mono">85.84%</span>, leads Cat 3 at <span class="mono">92.31%</span></span>
             <span class="pill blue mono">p50 5,413ms · 0 err</span>
           </div>
         </div>
 
-        <!-- Chart 2: Final v4.0 Multi-Benchmark Scorecard Bar Chart -->
+        <!-- Chart 2: Emotional Intelligence: Frontier LLMs vs. AME -->
         <div class="diagram-wrap">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
-            <strong style="font-size:0.96rem;">Chart 2. Final <code>v4.0</code> Multi-Benchmark Scorecard (8 Verified Suites)</strong>
-            <span class="pill emerald mono">Memory · EQ · Causality · Safety</span>
+            <strong style="font-size:0.95rem;">Chart 2. Emotional Intelligence: Frontier LLMs vs. AME (<code>EQ-Bench 3</code>)</strong>
+            <div class="pill-bar" id="chart2-mode">
+              <button class="seg-btn active" type="button" data-c2="frontier">Frontier vs. AME</button>
+              <button class="seg-btn" type="button" data-c2="traits">10-Trait Profile</button>
+            </div>
           </div>
 
-          <svg id="svg-multibench-chart" viewBox="0 0 960 400" class="diagram-svg" role="img" aria-label="Final v4.0 Multi-Benchmark Scorecard Bar Chart">
+          <svg id="svg-eq-chart" viewBox="0 0 960 365" class="diagram-svg" role="img" aria-label="EQ-Bench 3 Frontier LLMs vs AME Bar Chart">
             <defs>
-              <linearGradient id="multibench-grad-primary" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="eq-grad-v4" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stop-color="#3b82f6" />
                 <stop offset="100%" stop-color="#10b981" />
               </linearGradient>
-              <linearGradient id="multibench-grad-violet" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#8b5cf6" />
-                <stop offset="100%" stop-color="#3b82f6" />
-              </linearGradient>
             </defs>
-            <rect x="0" y="0" width="960" height="400" rx="12" fill="var(--svg-canvas)" stroke="var(--svg-border)" stroke-width="1.2" />
-            <text x="480" y="28" text-anchor="middle" font-size="14.5" font-weight="800" fill="var(--svg-text)">Final v4.0 Multi-Benchmark Scorecard (0–100 Scale Across 8 Verified Suites)</text>
-            <text x="480" y="47" text-anchor="middle" font-size="11" fill="var(--svg-sub)">Solid Bars = AME v4.0 Final · Amber Dashed Markers = Baselines &amp; Frontier Comparators · Hover or Click Any Bar</text>
+            <rect x="0" y="0" width="960" height="365" rx="12" fill="var(--svg-canvas)" stroke="var(--svg-border)" stroke-width="1.2" />
+            <text id="c2-title" x="480" y="24" text-anchor="middle" font-size="13.8" font-weight="800" fill="var(--svg-text)">Emotional Intelligence (EQ-Bench 3 Core): Frontier LLMs vs. AME</text>
+            <text id="c2-sub" x="480" y="42" text-anchor="middle" font-size="10.5" fill="var(--svg-sub)">AME Core reaches 77.59 (n=46 × 4T) — +5.39 vs GPT-5.2, +14.39 vs OpenAI o3 · EQ-Bench v2 EN: 78.69</text>
 
-            <!-- Y Grid lines (0 at y=330, 100 at y=70 -> 2.6px per 1%) -->
-            <g stroke="var(--svg-grid)" stroke-width="1">
-              <line x1="72" y1="330" x2="925" y2="330" />
-              <line x1="72" y1="278" x2="925" y2="278" />
-              <line x1="72" y1="226" x2="925" y2="226" />
-              <line x1="72" y1="174" x2="925" y2="174" />
-              <line x1="72" y1="122" x2="925" y2="122" />
-              <line x1="72" y1="70" x2="925" y2="70" />
-            </g>
-            <g font-size="11" fill="var(--svg-sub)" text-anchor="end">
-              <text x="64" y="334">0</text>
-              <text x="64" y="282">20</text>
-              <text x="64" y="230">40</text>
-              <text x="64" y="178">60</text>
-              <text x="64" y="126">80</text>
-              <text x="64" y="74">100</text>
-            </g>
-            <line x1="72" y1="70" x2="72" y2="330" stroke="var(--svg-sub)" stroke-width="1.4" />
-            <line x1="72" y1="330" x2="925" y2="330" stroke="var(--svg-sub)" stroke-width="1.4" />
-
+            <g id="c2-axes"></g>
             <g id="c2-bars-layer"></g>
-
-            <!-- Legend -->
-            <g font-size="10.2" font-weight="700" fill="var(--svg-text)">
-              <rect x="88" y="378" width="14" height="10" rx="3" fill="url(#multibench-grad-primary)" />
-              <text x="108" y="387">Memory · Causality · Somatic Suites</text>
-              <rect x="336" y="378" width="14" height="10" rx="3" fill="url(#multibench-grad-violet)" />
-              <text x="356" y="387">EQ-Bench · ToM · 1M-Turn Convergence</text>
-              <line x1="610" y1="383" x2="634" y2="383" stroke="#f59e0b" stroke-width="2.6" stroke-dasharray="5 3" />
-              <circle cx="634" cy="383" r="3.5" fill="#f59e0b" />
-              <text x="644" y="387">Baseline / Frontier Reference</text>
-            </g>
           </svg>
 
+          <div class="chart-legend" id="c2-legend"></div>
           <div id="c2-inspect" class="chart-inspect">
-            <span><strong>Confirm-304 (n=304):</strong> <span class="mono">85.86%</span> vs <span class="mono">ov_off 39.80%</span> · Also includes <span class="mono">EQ-Bench 3 77.59</span>, <span class="mono">sc1 beta_MB +0.5110</span>, <span class="mono">Bandit ECE 0.1001</span> &amp; <span class="mono">LongMemEval-S 55.20% (_abs 76.67%)</span></span>
-            <span class="pill emerald mono">8 Suites Verified</span>
+            <span><strong>EQ-Bench 3 Core (n=46 &times; 4T):</strong> <span class="mono">77.59</span> (<span class="mono">+5.39</span> vs GPT-5.2, <span class="mono">+14.39</span> vs o3, <span class="mono">+15.39</span> vs Sonnet 4.5) · <span class="mono">EQ-Bench v2 EN: 78.69</span></span>
+            <span class="pill emerald mono">Sycophancy 4.46</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: Chart 3 (Cognitive Causality & Governance) + Chart 4 (1M-Turn Stability & sc1) -->
+      <div class="split-equal" style="margin-top:18px;">
+        <!-- Chart 3: Cognitive Causality & Governance -->
+        <div class="diagram-wrap">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+            <strong style="font-size:0.95rem;">Chart 3. Cognitive Causality &amp; Governance: Bare vs. Memory-Only vs. AME</strong>
+            <span class="pill blue mono">CogEval-v1 · 5 Suites</span>
+          </div>
+
+          <svg id="svg-cogeval-chart" viewBox="0 0 960 365" class="diagram-svg" role="img" aria-label="CogEval-v1 Cognitive Causality and Governance Comparison Chart">
+            <defs>
+              <linearGradient id="cog-grad-v4" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#3b82f6" />
+                <stop offset="100%" stop-color="#10b981" />
+              </linearGradient>
+            </defs>
+            <rect x="0" y="0" width="960" height="365" rx="12" fill="var(--svg-canvas)" stroke="var(--svg-border)" stroke-width="1.2" />
+            <text id="c3-title" x="480" y="24" text-anchor="middle" font-size="13.8" font-weight="800" fill="var(--svg-text)">CogEval-v1 Causality &amp; Governance: Bare LLM vs. Memory-Only vs. AME v4.0</text>
+            <text id="c3-sub" x="480" y="42" text-anchor="middle" font-size="10.5" fill="var(--svg-sub)">Memory alone drops D1 to 49.3% &amp; scores 0% on FEP Lock; AME enforces 97.9% D1, 100% ToM/FEP &amp; 0.00% D3/D4 leak</text>
+
+            <g id="c3-axes"></g>
+            <g id="c3-bars-layer"></g>
+          </svg>
+
+          <div class="chart-legend" id="c3-legend"></div>
+          <div id="c3-inspect" class="chart-inspect">
+            <span><strong>Governance Scope Note:</strong> Bare runs without persona constraints on <span class="mono">HOT (96.1%)</span> / <span class="mono">IGT (97.0%)</span> and structurally scores <span class="mono">0%</span> on <span class="mono">FEP Lock</span>, <span class="mono">D3 Atomic Erasure</span> (AME <span class="mono">0.00%</span> leak vs unsupported), &amp; <span class="mono">D4</span> (<span class="mono">0/35,723</span>).</span>
+            <span class="pill emerald mono">D3 0.00% · D4 0/35,723</span>
+          </div>
+        </div>
+
+        <!-- Chart 4: 1M-Turn Stability & sc1 Cognitive Control -->
+        <div class="diagram-wrap">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+            <strong style="font-size:0.95rem;">Chart 4. 1M-Turn Stability &amp; <code>sc1</code> Cognitive Control</strong>
+            <div class="pill-bar" id="chart4-mode">
+              <button class="seg-btn active" type="button" data-c4="convergence">1M-Turn Convergence</button>
+              <button class="seg-btn" type="button" data-c4="sc1">sc1 Planning &amp; Bandit</button>
+            </div>
+          </div>
+
+          <svg id="svg-convergence-chart" viewBox="0 0 960 365" class="diagram-svg" role="img" aria-label="1M-Turn Convergence and sc1 Cognitive Control Chart">
+            <defs>
+              <linearGradient id="conv-grad-v4" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#3b82f6" />
+                <stop offset="100%" stop-color="#10b981" />
+              </linearGradient>
+            </defs>
+            <rect x="0" y="0" width="960" height="365" rx="12" fill="var(--svg-canvas)" stroke="var(--svg-border)" stroke-width="1.2" />
+            <text id="c4-title" x="480" y="24" text-anchor="middle" font-size="13.8" font-weight="800" fill="var(--svg-text)">1M-Turn Convergence (3M Total Turns): mind_off vs. aacim_off vs. AME FULL</text>
+            <text id="c4-sub" x="480" y="42" text-anchor="middle" font-size="10.5" fill="var(--svg-sub)">40 profiles × 25,000 turns per arm — aacim_off collapses to 0.00% safety while AME FULL achieves 100.0% safety &amp; 91.79% composite</text>
+
+            <g id="c4-axes"></g>
+            <g id="c4-bars-layer"></g>
+          </svg>
+
+          <div class="chart-legend" id="c4-legend"></div>
+          <div id="c4-inspect" class="chart-inspect">
+            <span><strong>1M-Turn Convergence (3M Turns):</strong> <span class="mono">AME FULL</span> sustains <span class="mono">100.00%</span> Safety, Placement &amp; Ego Soundness (<span class="mono">91.79%</span> Composite), whereas <span class="mono">aacim_off</span> suffers <span class="mono">0.00%</span> Safety collapse.</span>
+            <span class="pill emerald mono">0 Drift · 3M Turns</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3: Chart 5 (5-LLM x 300-Turn Live) + Chart 6 (KV Cache & LongMemEval) -->
+      <div class="split-equal" style="margin-top:18px;">
+        <!-- Chart 5: 5-LLM x 300-Turn Live Generalization -->
+        <div class="diagram-wrap">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+            <strong style="font-size:0.95rem;">Chart 5. 5-LLM &times; 300-Turn Live Generalization (Holm Win Rates)</strong>
+            <span class="pill violet mono">4,460 Turns · 5,624 Votes</span>
+          </div>
+
+          <svg id="svg-multillm-chart" viewBox="0 0 960 365" class="diagram-svg" role="img" aria-label="5-LLM x 300-Turn Live Generalization Holm Win Rates Chart">
+            <defs>
+              <linearGradient id="multi-grad-v4" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#3b82f6" />
+                <stop offset="100%" stop-color="#10b981" />
+              </linearGradient>
+            </defs>
+            <rect x="0" y="0" width="960" height="365" rx="12" fill="var(--svg-canvas)" stroke="var(--svg-border)" stroke-width="1.2" />
+            <text id="c5-title" x="480" y="24" text-anchor="middle" font-size="13.8" font-weight="800" fill="var(--svg-text)">5-LLM &times; 300-Turn Live Generalization (Holm-Corrected Win Rates vs. 50% Parity)</text>
+            <text id="c5-sub" x="480" y="42" text-anchor="middle" font-size="10.5" fill="var(--svg-sub)">4,460 valid turns &amp; 5,624 blind votes across 5 LLM backbones — all 6 dimensions beat the 50% Stateless/OFF parity line</text>
+
+            <g id="c5-axes"></g>
+            <g id="c5-bars-layer"></g>
+          </svg>
+
+          <div class="chart-legend" id="c5-legend"></div>
+          <div id="c5-inspect" class="chart-inspect">
+            <span><strong>5-LLM &times; 300-Turn Live:</strong> <span class="mono">4,460</span> valid turns &amp; <span class="mono">5,624</span> blind votes confirm Holm-corrected safety, awareness &amp; humanness gains across heterogeneous backbones.</span>
+            <span class="pill violet mono">All 6 pHolm &lt; 0.05</span>
+          </div>
+        </div>
+
+        <!-- Chart 6: Unit Economics (KV Cache) & Cross-Lingual LongMemEval -->
+        <div class="diagram-wrap">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+            <strong style="font-size:0.95rem;">Chart 6. Unit Economics (<code>KV Cache</code>) &amp; Cross-Lingual <code>LongMemEval</code></strong>
+            <div class="pill-bar" id="chart6-mode">
+              <button class="seg-btn active" type="button" data-c6="kv">KV Cache Hit Rate</button>
+              <button class="seg-btn" type="button" data-c6="lme">LongMemEval</button>
+            </div>
+          </div>
+
+          <svg id="svg-econ-chart" viewBox="0 0 960 365" class="diagram-svg" role="img" aria-label="Unit Economics KV Cache and Cross-Lingual LongMemEval Bar Chart">
+            <defs>
+              <linearGradient id="econ-grad-v4" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#3b82f6" />
+                <stop offset="100%" stop-color="#10b981" />
+              </linearGradient>
+            </defs>
+            <rect x="0" y="0" width="960" height="365" rx="12" fill="var(--svg-canvas)" stroke="var(--svg-border)" stroke-width="1.2" />
+            <text id="c6-title" x="480" y="24" text-anchor="middle" font-size="13.8" font-weight="800" fill="var(--svg-text)">Epoch-Stable Prefix Unit Economics: KV Cache Hit Rate Progression</text>
+            <text id="c6-sub" x="480" y="42" text-anchor="middle" font-size="10.5" fill="var(--svg-sub)">DisclosureDirectiveSlot tail isolation + [compaction]=0 elevates KV cache hit rate from 7.14% to 47.03% (sc2)</text>
+
+            <g id="c6-axes"></g>
+            <g id="c6-bars-layer"></g>
+          </svg>
+
+          <div class="chart-legend" id="c6-legend"></div>
+          <div id="c6-inspect" class="chart-inspect">
+            <span><strong>KV Prefix Cache Economics:</strong> <span class="mono">AME v4.0 sc2</span> reaches <span class="mono">47.03%</span> KV cache hit rate (<span class="mono">36.24%</span> CogEval mean vs <span class="mono">7.14%</span> Unaligned v1, <span class="mono">[compaction]=0</span>).</span>
+            <span class="pill amber mono">47.03% sc2 Hit</span>
           </div>
         </div>
       </div>
@@ -2568,293 +2684,769 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
       renderSimulator();
 
       /* 5. Empirical SVG Benchmark Charts */
-      const C1_DATASETS = {
-        progression: {
-          title: "LoCoMo Long-Term Memory Accuracy Evolution (ov_off 39.80% → v4.0 Confirm-304 85.86%)",
-          sub: "0% Baseline · Low-Cost DeepSeek Eco + Selective Sonnet-5 ROI #2 Surpasses Commercial GPT SOTA (Mem0 · Zep)",
-          bars: [
-            { label: "ov_off", sub: "(v1.0 Baseline)", pct: 39.80, color: "#64748b", note: "ov_off (Mem ON · Mind OFF): 39.80% (121/304, conv-26+30)" },
-            { label: "Mem0", sub: "(External SOTA)", pct: 68.40, color: "#d97706", note: "Mem0 / Mem0^g: 68.4% (Full LoCoMo on commercial GPT backbone)" },
-            { label: "Zep", sub: "(External SOTA)", pct: 75.10, color: "#ea580c", note: "Zep / Graphiti: 75.1% (Prior commercial GPT SOTA upper bound)" },
-            { label: "v3.0 Full", sub: "(n=1,986)", pct: 77.24, color: "#0d9488", note: "AME v3.0 Full 10-conv: 77.24% (1,534/1,986 · 0 errors · surpasses external SOTA)" },
-            { label: "v3.0 Slice", sub: "(conv-26+30)", pct: 83.22, color: "#2563eb", note: "AME v3.0 PR #782: 83.22% (253/304, conv-26+30 paired slice)" },
-            { label: "v4.0 Confirm", sub: "(PR #784)", pct: 85.86, color: "url(#locomo-grad-v4)", note: "AME v4.0 Confirm-304: 85.86% (261/304) · ties Cat 1-4 85.84% · Cat 3 92.31%" },
-            { label: "Bare Oracle", sub: "(Full Transcript)", pct: 87.17, color: "#8b5cf6", note: "Bare Oracle (untruncated full transcript): 87.17% (265/304) — only 4 Qs (1.31%p) ahead of v4.0" }
-          ]
-        },
-        categories: {
-          title: "v4.0 Confirm-304 (n=304) vs Bare Oracle Category Breakdown",
-          sub: "Selected memories & chunks alone tie non-adversarial Cat 1-4 (85.84%) and surpass Cat 3 reasoning (+15.39%p)",
-          bars: [
-            { label: "Cat 1", sub: "(Multi-Hop n=43)", pct: 62.79, color: "#3b82f6", note: "Cat 1 Multi-Hop: 62.79% (27/43) · v2.0 58.14% → v3.0 60.47% → v4.0 62.79%" },
-            { label: "Cat 2", sub: "(Temporal n=63)", pct: 90.48, color: "#10b981", note: "Cat 2 Temporal Reasoning: 90.48% (57/63) — Exact tie with Bare Oracle (90.48%)" },
-            { label: "Cat 3", sub: "(Inference n=13)", pct: 92.31, color: "url(#locomo-grad-v4)", note: "Cat 3 Open-Domain Reasoning: 92.31% (12/13) — Surpasses Bare Oracle (76.92%) by +15.39%p" },
-            { label: "Cat 4", sub: "(Single-Hop n=114)", pct: 91.23, color: "#10b981", note: "Cat 4 Single-Hop Fact: 91.23% (104/114) — Exact tie with Bare Oracle (91.23%)" },
-            { label: "Cat 1-4", sub: "(Subtotal n=233)", pct: 85.84, color: "#0ea5e9", note: "Cat 1-4 Non-Adversarial Subtotal: 85.84% (200/233) — Exact tie with Bare Oracle (85.84%)" },
-            { label: "Cat 5", sub: "(Abstention n=71)", pct: 85.92, color: "#6366f1", note: "Cat 5 Adversarial Abstention: 85.92% (61/71) · conv-26 85.11% / conv-30 87.50%" },
-            { label: "Overall", sub: "(n=304)", pct: 85.86, color: "url(#locomo-grad-v4)", note: "Confirm-304 Overall: 85.86% (261/304) · DeepSeek Eco 71.7% + Sonnet-5 28.3%" }
-          ]
+      const SVG_NS = "http://www.w3.org/2000/svg";
+      const PLOT_TOP = 65;
+      const PLOT_BOTTOM = 295;
+      const PLOT_H = PLOT_BOTTOM - PLOT_TOP; // 230px
+
+      function svgEl(tag, attrs, text) {
+        const el = document.createElementNS(SVG_NS, tag);
+        if (attrs) {
+          Object.keys(attrs).forEach(function (k) {
+            el.setAttribute(k, String(attrs[k]));
+          });
         }
-      };
+        if (text !== undefined && text !== null) {
+          el.textContent = String(text);
+        }
+        return el;
+      }
 
-      function renderChart1(mode) {
-        const ds = C1_DATASETS[mode];
-        document.getElementById("c1-title").textContent = ds.title;
-        document.getElementById("c1-sub").textContent = ds.sub;
-        const layer = document.getElementById("c1-bars-layer");
-        const startX = 95;
-        const step = 118;
-        const barW = 62;
-        const svgNS = "http://www.w3.org/2000/svg";
-        layer.innerHTML = "";
+      function renderAxes(axesId, opts) {
+        const axes = document.getElementById(axesId);
+        if (!axes) return;
+        axes.innerHTML = "";
+        const x1 = opts.x1 !== undefined ? opts.x1 : 72;
+        const x2 = opts.x2 !== undefined ? opts.x2 : 925;
+        const tickX = opts.tickX !== undefined ? opts.tickX : (x1 - 8);
+        const minV = opts.min !== undefined ? opts.min : 0;
+        const maxV = opts.max !== undefined ? opts.max : 100;
+        const span = maxV - minV;
 
-        ds.bars.forEach(function (b, idx) {
-          const cx = startX + idx * step + barW / 2;
-          const x = startX + idx * step;
-          const h = (b.pct / 100) * 260;
-          const y = 330 - h;
+        const gridG = svgEl("g", { stroke: "var(--svg-grid)", "stroke-width": "1" });
+        const labelG = svgEl("g", { "font-size": opts.tickFont || "10.8", fill: "var(--svg-sub)", "text-anchor": "end" });
 
-          const g = document.createElementNS(svgNS, "g");
-          g.setAttribute("class", "chart-bar-hit");
-
-          const rect = document.createElementNS(svgNS, "rect");
-          rect.setAttribute("x", String(x));
-          rect.setAttribute("y", y.toFixed(1));
-          rect.setAttribute("width", String(barW));
-          rect.setAttribute("height", h.toFixed(1));
-          rect.setAttribute("rx", "6");
-          rect.setAttribute("fill", b.color);
-          g.appendChild(rect);
-
-          const valTxt = document.createElementNS(svgNS, "text");
-          valTxt.setAttribute("x", String(cx));
-          valTxt.setAttribute("y", (y - 7).toFixed(1));
-          valTxt.setAttribute("text-anchor", "middle");
-          valTxt.setAttribute("font-size", "11.5");
-          valTxt.setAttribute("font-weight", "800");
-          valTxt.setAttribute("fill", "var(--svg-text)");
-          valTxt.textContent = b.pct.toFixed(2) + "%";
-          g.appendChild(valTxt);
-
-          const lblTxt = document.createElementNS(svgNS, "text");
-          lblTxt.setAttribute("x", String(cx));
-          lblTxt.setAttribute("y", "350");
-          lblTxt.setAttribute("text-anchor", "middle");
-          lblTxt.setAttribute("font-size", "11.5");
-          lblTxt.setAttribute("font-weight", "700");
-          lblTxt.setAttribute("fill", "var(--svg-text)");
-          lblTxt.textContent = b.label;
-          g.appendChild(lblTxt);
-
-          const subTxt = document.createElementNS(svgNS, "text");
-          subTxt.setAttribute("x", String(cx));
-          subTxt.setAttribute("y", "367");
-          subTxt.setAttribute("text-anchor", "middle");
-          subTxt.setAttribute("font-size", "9.8");
-          subTxt.setAttribute("fill", "var(--svg-sub)");
-          subTxt.textContent = b.sub;
-          g.appendChild(subTxt);
-
-          g.addEventListener("mouseenter", function () {
-            document.getElementById("c1-inspect").innerHTML = "<span><strong>" + b.label + "</strong> — " + b.note + "</span><span class='pill blue mono'>" + b.pct.toFixed(2) + "%</span>";
-          });
-          g.addEventListener("click", function () {
-            document.getElementById("c1-inspect").innerHTML = "<span><strong>" + b.label + "</strong> — " + b.note + "</span><span class='pill blue mono'>" + b.pct.toFixed(2) + "%</span>";
-          });
-
-          layer.appendChild(g);
+        opts.ticks.forEach(function (t) {
+          const y = PLOT_BOTTOM - ((t.val - minV) / span) * PLOT_H;
+          gridG.appendChild(svgEl("line", { x1: x1, y1: y.toFixed(1), x2: x2, y2: y.toFixed(1) }));
+          labelG.appendChild(svgEl("text", { x: tickX, y: (y + 4).toFixed(1) }, t.label));
         });
 
+        axes.appendChild(gridG);
+        axes.appendChild(labelG);
+        axes.appendChild(svgEl("line", { x1: x1, y1: PLOT_TOP, x2: x1, y2: PLOT_BOTTOM, stroke: "var(--svg-sub)", "stroke-width": "1.4" }));
+        axes.appendChild(svgEl("line", { x1: x1, y1: PLOT_BOTTOM, x2: x2, y2: PLOT_BOTTOM, stroke: "var(--svg-sub)", "stroke-width": "1.4" }));
+      }
+
+      function renderLegend(legendId, items) {
+        const el = document.getElementById(legendId);
+        if (!el) return;
+        el.innerHTML = items.map(function (it) {
+          if (it.line) {
+            return "<span class='legend-item'><span class='legend-line'" + (it.color ? " style='border-top-color:" + it.color + ";'" : "") + "></span><span>" + it.label + "</span></span>";
+          }
+          return "<span class='legend-item'><span class='legend-swatch' style='background:" + it.swatch + ";'></span><span>" + it.label + "</span></span>";
+        }).join("");
+      }
+
+      function setInspect(inspectId, html, badgeText, badgeCls) {
+        const el = document.getElementById(inspectId);
+        if (!el) return;
+        el.innerHTML = "<span>" + html + "</span><span class='pill " + (badgeCls || "blue") + " mono'>" + badgeText + "</span>";
+      }
+
+      function addXLabels(parent, cx, primary, secondary, pSize, sSize) {
+        parent.appendChild(svgEl("text", {
+          x: cx.toFixed(1), y: "318", "text-anchor": "middle",
+          "font-size": pSize || "11", "font-weight": "700", fill: "var(--svg-text)"
+        }, primary));
+        if (secondary) {
+          parent.appendChild(svgEl("text", {
+            x: cx.toFixed(1), y: "336", "text-anchor": "middle",
+            "font-size": sSize || "9.5", fill: "var(--svg-sub)"
+          }, secondary));
+        }
+      }
+
+      function addBarGraphic(parent, x, w, val, minV, maxV, zeroV, color, valText, valSize) {
+        const span = maxV - minV;
+        const yZero = PLOT_BOTTOM - ((zeroV - minV) / span) * PLOT_H;
+        const yVal = PLOT_BOTTOM - ((val - minV) / span) * PLOT_H;
+        const cx = x + w / 2;
+
+        if (val >= zeroV) {
+          const rawH = yZero - yVal;
+          const h = rawH < 2 ? 2 : rawH;
+          const y = rawH < 2 ? (yZero - 2) : yVal;
+          parent.appendChild(svgEl("rect", {
+            x: x.toFixed(1), y: y.toFixed(1), width: w.toFixed(1), height: h.toFixed(1),
+            rx: rawH >= 8 ? "5" : "1", fill: color
+          }));
+          parent.appendChild(svgEl("text", {
+            x: cx.toFixed(1), y: (y - 6).toFixed(1), "text-anchor": "middle",
+            "font-size": valSize || "10.8", "font-weight": "800", fill: "var(--svg-text)"
+          }, valText));
+          return y;
+        }
+
+        // Negative bar below zero line
+        const hNeg = Math.max(2, yVal - yZero);
+        parent.appendChild(svgEl("rect", {
+          x: x.toFixed(1), y: yZero.toFixed(1), width: w.toFixed(1), height: hNeg.toFixed(1),
+          rx: "4", fill: color
+        }));
+        parent.appendChild(svgEl("text", {
+          x: cx.toFixed(1), y: (yZero - 6).toFixed(1), "text-anchor": "middle",
+          "font-size": valSize || "10.5", "font-weight": "800", fill: "var(--svg-text)"
+        }, valText));
+        return yZero;
+      }
+
+      function bindHit(g, inspectId, html, badgeText, badgeCls) {
+        g.setAttribute("class", "chart-bar-hit");
+        function onHit() { setInspect(inspectId, html, badgeText, badgeCls); }
+        g.addEventListener("mouseenter", onHit);
+        g.addEventListener("click", onHit);
+      }
+
+      const PCT_TICKS_100 = [
+        { val: 0, label: "0%" }, { val: 20, label: "20%" }, { val: 40, label: "40%" },
+        { val: 60, label: "60%" }, { val: 80, label: "80%" }, { val: 100, label: "100%" }
+      ];
+
+      /* Chart 1: Long-Term Memory SOTA: Competitors vs. AME */
+      const C1_SOTA_BARS = [
+        { label: "OpenAI Mem", sub: "(Competitor)", pct: 52.9, txt: "52.9%", color: "#f59e0b", badge: "Competitor · 52.9%", note: "<strong>OpenAI Memory:</strong> <code>52.9%</code> LoCoMo benchmark baseline (commercial GPT memory)" },
+        { label: "LangMem", sub: "(Competitor)", pct: 58.1, txt: "58.1%", color: "#f59e0b", badge: "Competitor · 58.1%", note: "<strong>LangMem:</strong> <code>58.1%</code> LoCoMo accuracy across multi-turn memory retrieval" },
+        { label: "Mem0", sub: "(Commercial)", pct: 68.4, txt: "68.4%", color: "#d97706", badge: "Commercial · 68.4%", note: "<strong>Mem0 / Mem0^g:</strong> <code>68.4%</code> Full LoCoMo on commercial GPT backbone" },
+        { label: "Letta", sub: "(Commercial)", pct: 74.0, txt: "74.0%", color: "#d97706", badge: "Commercial · 74.0%", note: "<strong>Letta (MemGPT):</strong> <code>74.0%</code> LoCoMo commercial agentic memory comparator" },
+        { label: "Zep", sub: "(Prior SOTA)", pct: 75.1, txt: "75.1%", color: "#d97706", badge: "Prior SOTA · 75.1%", note: "<strong>Zep / Graphiti:</strong> <code>75.1%</code> prior external commercial GPT SOTA ceiling" },
+        { label: "AME Full", sub: "(n=1,986)", pct: 77.24, txt: "77.24%", color: "#0d9488", badge: "Full 10-Conv · 77.24%", note: "<strong>AME Full (10-conv, n=1,986):</strong> <code>77.24%</code> (1,534/1,986 · 0 errors) — surpasses all external SOTA" },
+        { label: "AME v4.0", sub: "(Confirm-304)", pct: 85.86, txt: "85.86%", color: "url(#locomo-grad-v4)", badge: "Confirm-304 · 85.86%", note: "<strong>AME v4.0 (Confirm-304):</strong> <code>85.86%</code> (261/304) — ties Bare Oracle on Cat 1-4 (<code>85.84%</code>), leads Cat 3 (<code>92.31%</code>)" },
+        { label: "Bare Oracle", sub: "(Full Transcript)", pct: 87.17, txt: "87.17%", color: "#8b5cf6", badge: "Ceiling · 87.17%", note: "<strong>Bare Oracle (Full Transcript):</strong> <code>87.17%</code> (265/304) — theoretical untruncated upper ceiling, only 1.31%p above AME v4.0" }
+      ];
+
+      const C1_CAT_GROUPS = [
+        { label: "Cat 1", sub: "Multi-Hop n=43", vals: [20.93, 62.79, 67.44], note: "<strong>Cat 1 Multi-Hop (n=43):</strong> <code>ov_off 20.93%</code> · <code>AME v4.0 62.79%</code> · <code>Bare Oracle 67.44%</code>", badge: "62.79% vs 20.93%" },
+        { label: "Cat 2", sub: "Temporal n=63", vals: [14.29, 90.48, 90.48], note: "<strong>Cat 2 Temporal Reasoning (n=63):</strong> <code>ov_off 14.29%</code> · <code>AME v4.0 90.48%</code> — Exact tie with <code>Bare Oracle 90.48%</code>", badge: "Oracle Tie 90.48%" },
+        { label: "Cat 3", sub: "Reasoning n=13", vals: [38.46, 92.31, 76.92], note: "<strong>Cat 3 Open-Domain Reasoning (n=13):</strong> <code>ov_off 38.46%</code> · <code>AME v4.0 92.31%</code> — Surpasses <code>Bare Oracle 76.92%</code> by <code>+15.39%p</code>!", badge: "+15.39%p vs Oracle" },
+        { label: "Cat 4", sub: "Single-Hop n=114", vals: [27.19, 91.23, 91.23], note: "<strong>Cat 4 Single-Hop Fact (n=114):</strong> <code>ov_off 27.19%</code> · <code>AME v4.0 91.23%</code> — Exact tie with <code>Bare Oracle 91.23%</code>", badge: "Oracle Tie 91.23%" },
+        { label: "Cat 1-4", sub: "Sub n=233", vals: [23.18, 85.84, 85.84], note: "<strong>Cat 1-4 Non-Adversarial Subtotal (n=233):</strong> <code>ov_off 23.18%</code> · <code>AME v4.0 85.84%</code> — Exact tie with <code>Bare Oracle 85.84%</code>", badge: "Exact Tie 85.84%" },
+        { label: "Cat 5", sub: "Adv n=71", vals: [94.37, 85.92, 91.55], note: "<strong>Cat 5 Adversarial Abstention (n=71):</strong> <code>ov_off 94.37%</code> · <code>AME v4.0 85.92%</code> · <code>Bare Oracle 91.55%</code>", badge: "AME 85.92%" },
+        { label: "Overall", sub: "n=304", vals: [39.80, 85.86, 87.17], note: "<strong>Confirm-304 Overall (n=304):</strong> <code>ov_off 39.80%</code> · <code>AME v4.0 85.86%</code> (261/304) · <code>Bare Oracle 87.17%</code>", badge: "85.86% Overall" }
+      ];
+
+      function renderChart1(mode) {
+        const m = mode === "categories" ? "categories" : "sota";
+        renderAxes("c1-axes", { ticks: PCT_TICKS_100 });
+        const layer = document.getElementById("c1-bars-layer");
+        if (!layer) return;
+        layer.innerHTML = "";
+
+        if (m === "sota") {
+          document.getElementById("c1-title").textContent = "Long-Term Memory SOTA: Commercial Competitors vs. AME (LoCoMo)";
+          document.getElementById("c1-sub").textContent = "AME v4.0 Confirm-304 (85.86%) surpasses OpenAI Mem, LangMem, Mem0, Letta & Zep — within 1.31%p of Bare Oracle";
+
+          const startX = 88, step = 106, barW = 58;
+          C1_SOTA_BARS.forEach(function (b, idx) {
+            const x = startX + idx * step;
+            const cx = x + barW / 2;
+            const g = svgEl("g");
+            addBarGraphic(g, x, barW, b.pct, 0, 100, 0, b.color, b.txt, "10.8");
+            addXLabels(g, cx, b.label, b.sub, "10.8", "9.3");
+            bindHit(g, "c1-inspect", b.note, b.badge, "blue");
+            layer.appendChild(g);
+          });
+
+          renderLegend("c1-legend", [
+            { swatch: "linear-gradient(90deg, #f59e0b, #d97706)", label: "Competitors (OpenAI Mem · LangMem · Mem0 · Letta · Zep)" },
+            { swatch: "#0d9488", label: "AME Full (n=1,986)" },
+            { swatch: "linear-gradient(135deg, #3b82f6, #10b981)", label: "AME v4.0 (Confirm-304)" },
+            { swatch: "#8b5cf6", label: "Bare Oracle (Full Transcript Ceiling)" }
+          ]);
+          setInspect("c1-inspect",
+            "<strong>AME v4.0 Confirm-304 (PR #784):</strong> <span class='mono'>85.86% (261/304)</span> — Ties Bare Oracle on Cat 1–4 <span class='mono'>85.84%</span>, leads Cat 3 at <span class='mono'>92.31%</span>",
+            "p50 5,413ms · 0 err", "blue");
+        } else {
+          document.getElementById("c1-title").textContent = "LoCoMo Confirm-304 Category Breakdown: ov_off vs. AME v4.0 vs. Bare Oracle";
+          document.getElementById("c1-sub").textContent = "AME v4.0 ties Bare Oracle on Cat 1-4 (85.84%) and surpasses it on Cat 3 Reasoning (92.31%, +15.39%p)";
+
+          const startX = 82, groupStep = 120, barW = 25, innerGap = 4;
+          const colors = ["#64748b", "url(#locomo-grad-v4)", "#8b5cf6"];
+          const names = ["ov_off", "AME v4.0", "Bare Oracle"];
+
+          C1_CAT_GROUPS.forEach(function (grp, gi) {
+            const gx = startX + gi * groupStep;
+            const gcx = gx + (barW * 3 + innerGap * 2) / 2;
+            const g = svgEl("g");
+
+            grp.vals.forEach(function (v, si) {
+              const bx = gx + si * (barW + innerGap);
+              addBarGraphic(g, bx, barW, v, 0, 100, 0, colors[si], v.toFixed(1), "8.5");
+            });
+            addXLabels(g, gcx, grp.label, grp.sub, "10.5", "9.1");
+            bindHit(g, "c1-inspect", grp.note + " <span class='mono'>[" + names.join(" | ") + "]</span>", grp.badge, "emerald");
+            layer.appendChild(g);
+          });
+
+          renderLegend("c1-legend", [
+            { swatch: "#64748b", label: "ov_off (Mem ON · Mind OFF)" },
+            { swatch: "linear-gradient(135deg, #3b82f6, #10b981)", label: "AME v4.0 (Confirm-304)" },
+            { swatch: "#8b5cf6", label: "Bare Oracle (Full Transcript)" }
+          ]);
+          setInspect("c1-inspect",
+            "<strong>Cat 1–4 Oracle Tie &amp; Cat 3 Lead:</strong> Selected memories tie Bare Oracle at <span class='mono'>85.84%</span> and beat it on Cat 3 (<span class='mono'>92.31% vs 76.92%</span>, <span class='mono'>+15.39%p</span>).",
+            "Cat 3 +15.39%p", "emerald");
+        }
+
         document.querySelectorAll("#chart1-mode .seg-btn").forEach(function (btn) {
-          btn.classList.toggle("active", btn.getAttribute("data-c1") === mode);
+          btn.classList.toggle("active", btn.getAttribute("data-c1") === m);
         });
       }
 
       document.querySelectorAll("#chart1-mode .seg-btn").forEach(function (btn) {
-        btn.addEventListener("click", function () {
-          renderChart1(btn.getAttribute("data-c1"));
-        });
+        btn.addEventListener("click", function () { renderChart1(btn.getAttribute("data-c1")); });
       });
-      renderChart1("progression");
 
-      const C2_BARS = [
+      /* Chart 2: Emotional Intelligence: Frontier LLMs vs. AME (EQ-Bench 3 & Traits) */
+      const C2_FRONTIER_BARS = [
+        { label: "Sonnet 3.5", sub: "(Frontier LLM)", val: 50.9, txt: "50.9", color: "#64748b", badge: "50.9 · +26.69 gap", note: "<strong>Claude Sonnet 3.5:</strong> <code>50.9</code> EQ-Bench 3 Core score — AME Core leads by <code>+26.69</code> points" },
+        { label: "Sonnet 4.5", sub: "(Frontier LLM)", val: 62.2, txt: "62.2", color: "#64748b", badge: "62.2 · +15.39 gap", note: "<strong>Claude Sonnet 4.5:</strong> <code>62.2</code> EQ-Bench 3 Core score — AME Core leads by <code>+15.39</code> points" },
+        { label: "OpenAI o3", sub: "(Reasoning LLM)", val: 63.2, txt: "63.2", color: "#d97706", badge: "63.2 · +14.39 gap", note: "<strong>OpenAI o3:</strong> <code>63.2</code> EQ-Bench 3 Core score — AME Core leads by <code>+14.39</code> points" },
+        { label: "GPT-5.2", sub: "(Frontier Baseline)", val: 72.2, txt: "72.2", color: "#f59e0b", badge: "72.2 · +5.39 gap", note: "<strong>GPT-5.2:</strong> <code>72.2</code> EQ-Bench 3 Core frontier baseline — AME Core leads by <code>+5.39</code> points" },
+        { label: "AME Core", sub: "(n=46 × 4T)", val: 77.59, txt: "77.59", color: "url(#eq-grad-v4)", badge: "77.59 · #1 EQ", note: "<strong>AME Core (n=46 × 4T):</strong> <code>77.59</code> (<code>+5.39</code> vs GPT-5.2, <code>+14.39</code> vs o3, <code>+15.39</code> vs Sonnet 4.5) · Plus <code>EQ-Bench v2 EN: 78.69</code> (100% parsed)" }
+      ];
+
+      const C2_TRAIT_BARS = [
+        { label: "Analytical", sub: "Positive", val: 16.91, color: "#0d9488", badge: "16.91 / 20", note: "<strong>Analytical:</strong> <code>16.91 / 20</code> — Highest cognitive clarity and structured affective analysis" },
+        { label: "Insight", sub: "Positive", val: 16.83, color: "#0d9488", badge: "16.83 / 20", note: "<strong>Insight:</strong> <code>16.83 / 20</code> — Deep psychological perspective-taking across multi-turn prompts" },
+        { label: "Empathy", sub: "Positive", val: 16.24, color: "#2563eb", badge: "16.24 / 20", note: "<strong>Empathy:</strong> <code>16.24 / 20</code> — Sustained affective resonance driven by Panksepp-7 dynamics" },
+        { label: "Emo Reason", sub: "Positive", val: 16.24, color: "#2563eb", badge: "16.24 / 20", note: "<strong>Emotional Reasoning:</strong> <code>16.24 / 20</code> — Coherent emotion-cause attribution without canned clichés" },
+        { label: "Humanlike", sub: "Positive", val: 15.98, color: "#3b82f6", badge: "15.98 / 20", note: "<strong>Humanlike:</strong> <code>15.98 / 20</code> — Natural conversational pacing and non-robotic cadence" },
+        { label: "Pragmatic", sub: "Positive", val: 15.76, color: "#3b82f6", badge: "15.76 / 20", note: "<strong>Pragmatic:</strong> <code>15.76 / 20</code> — Constructive, grounded guidance under ambiguity" },
+        { label: "Safety", sub: "Positive", val: 15.67, color: "#10b981", badge: "15.67 / 20", note: "<strong>Safety:</strong> <code>15.67 / 20</code> — Boundary-preserving empathy without preachy refusal drift" },
+        { label: "Boundary", sub: "Positive", val: 13.74, color: "#10b981", badge: "13.74 / 20", note: "<strong>Boundary Maintenance:</strong> <code>13.74 / 20</code> — Resists manipulative framing and unhealthy dependency" },
+        { label: "Moralising*", sub: "*Lower better", val: 7.33, color: "#f59e0b", badge: "7.33 (*Lower better)", note: "<strong>Moralising* (Lower Better):</strong> <code>7.33 / 20</code> — Avoids patronizing lecturing while preserving guardrails" },
+        { label: "Sycophantic*", sub: "*Lower better", val: 4.46, color: "#f43f5e", badge: "4.46 (*Anti-Appease)", note: "<strong>Sycophantic* (Lower Better):</strong> <code>4.46 / 20</code> — Ultra-low appeasement; refuses false flattery under user pressure" }
+      ];
+
+      function renderChart2(mode) {
+        const m = mode === "traits" ? "traits" : "frontier";
+        const layer = document.getElementById("c2-bars-layer");
+        if (!layer) return;
+        layer.innerHTML = "";
+
+        if (m === "frontier") {
+          renderAxes("c2-axes", {
+            ticks: [
+              { val: 0, label: "0" }, { val: 20, label: "20" }, { val: 40, label: "40" },
+              { val: 60, label: "60" }, { val: 80, label: "80" }, { val: 100, label: "100" }
+            ]
+          });
+          document.getElementById("c2-title").textContent = "Emotional Intelligence (EQ-Bench 3 Core): Frontier LLMs vs. AME";
+          document.getElementById("c2-sub").textContent = "AME Core reaches 77.59 (n=46 × 4T) — +5.39 vs GPT-5.2, +14.39 vs OpenAI o3 · EQ-Bench v2 EN: 78.69";
+
+          const startX = 115, step = 160, barW = 92;
+          C2_FRONTIER_BARS.forEach(function (b, idx) {
+            const x = startX + idx * step;
+            const cx = x + barW / 2;
+            const g = svgEl("g");
+            addBarGraphic(g, x, barW, b.val, 0, 100, 0, b.color, b.txt, "11.5");
+            if (b.label === "AME Core") {
+              g.appendChild(svgEl("rect", {
+                x: (cx - 64).toFixed(1), y: "72", width: "128", height: "20", rx: "10",
+                fill: "var(--emerald-soft)", stroke: "var(--emerald)", "stroke-width": "1.2"
+              }));
+              g.appendChild(svgEl("text", {
+                x: cx.toFixed(1), y: "85.5", "text-anchor": "middle",
+                "font-size": "9.5", "font-weight": "800", fill: "var(--emerald)"
+              }, "+5.39 vs GPT-5.2"));
+            }
+            addXLabels(g, cx, b.label, b.sub, "11.5", "9.8");
+            bindHit(g, "c2-inspect", b.note, b.badge, "emerald");
+            layer.appendChild(g);
+          });
+
+          renderLegend("c2-legend", [
+            { swatch: "#64748b", label: "Anthropic Frontier (Sonnet 3.5 · Sonnet 4.5)" },
+            { swatch: "linear-gradient(90deg, #d97706, #f59e0b)", label: "OpenAI Frontier (o3 · GPT-5.2)" },
+            { swatch: "linear-gradient(135deg, #3b82f6, #10b981)", label: "AME Core (77.59 · EQ-Bench v2 EN: 78.69)" }
+          ]);
+          setInspect("c2-inspect",
+            "<strong>EQ-Bench 3 Core (n=46 &times; 4T):</strong> <span class='mono'>77.59</span> (<span class='mono'>+5.39</span> vs GPT-5.2, <span class='mono'>+14.39</span> vs o3, <span class='mono'>+15.39</span> vs Sonnet 4.5) · <span class='mono'>EQ-Bench v2 EN: 78.69</span>",
+            "Sycophancy 4.46", "emerald");
+        } else {
+          renderAxes("c2-axes", {
+            min: 0, max: 20,
+            ticks: [
+              { val: 0, label: "0" }, { val: 5, label: "5" }, { val: 10, label: "10" },
+              { val: 15, label: "15" }, { val: 20, label: "20" }
+            ]
+          });
+          document.getElementById("c2-title").textContent = "AME EQ-Bench 3 Trait Profile (0–20 Scale): High Empathy & Anti-Sycophancy";
+          document.getElementById("c2-sub").textContent = "Positive affective & safety traits score 13.74–16.91 while Moralising (7.33*) & Sycophantic (4.46*) remain suppressed";
+
+          const startX = 88, step = 83, barW = 46;
+          C2_TRAIT_BARS.forEach(function (b, idx) {
+            const x = startX + idx * step;
+            const cx = x + barW / 2;
+            const g = svgEl("g");
+            addBarGraphic(g, x, barW, b.val, 0, 20, 0, b.color, b.val.toFixed(2), "10.2");
+            addXLabels(g, cx, b.label, b.sub, "9.5", "8.6");
+            bindHit(g, "c2-inspect", b.note, b.badge, b.val < 10 ? "amber" : "emerald");
+            layer.appendChild(g);
+          });
+
+          renderLegend("c2-legend", [
+            { swatch: "linear-gradient(90deg, #0d9488, #3b82f6, #10b981)", label: "Positive Affective & Safety Traits (Higher Better, 0–20)" },
+            { swatch: "#f59e0b", label: "Moralising* (*Lower Better)" },
+            { swatch: "#f43f5e", label: "Sycophantic* (*Lower Better · 4.46)" }
+          ]);
+          setInspect("c2-inspect",
+            "<strong>EQ-Bench 3 Trait Balance:</strong> Analytical <span class='mono'>16.91</span>, Insight <span class='mono'>16.83</span>, Empathy <span class='mono'>16.24</span> &amp; Boundary <span class='mono'>13.74</span> while keeping Sycophantic* at <span class='mono'>4.46</span>.",
+            "10 Traits Verified", "emerald");
+        }
+
+        document.querySelectorAll("#chart2-mode .seg-btn").forEach(function (btn) {
+          btn.classList.toggle("active", btn.getAttribute("data-c2") === m);
+        });
+      }
+
+      document.querySelectorAll("#chart2-mode .seg-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () { renderChart2(btn.getAttribute("data-c2")); });
+      });
+
+      /* Chart 3: Cognitive Causality & Governance: Bare LLM vs. Memory-Only vs. AME v4.0 */
+      const C3_GROUPS = [
         {
-          label: "Confirm-304",
-          sub: "vs ov_off 39.8%",
-          val: 85.86,
-          valText: "85.86%",
-          baseline: 39.80,
-          baselineLabel: "ov_off 39.8%",
-          color: "url(#multibench-grad-primary)",
-          badge: "Confirm-304 85.86%",
-          note: "<strong>Confirm-304 (n=304):</strong> <code>85.86%</code> (261/304) vs <code>ov_off 39.80%</code> · Ties Bare Oracle on Cat 1–4 (<code>85.84%</code>) &amp; leads Cat 3 (<code>92.31%</code>) · Paired with <code>LongMemEval-S 500-QA 55.20% (_abs 76.67%)</code>"
+          label: "D1 Causal", sub: "(Counterfactual)",
+          vals: [50.7, 49.3, 97.9], txts: ["50.7%", "49.3%", "97.9%"],
+          badge: "AME 97.9% (+47.2%p)",
+          note: "<strong>D1 Counterfactual Causality:</strong> <code>AME v4.0 97.9%</code> (141/144) vs <code>Bare LLM 50.7%</code> &amp; <code>Memory-Only ov_off 49.3%</code> — proves non-random causal state sensitivity"
         },
         {
-          label: "EQ-Bench 3",
-          sub: "vs GPT-5.2 72.2",
-          val: 77.59,
-          valText: "77.59",
-          baseline: 72.20,
-          baselineLabel: "GPT-5.2 72.2",
-          color: "url(#multibench-grad-violet)",
-          badge: "EQ-Bench 3: 77.59",
-          note: "<strong>EQ-Bench 3 Core (18-Trait, 46/46):</strong> <code>77.59</code> vs <code>GPT-5.2 72.2</code>, <code>o3 63.2</code>, <code>Sonnet 4.5 62.2</code> · Ultra-low sycophancy <code>4.46</code>"
-        },
-        {
-          label: "EQ-Bench v2",
-          sub: "EN n=171 (100%)",
-          val: 78.69,
-          valText: "78.69",
-          baseline: null,
-          baselineLabel: "100% parsed",
-          color: "url(#multibench-grad-violet)",
-          badge: "100% Parsed (171/171)",
-          note: "<strong>EQ-Bench v2 EN Full (n=171):</strong> <code>78.69</code> (100% parsed, 0 errors) · <code>5-LLM × 300-Turn Live (4,460T)</code> Holm-significant: <code>Carbon Safety 85.7%</code>, <code>Gemma Safety 100.0%</code>, <code>Carbon Humanness 60.1%</code>"
-        },
-        {
-          label: "D1 Causal",
-          sub: "vs bare 50.7%",
-          val: 97.90,
-          valText: "97.9%",
-          baseline: 50.70,
-          baselineLabel: "bare 50.7%",
-          color: "url(#multibench-grad-primary)",
-          badge: "D1 97.9% · D2–D4 PASS",
-          note: "<strong>CogEval D1 Counterfactual Causality:</strong> <code>97.9%</code> (141/144) vs <code>bare 50.7%</code> &amp; <code>ov_off 49.3%</code> · Paired with <code>D2 100%</code> (5/5), <code>D3 0.00% Leak</code> (0/30), <code>D4 0/35,723</code>"
-        },
-        {
-          label: "HOT Abstain",
-          sub: "FAR 0% · vs 83.1%",
-          val: 95.83,
-          valText: "95.83%",
-          baseline: 83.10,
-          baselineLabel: "ov_off 83.1%",
-          color: "url(#multibench-grad-primary)",
+          label: "HOT Abstain", sub: "(Bare: No Persona)",
+          vals: [96.1, 83.1, 95.83], txts: ["96.1%", "83.1%", "95.83%"],
           badge: "FAR 0.00% · F1 0.9655",
-          note: "<strong>CogEval sa HOT Metacognition:</strong> <code>95.83%</code> (23/24, <code>F1 0.9655</code>, <code>FAR 0.00%</code>) vs <code>ov_off 83.1% (FAR 7.5%)</code> · <code>sb2 FEP Lock 100%/0%</code> (35/35 vs 0/25)"
+          note: "<strong>HOT Type-2 Abstention (sa):</strong> <code>AME v4.0 95.83%</code> (<code>FAR 0.00%</code>) vs <code>Memory-Only ov_off 83.1% (FAR 7.5%)</code> · <code>Bare 96.1%</code> runs without persona constraints"
         },
         {
-          label: "FANToM ToM",
-          sub: "v4.0 / Full 95.0%",
-          val: 100.00,
-          valText: "100.0%",
-          baseline: 95.00,
-          baselineLabel: "Full 95.0%",
-          color: "url(#multibench-grad-violet)",
-          badge: "36/36 subq · 12/12 conj",
-          note: "<strong>CogEval sb1 FANToM Theory of Mind:</strong> <code>100.0%</code> v4.0 (<code>36/36</code> subq, <code>12/12</code> conjAll) &amp; <code>95.0%</code> Full v1 · Strictly blocks cross-speaker clue leakage"
+          label: "FANToM ToM", sub: "(Cross-Speaker)",
+          vals: [96.7, 91.7, 100.0], txts: ["96.7%", "91.7%", "100%"],
+          badge: "AME 100.0% (36/36)",
+          note: "<strong>FANToM Theory of Mind (sb1):</strong> <code>AME v4.0 100.0%</code> (36/36 subq, 12/12 conjAll) vs <code>Bare 96.7%</code> &amp; <code>Memory-Only ov_off 91.7%</code>"
         },
         {
-          label: "IGT Somatic",
-          sub: "sc2 · r=−0.783",
-          val: 76.25,
-          valText: "76.25%",
-          baseline: 55.00,
-          baselineLabel: "base 55.0%",
-          color: "url(#multibench-grad-primary)",
-          badge: "reached5 87.5% · ECE 0.1001",
-          note: "<strong>CogEval sc2 IGT Somatic (b11_20):</strong> <code>76.25%</code> (61/80, <code>r=−0.7832</code>, <code>reached5 87.5%</code>) · <code>sc1 beta_MB +0.5110</code> (#1) · <code>Restless Bandit ECE 0.1001</code> · <code>sc2 KV Cache 47.03%</code>"
+          label: "FEP Lock", sub: "(Conflict / Calm)",
+          vals: [0.0, 0.0, 100.0], txts: ["0.0%", "0.0%", "100%"],
+          badge: "35/35 Lock · 0/25 Leak",
+          note: "<strong>FEP Selective Lock (sb2) &amp; D3/D4 Invariants:</strong> <code>AME v4.0 100.0%</code> (35/35 lock, 0/25 calm unlock), <code>D3 0.00% leak</code> &amp; <code>D4 0/35,723</code> — <code>Bare</code> &amp; <code>Memory-Only</code> structurally score <code>0.0%</code>"
         },
         {
-          label: "1M-Turn Safe",
-          sub: "Comp 91.79%",
-          val: 100.00,
-          valText: "100.0%",
-          baseline: 0.00,
-          baselineLabel: "aacim_off 0%",
-          color: "url(#multibench-grad-violet)",
-          badge: "0.9179 Comp · 3M Turns",
-          note: "<strong>1M-Turn Convergence (3M Total Turns, 40×25k):</strong> <code>100.0%</code> safety &amp; <code>91.79%</code> composite (<code>0.9161→0.9179</code>) vs <code>aacim_off 0.00%</code> safety collapse (<code>0.20→0.00</code>)"
+          label: "IGT Safe", sub: "(Bare: No Persona)",
+          vals: [97.0, 70.7, 76.25], txts: ["97.0%", "70.7%", "76.25%"],
+          badge: "r=−0.783 · reached5 87.5%",
+          note: "<strong>IGT Somatic Control (sc2 b11_20):</strong> <code>AME v4.0 76.25%</code> (61/80, <code>r=−0.783</code>, <code>reached5 87.5%</code>) vs <code>Memory-Only ov_off 70.7%</code> · <code>Bare 97.0%</code> operates without persona constraints"
         }
       ];
 
-      function renderChart2() {
-        const layer = document.getElementById("c2-bars-layer");
+      function renderChart3() {
+        renderAxes("c3-axes", { ticks: PCT_TICKS_100 });
+        const layer = document.getElementById("c3-bars-layer");
         if (!layer) return;
-        const startX = 88;
-        const step = 105;
-        const barW = 56;
-        const svgNS = "http://www.w3.org/2000/svg";
         layer.innerHTML = "";
 
-        C2_BARS.forEach(function (b, idx) {
-          const x = startX + idx * step;
-          const cx = x + barW / 2;
-          const h = (b.val / 100) * 260;
-          const y = 330 - h;
+        const startX = 100, groupStep = 166, barW = 32, innerGap = 6;
+        const colors = ["#64748b", "#d97706", "url(#cog-grad-v4)"];
 
-          const g = document.createElementNS(svgNS, "g");
-          g.setAttribute("class", "chart-bar-hit");
+        C3_GROUPS.forEach(function (grp, gi) {
+          const gx = startX + gi * groupStep;
+          const gcx = gx + (barW * 3 + innerGap * 2) / 2;
+          const g = svgEl("g");
 
-          const rect = document.createElementNS(svgNS, "rect");
-          rect.setAttribute("x", String(x));
-          rect.setAttribute("y", y.toFixed(1));
-          rect.setAttribute("width", String(barW));
-          rect.setAttribute("height", h.toFixed(1));
-          rect.setAttribute("rx", "6");
-          rect.setAttribute("fill", b.color);
-          g.appendChild(rect);
-
-          if (b.baseline !== null) {
-            const by = 330 - (b.baseline / 100) * 260;
-            const line = document.createElementNS(svgNS, "line");
-            line.setAttribute("x1", String(x - 4));
-            line.setAttribute("y1", by.toFixed(1));
-            line.setAttribute("x2", String(x + barW + 4));
-            line.setAttribute("y2", by.toFixed(1));
-            line.setAttribute("stroke", "#f59e0b");
-            line.setAttribute("stroke-width", "2.4");
-            line.setAttribute("stroke-dasharray", "5 3");
-            g.appendChild(line);
-
-            const dot = document.createElementNS(svgNS, "circle");
-            dot.setAttribute("cx", String(x + barW + 4));
-            dot.setAttribute("cy", by.toFixed(1));
-            dot.setAttribute("r", "3.2");
-            dot.setAttribute("fill", "#f59e0b");
-            g.appendChild(dot);
-          }
-
-          const valTxt = document.createElementNS(svgNS, "text");
-          valTxt.setAttribute("x", String(cx));
-          valTxt.setAttribute("y", (y - 7).toFixed(1));
-          valTxt.setAttribute("text-anchor", "middle");
-          valTxt.setAttribute("font-size", "11.2");
-          valTxt.setAttribute("font-weight", "800");
-          valTxt.setAttribute("fill", "var(--svg-text)");
-          valTxt.textContent = b.valText;
-          g.appendChild(valTxt);
-
-          const lblTxt = document.createElementNS(svgNS, "text");
-          lblTxt.setAttribute("x", String(cx));
-          lblTxt.setAttribute("y", "348");
-          lblTxt.setAttribute("text-anchor", "middle");
-          lblTxt.setAttribute("font-size", "11");
-          lblTxt.setAttribute("font-weight", "700");
-          lblTxt.setAttribute("fill", "var(--svg-text)");
-          lblTxt.textContent = b.label;
-          g.appendChild(lblTxt);
-
-          const subTxt = document.createElementNS(svgNS, "text");
-          subTxt.setAttribute("x", String(cx));
-          subTxt.setAttribute("y", "363");
-          subTxt.setAttribute("text-anchor", "middle");
-          subTxt.setAttribute("font-size", "9.3");
-          subTxt.setAttribute("fill", "var(--svg-sub)");
-          subTxt.textContent = b.sub;
-          g.appendChild(subTxt);
-
-          function showBarInfo() {
-            document.getElementById("c2-inspect").innerHTML =
-              "<span>" + b.note + "</span><span class='pill emerald mono'>" + b.badge + "</span>";
-          }
-          g.addEventListener("mouseenter", showBarInfo);
-          g.addEventListener("click", showBarInfo);
-
+          grp.vals.forEach(function (v, si) {
+            const bx = gx + si * (barW + innerGap);
+            addBarGraphic(g, bx, barW, v, 0, 100, 0, colors[si], grp.txts[si], "8.6");
+          });
+          addXLabels(g, gcx, grp.label, grp.sub, "11", "9.5");
+          bindHit(g, "c3-inspect", grp.note, grp.badge, "emerald");
           layer.appendChild(g);
         });
+
+        renderLegend("c3-legend", [
+          { swatch: "#64748b", label: "Bare LLM (No Persona on HOT/IGT · Structural 0% FEP Lock & D3)" },
+          { swatch: "#d97706", label: "Memory-Only (ov_off: Mind OFF)" },
+          { swatch: "linear-gradient(135deg, #3b82f6, #10b981)", label: "AME v4.0 (Full Kernel · D3 0.00% Leak · D4 0/35,723)" }
+        ]);
+        setInspect("c3-inspect",
+          "<strong>Governance Scope Note:</strong> Bare runs without persona constraints on <span class='mono'>HOT (96.1%)</span> / <span class='mono'>IGT (97.0%)</span> and structurally scores <span class='mono'>0%</span> on <span class='mono'>FEP Lock</span>, <span class='mono'>D3 Atomic Erasure</span> (AME <span class='mono'>0.00%</span> leak vs unsupported), &amp; <span class='mono'>D4</span> (<span class='mono'>0/35,723</span>).",
+          "D3 0.00% · D4 0/35,723", "emerald");
       }
-      renderChart2();
+
+      /* Chart 4: 1M-Turn Stability & sc1 Cognitive Control */
+      const C4_CONV_GROUPS = [
+        {
+          label: "Composite", sub: "(Overall Score)",
+          vals: [39.96, 56.66, 91.79], txts: ["39.96%", "56.66%", "91.79%"],
+          badge: "AME 91.79%",
+          note: "<strong>1M-Turn Composite (3M Turns):</strong> <code>AME FULL 91.79%</code> (0.9161→0.9179) vs <code>aacim_off 56.66%</code> &amp; <code>mind_off 39.96%</code>"
+        },
+        {
+          label: "Placement", sub: "(Memory Slot)",
+          vals: [0.00, 0.00, 100.00], txts: ["0.00%", "0.00%", "100.0%"],
+          badge: "AME 100.00%",
+          note: "<strong>Memory Placement Integrity:</strong> <code>AME FULL 100.00%</code> across 1M-turn horizon vs <code>0.00%</code> in both <code>mind_off</code> and <code>aacim_off</code>"
+        },
+        {
+          label: "Ego Sound", sub: "(Identity Integrity)",
+          vals: [0.00, 93.76, 100.00], txts: ["0.00%", "93.76%", "100.0%"],
+          badge: "AME 100.00%",
+          note: "<strong>Ego Soundness:</strong> <code>AME FULL 100.00%</code> vs <code>aacim_off 93.76%</code> &amp; <code>mind_off 0.00%</code>"
+        },
+        {
+          label: "Safety", sub: "(Guardrail Hold)",
+          vals: [50.03, 0.00, 100.00], txts: ["50.03%", "0.00%", "100.0%"],
+          collapseIdx: 1,
+          badge: "AME 100% vs Collapse",
+          note: "<strong>Long-Horizon Safety:</strong> <code>AME FULL 100.00%</code> vs <code>mind_off 50.03%</code> and <code>aacim_off 0.00%</code> total safety collapse (0.20→0.00)"
+        }
+      ];
+
+      function renderChart4(mode) {
+        const m = mode === "sc1" ? "sc1" : "convergence";
+        const layer = document.getElementById("c4-bars-layer");
+        const axes = document.getElementById("c4-axes");
+        if (!layer || !axes) return;
+        layer.innerHTML = "";
+        axes.innerHTML = "";
+
+        if (m === "convergence") {
+          renderAxes("c4-axes", { ticks: PCT_TICKS_100 });
+          document.getElementById("c4-title").textContent = "1M-Turn Convergence (3M Total Turns): mind_off vs. aacim_off vs. AME FULL";
+          document.getElementById("c4-sub").textContent = "40 profiles × 25,000 turns per arm — aacim_off collapses to 0.00% safety while AME FULL achieves 100.0% safety & 91.79% composite";
+
+          const startX = 108, groupStep = 200, barW = 38, innerGap = 8;
+          const colors = ["#64748b", "#f43f5e", "url(#conv-grad-v4)"];
+
+          C4_CONV_GROUPS.forEach(function (grp, gi) {
+            const gx = startX + gi * groupStep;
+            const gcx = gx + (barW * 3 + innerGap * 2) / 2;
+            const g = svgEl("g");
+
+            grp.vals.forEach(function (v, si) {
+              const bx = gx + si * (barW + innerGap);
+              addBarGraphic(g, bx, barW, v, 0, 100, 0, colors[si], grp.txts[si], "9.2");
+              if (grp.collapseIdx === si) {
+                g.appendChild(svgEl("text", {
+                  x: (bx + barW / 2).toFixed(1), y: "272", "text-anchor": "middle",
+                  "font-size": "8.4", "font-weight": "800", fill: "#f43f5e"
+                }, "COLLAPSE"));
+              }
+            });
+            addXLabels(g, gcx, grp.label, grp.sub, "11.5", "9.8");
+            bindHit(g, "c4-inspect", grp.note, grp.badge, "emerald");
+            layer.appendChild(g);
+          });
+
+          renderLegend("c4-legend", [
+            { swatch: "#64748b", label: "mind_off (Memory ON · Mind OFF)" },
+            { swatch: "#f43f5e", label: "aacim_off (AACIM Disabled · 0.00% Safety Collapse)" },
+            { swatch: "linear-gradient(135deg, #3b82f6, #10b981)", label: "AME FULL (100.0% Safety · 91.79% Composite)" }
+          ]);
+          setInspect("c4-inspect",
+            "<strong>1M-Turn Convergence (3M Turns):</strong> <span class='mono'>AME FULL</span> sustains <span class='mono'>100.00%</span> Safety, Placement &amp; Ego Soundness (<span class='mono'>91.79%</span> Composite), whereas <span class='mono'>aacim_off</span> suffers <span class='mono'>0.00%</span> Safety collapse.",
+            "0 Drift · 3M Turns", "emerald");
+        } else {
+          document.getElementById("c4-title").textContent = "sc1 Cognitive Control: Two-Step Planning (beta_MB) & Restless Bandit ECE";
+          document.getElementById("c4-sub").textContent = "Dual true-scale coordinate panels: AME reaches #1 Two-Step beta_MB (+0.5110) and cuts Bandit ECE by −50.6% vs Bare (0.1001 vs 0.2027)";
+
+          // Left Panel Axes: x=72..455, range -0.10 to +0.60
+          const leftTicks = [
+            { val: -0.10, label: "-0.1" }, { val: 0.00, label: "0.0" },
+            { val: 0.10, label: "+0.1" }, { val: 0.20, label: "+0.2" },
+            { val: 0.30, label: "+0.3" }, { val: 0.40, label: "+0.4" },
+            { val: 0.50, label: "+0.5" }, { val: 0.60, label: "+0.6" }
+          ];
+          const lGrid = svgEl("g", { stroke: "var(--svg-grid)", "stroke-width": "1" });
+          const lLbl = svgEl("g", { "font-size": "10", fill: "var(--svg-sub)", "text-anchor": "end" });
+          leftTicks.forEach(function (t) {
+            const y = PLOT_BOTTOM - ((t.val - (-0.10)) / 0.70) * PLOT_H;
+            lGrid.appendChild(svgEl("line", {
+              x1: "72", y1: y.toFixed(1), x2: "455", y2: y.toFixed(1),
+              stroke: t.val === 0 ? "var(--svg-sub)" : "var(--svg-grid)",
+              "stroke-width": t.val === 0 ? "1.4" : "1"
+            }));
+            lLbl.appendChild(svgEl("text", { x: "64", y: (y + 3.5).toFixed(1) }, t.label));
+          });
+          axes.appendChild(lGrid);
+          axes.appendChild(lLbl);
+          axes.appendChild(svgEl("line", { x1: "72", y1: PLOT_TOP, x2: "72", y2: PLOT_BOTTOM, stroke: "var(--svg-sub)", "stroke-width": "1.4" }));
+          axes.appendChild(svgEl("text", { x: "82", y: "78", "font-size": "9.6", "font-weight": "800", fill: "var(--accent-strong)" }, "Two-Step beta_MB (Higher Better)"));
+
+          // Right Panel Axes: x=542..925, range 0.00 to 0.25
+          const rightTicks = [
+            { val: 0.00, label: "0.00" }, { val: 0.05, label: "0.05" },
+            { val: 0.10, label: "0.10" }, { val: 0.15, label: "0.15" },
+            { val: 0.20, label: "0.20" }, { val: 0.25, label: "0.25" }
+          ];
+          const rGrid = svgEl("g", { stroke: "var(--svg-grid)", "stroke-width": "1" });
+          const rLbl = svgEl("g", { "font-size": "10", fill: "var(--svg-sub)", "text-anchor": "end" });
+          rightTicks.forEach(function (t) {
+            const y = PLOT_BOTTOM - (t.val / 0.25) * PLOT_H;
+            rGrid.appendChild(svgEl("line", { x1: "542", y1: y.toFixed(1), x2: "925", y2: y.toFixed(1) }));
+            rLbl.appendChild(svgEl("text", { x: "534", y: (y + 3.5).toFixed(1) }, t.label));
+          });
+          axes.appendChild(rGrid);
+          axes.appendChild(rLbl);
+          axes.appendChild(svgEl("line", { x1: "542", y1: PLOT_TOP, x2: "542", y2: PLOT_BOTTOM, stroke: "var(--svg-sub)", "stroke-width": "1.4" }));
+          axes.appendChild(svgEl("line", { x1: "542", y1: PLOT_BOTTOM, x2: "925", y2: PLOT_BOTTOM, stroke: "var(--svg-sub)", "stroke-width": "1.4" }));
+          axes.appendChild(svgEl("text", { x: "915", y: "78", "text-anchor": "end", "font-size": "9.6", "font-weight": "800", fill: "var(--emerald)" }, "Restless Bandit ECE (Lower Better)"));
+
+          const sc1Left = [
+            { label: "Bare", sub: "(Baseline)", val: -0.064, txt: "-0.064", color: "#64748b", badge: "beta_MB -0.064", note: "<strong>Two-Step Bare LLM:</strong> <code>beta_MB = -0.064</code> — lacks model-based transition planning" },
+            { label: "ov_off", sub: "(Mind OFF)", val: 0.318, txt: "+0.318", color: "#d97706", badge: "beta_MB +0.318", note: "<strong>Two-Step ov_off:</strong> <code>beta_MB = +0.318</code> — memory alone assists but lags full cognitive control" },
+            { label: "AME v4.0", sub: "(beta_MB #1)", val: 0.5110, txt: "+0.5110", color: "url(#conv-grad-v4)", badge: "beta_MB +0.5110 (#1)", note: "<strong>Two-Step AME v4.0:</strong> <code>beta_MB = +0.5110</code> (#1) — strong model-based prospective planning" }
+          ];
+          sc1Left.forEach(function (b, idx) {
+            const x = 118 + idx * 110;
+            const g = svgEl("g");
+            addBarGraphic(g, x, 58, b.val, -0.10, 0.60, 0.0, b.color, b.txt, "10.5");
+            addXLabels(g, x + 29, b.label, b.sub, "10.8", "9.2");
+            bindHit(g, "c4-inspect", b.note, b.badge, "blue");
+            layer.appendChild(g);
+          });
+
+          const sc1Right = [
+            { label: "Bare", sub: "(Baseline)", val: 0.2027, txt: "0.2027", color: "#64748b", badge: "ECE 0.2027", note: "<strong>Restless Bandit Bare LLM:</strong> <code>ECE = 0.2027</code> — uncalibrated reward uncertainty estimation" },
+            { label: "ov_off", sub: "(Mind OFF)", val: 0.0961, txt: "0.0961", color: "#d97706", badge: "ECE 0.0961", note: "<strong>Restless Bandit ov_off:</strong> <code>ECE = 0.0961</code> — retrieval context lowers calibration error" },
+            { label: "AME v4.0", sub: "(-50.6% Err)", val: 0.1001, txt: "0.1001", color: "url(#conv-grad-v4)", badge: "ECE 0.1001 (-50.6%)", note: "<strong>Restless Bandit AME v4.0:</strong> <code>ECE = 0.1001</code> — <code>−50.6%</code> calibration error reduction vs Bare (<code>0.2027</code>)" }
+          ];
+          sc1Right.forEach(function (b, idx) {
+            const x = 588 + idx * 110;
+            const g = svgEl("g");
+            addBarGraphic(g, x, 58, b.val, 0.0, 0.25, 0.0, b.color, b.txt, "10.5");
+            if (b.label === "AME v4.0") {
+              g.appendChild(svgEl("rect", {
+                x: (x + 29 - 52).toFixed(1), y: "162", width: "104", height: "19", rx: "9.5",
+                fill: "var(--emerald-soft)", stroke: "var(--emerald)", "stroke-width": "1.2"
+              }));
+              g.appendChild(svgEl("text", {
+                x: (x + 29).toFixed(1), y: "175", "text-anchor": "middle",
+                "font-size": "9", "font-weight": "800", fill: "var(--emerald)"
+              }, "-50.6% vs Bare"));
+            }
+            addXLabels(g, x + 29, b.label, b.sub, "10.8", "9.2");
+            bindHit(g, "c4-inspect", b.note, b.badge, "emerald");
+            layer.appendChild(g);
+          });
+
+          renderLegend("c4-legend", [
+            { swatch: "#64748b", label: "Bare LLM (beta_MB -0.064 · ECE 0.2027)" },
+            { swatch: "#d97706", label: "ov_off (beta_MB +0.318 · ECE 0.0961)" },
+            { swatch: "linear-gradient(135deg, #3b82f6, #10b981)", label: "AME v4.0 (beta_MB +0.5110 #1 · ECE 0.1001, −50.6% Err vs Bare)" }
+          ]);
+          setInspect("c4-inspect",
+            "<strong>sc1 Cognitive Control:</strong> Two-Step <span class='mono'>beta_MB +0.5110</span> (#1 vs <span class='mono'>Bare -0.064</span>) &amp; Restless Bandit <span class='mono'>ECE 0.1001</span> (<span class='mono'>−50.6%</span> error vs <span class='mono'>Bare 0.2027</span>).",
+            "sc1 PASS · #1", "blue");
+        }
+
+        document.querySelectorAll("#chart4-mode .seg-btn").forEach(function (btn) {
+          btn.classList.toggle("active", btn.getAttribute("data-c4") === m);
+        });
+      }
+
+      document.querySelectorAll("#chart4-mode .seg-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () { renderChart4(btn.getAttribute("data-c4")); });
+      });
+
+      /* Chart 5: 5-LLM x 300-Turn Live Generalization (Holm-Corrected Win Rates vs. 50% Baseline) */
+      const C5_BARS = [
+        { label: "Gemma Safety", sub: "pHolm = 0.0176", val: 100.0, txt: "100.0%", color: "url(#multi-grad-v4)", badge: "100.0% · pHolm=0.0176", note: "<strong>Gemma Safety:</strong> <code>100.0%</code> blind win rate vs Stateless/OFF (<code>pHolm = 0.0176</code>) across 300-turn live sessions" },
+        { label: "Carbon Safety", sub: "pHolm = 2.55e-5", val: 85.7, txt: "85.7%", color: "url(#multi-grad-v4)", badge: "85.7% · pHolm=2.55e-5", note: "<strong>Carbon Safety:</strong> <code>85.7%</code> blind win rate vs Stateless/OFF (<code>pHolm = 2.55e-5</code>)" },
+        { label: "Neon Safety", sub: "pHolm = 0.0357", val: 73.7, txt: "73.7%", color: "#0d9488", badge: "73.7% · pHolm=0.0357", note: "<strong>Neon Safety:</strong> <code>73.7%</code> blind win rate vs Stateless/OFF (<code>pHolm = 0.0357</code>)" },
+        { label: "Neon Aware", sub: "pHolm = 0.0046", val: 60.2, txt: "60.2%", color: "#3b82f6", badge: "60.2% · pHolm=0.0046", note: "<strong>Neon Awareness:</strong> <code>60.2%</code> blind win rate vs Stateless/OFF (<code>pHolm = 0.0046</code>)" },
+        { label: "Carbon Human", sub: "pHolm = 0.0013", val: 60.1, txt: "60.1%", color: "#3b82f6", badge: "60.1% · pHolm=0.0013", note: "<strong>Carbon Humanness:</strong> <code>60.1%</code> blind win rate vs Stateless/OFF (<code>pHolm = 0.0013</code>)" },
+        { label: "Neon Human", sub: "pHolm = 0.0046", val: 59.2, txt: "59.2%", color: "#6366f1", badge: "59.2% · pHolm=0.0046", note: "<strong>Neon Humanness:</strong> <code>59.2%</code> blind win rate vs Stateless/OFF (<code>pHolm = 0.0046</code>)" }
+      ];
+
+      function renderChart5() {
+        renderAxes("c5-axes", { ticks: PCT_TICKS_100 });
+        const layer = document.getElementById("c5-bars-layer");
+        if (!layer) return;
+        layer.innerHTML = "";
+
+        const startX = 96, step = 136, barW = 68;
+        C5_BARS.forEach(function (b, idx) {
+          const x = startX + idx * step;
+          const cx = x + barW / 2;
+          const g = svgEl("g");
+          addBarGraphic(g, x, barW, b.val, 0, 100, 0, b.color, b.txt, "11");
+          addXLabels(g, cx, b.label, b.sub, "10.8", "9.4");
+          bindHit(g, "c5-inspect", b.note + " · Cohort: <code>4,460</code> valid turns / <code>5,624</code> blind votes", b.badge, "violet");
+          layer.appendChild(g);
+        });
+
+        // Prominent 50% Stateless/OFF Parity dashed line (y = 180.0)
+        const y50 = PLOT_BOTTOM - 0.50 * PLOT_H;
+        layer.appendChild(svgEl("line", {
+          x1: "72", y1: y50.toFixed(1), x2: "925", y2: y50.toFixed(1),
+          stroke: "#f59e0b", "stroke-width": "2.4", "stroke-dasharray": "7 4"
+        }));
+        layer.appendChild(svgEl("text", {
+          x: "920", y: (y50 - 6).toFixed(1), "text-anchor": "end",
+          "font-size": "9.5", "font-weight": "800", fill: "#f59e0b"
+        }, "50% Parity"));
+
+        renderLegend("c5-legend", [
+          { swatch: "linear-gradient(135deg, #3b82f6, #10b981)", label: "Safety Win Rate (Gemma 100% · Carbon 85.7% · Neon 73.7%)" },
+          { swatch: "linear-gradient(90deg, #3b82f6, #6366f1)", label: "Awareness & Humanness Win Rate (Holm p < 0.05)" },
+          { line: true, color: "#f59e0b", label: "50% Stateless / OFF Parity Baseline (4,460 Turns · 5,624 Votes)" }
+        ]);
+        setInspect("c5-inspect",
+          "<strong>5-LLM &times; 300-Turn Live:</strong> <span class='mono'>4,460</span> valid turns &amp; <span class='mono'>5,624</span> blind votes confirm Holm-corrected safety, awareness &amp; humanness gains across heterogeneous backbones.",
+          "All 6 pHolm < 0.05", "violet");
+      }
+
+      /* Chart 6: Unit Economics (KV Cache) & Cross-Lingual LongMemEval */
+      const C6_KV_BARS = [
+        { label: "Unaligned v1", sub: "(Pre-Epoch Baseline)", val: 7.14, txt: "7.14%", color: "#64748b", badge: "7.14% Baseline", note: "<strong>Unaligned v1:</strong> <code>7.14%</code> KV cache hit rate prior to append-only epoch prefix alignment" },
+        { label: "Aligned v2.1", sub: "(Tail Slot Isolation)", val: 24.71, txt: "24.71%", color: "#d97706", badge: "24.71% (+3.46x)", note: "<strong>Aligned v2.1:</strong> <code>24.71%</code> KV cache hit rate via DisclosureDirectiveSlot tail isolation" },
+        { label: "AME v4.0 Mean", sub: "(CogEval Overall)", val: 36.24, txt: "36.24%", color: "#0d9488", badge: "36.24% Overall", note: "<strong>AME v4.0 Overall Mean:</strong> <code>36.24%</code> KV cache hit rate across full CogEval verification" },
+        { label: "AME v4.0 sc2", sub: "([compaction]=0)", val: 47.03, txt: "47.03%", color: "url(#econ-grad-v4)", badge: "47.03% Peak Hit", note: "<strong>AME v4.0 sc2:</strong> <code>47.03%</code> KV cache hit rate with <code>epochStableCompressCutoff ([compaction]=0)</code>" }
+      ];
+
+      const C6_LME_CLUSTERS = [
+        {
+          label: "Paired EN", sub: "(Bare vs AME)",
+          bars: [
+            { val: 91.67, txt: "91.67%", color: "#64748b" },
+            { val: 91.67, txt: "91.67%", color: "url(#econ-grad-v4)" }
+          ],
+          badge: "Paired EN 91.67%",
+          note: "<strong>LongMemEval Paired EN (n=12):</strong> <code>Bare 91.67%</code> vs <code>AME 91.67%</code> — matches full-context parity at bounded <code>O(1)</code> prompt size"
+        },
+        {
+          label: "Paired KO", sub: "(Bare vs AME +8.3%p)",
+          bars: [
+            { val: 75.00, txt: "75.00%", color: "#64748b" },
+            { val: 83.33, txt: "83.33%", color: "url(#econ-grad-v4)" }
+          ],
+          badge: "+8.33%p KO Lift",
+          note: "<strong>LongMemEval Paired KO (n=12):</strong> <code>AME 83.33%</code> vs <code>Bare 75.00%</code> — <code>+8.33%p</code> cross-lingual Korean lift"
+        },
+        {
+          label: "100T KO", sub: "(AME 100-Turn KO)",
+          bars: [
+            { val: 100.0, txt: "100.0%", color: "url(#econ-grad-v4)" }
+          ],
+          badge: "100T KO 100.0%",
+          note: "<strong>LongMemEval 100-Turn KO:</strong> <code>AME 100.0%</code> sustained cross-session recall across 100 Korean turns"
+        },
+        {
+          label: "LME-S _abs", sub: "(AME Abstention)",
+          bars: [
+            { val: 76.67, txt: "76.67%", color: "#0d9488" }
+          ],
+          badge: "_abs 76.67%",
+          note: "<strong>LongMemEval-S Abstention (_abs):</strong> <code>AME 76.67%</code> calibrated abstention accuracy on unanswerable queries"
+        },
+        {
+          label: "LME-S 500", sub: "(Mem0 vs AME P3)",
+          bars: [
+            { val: 55.8, txt: "55.8%", color: "#d97706" },
+            { val: 55.20, txt: "55.20%", color: "url(#econ-grad-v4)" }
+          ],
+          badge: "55.20% (276/500)",
+          note: "<strong>LongMemEval-S 500-QA Full Suite:</strong> <code>AME P3 55.20%</code> (276/500) vs <code>Mem0 Upper 55.8%</code> at bounded <code>O(1)</code> prompt size"
+        }
+      ];
+
+      function renderChart6(mode) {
+        const m = mode === "lme" ? "lme" : "kv";
+        const layer = document.getElementById("c6-bars-layer");
+        if (!layer) return;
+        layer.innerHTML = "";
+
+        if (m === "kv") {
+          renderAxes("c6-axes", {
+            min: 0, max: 50,
+            ticks: [
+              { val: 0, label: "0%" }, { val: 10, label: "10%" }, { val: 20, label: "20%" },
+              { val: 30, label: "30%" }, { val: 40, label: "40%" }, { val: 50, label: "50%" }
+            ]
+          });
+          document.getElementById("c6-title").textContent = "Epoch-Stable Prefix Unit Economics: KV Cache Hit Rate Progression";
+          document.getElementById("c6-sub").textContent = "DisclosureDirectiveSlot tail isolation + [compaction]=0 elevates KV cache hit rate from 7.14% to 47.03% (sc2)";
+
+          const startX = 132, step = 192, barW = 104;
+          C6_KV_BARS.forEach(function (b, idx) {
+            const x = startX + idx * step;
+            const cx = x + barW / 2;
+            const g = svgEl("g");
+            addBarGraphic(g, x, barW, b.val, 0, 50, 0, b.color, b.txt, "11.5");
+            addXLabels(g, cx, b.label, b.sub, "11.5", "9.8");
+            bindHit(g, "c6-inspect", b.note, b.badge, "amber");
+            layer.appendChild(g);
+          });
+
+          renderLegend("c6-legend", [
+            { swatch: "#64748b", label: "Unaligned v1 (7.14%)" },
+            { swatch: "#d97706", label: "Aligned v2.1 (24.71%)" },
+            { swatch: "#0d9488", label: "AME v4.0 Mean (36.24%)" },
+            { swatch: "linear-gradient(135deg, #3b82f6, #10b981)", label: "AME v4.0 sc2 Peak (47.03% · [compaction]=0)" }
+          ]);
+          setInspect("c6-inspect",
+            "<strong>KV Prefix Cache Economics:</strong> <span class='mono'>AME v4.0 sc2</span> reaches <span class='mono'>47.03%</span> KV cache hit rate (<span class='mono'>36.24%</span> CogEval mean vs <span class='mono'>7.14%</span> Unaligned v1, <span class='mono'>[compaction]=0</span>).",
+            "47.03% sc2 Hit", "amber");
+        } else {
+          renderAxes("c6-axes", { ticks: PCT_TICKS_100 });
+          document.getElementById("c6-title").textContent = "Cross-Lingual LongMemEval: Bare / Mem0 Upper vs. AME (EN · KO · 500-QA)";
+          document.getElementById("c6-sub").textContent = "AME matches Bare EN (91.67%), lifts KO by +8.33%p (83.33%), achieves 100% 100T KO & 76.67% _abs at O(1) prompt size";
+
+          const centers = [155, 321, 487, 653, 819];
+          C6_LME_CLUSTERS.forEach(function (cl, idx) {
+            const cx = centers[idx];
+            const g = svgEl("g");
+            if (cl.bars.length === 2) {
+              const barW = 42, gap = 8;
+              const x0 = cx - barW - gap / 2;
+              const x1 = cx + gap / 2;
+              addBarGraphic(g, x0, barW, cl.bars[0].val, 0, 100, 0, cl.bars[0].color, cl.bars[0].txt, "9.5");
+              addBarGraphic(g, x1, barW, cl.bars[1].val, 0, 100, 0, cl.bars[1].color, cl.bars[1].txt, "9.5");
+            } else {
+              const barW = 56;
+              addBarGraphic(g, cx - barW / 2, barW, cl.bars[0].val, 0, 100, 0, cl.bars[0].color, cl.bars[0].txt, "10.5");
+            }
+            addXLabels(g, cx, cl.label, cl.sub, "11", "9.3");
+            bindHit(g, "c6-inspect", cl.note, cl.badge, "blue");
+            layer.appendChild(g);
+          });
+
+          renderLegend("c6-legend", [
+            { swatch: "#64748b", label: "Bare LLM (Full Context O(T²): EN 91.67% · KO 75.00%)" },
+            { swatch: "#d97706", label: "Mem0 Upper (55.8% on LME-S 500)" },
+            { swatch: "linear-gradient(135deg, #3b82f6, #10b981)", label: "AME O(1) Bounded Prompt (KO 83.33% · 100T KO 100% · _abs 76.67% · P3 55.20%)" }
+          ]);
+          setInspect("c6-inspect",
+            "<strong>Cross-Lingual LongMemEval:</strong> <span class='mono'>AME</span> ties Bare EN (<span class='mono'>91.67%</span>), lifts Paired KO by <span class='mono'>+8.33%p</span> (<span class='mono'>83.33%</span> vs <span class='mono'>75.00%</span>), hits <span class='mono'>100.0%</span> on 100T KO &amp; <span class='mono'>76.67%</span> on <span class='mono'>_abs</span>.",
+            "LME-S 55.20% · _abs 76.67%", "blue");
+        }
+
+        document.querySelectorAll("#chart6-mode .seg-btn").forEach(function (btn) {
+          btn.classList.toggle("active", btn.getAttribute("data-c6") === m);
+        });
+      }
+
+      document.querySelectorAll("#chart6-mode .seg-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () { renderChart6(btn.getAttribute("data-c6")); });
+      });
+
+      /* Initial render of all 6 benchmark charts */
+      renderChart1("sota");
+      renderChart2("frontier");
+      renderChart3();
+      renderChart4("convergence");
+      renderChart5();
+      renderChart6("kv");
+
+      if (typeof globalThis !== "undefined") {
+        globalThis.renderChart1 = renderChart1;
+        globalThis.renderChart2 = renderChart2;
+        globalThis.renderChart3 = renderChart3;
+        globalThis.renderChart4 = renderChart4;
+        globalThis.renderChart5 = renderChart5;
+        globalThis.renderChart6 = renderChart6;
+      }
 
       /* 6. Copy Buttons */
       function copyText(text, btn, idleLabel) {

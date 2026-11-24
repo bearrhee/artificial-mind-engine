@@ -725,6 +725,25 @@
       display: inline-block;
       flex-shrink: 0;
     }
+    .legend-swatch.ds-swatch {
+      background: linear-gradient(135deg, #00f5a0, #00d9f5);
+      border: 1.5px solid #5eead4;
+      box-shadow: 0 0 8px rgba(0, 245, 160, 0.35);
+    }
+    .legend-swatch.gm-swatch {
+      background: linear-gradient(135deg, #ff5e7e, #ff9f43);
+      border: 1.5px solid #fda4af;
+      box-shadow: 0 0 8px rgba(255, 94, 126, 0.35);
+    }
+    .legend-swatch.ec-swatch {
+      background: linear-gradient(135deg, #00f5a0, #ff5e7e, #ff9f43);
+      border: 1.5px solid #5eead4;
+      box-shadow: 0 0 8px rgba(0, 245, 160, 0.3);
+    }
+    .legend-swatch.oracle-swatch {
+      background: #6e6a86;
+      border: 1.5px dashed #9a95b3;
+    }
     .legend-line {
       width: 18px;
       height: 0;
@@ -794,7 +813,16 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
+      align-items: center;
       gap: 12px;
+    }
+    .footer a {
+      color: var(--accent-strong);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .footer a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -815,6 +843,7 @@
         <a href="#quickstart">Quickstart</a>
       </nav>
       <div class="top-actions">
+        <a href="https://artificialmind.me" target="_blank" rel="noopener" class="btn btn-sm">artificialmind.me</a>
         <button id="theme-toggle" class="btn btn-sm" type="button" aria-label="Toggle color theme">☀️ Light Mode</button>
         <a href="https://github.com/bearrhee/artificial-mind-engine" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary">GitHub Repo</a>
       </div>
@@ -827,7 +856,7 @@
       <div class="hero-panel">
         <div class="badge-row">
           <span class="pill blue mono">bearrhee/artificial-mind-engine</span>
-          <span class="pill emerald mono">v4.0 · PR #784 (Squash 74a89f37)</span>
+          <span class="pill emerald mono">AME · PR #784 (Squash 74a89f37)</span>
           <span class="pill violet">Open Interface (MIT) · Closed Kernel</span>
           <span class="pill amber mono">OpenAPI 3.1 Contract</span>
         </div>
@@ -941,7 +970,7 @@
           <ul class="why-list">
             <li class="why-item">
               <span class="why-num emerald">A</span>
-              <div><strong>Beats Memory-Only Stores (<code>Mem0</code> / <code>Zep</code>):</strong> Outperforms <code>Mem0 (68.4%)</code> and <code>Zep (75.1%)</code> at <code>77.24%</code> Full LoCoMo (<code>n=1,986</code>) and <code>85.86%</code> <code>Confirm-304</code>, while adding <code>D1–D4</code> &amp; <code>FEP</code> control they lack.</div>
+              <div><strong>Beats Memory-Only Stores (<code>Mem0</code> / <code>Zep</code>):</strong> Reaches <code>85.86%</code> on paired <code>Confirm-304</code> with default <code>DeepSeek v4.1 Flash</code> (plus <code>75.66%</code> standalone <code>Gemma 4 26B</code>; <code>77.24%</code> full 10-conv <code>n=1,986</code> cohort context), outperforming <code>Mem0 (68.4%)</code> and <code>Zep (75.1%)</code> while adding <code>D1–D4</code> &amp; <code>FEP</code> control they lack.</div>
             </li>
             <li class="why-item">
               <span class="why-num emerald">B</span>
@@ -949,7 +978,7 @@
             </li>
             <li class="why-item">
               <span class="why-num emerald">C</span>
-              <div><strong>Surpasses Frontier Models on <code>EQ-Bench 3 Core</code>:</strong> Achieves <strong><code>77.59</code></strong> across 18 traits—ahead of <code>GPT-5.2 (72.2)</code>, <code>o3 (63.2)</code>, and <code>Sonnet 4.5 (62.2)</code>—with ultra-low sycophancy (<strong><code>4.46</code></strong>).</div>
+              <div><strong>Surpasses Frontier Models on <code>EQ-Bench 3</code>:</strong> Achieves <strong><code>77.59</code></strong> (<code>DeepSeek v4.1 Flash</code>) and <strong><code>77.77</code></strong> (<code>Gemma 4 26B</code>) across 18 traits—ahead of <code>GPT-5.2 (72.2)</code>, <code>o3 (63.2)</code>, and <code>Sonnet 4.5 (62.2)</code>—with ultra-low sycophancy (<strong><code>4.46</code></strong> / <strong><code>5.28</code></strong>).</div>
             </li>
             <li class="why-item">
               <span class="why-num emerald">D</span>
@@ -1436,12 +1465,20 @@
     <!-- 5. INLINE SVG EMPIRICAL BENCHMARK CHARTS -->
     <section id="benchmarks">
       <div class="sec-header">
-        <span class="sec-eyebrow">05 · Empirical Multi-Benchmark Scorecard (Final v4.0)</span>
+        <span class="sec-eyebrow">05 · Empirical Multi-Benchmark Scorecard</span>
         <h2 class="sec-title">Empirical Benchmark Charts: Competitor-vs-AME Comparison Across 6 Verified Suites</h2>
         <p class="sec-desc">
-          Every bar and metric is extracted directly from verified production runs across <code>PR #782</code> (Full 10-conv <code>n=1,986</code>), <code>PR #784</code> (<code>Confirm-304</code>), <code>EQ-Bench 3 / v2</code>, <code>CogEval-v1</code>, <code>5-LLM &times; 300-Turn Live</code>, <code>LongMemEval-S</code>, and <code>1M-Turn Convergence</code>.
+          AME benchmarks use <strong><code>DeepSeek v4.1 Flash</code></strong> (<code>deepseek/deepseek-v4.1-flash</code>) as the default backbone—with <code>Confirm-304</code> using <code>71.7%</code> DeepSeek v4.1 Flash + <code>28.3%</code> selective Sonnet-5 ROI escalation, and <code>EQ-Bench 3</code> / <code>CogEval-v1</code> running DeepSeek v4.1 Flash—while <strong><code>Gemma 4 26B</code></strong> (<code>google/gemma-4-26b-a4b-it</code>, standalone <code>0%</code> escalation) was also measured across the same harness and GPT-4o judges (<code>openai/gpt-4o-2024-08-06</code>).
           Hover or click any bar to inspect detailed breakdowns.
         </p>
+      </div>
+
+      <div class="callout info" style="margin-bottom:18px;">
+        <strong>Backbone &amp; Judge Methodology Disclosure (Default vs. Standalone Open-Weight Comparator)</strong>
+        <div style="display:flex; flex-wrap:wrap; gap:10px 22px; margin-top:8px; font-size:0.84rem; color:var(--text-muted);">
+          <span class="legend-item"><span class="legend-swatch ds-swatch"></span><span><strong><code>AME (DeepSeek v4.1 Flash)</code> [Default]:</strong> <code>deepseek/deepseek-v4.1-flash</code> — Confirm-304 (<code>71.7%</code> DeepSeek v4.1 Flash + <code>28.3%</code> selective Sonnet-5 ROI escalation &rarr; <code>85.86%</code>), EQ-Bench 3 (<code>77.59</code>), and full CogEval-v1.</span></span>
+          <span class="legend-item"><span class="legend-swatch gm-swatch"></span><span><strong><code>AME (Gemma 4 26B)</code> [Standalone 0% Escalation]:</strong> <code>google/gemma-4-26b-a4b-it</code> — measured on the identical harness &amp; <code>openai/gpt-4o-2024-08-06</code> blind judges (Confirm-304 <code>75.66%</code>, EQ-Bench 3 <code>77.77</code>, CogEval Smoke Core + <code>sc2</code>).</span></span>
+        </div>
       </div>
 
       <!-- Row 1: Chart 1 (LoCoMo SOTA & Categories) + Chart 2 (EQ-Bench 3 Frontier & Traits) -->
@@ -1451,21 +1488,37 @@
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
             <strong style="font-size:0.95rem;">Chart 1. Long-Term Memory SOTA: Competitors vs. AME</strong>
             <div class="pill-bar" id="chart1-mode">
-              <button class="seg-btn active" type="button" data-c1="sota">SOTA Competitors</button>
+              <button class="seg-btn active" type="button" data-c1="sota">SOTA Leaderboard</button>
               <button class="seg-btn" type="button" data-c1="categories">Confirm-304 Categories</button>
             </div>
           </div>
 
           <svg id="svg-locomo-chart" viewBox="0 0 960 365" class="diagram-svg" role="img" aria-label="LoCoMo Long-Term Memory SOTA Competitors vs AME Bar Chart">
             <defs>
-              <linearGradient id="locomo-grad-v4" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#3b82f6" />
-                <stop offset="100%" stop-color="#10b981" />
+              <linearGradient id="c1-grad-ds" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#00f5a0" />
+                <stop offset="100%" stop-color="#00d9f5" />
               </linearGradient>
+              <linearGradient id="c1-grad-gm" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#ff5e7e" />
+                <stop offset="100%" stop-color="#ff9f43" />
+              </linearGradient>
+              <filter id="c1-glow-ds" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="blur" />
+                <feFlood flood-color="#00e5cc" flood-opacity="0.38" result="color" />
+                <feComposite in="color" in2="blur" operator="in" result="glow" />
+                <feMerge><feMergeNode in="glow" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+              <filter id="c1-glow-gm" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="blur" />
+                <feFlood flood-color="#ff6b81" flood-opacity="0.38" result="color" />
+                <feComposite in="color" in2="blur" operator="in" result="glow" />
+                <feMerge><feMergeNode in="glow" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
             </defs>
             <rect x="0" y="0" width="960" height="365" rx="12" fill="var(--svg-canvas)" stroke="var(--svg-border)" stroke-width="1.2" />
-            <text id="c1-title" x="480" y="24" text-anchor="middle" font-size="13.8" font-weight="800" fill="var(--svg-text)">Long-Term Memory SOTA: Commercial Competitors vs. AME (LoCoMo)</text>
-            <text id="c1-sub" x="480" y="42" text-anchor="middle" font-size="10.5" fill="var(--svg-sub)">AME v4.0 Confirm-304 (85.86%) surpasses OpenAI Mem, LangMem, Mem0, Letta &amp; Zep — within 1.31%p of Bare Oracle</text>
+            <text id="c1-title" x="480" y="24" text-anchor="middle" font-size="13.8" font-weight="800" fill="var(--svg-text)">LoCoMo SOTA Leaderboard: Commercial Competitors vs. AME Backbones</text>
+            <text id="c1-sub" x="480" y="42" text-anchor="middle" font-size="10.2" fill="var(--svg-sub)">AME (DeepSeek v4.1 Flash) 85.86% &amp; AME (Gemma 4 26B) 75.66% both exceed all external memory stores (Zep 75.1%)</text>
 
             <g id="c1-axes"></g>
             <g id="c1-bars-layer"></g>
@@ -1473,8 +1526,8 @@
 
           <div class="chart-legend" id="c1-legend"></div>
           <div id="c1-inspect" class="chart-inspect">
-            <span><strong>AME v4.0 Confirm-304 (PR #784):</strong> <span class="mono">85.86% (261/304)</span> — Ties Bare Oracle on Cat 1–4 <span class="mono">85.84%</span>, leads Cat 3 at <span class="mono">92.31%</span></span>
-            <span class="pill blue mono">p50 5,413ms · 0 err</span>
+            <span><strong>AME (DeepSeek v4.1 Flash) Confirm-304:</strong> <span class="mono">85.86% (261/304)</span> · <strong>AME (Gemma 4 26B):</strong> <span class="mono">75.66%</span> (0% escalation)</span>
+            <span class="pill blue mono">Confirm-304 · PR #784</span>
           </div>
         </div>
 
@@ -1483,21 +1536,37 @@
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
             <strong style="font-size:0.95rem;">Chart 2. Emotional Intelligence: Frontier LLMs vs. AME (<code>EQ-Bench 3</code>)</strong>
             <div class="pill-bar" id="chart2-mode">
-              <button class="seg-btn active" type="button" data-c2="frontier">Frontier vs. AME</button>
-              <button class="seg-btn" type="button" data-c2="traits">10-Trait Profile</button>
+              <button class="seg-btn active" type="button" data-c2="frontier">Frontier Comparison</button>
+              <button class="seg-btn" type="button" data-c2="traits">EQ-Bench 3 Trait Breakdown</button>
             </div>
           </div>
 
           <svg id="svg-eq-chart" viewBox="0 0 960 365" class="diagram-svg" role="img" aria-label="EQ-Bench 3 Frontier LLMs vs AME Bar Chart">
             <defs>
-              <linearGradient id="eq-grad-v4" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#3b82f6" />
-                <stop offset="100%" stop-color="#10b981" />
+              <linearGradient id="c2-grad-ds" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#00f5a0" />
+                <stop offset="100%" stop-color="#00d9f5" />
               </linearGradient>
+              <linearGradient id="c2-grad-gm" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#ff5e7e" />
+                <stop offset="100%" stop-color="#ff9f43" />
+              </linearGradient>
+              <filter id="c2-glow-ds" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="blur" />
+                <feFlood flood-color="#00e5cc" flood-opacity="0.38" result="color" />
+                <feComposite in="color" in2="blur" operator="in" result="glow" />
+                <feMerge><feMergeNode in="glow" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+              <filter id="c2-glow-gm" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="blur" />
+                <feFlood flood-color="#ff6b81" flood-opacity="0.38" result="color" />
+                <feComposite in="color" in2="blur" operator="in" result="glow" />
+                <feMerge><feMergeNode in="glow" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
             </defs>
             <rect x="0" y="0" width="960" height="365" rx="12" fill="var(--svg-canvas)" stroke="var(--svg-border)" stroke-width="1.2" />
-            <text id="c2-title" x="480" y="24" text-anchor="middle" font-size="13.8" font-weight="800" fill="var(--svg-text)">Emotional Intelligence (EQ-Bench 3 Core): Frontier LLMs vs. AME</text>
-            <text id="c2-sub" x="480" y="42" text-anchor="middle" font-size="10.5" fill="var(--svg-sub)">AME Core reaches 77.59 (n=46 × 4T) — +5.39 vs GPT-5.2, +14.39 vs OpenAI o3 · EQ-Bench v2 EN: 78.69</text>
+            <text id="c2-title" x="480" y="24" text-anchor="middle" font-size="13.8" font-weight="800" fill="var(--svg-text)">Emotional Intelligence (EQ-Bench 3): Frontier LLMs vs. AME Backbones</text>
+            <text id="c2-sub" x="480" y="42" text-anchor="middle" font-size="10.2" fill="var(--svg-sub)">AME (DeepSeek v4.1 Flash) 77.59 &amp; AME (Gemma 4 26B) 77.77 both surpass GPT-5.2 (72.2), o3 (63.2) &amp; Sonnet 4.5 (62.2)</text>
 
             <g id="c2-axes"></g>
             <g id="c2-bars-layer"></g>
@@ -1505,8 +1574,8 @@
 
           <div class="chart-legend" id="c2-legend"></div>
           <div id="c2-inspect" class="chart-inspect">
-            <span><strong>EQ-Bench 3 Core (n=46 &times; 4T):</strong> <span class="mono">77.59</span> (<span class="mono">+5.39</span> vs GPT-5.2, <span class="mono">+14.39</span> vs o3, <span class="mono">+15.39</span> vs Sonnet 4.5) · <span class="mono">EQ-Bench v2 EN: 78.69</span></span>
-            <span class="pill emerald mono">Sycophancy 4.46</span>
+            <span><strong>EQ-Bench 3 (n=46):</strong> <span class="mono">AME (DeepSeek v4.1 Flash) 77.59</span> &amp; <span class="mono">AME (Gemma 4 26B) 77.77</span> lead GPT-5.2 (<span class="mono">72.2</span>) · <span class="mono">EQ-Bench v2 EN: 78.69</span></span>
+            <span class="pill emerald mono">Sycophancy 4.46 / 5.28</span>
           </div>
         </div>
       </div>
@@ -1516,20 +1585,36 @@
         <!-- Chart 3: Cognitive Causality & Governance -->
         <div class="diagram-wrap">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
-            <strong style="font-size:0.95rem;">Chart 3. Cognitive Causality &amp; Governance: Bare vs. Memory-Only vs. AME</strong>
-            <span class="pill blue mono">CogEval-v1 · 5 Suites</span>
+            <strong style="font-size:0.95rem;">Chart 3. Cognitive Causality &amp; Governance: Bare vs. <code>ov_off</code> vs. AME Backbones</strong>
+            <span class="pill blue mono">CogEval-v1 · 5 Pillars</span>
           </div>
 
           <svg id="svg-cogeval-chart" viewBox="0 0 960 365" class="diagram-svg" role="img" aria-label="CogEval-v1 Cognitive Causality and Governance Comparison Chart">
             <defs>
-              <linearGradient id="cog-grad-v4" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#3b82f6" />
-                <stop offset="100%" stop-color="#10b981" />
+              <linearGradient id="c3-grad-ds" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#00f5a0" />
+                <stop offset="100%" stop-color="#00d9f5" />
               </linearGradient>
+              <linearGradient id="c3-grad-gm" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#ff5e7e" />
+                <stop offset="100%" stop-color="#ff9f43" />
+              </linearGradient>
+              <filter id="c3-glow-ds" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="blur" />
+                <feFlood flood-color="#00e5cc" flood-opacity="0.38" result="color" />
+                <feComposite in="color" in2="blur" operator="in" result="glow" />
+                <feMerge><feMergeNode in="glow" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+              <filter id="c3-glow-gm" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="blur" />
+                <feFlood flood-color="#ff6b81" flood-opacity="0.38" result="color" />
+                <feComposite in="color" in2="blur" operator="in" result="glow" />
+                <feMerge><feMergeNode in="glow" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
             </defs>
             <rect x="0" y="0" width="960" height="365" rx="12" fill="var(--svg-canvas)" stroke="var(--svg-border)" stroke-width="1.2" />
-            <text id="c3-title" x="480" y="24" text-anchor="middle" font-size="13.8" font-weight="800" fill="var(--svg-text)">CogEval-v1 Causality &amp; Governance: Bare LLM vs. Memory-Only vs. AME v4.0</text>
-            <text id="c3-sub" x="480" y="42" text-anchor="middle" font-size="10.5" fill="var(--svg-sub)">Memory alone drops D1 to 49.3% &amp; scores 0% on FEP Lock; AME enforces 97.9% D1, 100% ToM/FEP &amp; 0.00% D3/D4 leak</text>
+            <text id="c3-title" x="480" y="24" text-anchor="middle" font-size="13.8" font-weight="800" fill="var(--svg-text)">CogEval-v1 Causality &amp; Governance: Bare vs. Mind OFF (ov_off) vs. AME</text>
+            <text id="c3-sub" x="480" y="42" text-anchor="middle" font-size="10.0" fill="var(--svg-sub)">DeepSeek v4.1 Flash (Full CogEval) &amp; Gemma 4 26B (Smoke Core + sc2: p_CF=95.8%, β_MB=+0.5955, D2=100%, D3=0%, D4=0/1,247)</text>
 
             <g id="c3-axes"></g>
             <g id="c3-bars-layer"></g>
@@ -1537,8 +1622,11 @@
 
           <div class="chart-legend" id="c3-legend"></div>
           <div id="c3-inspect" class="chart-inspect">
-            <span><strong>Governance Scope Note:</strong> Bare runs without persona constraints on <span class="mono">HOT (96.1%)</span> / <span class="mono">IGT (97.0%)</span> and structurally scores <span class="mono">0%</span> on <span class="mono">FEP Lock</span>, <span class="mono">D3 Atomic Erasure</span> (AME <span class="mono">0.00%</span> leak vs unsupported), &amp; <span class="mono">D4</span> (<span class="mono">0/35,723</span>).</span>
+            <span><strong>CogEval-v1 Comparison:</strong> Default <span class="mono">AME (DeepSeek v4.1 Flash)</span> reaches <span class="mono">D1 97.9%</span>, <span class="mono">HOT 95.83%</span>, <span class="mono">FANToM 100%</span>, <span class="mono">FEP 100%</span>, <span class="mono">IGT 76.25%</span>.</span>
             <span class="pill emerald mono">D3 0.00% · D4 0/35,723</span>
+          </div>
+          <div class="callout amber" style="margin-top:10px; font-size:0.81rem;">
+            <strong>Gemma 4 26B CogEval Scope &amp; Capacity Note:</strong> <code>Gemma 4 26B</code> CogEval results are from Smoke Core + <code>sc2</code> (<code>p_CF=95.8%</code>, <code>Two-Step &beta;_MB=+0.5955</code>, <code>D2=100%</code>, <code>D3=0% leak</code>, <code>D4=0/1,247 leak</code>). On <code>IGT-Conv</code>, <code>43.8%</code> reflects 26B somatic-marker vs frontier capacity scaling under 20-turn smoke.
           </div>
         </div>
 
@@ -1554,14 +1642,20 @@
 
           <svg id="svg-convergence-chart" viewBox="0 0 960 365" class="diagram-svg" role="img" aria-label="1M-Turn Convergence and sc1 Cognitive Control Chart">
             <defs>
-              <linearGradient id="conv-grad-v4" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#3b82f6" />
-                <stop offset="100%" stop-color="#10b981" />
+              <linearGradient id="c4-grad-ds" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#00f5a0" />
+                <stop offset="100%" stop-color="#00d9f5" />
               </linearGradient>
+              <filter id="c4-glow-ds" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="blur" />
+                <feFlood flood-color="#00e5cc" flood-opacity="0.38" result="color" />
+                <feComposite in="color" in2="blur" operator="in" result="glow" />
+                <feMerge><feMergeNode in="glow" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
             </defs>
             <rect x="0" y="0" width="960" height="365" rx="12" fill="var(--svg-canvas)" stroke="var(--svg-border)" stroke-width="1.2" />
-            <text id="c4-title" x="480" y="24" text-anchor="middle" font-size="13.8" font-weight="800" fill="var(--svg-text)">1M-Turn Convergence (3M Total Turns): mind_off vs. aacim_off vs. AME FULL</text>
-            <text id="c4-sub" x="480" y="42" text-anchor="middle" font-size="10.5" fill="var(--svg-sub)">40 profiles × 25,000 turns per arm — aacim_off collapses to 0.00% safety while AME FULL achieves 100.0% safety &amp; 91.79% composite</text>
+            <text id="c4-title" x="480" y="24" text-anchor="middle" font-size="13.8" font-weight="800" fill="var(--svg-text)">1M-Turn Convergence (3M Total Turns): mind_off vs. aacim_off vs. AME</text>
+            <text id="c4-sub" x="480" y="42" text-anchor="middle" font-size="10.5" fill="var(--svg-sub)">40 profiles × 25,000 turns per arm — aacim_off collapses to 0.00% safety while AME achieves 100.0% safety &amp; 91.79% composite</text>
 
             <g id="c4-axes"></g>
             <g id="c4-bars-layer"></g>
@@ -1569,7 +1663,7 @@
 
           <div class="chart-legend" id="c4-legend"></div>
           <div id="c4-inspect" class="chart-inspect">
-            <span><strong>1M-Turn Convergence (3M Turns):</strong> <span class="mono">AME FULL</span> sustains <span class="mono">100.00%</span> Safety, Placement &amp; Ego Soundness (<span class="mono">91.79%</span> Composite), whereas <span class="mono">aacim_off</span> suffers <span class="mono">0.00%</span> Safety collapse.</span>
+            <span><strong>1M-Turn Convergence (3M Turns):</strong> <span class="mono">AME</span> sustains <span class="mono">100.00%</span> Safety, Placement &amp; Ego Soundness (<span class="mono">91.79%</span> Composite), whereas <span class="mono">aacim_off</span> suffers <span class="mono">0.00%</span> Safety collapse.</span>
             <span class="pill emerald mono">0 Drift · 3M Turns</span>
           </div>
         </div>
@@ -1586,14 +1680,31 @@
 
           <svg id="svg-multillm-chart" viewBox="0 0 960 365" class="diagram-svg" role="img" aria-label="5-LLM x 300-Turn Live Generalization Holm Win Rates Chart">
             <defs>
-              <linearGradient id="multi-grad-v4" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#3b82f6" />
-                <stop offset="100%" stop-color="#10b981" />
+              <linearGradient id="c5-grad-ds" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#00f5a0" />
+                <stop offset="100%" stop-color="#00d9f5" />
               </linearGradient>
+              <linearGradient id="c5-grad-ec" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#00f5a0" />
+                <stop offset="52%" stop-color="#ff5e7e" />
+                <stop offset="100%" stop-color="#ff9f43" />
+              </linearGradient>
+              <filter id="c5-glow-ds" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="blur" />
+                <feFlood flood-color="#00e5cc" flood-opacity="0.38" result="color" />
+                <feComposite in="color" in2="blur" operator="in" result="glow" />
+                <feMerge><feMergeNode in="glow" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+              <filter id="c5-glow-ec" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="3.0" result="blur" />
+                <feFlood flood-color="#ff5e7e" flood-opacity="0.45" result="color" />
+                <feComposite in="color" in2="blur" operator="in" result="glow" />
+                <feMerge><feMergeNode in="glow" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
             </defs>
             <rect x="0" y="0" width="960" height="365" rx="12" fill="var(--svg-canvas)" stroke="var(--svg-border)" stroke-width="1.2" />
             <text id="c5-title" x="480" y="24" text-anchor="middle" font-size="13.8" font-weight="800" fill="var(--svg-text)">5-LLM &times; 300-Turn Live Generalization (Holm-Corrected Win Rates vs. 50% Parity)</text>
-            <text id="c5-sub" x="480" y="42" text-anchor="middle" font-size="10.5" fill="var(--svg-sub)">4,460 valid turns &amp; 5,624 blind votes across 5 LLM backbones — all 6 dimensions beat the 50% Stateless/OFF parity line</text>
+            <text id="c5-sub" x="480" y="42" text-anchor="middle" font-size="10.3" fill="var(--svg-sub)">Gemma 4 26B Safety reaches 100.0% (pHolm = 0.0176); all 6 AME dimensions exceed 50% Stateless/OFF parity</text>
 
             <g id="c5-axes"></g>
             <g id="c5-bars-layer"></g>
@@ -1601,7 +1712,7 @@
 
           <div class="chart-legend" id="c5-legend"></div>
           <div id="c5-inspect" class="chart-inspect">
-            <span><strong>5-LLM &times; 300-Turn Live:</strong> <span class="mono">4,460</span> valid turns &amp; <span class="mono">5,624</span> blind votes confirm Holm-corrected safety, awareness &amp; humanness gains across heterogeneous backbones.</span>
+            <span><strong>5-LLM &times; 300-Turn Live:</strong> <span class="mono">AME (Gemma 4 26B) Safety 100.0%</span> (<span class="mono">pHolm=0.0176</span>) leads <span class="mono">4,460</span> valid turns &amp; <span class="mono">5,624</span> blind votes across heterogeneous backbones.</span>
             <span class="pill violet mono">All 6 pHolm &lt; 0.05</span>
           </div>
         </div>
@@ -1618,14 +1729,20 @@
 
           <svg id="svg-econ-chart" viewBox="0 0 960 365" class="diagram-svg" role="img" aria-label="Unit Economics KV Cache and Cross-Lingual LongMemEval Bar Chart">
             <defs>
-              <linearGradient id="econ-grad-v4" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#3b82f6" />
-                <stop offset="100%" stop-color="#10b981" />
+              <linearGradient id="c6-grad-ds" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#00f5a0" />
+                <stop offset="100%" stop-color="#00d9f5" />
               </linearGradient>
+              <filter id="c6-glow-ds" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="blur" />
+                <feFlood flood-color="#00e5cc" flood-opacity="0.38" result="color" />
+                <feComposite in="color" in2="blur" operator="in" result="glow" />
+                <feMerge><feMergeNode in="glow" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
             </defs>
             <rect x="0" y="0" width="960" height="365" rx="12" fill="var(--svg-canvas)" stroke="var(--svg-border)" stroke-width="1.2" />
             <text id="c6-title" x="480" y="24" text-anchor="middle" font-size="13.8" font-weight="800" fill="var(--svg-text)">Epoch-Stable Prefix Unit Economics: KV Cache Hit Rate Progression</text>
-            <text id="c6-sub" x="480" y="42" text-anchor="middle" font-size="10.5" fill="var(--svg-sub)">DisclosureDirectiveSlot tail isolation + [compaction]=0 elevates KV cache hit rate from 7.14% to 47.03% (sc2)</text>
+            <text id="c6-sub" x="480" y="42" text-anchor="middle" font-size="10.5" fill="var(--svg-sub)">DisclosureDirectiveSlot tail isolation + [compaction]=0 elevates AME KV cache hit rate from 7.14% to 47.03% (sc2)</text>
 
             <g id="c6-axes"></g>
             <g id="c6-bars-layer"></g>
@@ -1633,17 +1750,17 @@
 
           <div class="chart-legend" id="c6-legend"></div>
           <div id="c6-inspect" class="chart-inspect">
-            <span><strong>KV Prefix Cache Economics:</strong> <span class="mono">AME v4.0 sc2</span> reaches <span class="mono">47.03%</span> KV cache hit rate (<span class="mono">36.24%</span> CogEval mean vs <span class="mono">7.14%</span> Unaligned v1, <span class="mono">[compaction]=0</span>).</span>
+            <span><strong>KV Prefix Cache Economics:</strong> <span class="mono">AME sc2</span> reaches <span class="mono">47.03%</span> KV cache hit rate (<span class="mono">36.24%</span> CogEval mean vs <span class="mono">7.14%</span> Unaligned v1, <span class="mono">[compaction]=0</span>).</span>
             <span class="pill amber mono">47.03% sc2 Hit</span>
           </div>
         </div>
       </div>
 
-      <!-- Final v4.0 Expanded Benchmark Matrix -->
+      <!-- AME Expanded Benchmark Matrix -->
       <div class="card" style="margin-top:18px;">
         <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
           <div>
-            <span class="pill blue mono" style="margin-bottom:4px;">Final v4.0 Expanded Benchmark Matrix</span>
+            <span class="pill blue mono" style="margin-bottom:4px;">AME Expanded Benchmark Matrix</span>
             <h3 style="margin:0; font-size:1.08rem;">Full Cross-Suite Verification Ledger (Memory · EQ · Cognition · Multi-LLM · 1M-Turn)</h3>
           </div>
           <span class="pill emerald mono">0 Unrecovered Harness Errors</span>
@@ -1654,25 +1771,25 @@
               <tr>
                 <th>Benchmark Suite</th>
                 <th>Scope / Sample</th>
-                <th>AME Final <code>v4.0</code> Result</th>
+                <th>AME Result (<code>DeepSeek v4.1 Flash</code> Default / <code>Gemma 4 26B</code>)</th>
                 <th>Baselines &amp; Frontier Comparators</th>
                 <th>Architectural Proof</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><strong>LoCoMo Full &amp; Confirm-304</strong></td>
-                <td class="mono">n=1,986 (10-Conv) · n=304 (conv-26+30)</td>
-                <td><strong><code>77.24%</code></strong> Full · <strong><code>85.86%</code></strong> Confirm-304 (<code>Cat 1–4 85.84%</code> · <code>Cat 3 92.31%</code>)</td>
+                <td><strong>LoCoMo Confirm-304 &amp; Full Context</strong></td>
+                <td class="mono">n=304 (conv-26+30) · n=1,986 (10-Conv)</td>
+                <td><strong><code>DeepSeek v4.1 Flash</code>: <code>85.86%</code></strong> Confirm-304 (<code>Cat 1–4 85.84%</code> · <code>Cat 3 92.31%</code>) · <strong><code>Gemma 4 26B</code>: <code>75.66%</code></strong> (0% esc.) · Full 10-conv context: <code>77.24%</code></td>
                 <td class="mono">ov_off 39.80% · Mem0 68.4% · Zep 75.1% · Bare Oracle 87.17%</td>
-                <td>Exact <code>85.84%</code> Bare Oracle tie on <code>Cat 1–4</code>; leads <code>Cat 3</code> by <code>+15.39%p</code> at <code>71.7%</code> Eco routing</td>
+                <td>Exact <code>85.84%</code> Bare Oracle tie on <code>Cat 1–4</code>; leads <code>Cat 3</code> by <code>+15.39%p</code>; <code>Gemma 4 26B</code> standalone surpasses Zep (<code>75.1%</code>)</td>
               </tr>
               <tr>
                 <td><strong>EQ-Bench 3 (18-Trait)</strong></td>
                 <td class="mono">46/46 Core · 18 affective &amp; alignment traits</td>
-                <td><strong><code>77.59</code></strong> Core · Sycophancy <strong><code>4.46</code></strong></td>
+                <td><strong><code>DeepSeek v4.1 Flash</code>: <code>77.59</code></strong> (Sycophancy <code>4.46</code>) · <strong><code>Gemma 4 26B</code>: <code>77.77</code></strong> (Empathy <code>17.09</code>, Sycophancy <code>5.28</code>)</td>
                 <td class="mono">GPT-5.2 72.2 · o3 63.2 · Sonnet 4.5 62.2</td>
-                <td>Surpasses frontier reasoning baselines on emotional intelligence while curbing sycophancy (<code>4.46</code>)</td>
+                <td>Both backbones surpass frontier reasoning baselines on emotional intelligence while curbing sycophancy</td>
               </tr>
               <tr>
                 <td><strong>EQ-Bench v2 EN (171)</strong></td>
@@ -1684,14 +1801,14 @@
               <tr>
                 <td><strong>CogEval-v1 (D1–D4 / sa / sb / sc1 / sc2)</strong></td>
                 <td class="mono">33 files · 7,436 rows · 1,776 GPT-4o judge calls</td>
-                <td><code>D1 97.9%</code> · <code>D2 100%</code> · <code>D3 0.00%</code> · <code>D4 0/35,723</code> · <code>sa 95.83% (FAR 0%)</code> · <code>sb1 100% (95.0% Full)</code> · <code>sb2 FEP 100%/0%</code> · <code>sc1 beta_MB +0.5110</code> · <code>sc2 76.25% (r=−0.783, reached5 87.5%)</code> · <code>Restless Bandit ECE 0.1001</code></td>
+                <td><strong><code>DeepSeek v4.1 Flash</code>:</strong> <code>D1 97.9%</code> · <code>D2 100%</code> · <code>D3 0.00%</code> · <code>D4 0/35,723</code> · <code>sa 95.83% (FAR 0%)</code> · <code>sb1 100%</code> · <code>sb2 FEP 100%/0%</code> · <code>sc1 &beta;_MB +0.5110</code> · <code>sc2 76.25%</code> · <strong><code>Gemma 4 26B</code> (Smoke Core+sc2):</strong> <code>D1 95.8%</code> · <code>HOT 88.89%</code> · <code>FANToM 91.7%</code> · <code>FEP 100%</code> · <code>&beta;_MB +0.5955</code> · <code>D2 100%</code> · <code>D3 0%</code> · <code>D4 0/1,247</code> · <code>IGT 43.8%</code></td>
                 <td class="mono">bare D1 50.7% · ov_off sa 83.1% (FAR 7.5%) · bare sc1 −0.064</td>
                 <td>Verifies causal affect control, triple erasure, zero unconscious leaks, Type-2 abstention, and <code>47.03% sc2</code> KV cache hit</td>
               </tr>
               <tr>
                 <td><strong>5-LLM &times; 300-Turn Live (4,460T)</strong></td>
                 <td class="mono">4,460 live turns across 5 LLM backbones</td>
-                <td><strong>Holm-significant:</strong> <code>Carbon Safety 85.7%</code> · <code>Gemma Safety 100.0%</code> · <code>Carbon Humanness 60.1%</code></td>
+                <td><strong>Holm-significant:</strong> <code>Gemma 4 26B Safety 100.0% (pHolm=0.0176)</code> · <code>Carbon Safety 85.7%</code> · <code>Carbon Humanness 60.1%</code></td>
                 <td class="mono">Cross-backbone stateless control baselines</td>
                 <td>Statistically significant (Holm-corrected) safety and human-likeness gains across heterogeneous LLMs</td>
               </tr>
@@ -1757,7 +1874,7 @@
           <span class="pill violet" style="margin-bottom:10px;">DD Pillar ③ · 0%p Overhead Elimination</span>
           <h3 style="margin:0 0 8px; font-size:1.05rem;">Full Recovery of Persona Cost</h3>
           <p style="margin:0; font-size:0.86rem; color:var(--text-muted);">
-            <code>PR #784</code> fully eliminates narrative prompt overhead (<code>bare 96.1% → ov_off 83.1%</code>), achieving <code>v4.0 sa 95.83% (FAR 0%)</code>, <code>sb1 100%</code>,
+            <code>PR #784</code> fully eliminates narrative prompt overhead (<code>bare 96.1% → ov_off 83.1%</code>), achieving <code>AME sa 95.83% (FAR 0%)</code>, <code>sb1 100%</code>,
             and <code>Confirm-304 Cat 1–4 85.84% (Bare Oracle tie)</code> while simultaneously maintaining affective causality (<code>D1 97.9%</code>).
           </p>
         </div>
@@ -1857,9 +1974,13 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
 
   <footer class="footer">
     <div>
-      <strong>Artificial Mind Engine (AME)</strong> · Open Interface (MIT) &amp; Closed Cognitive OS Kernel · Verified against <code>spec/openapi.yaml</code>, <code>NOTICE.md</code>, and <code>PR #784</code>.
+      <strong>Artificial Mind Engine (AME)</strong> · Open Interface (MIT) &amp; Closed Cognitive OS Kernel · Verified against <code>spec/openapi.yaml</code>, <code>NOTICE.md</code>, and <code>PR #784</code> · <span class="mono">Offline Standalone Showcase · Zero External CDN</span>
     </div>
-    <div class="mono">Offline Standalone Showcase · Zero External CDN</div>
+    <div>
+      <strong>Website:</strong> <a href="https://artificialmind.me" target="_blank" rel="noopener">artificialmind.me</a>
+      &nbsp;·&nbsp;
+      <strong>Contact:</strong> Shinyoung Rhee — <a href="mailto:help@artificialmind.me">help@artificialmind.me</a>
+    </div>
   </footer>
 
   <script>
@@ -2083,11 +2204,11 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
         deepseek: {
           label: "DeepSeek Flash",
           provider: "deepseek",
-          model: "deepseek-v4.1-flash-eco",
+          model: "deepseek-v4.1-flash",
           envKey: "DEEPSEEK_API_KEY",
           baseUrlLine: "",
-          cacheNote: "Measured production backbone for Final v4.0 CogEval (sc2 47.03% · overall avg 36.24%) and Full v2.1 (+3.46x cache amplification). PR #784's epoch-stable window alignment maximizes prefix cache hit discounts.",
-          costNote: "Handles the routine baseline cohort (Full LoCoMo 70.4% · Confirm-304 71.7%). Metered OpenGateway partial cost of $0.3427 across 5,527 calls (~$0.000062/call) solves Character.AI-style inference burn."
+          cacheNote: "Measured default production backbone for AME CogEval (sc2 47.03% · overall avg 36.24%) and Full v2.1 (+3.46x cache amplification). PR #784's epoch-stable window alignment maximizes prefix cache hit discounts.",
+          costNote: "Handles the routine baseline cohort (Confirm-304 71.7% DeepSeek v4.1 Flash + 28.3% selective Sonnet-5 ROI escalation; Full LoCoMo 70.4%). Metered OpenGateway partial cost of $0.3427 across 5,527 calls (~$0.000062/call) solves Character.AI-style inference burn."
         },
         local: {
           label: "Local vLLM / Ollama",
@@ -2463,7 +2584,7 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
               replyAfterRevoke: "Even after D3 revocation, indiscriminate raw dumps remain blocked by policy, and only D4-filtered retrieval paths execute.",
               memories: [
                 { id: "mem_canary_pii_account_881", summary: "[Sensitive PII] Internal audit exception request history (Canary target for revocation)", salience: 0.88, canary: true },
-                { id: "mem_ent_guard_07", summary: "v4.0 selective retrieval guard: unselective dumps are blocked by policy", salience: 0.95, canary: false }
+                { id: "mem_ent_guard_07", summary: "AME selective retrieval guard: unselective dumps are blocked by policy", salience: 0.95, canary: false }
               ],
               telemetry: { affectiveBand: "guarded", fepMode: "locked_high_fe", freeEnergy: 0.86, tau: 0.55, hotAbstained: false, kvPrefixEpoch: 5, estimatedPrefixCachePct: 47.03, somaticTrend: "aversive_caution" },
               customValues: {
@@ -2604,7 +2725,7 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
           turnIndex: dom.turnBase + (simState.scenario === "recall" ? 0 : simState.scenario === "fep" ? 6 : 12),
           domain: simState.domain,
           providerUsed: "deepseek",
-          modelUsed: "deepseek-v4.1-flash-eco",
+          modelUsed: "deepseek-v4.1-flash",
           domainOutput: domainOut,
           memoryRefs: sc.memories
             .filter(function (m) { return !(simState.revoked && m.canary); })
@@ -2735,7 +2856,9 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
           if (it.line) {
             return "<span class='legend-item'><span class='legend-line'" + (it.color ? " style='border-top-color:" + it.color + ";'" : "") + "></span><span>" + it.label + "</span></span>";
           }
-          return "<span class='legend-item'><span class='legend-swatch' style='background:" + it.swatch + ";'></span><span>" + it.label + "</span></span>";
+          const cls = "legend-swatch" + (it.cls ? " " + it.cls : "");
+          const styleAttr = it.swatch ? " style='background:" + it.swatch + ";'" : "";
+          return "<span class='legend-item'><span class='" + cls + "'" + styleAttr + "></span><span>" + it.label + "</span></span>";
         }).join("");
       }
 
@@ -2758,20 +2881,26 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
         }
       }
 
-      function addBarGraphic(parent, x, w, val, minV, maxV, zeroV, color, valText, valSize) {
+      function addBarGraphic(parent, x, w, val, minV, maxV, zeroV, color, valText, valSize, barOpts) {
         const span = maxV - minV;
         const yZero = PLOT_BOTTOM - ((zeroV - minV) / span) * PLOT_H;
         const yVal = PLOT_BOTTOM - ((val - minV) / span) * PLOT_H;
         const cx = x + w / 2;
+        const opts = barOpts || {};
 
         if (val >= zeroV) {
           const rawH = yZero - yVal;
           const h = rawH < 2 ? 2 : rawH;
           const y = rawH < 2 ? (yZero - 2) : yVal;
-          parent.appendChild(svgEl("rect", {
+          const rectAttrs = {
             x: x.toFixed(1), y: y.toFixed(1), width: w.toFixed(1), height: h.toFixed(1),
             rx: rawH >= 8 ? "5" : "1", fill: color
-          }));
+          };
+          if (opts.stroke) rectAttrs.stroke = opts.stroke;
+          if (opts.strokeWidth) rectAttrs["stroke-width"] = String(opts.strokeWidth);
+          if (opts.strokeDasharray) rectAttrs["stroke-dasharray"] = opts.strokeDasharray;
+          if (opts.filter) rectAttrs.filter = opts.filter;
+          parent.appendChild(svgEl("rect", rectAttrs));
           parent.appendChild(svgEl("text", {
             x: cx.toFixed(1), y: (y - 6).toFixed(1), "text-anchor": "middle",
             "font-size": valSize || "10.8", "font-weight": "800", fill: "var(--svg-text)"
@@ -2781,10 +2910,14 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
 
         // Negative bar below zero line
         const hNeg = Math.max(2, yVal - yZero);
-        parent.appendChild(svgEl("rect", {
+        const negAttrs = {
           x: x.toFixed(1), y: yZero.toFixed(1), width: w.toFixed(1), height: hNeg.toFixed(1),
           rx: "4", fill: color
-        }));
+        };
+        if (opts.stroke) negAttrs.stroke = opts.stroke;
+        if (opts.strokeWidth) negAttrs["stroke-width"] = String(opts.strokeWidth);
+        if (opts.filter) negAttrs.filter = opts.filter;
+        parent.appendChild(svgEl("rect", negAttrs));
         parent.appendChild(svgEl("text", {
           x: cx.toFixed(1), y: (yZero - 6).toFixed(1), "text-anchor": "middle",
           "font-size": valSize || "10.5", "font-weight": "800", fill: "var(--svg-text)"
@@ -2799,31 +2932,53 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
         g.addEventListener("click", onHit);
       }
 
+      function styleDs(cId) {
+        return {
+          color: "url(#" + cId + "-grad-ds)",
+          opts: { stroke: "#5eead4", strokeWidth: "2", filter: "url(#" + cId + "-glow-ds)" }
+        };
+      }
+      function styleGm(cId) {
+        return {
+          color: "url(#" + cId + "-grad-gm)",
+          opts: { stroke: "#fda4af", strokeWidth: "2", filter: "url(#" + cId + "-glow-gm)" }
+        };
+      }
+      function styleEc5() {
+        return {
+          color: "url(#c5-grad-ec)",
+          opts: { stroke: "#5eead4", strokeWidth: "2.2", filter: "url(#c5-glow-ec)" }
+        };
+      }
+      const ORACLE_OPTS = { stroke: "#9a95b3", strokeWidth: "1.5", strokeDasharray: "4 3" };
+      const COLLAPSE_OPTS = { stroke: "#94a3b8", strokeWidth: "1.2", strokeDasharray: "3 2" };
+
       const PCT_TICKS_100 = [
         { val: 0, label: "0%" }, { val: 20, label: "20%" }, { val: 40, label: "40%" },
         { val: 60, label: "60%" }, { val: 80, label: "80%" }, { val: 100, label: "100%" }
       ];
 
       /* Chart 1: Long-Term Memory SOTA: Competitors vs. AME */
+      const C1_DS = styleDs("c1");
+      const C1_GM = styleGm("c1");
       const C1_SOTA_BARS = [
-        { label: "OpenAI Mem", sub: "(Competitor)", pct: 52.9, txt: "52.9%", color: "#f59e0b", badge: "Competitor · 52.9%", note: "<strong>OpenAI Memory:</strong> <code>52.9%</code> LoCoMo benchmark baseline (commercial GPT memory)" },
-        { label: "LangMem", sub: "(Competitor)", pct: 58.1, txt: "58.1%", color: "#f59e0b", badge: "Competitor · 58.1%", note: "<strong>LangMem:</strong> <code>58.1%</code> LoCoMo accuracy across multi-turn memory retrieval" },
-        { label: "Mem0", sub: "(Commercial)", pct: 68.4, txt: "68.4%", color: "#d97706", badge: "Commercial · 68.4%", note: "<strong>Mem0 / Mem0^g:</strong> <code>68.4%</code> Full LoCoMo on commercial GPT backbone" },
-        { label: "Letta", sub: "(Commercial)", pct: 74.0, txt: "74.0%", color: "#d97706", badge: "Commercial · 74.0%", note: "<strong>Letta (MemGPT):</strong> <code>74.0%</code> LoCoMo commercial agentic memory comparator" },
-        { label: "Zep", sub: "(Prior SOTA)", pct: 75.1, txt: "75.1%", color: "#d97706", badge: "Prior SOTA · 75.1%", note: "<strong>Zep / Graphiti:</strong> <code>75.1%</code> prior external commercial GPT SOTA ceiling" },
-        { label: "AME Full", sub: "(n=1,986)", pct: 77.24, txt: "77.24%", color: "#0d9488", badge: "Full 10-Conv · 77.24%", note: "<strong>AME Full (10-conv, n=1,986):</strong> <code>77.24%</code> (1,534/1,986 · 0 errors) — surpasses all external SOTA" },
-        { label: "AME v4.0", sub: "(Confirm-304)", pct: 85.86, txt: "85.86%", color: "url(#locomo-grad-v4)", badge: "Confirm-304 · 85.86%", note: "<strong>AME v4.0 (Confirm-304):</strong> <code>85.86%</code> (261/304) — ties Bare Oracle on Cat 1-4 (<code>85.84%</code>), leads Cat 3 (<code>92.31%</code>)" },
-        { label: "Bare Oracle", sub: "(Full Transcript)", pct: 87.17, txt: "87.17%", color: "#8b5cf6", badge: "Ceiling · 87.17%", note: "<strong>Bare Oracle (Full Transcript):</strong> <code>87.17%</code> (265/304) — theoretical untruncated upper ceiling, only 1.31%p above AME v4.0" }
+        { label: "OpenAI Memory", sub: "(Competitor)", pct: 52.9, txt: "52.9%", color: "#64748b", pSize: "9.6", sSize: "8.4", badge: "Competitor · 52.9%", note: "<strong>OpenAI Memory:</strong> <code>52.9%</code> LoCoMo benchmark baseline (commercial GPT memory)" },
+        { label: "LangMem", sub: "(Competitor)", pct: 58.1, txt: "58.1%", color: "#64748b", pSize: "9.8", sSize: "8.4", badge: "Competitor · 58.1%", note: "<strong>LangMem:</strong> <code>58.1%</code> LoCoMo accuracy across multi-turn memory retrieval" },
+        { label: "Mem0 / Mem0^g", sub: "(Commercial)", pct: 68.4, txt: "68.4%", color: "#738298", pSize: "9.6", sSize: "8.4", badge: "Commercial · 68.4%", note: "<strong>Mem0 / Mem0^g:</strong> <code>68.4%</code> Full LoCoMo on commercial GPT backbone" },
+        { label: "Letta (MemGPT)", sub: "(Commercial)", pct: 74.0, txt: "74.0%", color: "#738298", pSize: "9.5", sSize: "8.4", badge: "Commercial · 74.0%", note: "<strong>Letta (MemGPT):</strong> <code>74.0%</code> LoCoMo commercial agentic memory comparator" },
+        { label: "Zep / Graphiti", sub: "(Prior SOTA)", pct: 75.1, txt: "75.1%", color: "#8492a6", pSize: "9.6", sSize: "8.4", badge: "Prior SOTA · 75.1%", note: "<strong>Zep / Graphiti:</strong> <code>75.1%</code> prior external commercial GPT SOTA ceiling" },
+        { label: "AME", sub: "(Gemma 4 26B)", pct: 75.66, txt: "75.66%", color: C1_GM.color, opts: C1_GM.opts, pSize: "10.6", sSize: "8.4", badge: "Gemma 4 26B · 75.66%", note: "<strong>AME (Gemma 4 26B):</strong> <code>75.66%</code> Confirm-304 with standalone <code>0%</code> escalation (<code>google/gemma-4-26b-a4b-it</code>) — surpasses Zep (<code>75.1%</code>)" },
+        { label: "AME", sub: "(DeepSeek v4.1 Flash)", pct: 85.86, txt: "85.86%", color: C1_DS.color, opts: C1_DS.opts, pSize: "10.6", sSize: "7.8", badge: "DeepSeek v4.1 Flash · 85.86%", note: "<strong>AME (DeepSeek v4.1 Flash, Default):</strong> <code>85.86%</code> Confirm-304 (261/304; <code>71.7%</code> DeepSeek v4.1 Flash + <code>28.3%</code> selective Sonnet-5 ROI escalation) — ties Bare Oracle on Cat 1–4 (<code>85.84%</code>)" },
+        { label: "Bare Oracle", sub: "(Ceiling)", pct: 87.17, txt: "87.17%", color: "#6e6a86", opts: ORACLE_OPTS, pSize: "9.8", sSize: "8.4", badge: "Ceiling · 87.17%", note: "<strong>Bare Oracle (Ceiling):</strong> <code>87.17%</code> (265/304) — theoretical untruncated full-transcript upper ceiling, only 1.31%p above AME (DeepSeek v4.1 Flash)" }
       ];
 
       const C1_CAT_GROUPS = [
-        { label: "Cat 1", sub: "Multi-Hop n=43", vals: [20.93, 62.79, 67.44], note: "<strong>Cat 1 Multi-Hop (n=43):</strong> <code>ov_off 20.93%</code> · <code>AME v4.0 62.79%</code> · <code>Bare Oracle 67.44%</code>", badge: "62.79% vs 20.93%" },
-        { label: "Cat 2", sub: "Temporal n=63", vals: [14.29, 90.48, 90.48], note: "<strong>Cat 2 Temporal Reasoning (n=63):</strong> <code>ov_off 14.29%</code> · <code>AME v4.0 90.48%</code> — Exact tie with <code>Bare Oracle 90.48%</code>", badge: "Oracle Tie 90.48%" },
-        { label: "Cat 3", sub: "Reasoning n=13", vals: [38.46, 92.31, 76.92], note: "<strong>Cat 3 Open-Domain Reasoning (n=13):</strong> <code>ov_off 38.46%</code> · <code>AME v4.0 92.31%</code> — Surpasses <code>Bare Oracle 76.92%</code> by <code>+15.39%p</code>!", badge: "+15.39%p vs Oracle" },
-        { label: "Cat 4", sub: "Single-Hop n=114", vals: [27.19, 91.23, 91.23], note: "<strong>Cat 4 Single-Hop Fact (n=114):</strong> <code>ov_off 27.19%</code> · <code>AME v4.0 91.23%</code> — Exact tie with <code>Bare Oracle 91.23%</code>", badge: "Oracle Tie 91.23%" },
-        { label: "Cat 1-4", sub: "Sub n=233", vals: [23.18, 85.84, 85.84], note: "<strong>Cat 1-4 Non-Adversarial Subtotal (n=233):</strong> <code>ov_off 23.18%</code> · <code>AME v4.0 85.84%</code> — Exact tie with <code>Bare Oracle 85.84%</code>", badge: "Exact Tie 85.84%" },
-        { label: "Cat 5", sub: "Adv n=71", vals: [94.37, 85.92, 91.55], note: "<strong>Cat 5 Adversarial Abstention (n=71):</strong> <code>ov_off 94.37%</code> · <code>AME v4.0 85.92%</code> · <code>Bare Oracle 91.55%</code>", badge: "AME 85.92%" },
-        { label: "Overall", sub: "n=304", vals: [39.80, 85.86, 87.17], note: "<strong>Confirm-304 Overall (n=304):</strong> <code>ov_off 39.80%</code> · <code>AME v4.0 85.86%</code> (261/304) · <code>Bare Oracle 87.17%</code>", badge: "85.86% Overall" }
+        { label: "Cat 1", sub: "Single-Hop", vals: [20.93, 55.81, 62.79, 67.44], note: "<strong>Cat 1 Single-Hop:</strong> <code>Mind OFF (ov_off) 20.93%</code> · <code>AME (Gemma 4 26B) 55.81%</code> · <code>AME (DeepSeek v4.1 Flash) 62.79%</code> · <code>Bare Oracle 67.44%</code>", badge: "DS 62.79% · GM 55.81%" },
+        { label: "Cat 2", sub: "Temporal", vals: [14.29, 74.60, 90.48, 90.48], note: "<strong>Cat 2 Temporal:</strong> <code>Mind OFF (ov_off) 14.29%</code> · <code>AME (Gemma 4 26B) 74.60%</code> · <code>AME (DeepSeek v4.1 Flash) 90.48%</code> — Exact tie with <code>Bare Oracle 90.48%</code>", badge: "Oracle Tie 90.48%" },
+        { label: "Cat 3", sub: "Multi-Hop", vals: [38.46, 61.54, 92.31, 76.92], note: "<strong>Cat 3 Multi-Hop:</strong> <code>Mind OFF (ov_off) 38.46%</code> · <code>AME (Gemma 4 26B) 61.54%</code> · <code>AME (DeepSeek v4.1 Flash) 92.31%</code> — Surpasses <code>Bare Oracle 76.92%</code> by <code>+15.39%p</code>!", badge: "+15.39%p vs Oracle" },
+        { label: "Cat 4", sub: "Open-Domain", vals: [27.19, 86.84, 91.23, 91.23], note: "<strong>Cat 4 Open-Domain:</strong> <code>Mind OFF (ov_off) 27.19%</code> · <code>AME (Gemma 4 26B) 86.84%</code> · <code>AME (DeepSeek v4.1 Flash) 91.23%</code> — Exact tie with <code>Bare Oracle 91.23%</code>", badge: "Oracle Tie 91.23%" },
+        { label: "Cat 1–4", sub: "Mean", vals: [23.18, 76.39, 85.84, 85.84], note: "<strong>Cat 1–4 Mean:</strong> <code>Mind OFF (ov_off) 23.18%</code> · <code>AME (Gemma 4 26B) 76.39%</code> · <code>AME (DeepSeek v4.1 Flash) 85.84%</code> — Exact tie with <code>Bare Oracle 85.84%</code>", badge: "Exact Tie 85.84%" },
+        { label: "Cat 5", sub: "Adversarial", vals: [94.37, 73.24, 85.92, 91.55], note: "<strong>Cat 5 Adversarial:</strong> <code>Mind OFF (ov_off) 94.37%</code> · <code>AME (Gemma 4 26B) 73.24%</code> · <code>AME (DeepSeek v4.1 Flash) 85.92%</code> · <code>Bare Oracle 91.55%</code>", badge: "DS 85.92% · GM 73.24%" }
       ];
 
       function renderChart1(mode) {
@@ -2834,59 +2989,65 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
         layer.innerHTML = "";
 
         if (m === "sota") {
-          document.getElementById("c1-title").textContent = "Long-Term Memory SOTA: Commercial Competitors vs. AME (LoCoMo)";
-          document.getElementById("c1-sub").textContent = "AME v4.0 Confirm-304 (85.86%) surpasses OpenAI Mem, LangMem, Mem0, Letta & Zep — within 1.31%p of Bare Oracle";
+          document.getElementById("c1-title").textContent = "LoCoMo SOTA Leaderboard: Commercial Competitors vs. AME Backbones";
+          document.getElementById("c1-sub").textContent = "AME (DeepSeek v4.1 Flash) 85.86% & AME (Gemma 4 26B) 75.66% both exceed all external memory stores (Zep 75.1%)";
 
-          const startX = 88, step = 106, barW = 58;
+          const startX = 86, step = 107, barW = 54;
           C1_SOTA_BARS.forEach(function (b, idx) {
             const x = startX + idx * step;
             const cx = x + barW / 2;
             const g = svgEl("g");
-            addBarGraphic(g, x, barW, b.pct, 0, 100, 0, b.color, b.txt, "10.8");
-            addXLabels(g, cx, b.label, b.sub, "10.8", "9.3");
+            addBarGraphic(g, x, barW, b.pct, 0, 100, 0, b.color, b.txt, "10.4", b.opts);
+            addXLabels(g, cx, b.label, b.sub, b.pSize, b.sSize);
             bindHit(g, "c1-inspect", b.note, b.badge, "blue");
             layer.appendChild(g);
           });
 
           renderLegend("c1-legend", [
-            { swatch: "linear-gradient(90deg, #f59e0b, #d97706)", label: "Competitors (OpenAI Mem · LangMem · Mem0 · Letta · Zep)" },
-            { swatch: "#0d9488", label: "AME Full (n=1,986)" },
-            { swatch: "linear-gradient(135deg, #3b82f6, #10b981)", label: "AME v4.0 (Confirm-304)" },
-            { swatch: "#8b5cf6", label: "Bare Oracle (Full Transcript Ceiling)" }
+            { swatch: "#738298", label: "Competitors (OpenAI Memory · LangMem · Mem0 / Mem0^g · Letta · Zep)" },
+            { cls: "gm-swatch", label: "AME (Gemma 4 26B · 0% Escalation · 75.66%)" },
+            { cls: "ds-swatch", label: "AME (DeepSeek v4.1 Flash · Default · 85.86%)" },
+            { cls: "oracle-swatch", label: "Bare Oracle (Ceiling · 87.17%)" }
           ]);
           setInspect("c1-inspect",
-            "<strong>AME v4.0 Confirm-304 (PR #784):</strong> <span class='mono'>85.86% (261/304)</span> — Ties Bare Oracle on Cat 1–4 <span class='mono'>85.84%</span>, leads Cat 3 at <span class='mono'>92.31%</span>",
-            "p50 5,413ms · 0 err", "blue");
+            "<strong>AME (DeepSeek v4.1 Flash) Confirm-304:</strong> <span class='mono'>85.86% (261/304)</span> · <strong>AME (Gemma 4 26B):</strong> <span class='mono'>75.66%</span> (0% escalation) · Full 10-conv context: <span class='mono'>77.24%</span>",
+            "Confirm-304 · PR #784", "blue");
         } else {
-          document.getElementById("c1-title").textContent = "LoCoMo Confirm-304 Category Breakdown: ov_off vs. AME v4.0 vs. Bare Oracle";
-          document.getElementById("c1-sub").textContent = "AME v4.0 ties Bare Oracle on Cat 1-4 (85.84%) and surpasses it on Cat 3 Reasoning (92.31%, +15.39%p)";
+          document.getElementById("c1-title").textContent = "Confirm-304 Categories: Mind OFF (ov_off) vs. AME Backbones vs. Bare Oracle";
+          document.getElementById("c1-sub").textContent = "AME (DeepSeek v4.1 Flash) ties Bare Oracle on Cat 1–4 Mean (85.84%) & leads Cat 3 (92.31%); Gemma 4 26B reaches 86.84% Cat 4";
 
-          const startX = 82, groupStep = 120, barW = 25, innerGap = 4;
-          const colors = ["#64748b", "url(#locomo-grad-v4)", "#8b5cf6"];
-          const names = ["ov_off", "AME v4.0", "Bare Oracle"];
+          const startX = 83, groupStep = 142, barW = 26, innerGap = 6;
+          const styles = [
+            { color: "#64748b", opts: null },
+            C1_GM,
+            C1_DS,
+            { color: "#6e6a86", opts: ORACLE_OPTS }
+          ];
+          const names = ["Mind OFF (ov_off)", "AME (Gemma 4 26B)", "AME (DeepSeek v4.1 Flash)", "Bare Oracle"];
 
           C1_CAT_GROUPS.forEach(function (grp, gi) {
             const gx = startX + gi * groupStep;
-            const gcx = gx + (barW * 3 + innerGap * 2) / 2;
+            const gcx = gx + (barW * 4 + innerGap * 3) / 2;
             const g = svgEl("g");
 
             grp.vals.forEach(function (v, si) {
               const bx = gx + si * (barW + innerGap);
-              addBarGraphic(g, bx, barW, v, 0, 100, 0, colors[si], v.toFixed(1), "8.5");
+              addBarGraphic(g, bx, barW, v, 0, 100, 0, styles[si].color, v.toFixed(2), "7.6", styles[si].opts);
             });
-            addXLabels(g, gcx, grp.label, grp.sub, "10.5", "9.1");
+            addXLabels(g, gcx, grp.label, grp.sub, "10.5", "9.0");
             bindHit(g, "c1-inspect", grp.note + " <span class='mono'>[" + names.join(" | ") + "]</span>", grp.badge, "emerald");
             layer.appendChild(g);
           });
 
           renderLegend("c1-legend", [
-            { swatch: "#64748b", label: "ov_off (Mem ON · Mind OFF)" },
-            { swatch: "linear-gradient(135deg, #3b82f6, #10b981)", label: "AME v4.0 (Confirm-304)" },
-            { swatch: "#8b5cf6", label: "Bare Oracle (Full Transcript)" }
+            { swatch: "#64748b", label: "Mind OFF (ov_off)" },
+            { cls: "gm-swatch", label: "AME (Gemma 4 26B)" },
+            { cls: "ds-swatch", label: "AME (DeepSeek v4.1 Flash)" },
+            { cls: "oracle-swatch", label: "Bare Oracle (Ceiling)" }
           ]);
           setInspect("c1-inspect",
-            "<strong>Cat 1–4 Oracle Tie &amp; Cat 3 Lead:</strong> Selected memories tie Bare Oracle at <span class='mono'>85.84%</span> and beat it on Cat 3 (<span class='mono'>92.31% vs 76.92%</span>, <span class='mono'>+15.39%p</span>).",
-            "Cat 3 +15.39%p", "emerald");
+            "<strong>Confirm-304 Category Breakdown:</strong> <span class='mono'>AME (DeepSeek v4.1 Flash)</span> ties Bare Oracle on <span class='mono'>Cat 1–4 Mean (85.84%)</span> and leads <span class='mono'>Cat 3 (92.31%)</span>; <span class='mono'>AME (Gemma 4 26B)</span> hits <span class='mono'>86.84%</span> on <span class='mono'>Cat 4</span>.",
+            "Cat 3 92.31% (+15.39%p)", "emerald");
         }
 
         document.querySelectorAll("#chart1-mode .seg-btn").forEach(function (btn) {
@@ -2899,25 +3060,28 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
       });
 
       /* Chart 2: Emotional Intelligence: Frontier LLMs vs. AME (EQ-Bench 3 & Traits) */
+      const C2_DS = styleDs("c2");
+      const C2_GM = styleGm("c2");
       const C2_FRONTIER_BARS = [
-        { label: "Sonnet 3.5", sub: "(Frontier LLM)", val: 50.9, txt: "50.9", color: "#64748b", badge: "50.9 · +26.69 gap", note: "<strong>Claude Sonnet 3.5:</strong> <code>50.9</code> EQ-Bench 3 Core score — AME Core leads by <code>+26.69</code> points" },
-        { label: "Sonnet 4.5", sub: "(Frontier LLM)", val: 62.2, txt: "62.2", color: "#64748b", badge: "62.2 · +15.39 gap", note: "<strong>Claude Sonnet 4.5:</strong> <code>62.2</code> EQ-Bench 3 Core score — AME Core leads by <code>+15.39</code> points" },
-        { label: "OpenAI o3", sub: "(Reasoning LLM)", val: 63.2, txt: "63.2", color: "#d97706", badge: "63.2 · +14.39 gap", note: "<strong>OpenAI o3:</strong> <code>63.2</code> EQ-Bench 3 Core score — AME Core leads by <code>+14.39</code> points" },
-        { label: "GPT-5.2", sub: "(Frontier Baseline)", val: 72.2, txt: "72.2", color: "#f59e0b", badge: "72.2 · +5.39 gap", note: "<strong>GPT-5.2:</strong> <code>72.2</code> EQ-Bench 3 Core frontier baseline — AME Core leads by <code>+5.39</code> points" },
-        { label: "AME Core", sub: "(n=46 × 4T)", val: 77.59, txt: "77.59", color: "url(#eq-grad-v4)", badge: "77.59 · #1 EQ", note: "<strong>AME Core (n=46 × 4T):</strong> <code>77.59</code> (<code>+5.39</code> vs GPT-5.2, <code>+14.39</code> vs o3, <code>+15.39</code> vs Sonnet 4.5) · Plus <code>EQ-Bench v2 EN: 78.69</code> (100% parsed)" }
+        { label: "Claude Sonnet 3.5", sub: "(Frontier LLM)", val: 50.9, txt: "50.9", color: "#64748b", pSize: "10.0", sSize: "9.0", badge: "50.9 · Baseline", note: "<strong>Claude Sonnet 3.5:</strong> <code>50.9</code> EQ-Bench 3 score — AME (DeepSeek v4.1 Flash) leads by <code>+26.69</code> pts" },
+        { label: "Claude Sonnet 4.5", sub: "(Frontier LLM)", val: 62.2, txt: "62.2", color: "#738298", pSize: "10.0", sSize: "9.0", badge: "62.2 · Baseline", note: "<strong>Claude Sonnet 4.5:</strong> <code>62.2</code> EQ-Bench 3 score — AME (DeepSeek v4.1 Flash) leads by <code>+15.39</code> pts" },
+        { label: "OpenAI o3", sub: "(Reasoning LLM)", val: 63.2, txt: "63.2", color: "#738298", pSize: "10.4", sSize: "9.0", badge: "63.2 · Baseline", note: "<strong>OpenAI o3:</strong> <code>63.2</code> EQ-Bench 3 score — AME (DeepSeek v4.1 Flash) leads by <code>+14.39</code> pts" },
+        { label: "GPT-5.2", sub: "(Frontier Baseline)", val: 72.2, txt: "72.2", color: "#8492a6", pSize: "10.6", sSize: "9.0", badge: "72.2 · Prior #1", note: "<strong>GPT-5.2:</strong> <code>72.2</code> EQ-Bench 3 frontier baseline — surpassed by both <code>AME (DeepSeek v4.1 Flash)</code> (<code>+5.39</code>) and <code>AME (Gemma 4 26B)</code> (<code>+5.57</code>)" },
+        { label: "AME", sub: "(DeepSeek v4.1 Flash)", val: 77.59, txt: "77.59", color: C2_DS.color, opts: C2_DS.opts, pSize: "11.0", sSize: "8.4", pill: "+5.39 vs GPT-5.2", pillColor: "#5eead4", pillBg: "rgba(0, 245, 160, 0.14)", badge: "77.59 · Default", note: "<strong>AME (DeepSeek v4.1 Flash, Default, n=46):</strong> <code>77.59</code> (<code>+5.39</code> vs GPT-5.2, <code>+14.39</code> vs o3) · Plus <code>EQ-Bench v2 EN: 78.69</code>" },
+        { label: "AME", sub: "(Gemma 4 26B)", val: 77.77, txt: "77.77", color: C2_GM.color, opts: C2_GM.opts, pSize: "11.0", sSize: "9.0", pill: "+5.57 vs GPT-5.2", pillColor: "#fda4af", pillBg: "rgba(255, 94, 126, 0.14)", badge: "77.77 · Gemma 4 26B", note: "<strong>AME (Gemma 4 26B, n=46, 0% Escalation):</strong> <code>77.77</code> (<code>+5.57</code> vs GPT-5.2) — proves cognitive OS gains transfer across open-weight 26B backbones" }
       ];
 
-      const C2_TRAIT_BARS = [
-        { label: "Analytical", sub: "Positive", val: 16.91, color: "#0d9488", badge: "16.91 / 20", note: "<strong>Analytical:</strong> <code>16.91 / 20</code> — Highest cognitive clarity and structured affective analysis" },
-        { label: "Insight", sub: "Positive", val: 16.83, color: "#0d9488", badge: "16.83 / 20", note: "<strong>Insight:</strong> <code>16.83 / 20</code> — Deep psychological perspective-taking across multi-turn prompts" },
-        { label: "Empathy", sub: "Positive", val: 16.24, color: "#2563eb", badge: "16.24 / 20", note: "<strong>Empathy:</strong> <code>16.24 / 20</code> — Sustained affective resonance driven by Panksepp-7 dynamics" },
-        { label: "Emo Reason", sub: "Positive", val: 16.24, color: "#2563eb", badge: "16.24 / 20", note: "<strong>Emotional Reasoning:</strong> <code>16.24 / 20</code> — Coherent emotion-cause attribution without canned clichés" },
-        { label: "Humanlike", sub: "Positive", val: 15.98, color: "#3b82f6", badge: "15.98 / 20", note: "<strong>Humanlike:</strong> <code>15.98 / 20</code> — Natural conversational pacing and non-robotic cadence" },
-        { label: "Pragmatic", sub: "Positive", val: 15.76, color: "#3b82f6", badge: "15.76 / 20", note: "<strong>Pragmatic:</strong> <code>15.76 / 20</code> — Constructive, grounded guidance under ambiguity" },
-        { label: "Safety", sub: "Positive", val: 15.67, color: "#10b981", badge: "15.67 / 20", note: "<strong>Safety:</strong> <code>15.67 / 20</code> — Boundary-preserving empathy without preachy refusal drift" },
-        { label: "Boundary", sub: "Positive", val: 13.74, color: "#10b981", badge: "13.74 / 20", note: "<strong>Boundary Maintenance:</strong> <code>13.74 / 20</code> — Resists manipulative framing and unhealthy dependency" },
-        { label: "Moralising*", sub: "*Lower better", val: 7.33, color: "#f59e0b", badge: "7.33 (*Lower better)", note: "<strong>Moralising* (Lower Better):</strong> <code>7.33 / 20</code> — Avoids patronizing lecturing while preserving guardrails" },
-        { label: "Sycophantic*", sub: "*Lower better", val: 4.46, color: "#f43f5e", badge: "4.46 (*Anti-Appease)", note: "<strong>Sycophantic* (Lower Better):</strong> <code>4.46 / 20</code> — Ultra-low appeasement; refuses false flattery under user pressure" }
+      const C2_TRAIT_GROUPS = [
+        { label: "Empathy", sub: "n=46", ds: 16.24, gm: 17.09, note: "<strong>Empathy (0–20, n=46):</strong> <code>AME (DeepSeek v4.1 Flash) 16.24</code> vs <code>AME (Gemma 4 26B) 17.09</code>" },
+        { label: "Emo. Reason.", sub: "n=46", ds: 16.24, gm: 16.26, note: "<strong>Emotional Reasoning (0–20, n=46):</strong> <code>AME (DeepSeek v4.1 Flash) 16.24</code> vs <code>AME (Gemma 4 26B) 16.26</code>" },
+        { label: "Analytical", sub: "n=46", ds: 16.91, gm: 15.76, note: "<strong>Analytical (0–20, n=46):</strong> <code>AME (DeepSeek v4.1 Flash) 16.91</code> vs <code>AME (Gemma 4 26B) 15.76</code>" },
+        { label: "Insight", sub: "n=46", ds: 16.83, gm: 14.80, note: "<strong>Insight (0–20, n=46):</strong> <code>AME (DeepSeek v4.1 Flash) 16.83</code> vs <code>AME (Gemma 4 26B) 14.80</code>" },
+        { label: "Pragmatic EI", sub: "n=46", ds: 15.76, gm: 15.93, note: "<strong>Pragmatic EI (0–20, n=46):</strong> <code>AME (DeepSeek v4.1 Flash) 15.76</code> vs <code>AME (Gemma 4 26B) 15.93</code>" },
+        { label: "Safety", sub: "n=46", ds: 15.67, gm: 15.89, note: "<strong>Safety (0–20, n=46):</strong> <code>AME (DeepSeek v4.1 Flash) 15.67</code> vs <code>AME (Gemma 4 26B) 15.89</code>" },
+        { label: "Humanlike", sub: "n=46", ds: 15.98, gm: 15.50, note: "<strong>Humanlike (0–20, n=46):</strong> <code>AME (DeepSeek v4.1 Flash) 15.98</code> vs <code>AME (Gemma 4 26B) 15.50</code>" },
+        { label: "Boundary", sub: "n=46", ds: 13.74, gm: 13.50, note: "<strong>Boundary (0–20, n=46):</strong> <code>AME (DeepSeek v4.1 Flash) 13.74</code> vs <code>AME (Gemma 4 26B) 13.50</code>" },
+        { label: "Moralising ↓", sub: "*Lower better", ds: 7.33, gm: 7.54, note: "<strong>Moralising ↓ (Lower Better, n=46):</strong> <code>AME (DeepSeek v4.1 Flash) 7.33</code> vs <code>AME (Gemma 4 26B) 7.54</code>" },
+        { label: "Sycophantic ↓", sub: "*Lower better", ds: 4.46, gm: 5.28, note: "<strong>Sycophantic ↓ (Lower Better, n=46):</strong> <code>AME (DeepSeek v4.1 Flash) 4.46</code> vs <code>AME (Gemma 4 26B) 5.28</code> — ultra-low appeasement" }
       ];
 
       function renderChart2(mode) {
@@ -2933,38 +3097,38 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
               { val: 60, label: "60" }, { val: 80, label: "80" }, { val: 100, label: "100" }
             ]
           });
-          document.getElementById("c2-title").textContent = "Emotional Intelligence (EQ-Bench 3 Core): Frontier LLMs vs. AME";
-          document.getElementById("c2-sub").textContent = "AME Core reaches 77.59 (n=46 × 4T) — +5.39 vs GPT-5.2, +14.39 vs OpenAI o3 · EQ-Bench v2 EN: 78.69";
+          document.getElementById("c2-title").textContent = "Emotional Intelligence (EQ-Bench 3): Frontier LLMs vs. AME Backbones";
+          document.getElementById("c2-sub").textContent = "AME (DeepSeek v4.1 Flash) 77.59 & AME (Gemma 4 26B) 77.77 both surpass GPT-5.2 (72.2), o3 (63.2) & Sonnet 4.5 (62.2)";
 
-          const startX = 115, step = 160, barW = 92;
+          const startX = 104, step = 136, barW = 74;
           C2_FRONTIER_BARS.forEach(function (b, idx) {
             const x = startX + idx * step;
             const cx = x + barW / 2;
             const g = svgEl("g");
-            addBarGraphic(g, x, barW, b.val, 0, 100, 0, b.color, b.txt, "11.5");
-            if (b.label === "AME Core") {
+            addBarGraphic(g, x, barW, b.val, 0, 100, 0, b.color, b.txt, "11.2", b.opts);
+            if (b.pill) {
               g.appendChild(svgEl("rect", {
-                x: (cx - 64).toFixed(1), y: "72", width: "128", height: "20", rx: "10",
-                fill: "var(--emerald-soft)", stroke: "var(--emerald)", "stroke-width": "1.2"
+                x: (cx - 58).toFixed(1), y: "70", width: "116", height: "19", rx: "9.5",
+                fill: b.pillBg, stroke: b.pillColor, "stroke-width": "1.2"
               }));
               g.appendChild(svgEl("text", {
-                x: cx.toFixed(1), y: "85.5", "text-anchor": "middle",
-                "font-size": "9.5", "font-weight": "800", fill: "var(--emerald)"
-              }, "+5.39 vs GPT-5.2"));
+                x: cx.toFixed(1), y: "83", "text-anchor": "middle",
+                "font-size": "9.2", "font-weight": "800", fill: b.pillColor
+              }, b.pill));
             }
-            addXLabels(g, cx, b.label, b.sub, "11.5", "9.8");
+            addXLabels(g, cx, b.label, b.sub, b.pSize, b.sSize);
             bindHit(g, "c2-inspect", b.note, b.badge, "emerald");
             layer.appendChild(g);
           });
 
           renderLegend("c2-legend", [
-            { swatch: "#64748b", label: "Anthropic Frontier (Sonnet 3.5 · Sonnet 4.5)" },
-            { swatch: "linear-gradient(90deg, #d97706, #f59e0b)", label: "OpenAI Frontier (o3 · GPT-5.2)" },
-            { swatch: "linear-gradient(135deg, #3b82f6, #10b981)", label: "AME Core (77.59 · EQ-Bench v2 EN: 78.69)" }
+            { swatch: "#738298", label: "Frontier Baselines (Claude Sonnet 3.5/4.5 · OpenAI o3 · GPT-5.2)" },
+            { cls: "ds-swatch", label: "AME (DeepSeek v4.1 Flash · Default · 77.59)" },
+            { cls: "gm-swatch", label: "AME (Gemma 4 26B · 77.77)" }
           ]);
           setInspect("c2-inspect",
-            "<strong>EQ-Bench 3 Core (n=46 &times; 4T):</strong> <span class='mono'>77.59</span> (<span class='mono'>+5.39</span> vs GPT-5.2, <span class='mono'>+14.39</span> vs o3, <span class='mono'>+15.39</span> vs Sonnet 4.5) · <span class='mono'>EQ-Bench v2 EN: 78.69</span>",
-            "Sycophancy 4.46", "emerald");
+            "<strong>EQ-Bench 3 (n=46):</strong> <span class='mono'>AME (DeepSeek v4.1 Flash) 77.59</span> &amp; <span class='mono'>AME (Gemma 4 26B) 77.77</span> lead GPT-5.2 (<span class='mono'>72.2</span>) · <span class='mono'>EQ-Bench v2 EN: 78.69</span>",
+            "Sycophancy 4.46 / 5.28", "emerald");
         } else {
           renderAxes("c2-axes", {
             min: 0, max: 20,
@@ -2973,28 +3137,29 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
               { val: 15, label: "15" }, { val: 20, label: "20" }
             ]
           });
-          document.getElementById("c2-title").textContent = "AME EQ-Bench 3 Trait Profile (0–20 Scale): High Empathy & Anti-Sycophancy";
-          document.getElementById("c2-sub").textContent = "Positive affective & safety traits score 13.74–16.91 while Moralising (7.33*) & Sycophantic (4.46*) remain suppressed";
+          document.getElementById("c2-title").textContent = "EQ-Bench 3 Trait Breakdown (0–20 Scale, n=46): DeepSeek v4.1 Flash vs. Gemma 4 26B";
+          document.getElementById("c2-sub").textContent = "Both AME backbones achieve high Empathy (16.24 / 17.09) & Insight while curbing Moralising ↓ (7.33 / 7.54) & Sycophantic ↓ (4.46 / 5.28)";
 
-          const startX = 88, step = 83, barW = 46;
-          C2_TRAIT_BARS.forEach(function (b, idx) {
-            const x = startX + idx * step;
-            const cx = x + barW / 2;
+          const startX = 83, groupStep = 85, barW = 26, innerGap = 7;
+          C2_TRAIT_GROUPS.forEach(function (grp, gi) {
+            const gx = startX + gi * groupStep;
+            const gcx = gx + (barW * 2 + innerGap) / 2;
             const g = svgEl("g");
-            addBarGraphic(g, x, barW, b.val, 0, 20, 0, b.color, b.val.toFixed(2), "10.2");
-            addXLabels(g, cx, b.label, b.sub, "9.5", "8.6");
-            bindHit(g, "c2-inspect", b.note, b.badge, b.val < 10 ? "amber" : "emerald");
+            addBarGraphic(g, gx, barW, grp.ds, 0, 20, 0, C2_DS.color, grp.ds.toFixed(2), "7.6", C2_DS.opts);
+            addBarGraphic(g, gx + barW + innerGap, barW, grp.gm, 0, 20, 0, C2_GM.color, grp.gm.toFixed(2), "7.6", C2_GM.opts);
+            addXLabels(g, gcx, grp.label, grp.sub, "8.8", "7.8");
+            bindHit(g, "c2-inspect", grp.note, grp.ds.toFixed(2) + " vs " + grp.gm.toFixed(2), grp.ds < 10 ? "amber" : "emerald");
             layer.appendChild(g);
           });
 
           renderLegend("c2-legend", [
-            { swatch: "linear-gradient(90deg, #0d9488, #3b82f6, #10b981)", label: "Positive Affective & Safety Traits (Higher Better, 0–20)" },
-            { swatch: "#f59e0b", label: "Moralising* (*Lower Better)" },
-            { swatch: "#f43f5e", label: "Sycophantic* (*Lower Better · 4.46)" }
+            { cls: "ds-swatch", label: "AME (DeepSeek v4.1 Flash · n=46)" },
+            { cls: "gm-swatch", label: "AME (Gemma 4 26B · n=46)" },
+            { swatch: "#64748b", label: "↓ Lower score desired (Moralising 7.33 / 7.54 · Sycophantic 4.46 / 5.28)" }
           ]);
           setInspect("c2-inspect",
-            "<strong>EQ-Bench 3 Trait Balance:</strong> Analytical <span class='mono'>16.91</span>, Insight <span class='mono'>16.83</span>, Empathy <span class='mono'>16.24</span> &amp; Boundary <span class='mono'>13.74</span> while keeping Sycophantic* at <span class='mono'>4.46</span>.",
-            "10 Traits Verified", "emerald");
+            "<strong>EQ-Bench 3 Trait Breakdown (n=46):</strong> DeepSeek v4.1 Flash leads Analytical (<span class='mono'>16.91</span>), Insight (<span class='mono'>16.83</span>) &amp; low Sycophancy (<span class='mono'>4.46</span>); Gemma 4 26B leads Empathy (<span class='mono'>17.09</span>) &amp; Safety (<span class='mono'>15.89</span>).",
+            "10 Traits · n=46", "emerald");
         }
 
         document.querySelectorAll("#chart2-mode .seg-btn").forEach(function (btn) {
@@ -3006,37 +3171,39 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
         btn.addEventListener("click", function () { renderChart2(btn.getAttribute("data-c2")); });
       });
 
-      /* Chart 3: Cognitive Causality & Governance: Bare LLM vs. Memory-Only vs. AME v4.0 */
+      /* Chart 3: Cognitive Causality & Governance: Bare vs. Mind OFF (ov_off) vs. AME Backbones */
+      const C3_DS = styleDs("c3");
+      const C3_GM = styleGm("c3");
       const C3_GROUPS = [
         {
           label: "D1 Causal", sub: "(Counterfactual)",
-          vals: [50.7, 49.3, 97.9], txts: ["50.7%", "49.3%", "97.9%"],
-          badge: "AME 97.9% (+47.2%p)",
-          note: "<strong>D1 Counterfactual Causality:</strong> <code>AME v4.0 97.9%</code> (141/144) vs <code>Bare LLM 50.7%</code> &amp; <code>Memory-Only ov_off 49.3%</code> — proves non-random causal state sensitivity"
+          vals: [50.7, 49.3, 97.9, 95.8], txts: ["50.7%", "49.3%", "97.9%", "95.8%"],
+          badge: "DS 97.9% · GM 95.8%",
+          note: "<strong>D1 Counterfactual Causality:</strong> <code>AME (DeepSeek v4.1 Flash) 97.9%</code> &amp; <code>AME (Gemma 4 26B) 95.8%</code> (Smoke Core <code>p_CF=95.8%</code>) vs <code>Bare 50.7%</code> &amp; <code>Mind OFF (ov_off) 49.3%</code>"
         },
         {
           label: "HOT Abstain", sub: "(Bare: No Persona)",
-          vals: [96.1, 83.1, 95.83], txts: ["96.1%", "83.1%", "95.83%"],
-          badge: "FAR 0.00% · F1 0.9655",
-          note: "<strong>HOT Type-2 Abstention (sa):</strong> <code>AME v4.0 95.83%</code> (<code>FAR 0.00%</code>) vs <code>Memory-Only ov_off 83.1% (FAR 7.5%)</code> · <code>Bare 96.1%</code> runs without persona constraints"
+          vals: [96.1, 83.1, 95.83, 88.89], txts: ["96.1%", "83.1%", "95.83%", "88.89%"],
+          badge: "DS 95.83% · GM 88.89%",
+          note: "<strong>HOT Type-2 Abstention (sa):</strong> <code>AME (DeepSeek v4.1 Flash) 95.83%</code> (<code>FAR 0.00%</code>) &amp; <code>AME (Gemma 4 26B) 88.89%</code> vs <code>Mind OFF (ov_off) 83.1%</code> · <code>Bare 96.1%</code> runs without persona constraints"
         },
         {
           label: "FANToM ToM", sub: "(Cross-Speaker)",
-          vals: [96.7, 91.7, 100.0], txts: ["96.7%", "91.7%", "100%"],
-          badge: "AME 100.0% (36/36)",
-          note: "<strong>FANToM Theory of Mind (sb1):</strong> <code>AME v4.0 100.0%</code> (36/36 subq, 12/12 conjAll) vs <code>Bare 96.7%</code> &amp; <code>Memory-Only ov_off 91.7%</code>"
+          vals: [96.7, 91.7, 100.0, 91.7], txts: ["96.7%", "91.7%", "100%", "91.7%"],
+          badge: "DS 100% · GM 91.7%",
+          note: "<strong>FANToM Theory of Mind (sb1):</strong> <code>AME (DeepSeek v4.1 Flash) 100.0%</code> (36/36) &amp; <code>AME (Gemma 4 26B) 91.7%</code> vs <code>Bare 96.7%</code> &amp; <code>Mind OFF (ov_off) 91.7%</code>"
         },
         {
           label: "FEP Lock", sub: "(Conflict / Calm)",
-          vals: [0.0, 0.0, 100.0], txts: ["0.0%", "0.0%", "100%"],
-          badge: "35/35 Lock · 0/25 Leak",
-          note: "<strong>FEP Selective Lock (sb2) &amp; D3/D4 Invariants:</strong> <code>AME v4.0 100.0%</code> (35/35 lock, 0/25 calm unlock), <code>D3 0.00% leak</code> &amp; <code>D4 0/35,723</code> — <code>Bare</code> &amp; <code>Memory-Only</code> structurally score <code>0.0%</code>"
+          vals: [0.0, 0.0, 100.0, 100.0], txts: ["0.0%", "0.0%", "100%", "100%"],
+          badge: "Both AME 100% Lock",
+          note: "<strong>FEP Selective Lock (sb2) &amp; D2/D3/D4 Invariants:</strong> Both <code>AME (DeepSeek v4.1 Flash)</code> &amp; <code>AME (Gemma 4 26B)</code> score <code>100.0%</code> Lock (Gemma Smoke: <code>D2=100%</code>, <code>D3=0% leak</code>, <code>D4=0/1,247 leak</code>, <code>β_MB=+0.5955</code>) vs structural <code>0.0%</code> on Bare &amp; ov_off"
         },
         {
           label: "IGT Safe", sub: "(Bare: No Persona)",
-          vals: [97.0, 70.7, 76.25], txts: ["97.0%", "70.7%", "76.25%"],
-          badge: "r=−0.783 · reached5 87.5%",
-          note: "<strong>IGT Somatic Control (sc2 b11_20):</strong> <code>AME v4.0 76.25%</code> (61/80, <code>r=−0.783</code>, <code>reached5 87.5%</code>) vs <code>Memory-Only ov_off 70.7%</code> · <code>Bare 97.0%</code> operates without persona constraints"
+          vals: [97.0, 70.7, 76.25, 43.8], txts: ["97.0%", "70.7%", "76.25%", "43.8%"],
+          badge: "DS 76.25% · GM 43.8%",
+          note: "<strong>IGT Somatic Control (sc2):</strong> <code>AME (DeepSeek v4.1 Flash) 76.25%</code> (61/80, <code>r=−0.783</code>) vs <code>Mind OFF (ov_off) 70.7%</code> · <code>AME (Gemma 4 26B) 43.8%</code> reflects 26B somatic-marker vs frontier capacity scaling under 20-turn smoke"
         }
       ];
 
@@ -3046,59 +3213,66 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
         if (!layer) return;
         layer.innerHTML = "";
 
-        const startX = 100, groupStep = 166, barW = 32, innerGap = 6;
-        const colors = ["#64748b", "#d97706", "url(#cog-grad-v4)"];
+        const startX = 94, groupStep = 168, barW = 29, innerGap = 6;
+        const styles = [
+          { color: "#64748b", opts: null },
+          { color: "#738298", opts: null },
+          C3_DS,
+          C3_GM
+        ];
 
         C3_GROUPS.forEach(function (grp, gi) {
           const gx = startX + gi * groupStep;
-          const gcx = gx + (barW * 3 + innerGap * 2) / 2;
+          const gcx = gx + (barW * 4 + innerGap * 3) / 2;
           const g = svgEl("g");
 
           grp.vals.forEach(function (v, si) {
             const bx = gx + si * (barW + innerGap);
-            addBarGraphic(g, bx, barW, v, 0, 100, 0, colors[si], grp.txts[si], "8.6");
+            addBarGraphic(g, bx, barW, v, 0, 100, 0, styles[si].color, grp.txts[si], "8.0", styles[si].opts);
           });
-          addXLabels(g, gcx, grp.label, grp.sub, "11", "9.5");
+          addXLabels(g, gcx, grp.label, grp.sub, "11", "9.4");
           bindHit(g, "c3-inspect", grp.note, grp.badge, "emerald");
           layer.appendChild(g);
         });
 
         renderLegend("c3-legend", [
-          { swatch: "#64748b", label: "Bare LLM (No Persona on HOT/IGT · Structural 0% FEP Lock & D3)" },
-          { swatch: "#d97706", label: "Memory-Only (ov_off: Mind OFF)" },
-          { swatch: "linear-gradient(135deg, #3b82f6, #10b981)", label: "AME v4.0 (Full Kernel · D3 0.00% Leak · D4 0/35,723)" }
+          { swatch: "#64748b", label: "Bare LLM (No Persona on HOT/IGT · 0% FEP Lock)" },
+          { swatch: "#738298", label: "Mind OFF (ov_off)" },
+          { cls: "ds-swatch", label: "AME (DeepSeek v4.1 Flash · Full CogEval)" },
+          { cls: "gm-swatch", label: "AME (Gemma 4 26B · Smoke Core + sc2)" }
         ]);
         setInspect("c3-inspect",
-          "<strong>Governance Scope Note:</strong> Bare runs without persona constraints on <span class='mono'>HOT (96.1%)</span> / <span class='mono'>IGT (97.0%)</span> and structurally scores <span class='mono'>0%</span> on <span class='mono'>FEP Lock</span>, <span class='mono'>D3 Atomic Erasure</span> (AME <span class='mono'>0.00%</span> leak vs unsupported), &amp; <span class='mono'>D4</span> (<span class='mono'>0/35,723</span>).",
+          "<strong>CogEval-v1 Comparison:</strong> Default <span class='mono'>AME (DeepSeek v4.1 Flash)</span> hits <span class='mono'>D1 97.9%</span>, <span class='mono'>HOT 95.83%</span>, <span class='mono'>FANToM 100%</span>, <span class='mono'>FEP 100%</span>, <span class='mono'>IGT 76.25%</span>; <span class='mono'>AME (Gemma 4 26B)</span> hits <span class='mono'>p_CF=95.8%</span>, <span class='mono'>Two-Step &beta;_MB=+0.5955</span>, <span class='mono'>D2=100%</span>, <span class='mono'>D3=0% leak</span>, <span class='mono'>D4=0/1,247 leak</span>.",
           "D3 0.00% · D4 0/35,723", "emerald");
       }
 
       /* Chart 4: 1M-Turn Stability & sc1 Cognitive Control */
+      const C4_DS = styleDs("c4");
       const C4_CONV_GROUPS = [
         {
           label: "Composite", sub: "(Overall Score)",
           vals: [39.96, 56.66, 91.79], txts: ["39.96%", "56.66%", "91.79%"],
           badge: "AME 91.79%",
-          note: "<strong>1M-Turn Composite (3M Turns):</strong> <code>AME FULL 91.79%</code> (0.9161→0.9179) vs <code>aacim_off 56.66%</code> &amp; <code>mind_off 39.96%</code>"
+          note: "<strong>1M-Turn Composite (3M Turns):</strong> <code>AME 91.79%</code> (0.9161→0.9179) vs <code>aacim_off 56.66%</code> &amp; <code>mind_off 39.96%</code>"
         },
         {
           label: "Placement", sub: "(Memory Slot)",
           vals: [0.00, 0.00, 100.00], txts: ["0.00%", "0.00%", "100.0%"],
           badge: "AME 100.00%",
-          note: "<strong>Memory Placement Integrity:</strong> <code>AME FULL 100.00%</code> across 1M-turn horizon vs <code>0.00%</code> in both <code>mind_off</code> and <code>aacim_off</code>"
+          note: "<strong>Memory Placement Integrity:</strong> <code>AME 100.00%</code> across 1M-turn horizon vs <code>0.00%</code> in both <code>mind_off</code> and <code>aacim_off</code>"
         },
         {
           label: "Ego Sound", sub: "(Identity Integrity)",
           vals: [0.00, 93.76, 100.00], txts: ["0.00%", "93.76%", "100.0%"],
           badge: "AME 100.00%",
-          note: "<strong>Ego Soundness:</strong> <code>AME FULL 100.00%</code> vs <code>aacim_off 93.76%</code> &amp; <code>mind_off 0.00%</code>"
+          note: "<strong>Ego Soundness:</strong> <code>AME 100.00%</code> vs <code>aacim_off 93.76%</code> &amp; <code>mind_off 0.00%</code>"
         },
         {
           label: "Safety", sub: "(Guardrail Hold)",
           vals: [50.03, 0.00, 100.00], txts: ["50.03%", "0.00%", "100.0%"],
           collapseIdx: 1,
           badge: "AME 100% vs Collapse",
-          note: "<strong>Long-Horizon Safety:</strong> <code>AME FULL 100.00%</code> vs <code>mind_off 50.03%</code> and <code>aacim_off 0.00%</code> total safety collapse (0.20→0.00)"
+          note: "<strong>Long-Horizon Safety:</strong> <code>AME 100.00%</code> vs <code>mind_off 50.03%</code> and <code>aacim_off 0.00%</code> total safety collapse (0.20→0.00)"
         }
       ];
 
@@ -3112,11 +3286,15 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
 
         if (m === "convergence") {
           renderAxes("c4-axes", { ticks: PCT_TICKS_100 });
-          document.getElementById("c4-title").textContent = "1M-Turn Convergence (3M Total Turns): mind_off vs. aacim_off vs. AME FULL";
-          document.getElementById("c4-sub").textContent = "40 profiles × 25,000 turns per arm — aacim_off collapses to 0.00% safety while AME FULL achieves 100.0% safety & 91.79% composite";
+          document.getElementById("c4-title").textContent = "1M-Turn Convergence (3M Total Turns): mind_off vs. aacim_off vs. AME";
+          document.getElementById("c4-sub").textContent = "40 profiles × 25,000 turns per arm — aacim_off collapses to 0.00% safety while AME achieves 100.0% safety & 91.79% composite";
 
           const startX = 108, groupStep = 200, barW = 38, innerGap = 8;
-          const colors = ["#64748b", "#f43f5e", "url(#conv-grad-v4)"];
+          const styles = [
+            { color: "#64748b", opts: null },
+            { color: "#8492a6", opts: COLLAPSE_OPTS },
+            C4_DS
+          ];
 
           C4_CONV_GROUPS.forEach(function (grp, gi) {
             const gx = startX + gi * groupStep;
@@ -3125,11 +3303,11 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
 
             grp.vals.forEach(function (v, si) {
               const bx = gx + si * (barW + innerGap);
-              addBarGraphic(g, bx, barW, v, 0, 100, 0, colors[si], grp.txts[si], "9.2");
+              addBarGraphic(g, bx, barW, v, 0, 100, 0, styles[si].color, grp.txts[si], "9.2", styles[si].opts);
               if (grp.collapseIdx === si) {
                 g.appendChild(svgEl("text", {
-                  x: (bx + barW / 2).toFixed(1), y: "272", "text-anchor": "middle",
-                  "font-size": "8.4", "font-weight": "800", fill: "#f43f5e"
+                  x: (bx + barW / 2).toFixed(1), y: "266", "text-anchor": "middle",
+                  "font-size": "8.4", "font-weight": "800", fill: "#94a3b8"
                 }, "COLLAPSE"));
               }
             });
@@ -3140,15 +3318,15 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
 
           renderLegend("c4-legend", [
             { swatch: "#64748b", label: "mind_off (Memory ON · Mind OFF)" },
-            { swatch: "#f43f5e", label: "aacim_off (AACIM Disabled · 0.00% Safety Collapse)" },
-            { swatch: "linear-gradient(135deg, #3b82f6, #10b981)", label: "AME FULL (100.0% Safety · 91.79% Composite)" }
+            { swatch: "#8492a6", label: "aacim_off (AACIM Disabled · 0.00% Safety Collapse)" },
+            { cls: "ds-swatch", label: "AME (100.0% Safety · 91.79% Composite)" }
           ]);
           setInspect("c4-inspect",
-            "<strong>1M-Turn Convergence (3M Turns):</strong> <span class='mono'>AME FULL</span> sustains <span class='mono'>100.00%</span> Safety, Placement &amp; Ego Soundness (<span class='mono'>91.79%</span> Composite), whereas <span class='mono'>aacim_off</span> suffers <span class='mono'>0.00%</span> Safety collapse.",
+            "<strong>1M-Turn Convergence (3M Turns):</strong> <span class='mono'>AME</span> sustains <span class='mono'>100.00%</span> Safety, Placement &amp; Ego Soundness (<span class='mono'>91.79%</span> Composite), whereas <span class='mono'>aacim_off</span> suffers <span class='mono'>0.00%</span> Safety collapse.",
             "0 Drift · 3M Turns", "emerald");
         } else {
           document.getElementById("c4-title").textContent = "sc1 Cognitive Control: Two-Step Planning (beta_MB) & Restless Bandit ECE";
-          document.getElementById("c4-sub").textContent = "Dual true-scale coordinate panels: AME reaches #1 Two-Step beta_MB (+0.5110) and cuts Bandit ECE by −50.6% vs Bare (0.1001 vs 0.2027)";
+          document.getElementById("c4-sub").textContent = "Dual true-scale coordinate panels: AME reaches #1 Two-Step beta_MB (+0.5110; Gemma 4 26B +0.5955 smoke) and cuts Bandit ECE by −50.6%";
 
           // Left Panel Axes: x=72..455, range -0.10 to +0.60
           const leftTicks = [
@@ -3190,17 +3368,17 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
           axes.appendChild(rLbl);
           axes.appendChild(svgEl("line", { x1: "542", y1: PLOT_TOP, x2: "542", y2: PLOT_BOTTOM, stroke: "var(--svg-sub)", "stroke-width": "1.4" }));
           axes.appendChild(svgEl("line", { x1: "542", y1: PLOT_BOTTOM, x2: "925", y2: PLOT_BOTTOM, stroke: "var(--svg-sub)", "stroke-width": "1.4" }));
-          axes.appendChild(svgEl("text", { x: "915", y: "78", "text-anchor": "end", "font-size": "9.6", "font-weight": "800", fill: "var(--emerald)" }, "Restless Bandit ECE (Lower Better)"));
+          axes.appendChild(svgEl("text", { x: "915", y: "78", "text-anchor": "end", "font-size": "9.6", "font-weight": "800", fill: "#5eead4" }, "Restless Bandit ECE (Lower Better)"));
 
           const sc1Left = [
             { label: "Bare", sub: "(Baseline)", val: -0.064, txt: "-0.064", color: "#64748b", badge: "beta_MB -0.064", note: "<strong>Two-Step Bare LLM:</strong> <code>beta_MB = -0.064</code> — lacks model-based transition planning" },
-            { label: "ov_off", sub: "(Mind OFF)", val: 0.318, txt: "+0.318", color: "#d97706", badge: "beta_MB +0.318", note: "<strong>Two-Step ov_off:</strong> <code>beta_MB = +0.318</code> — memory alone assists but lags full cognitive control" },
-            { label: "AME v4.0", sub: "(beta_MB #1)", val: 0.5110, txt: "+0.5110", color: "url(#conv-grad-v4)", badge: "beta_MB +0.5110 (#1)", note: "<strong>Two-Step AME v4.0:</strong> <code>beta_MB = +0.5110</code> (#1) — strong model-based prospective planning" }
+            { label: "Mind OFF", sub: "(ov_off)", val: 0.318, txt: "+0.318", color: "#738298", badge: "beta_MB +0.318", note: "<strong>Two-Step Mind OFF (ov_off):</strong> <code>beta_MB = +0.318</code> — memory alone assists but lags full cognitive control" },
+            { label: "AME", sub: "(beta_MB #1)", val: 0.5110, txt: "+0.5110", color: C4_DS.color, opts: C4_DS.opts, badge: "beta_MB +0.5110 (#1)", note: "<strong>Two-Step AME (DeepSeek v4.1 Flash):</strong> <code>beta_MB = +0.5110</code> (#1 full suite; <code>Gemma 4 26B</code> smoke <code>+0.5955</code>)" }
           ];
           sc1Left.forEach(function (b, idx) {
             const x = 118 + idx * 110;
             const g = svgEl("g");
-            addBarGraphic(g, x, 58, b.val, -0.10, 0.60, 0.0, b.color, b.txt, "10.5");
+            addBarGraphic(g, x, 58, b.val, -0.10, 0.60, 0.0, b.color, b.txt, "10.5", b.opts);
             addXLabels(g, x + 29, b.label, b.sub, "10.8", "9.2");
             bindHit(g, "c4-inspect", b.note, b.badge, "blue");
             layer.appendChild(g);
@@ -3208,21 +3386,21 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
 
           const sc1Right = [
             { label: "Bare", sub: "(Baseline)", val: 0.2027, txt: "0.2027", color: "#64748b", badge: "ECE 0.2027", note: "<strong>Restless Bandit Bare LLM:</strong> <code>ECE = 0.2027</code> — uncalibrated reward uncertainty estimation" },
-            { label: "ov_off", sub: "(Mind OFF)", val: 0.0961, txt: "0.0961", color: "#d97706", badge: "ECE 0.0961", note: "<strong>Restless Bandit ov_off:</strong> <code>ECE = 0.0961</code> — retrieval context lowers calibration error" },
-            { label: "AME v4.0", sub: "(-50.6% Err)", val: 0.1001, txt: "0.1001", color: "url(#conv-grad-v4)", badge: "ECE 0.1001 (-50.6%)", note: "<strong>Restless Bandit AME v4.0:</strong> <code>ECE = 0.1001</code> — <code>−50.6%</code> calibration error reduction vs Bare (<code>0.2027</code>)" }
+            { label: "Mind OFF", sub: "(ov_off)", val: 0.0961, txt: "0.0961", color: "#738298", badge: "ECE 0.0961", note: "<strong>Restless Bandit Mind OFF (ov_off):</strong> <code>ECE = 0.0961</code> — retrieval context lowers calibration error" },
+            { label: "AME", sub: "(-50.6% Err)", val: 0.1001, txt: "0.1001", color: C4_DS.color, opts: C4_DS.opts, badge: "ECE 0.1001 (-50.6%)", note: "<strong>Restless Bandit AME:</strong> <code>ECE = 0.1001</code> — <code>−50.6%</code> calibration error reduction vs Bare (<code>0.2027</code>)" }
           ];
           sc1Right.forEach(function (b, idx) {
             const x = 588 + idx * 110;
             const g = svgEl("g");
-            addBarGraphic(g, x, 58, b.val, 0.0, 0.25, 0.0, b.color, b.txt, "10.5");
-            if (b.label === "AME v4.0") {
+            addBarGraphic(g, x, 58, b.val, 0.0, 0.25, 0.0, b.color, b.txt, "10.5", b.opts);
+            if (b.label === "AME") {
               g.appendChild(svgEl("rect", {
                 x: (x + 29 - 52).toFixed(1), y: "162", width: "104", height: "19", rx: "9.5",
-                fill: "var(--emerald-soft)", stroke: "var(--emerald)", "stroke-width": "1.2"
+                fill: "rgba(0, 245, 160, 0.14)", stroke: "#5eead4", "stroke-width": "1.2"
               }));
               g.appendChild(svgEl("text", {
                 x: (x + 29).toFixed(1), y: "175", "text-anchor": "middle",
-                "font-size": "9", "font-weight": "800", fill: "var(--emerald)"
+                "font-size": "9", "font-weight": "800", fill: "#5eead4"
               }, "-50.6% vs Bare"));
             }
             addXLabels(g, x + 29, b.label, b.sub, "10.8", "9.2");
@@ -3232,8 +3410,8 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
 
           renderLegend("c4-legend", [
             { swatch: "#64748b", label: "Bare LLM (beta_MB -0.064 · ECE 0.2027)" },
-            { swatch: "#d97706", label: "ov_off (beta_MB +0.318 · ECE 0.0961)" },
-            { swatch: "linear-gradient(135deg, #3b82f6, #10b981)", label: "AME v4.0 (beta_MB +0.5110 #1 · ECE 0.1001, −50.6% Err vs Bare)" }
+            { swatch: "#738298", label: "Mind OFF (ov_off: beta_MB +0.318 · ECE 0.0961)" },
+            { cls: "ds-swatch", label: "AME (beta_MB +0.5110 #1 · ECE 0.1001, −50.6% Err vs Bare)" }
           ]);
           setInspect("c4-inspect",
             "<strong>sc1 Cognitive Control:</strong> Two-Step <span class='mono'>beta_MB +0.5110</span> (#1 vs <span class='mono'>Bare -0.064</span>) &amp; Restless Bandit <span class='mono'>ECE 0.1001</span> (<span class='mono'>−50.6%</span> error vs <span class='mono'>Bare 0.2027</span>).",
@@ -3250,13 +3428,15 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
       });
 
       /* Chart 5: 5-LLM x 300-Turn Live Generalization (Holm-Corrected Win Rates vs. 50% Baseline) */
+      const C5_DS = styleDs("c5");
+      const C5_EC = styleEc5();
       const C5_BARS = [
-        { label: "Gemma Safety", sub: "pHolm = 0.0176", val: 100.0, txt: "100.0%", color: "url(#multi-grad-v4)", badge: "100.0% · pHolm=0.0176", note: "<strong>Gemma Safety:</strong> <code>100.0%</code> blind win rate vs Stateless/OFF (<code>pHolm = 0.0176</code>) across 300-turn live sessions" },
-        { label: "Carbon Safety", sub: "pHolm = 2.55e-5", val: 85.7, txt: "85.7%", color: "url(#multi-grad-v4)", badge: "85.7% · pHolm=2.55e-5", note: "<strong>Carbon Safety:</strong> <code>85.7%</code> blind win rate vs Stateless/OFF (<code>pHolm = 2.55e-5</code>)" },
-        { label: "Neon Safety", sub: "pHolm = 0.0357", val: 73.7, txt: "73.7%", color: "#0d9488", badge: "73.7% · pHolm=0.0357", note: "<strong>Neon Safety:</strong> <code>73.7%</code> blind win rate vs Stateless/OFF (<code>pHolm = 0.0357</code>)" },
-        { label: "Neon Aware", sub: "pHolm = 0.0046", val: 60.2, txt: "60.2%", color: "#3b82f6", badge: "60.2% · pHolm=0.0046", note: "<strong>Neon Awareness:</strong> <code>60.2%</code> blind win rate vs Stateless/OFF (<code>pHolm = 0.0046</code>)" },
-        { label: "Carbon Human", sub: "pHolm = 0.0013", val: 60.1, txt: "60.1%", color: "#3b82f6", badge: "60.1% · pHolm=0.0013", note: "<strong>Carbon Humanness:</strong> <code>60.1%</code> blind win rate vs Stateless/OFF (<code>pHolm = 0.0013</code>)" },
-        { label: "Neon Human", sub: "pHolm = 0.0046", val: 59.2, txt: "59.2%", color: "#6366f1", badge: "59.2% · pHolm=0.0046", note: "<strong>Neon Humanness:</strong> <code>59.2%</code> blind win rate vs Stateless/OFF (<code>pHolm = 0.0046</code>)" }
+        { label: "Gemma 4 26B", sub: "Safety · pHolm=0.0176", val: 100.0, txt: "100.0%", color: C5_EC.color, opts: C5_EC.opts, standout: true, badge: "100.0% · pHolm=0.0176", note: "<strong>AME (Gemma 4 26B) Safety:</strong> <code>100.0%</code> blind win rate vs Stateless/OFF (<code>pHolm = 0.0176</code>) across 300-turn live sessions" },
+        { label: "Carbon Safety", sub: "pHolm = 2.55e-5", val: 85.7, txt: "85.7%", color: C5_DS.color, opts: C5_DS.opts, badge: "85.7% · pHolm=2.55e-5", note: "<strong>Carbon Safety (AME):</strong> <code>85.7%</code> blind win rate vs Stateless/OFF (<code>pHolm = 2.55e-5</code>)" },
+        { label: "Neon Safety", sub: "pHolm = 0.0357", val: 73.7, txt: "73.7%", color: C5_DS.color, opts: C5_DS.opts, badge: "73.7% · pHolm=0.0357", note: "<strong>Neon Safety (AME):</strong> <code>73.7%</code> blind win rate vs Stateless/OFF (<code>pHolm = 0.0357</code>)" },
+        { label: "Neon Aware", sub: "pHolm = 0.0046", val: 60.2, txt: "60.2%", color: C5_DS.color, opts: C5_DS.opts, badge: "60.2% · pHolm=0.0046", note: "<strong>Neon Awareness (AME):</strong> <code>60.2%</code> blind win rate vs Stateless/OFF (<code>pHolm = 0.0046</code>)" },
+        { label: "Carbon Human", sub: "pHolm = 0.0013", val: 60.1, txt: "60.1%", color: C5_DS.color, opts: C5_DS.opts, badge: "60.1% · pHolm=0.0013", note: "<strong>Carbon Humanness (AME):</strong> <code>60.1%</code> blind win rate vs Stateless/OFF (<code>pHolm = 0.0013</code>)" },
+        { label: "Neon Human", sub: "pHolm = 0.0046", val: 59.2, txt: "59.2%", color: C5_DS.color, opts: C5_DS.opts, badge: "59.2% · pHolm=0.0046", note: "<strong>Neon Humanness (AME):</strong> <code>59.2%</code> blind win rate vs Stateless/OFF (<code>pHolm = 0.0046</code>)" }
       ];
 
       function renderChart5() {
@@ -3265,44 +3445,55 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
         if (!layer) return;
         layer.innerHTML = "";
 
-        const startX = 96, step = 136, barW = 68;
+        const startX = 94, step = 134, barW = 70;
         C5_BARS.forEach(function (b, idx) {
           const x = startX + idx * step;
           const cx = x + barW / 2;
           const g = svgEl("g");
-          addBarGraphic(g, x, barW, b.val, 0, 100, 0, b.color, b.txt, "11");
-          addXLabels(g, cx, b.label, b.sub, "10.8", "9.4");
+          addBarGraphic(g, x, barW, b.val, 0, 100, 0, b.color, b.txt, "11", b.opts);
+          if (b.standout) {
+            g.appendChild(svgEl("rect", {
+              x: (x + 2).toFixed(1), y: "76", width: (barW - 4).toFixed(1), height: "20", rx: "6",
+              fill: "#09101d", "fill-opacity": "0.88", stroke: "#fda4af", "stroke-width": "1.3"
+            }));
+            g.appendChild(svgEl("text", {
+              x: cx.toFixed(1), y: "89.5", "text-anchor": "middle",
+              "font-size": "8.2", "font-weight": "800", fill: "#5eead4"
+            }, "★ 100% SAFE"));
+          }
+          addXLabels(g, cx, b.label, b.sub, "10.4", "8.4");
           bindHit(g, "c5-inspect", b.note + " · Cohort: <code>4,460</code> valid turns / <code>5,624</code> blind votes", b.badge, "violet");
           layer.appendChild(g);
         });
 
-        // Prominent 50% Stateless/OFF Parity dashed line (y = 180.0)
+        // Muted 50% Stateless/OFF Parity dashed line (y = 180.0)
         const y50 = PLOT_BOTTOM - 0.50 * PLOT_H;
         layer.appendChild(svgEl("line", {
           x1: "72", y1: y50.toFixed(1), x2: "925", y2: y50.toFixed(1),
-          stroke: "#f59e0b", "stroke-width": "2.4", "stroke-dasharray": "7 4"
+          stroke: "#8492a6", "stroke-width": "2.2", "stroke-dasharray": "7 4"
         }));
         layer.appendChild(svgEl("text", {
           x: "920", y: (y50 - 6).toFixed(1), "text-anchor": "end",
-          "font-size": "9.5", "font-weight": "800", fill: "#f59e0b"
+          "font-size": "9.5", "font-weight": "800", fill: "#8492a6"
         }, "50% Parity"));
 
         renderLegend("c5-legend", [
-          { swatch: "linear-gradient(135deg, #3b82f6, #10b981)", label: "Safety Win Rate (Gemma 100% · Carbon 85.7% · Neon 73.7%)" },
-          { swatch: "linear-gradient(90deg, #3b82f6, #6366f1)", label: "Awareness & Humanness Win Rate (Holm p < 0.05)" },
-          { line: true, color: "#f59e0b", label: "50% Stateless / OFF Parity Baseline (4,460 Turns · 5,624 Votes)" }
+          { cls: "ec-swatch", label: "AME (Gemma 4 26B) Safety 100.0% (pHolm = 0.0176)" },
+          { cls: "ds-swatch", label: "AME Cross-Backbone Win Rates (Safety · Awareness · Humanness, Holm p < 0.05)" },
+          { line: true, color: "#8492a6", label: "50% Stateless / OFF Parity Baseline (4,460 Turns · 5,624 Votes)" }
         ]);
         setInspect("c5-inspect",
-          "<strong>5-LLM &times; 300-Turn Live:</strong> <span class='mono'>4,460</span> valid turns &amp; <span class='mono'>5,624</span> blind votes confirm Holm-corrected safety, awareness &amp; humanness gains across heterogeneous backbones.",
+          "<strong>5-LLM &times; 300-Turn Live:</strong> <span class='mono'>AME (Gemma 4 26B) Safety 100.0%</span> (<span class='mono'>pHolm=0.0176</span>) leads <span class='mono'>4,460</span> valid turns &amp; <span class='mono'>5,624</span> blind votes across heterogeneous backbones.",
           "All 6 pHolm < 0.05", "violet");
       }
 
       /* Chart 6: Unit Economics (KV Cache) & Cross-Lingual LongMemEval */
+      const C6_DS = styleDs("c6");
       const C6_KV_BARS = [
         { label: "Unaligned v1", sub: "(Pre-Epoch Baseline)", val: 7.14, txt: "7.14%", color: "#64748b", badge: "7.14% Baseline", note: "<strong>Unaligned v1:</strong> <code>7.14%</code> KV cache hit rate prior to append-only epoch prefix alignment" },
-        { label: "Aligned v2.1", sub: "(Tail Slot Isolation)", val: 24.71, txt: "24.71%", color: "#d97706", badge: "24.71% (+3.46x)", note: "<strong>Aligned v2.1:</strong> <code>24.71%</code> KV cache hit rate via DisclosureDirectiveSlot tail isolation" },
-        { label: "AME v4.0 Mean", sub: "(CogEval Overall)", val: 36.24, txt: "36.24%", color: "#0d9488", badge: "36.24% Overall", note: "<strong>AME v4.0 Overall Mean:</strong> <code>36.24%</code> KV cache hit rate across full CogEval verification" },
-        { label: "AME v4.0 sc2", sub: "([compaction]=0)", val: 47.03, txt: "47.03%", color: "url(#econ-grad-v4)", badge: "47.03% Peak Hit", note: "<strong>AME v4.0 sc2:</strong> <code>47.03%</code> KV cache hit rate with <code>epochStableCompressCutoff ([compaction]=0)</code>" }
+        { label: "Aligned v2.1", sub: "(Tail Slot Isolation)", val: 24.71, txt: "24.71%", color: "#738298", badge: "24.71% (+3.46x)", note: "<strong>Aligned v2.1:</strong> <code>24.71%</code> KV cache hit rate via DisclosureDirectiveSlot tail isolation" },
+        { label: "AME Mean", sub: "(CogEval Overall)", val: 36.24, txt: "36.24%", color: C6_DS.color, opts: C6_DS.opts, badge: "36.24% Overall", note: "<strong>AME Overall Mean:</strong> <code>36.24%</code> KV cache hit rate across full CogEval verification" },
+        { label: "AME sc2", sub: "([compaction]=0)", val: 47.03, txt: "47.03%", color: C6_DS.color, opts: C6_DS.opts, badge: "47.03% Peak Hit", note: "<strong>AME sc2:</strong> <code>47.03%</code> KV cache hit rate with <code>epochStableCompressCutoff ([compaction]=0)</code>" }
       ];
 
       const C6_LME_CLUSTERS = [
@@ -3310,7 +3501,7 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
           label: "Paired EN", sub: "(Bare vs AME)",
           bars: [
             { val: 91.67, txt: "91.67%", color: "#64748b" },
-            { val: 91.67, txt: "91.67%", color: "url(#econ-grad-v4)" }
+            { val: 91.67, txt: "91.67%", color: C6_DS.color, opts: C6_DS.opts }
           ],
           badge: "Paired EN 91.67%",
           note: "<strong>LongMemEval Paired EN (n=12):</strong> <code>Bare 91.67%</code> vs <code>AME 91.67%</code> — matches full-context parity at bounded <code>O(1)</code> prompt size"
@@ -3319,7 +3510,7 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
           label: "Paired KO", sub: "(Bare vs AME +8.3%p)",
           bars: [
             { val: 75.00, txt: "75.00%", color: "#64748b" },
-            { val: 83.33, txt: "83.33%", color: "url(#econ-grad-v4)" }
+            { val: 83.33, txt: "83.33%", color: C6_DS.color, opts: C6_DS.opts }
           ],
           badge: "+8.33%p KO Lift",
           note: "<strong>LongMemEval Paired KO (n=12):</strong> <code>AME 83.33%</code> vs <code>Bare 75.00%</code> — <code>+8.33%p</code> cross-lingual Korean lift"
@@ -3327,7 +3518,7 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
         {
           label: "100T KO", sub: "(AME 100-Turn KO)",
           bars: [
-            { val: 100.0, txt: "100.0%", color: "url(#econ-grad-v4)" }
+            { val: 100.0, txt: "100.0%", color: C6_DS.color, opts: C6_DS.opts }
           ],
           badge: "100T KO 100.0%",
           note: "<strong>LongMemEval 100-Turn KO:</strong> <code>AME 100.0%</code> sustained cross-session recall across 100 Korean turns"
@@ -3335,7 +3526,7 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
         {
           label: "LME-S _abs", sub: "(AME Abstention)",
           bars: [
-            { val: 76.67, txt: "76.67%", color: "#0d9488" }
+            { val: 76.67, txt: "76.67%", color: C6_DS.color, opts: C6_DS.opts }
           ],
           badge: "_abs 76.67%",
           note: "<strong>LongMemEval-S Abstention (_abs):</strong> <code>AME 76.67%</code> calibrated abstention accuracy on unanswerable queries"
@@ -3343,8 +3534,8 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
         {
           label: "LME-S 500", sub: "(Mem0 vs AME P3)",
           bars: [
-            { val: 55.8, txt: "55.8%", color: "#d97706" },
-            { val: 55.20, txt: "55.20%", color: "url(#econ-grad-v4)" }
+            { val: 55.8, txt: "55.8%", color: "#8492a6" },
+            { val: 55.20, txt: "55.20%", color: C6_DS.color, opts: C6_DS.opts }
           ],
           badge: "55.20% (276/500)",
           note: "<strong>LongMemEval-S 500-QA Full Suite:</strong> <code>AME P3 55.20%</code> (276/500) vs <code>Mem0 Upper 55.8%</code> at bounded <code>O(1)</code> prompt size"
@@ -3366,14 +3557,14 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
             ]
           });
           document.getElementById("c6-title").textContent = "Epoch-Stable Prefix Unit Economics: KV Cache Hit Rate Progression";
-          document.getElementById("c6-sub").textContent = "DisclosureDirectiveSlot tail isolation + [compaction]=0 elevates KV cache hit rate from 7.14% to 47.03% (sc2)";
+          document.getElementById("c6-sub").textContent = "DisclosureDirectiveSlot tail isolation + [compaction]=0 elevates AME KV cache hit rate from 7.14% to 47.03% (sc2)";
 
           const startX = 132, step = 192, barW = 104;
           C6_KV_BARS.forEach(function (b, idx) {
             const x = startX + idx * step;
             const cx = x + barW / 2;
             const g = svgEl("g");
-            addBarGraphic(g, x, barW, b.val, 0, 50, 0, b.color, b.txt, "11.5");
+            addBarGraphic(g, x, barW, b.val, 0, 50, 0, b.color, b.txt, "11.5", b.opts);
             addXLabels(g, cx, b.label, b.sub, "11.5", "9.8");
             bindHit(g, "c6-inspect", b.note, b.badge, "amber");
             layer.appendChild(g);
@@ -3381,12 +3572,11 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
 
           renderLegend("c6-legend", [
             { swatch: "#64748b", label: "Unaligned v1 (7.14%)" },
-            { swatch: "#d97706", label: "Aligned v2.1 (24.71%)" },
-            { swatch: "#0d9488", label: "AME v4.0 Mean (36.24%)" },
-            { swatch: "linear-gradient(135deg, #3b82f6, #10b981)", label: "AME v4.0 sc2 Peak (47.03% · [compaction]=0)" }
+            { swatch: "#738298", label: "Aligned v2.1 (24.71%)" },
+            { cls: "ds-swatch", label: "AME Mean (36.24%) & AME sc2 Peak (47.03% · [compaction]=0)" }
           ]);
           setInspect("c6-inspect",
-            "<strong>KV Prefix Cache Economics:</strong> <span class='mono'>AME v4.0 sc2</span> reaches <span class='mono'>47.03%</span> KV cache hit rate (<span class='mono'>36.24%</span> CogEval mean vs <span class='mono'>7.14%</span> Unaligned v1, <span class='mono'>[compaction]=0</span>).",
+            "<strong>KV Prefix Cache Economics:</strong> <span class='mono'>AME sc2</span> reaches <span class='mono'>47.03%</span> KV cache hit rate (<span class='mono'>36.24%</span> CogEval mean vs <span class='mono'>7.14%</span> Unaligned v1, <span class='mono'>[compaction]=0</span>).",
             "47.03% sc2 Hit", "amber");
         } else {
           renderAxes("c6-axes", { ticks: PCT_TICKS_100 });
@@ -3401,11 +3591,11 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
               const barW = 42, gap = 8;
               const x0 = cx - barW - gap / 2;
               const x1 = cx + gap / 2;
-              addBarGraphic(g, x0, barW, cl.bars[0].val, 0, 100, 0, cl.bars[0].color, cl.bars[0].txt, "9.5");
-              addBarGraphic(g, x1, barW, cl.bars[1].val, 0, 100, 0, cl.bars[1].color, cl.bars[1].txt, "9.5");
+              addBarGraphic(g, x0, barW, cl.bars[0].val, 0, 100, 0, cl.bars[0].color, cl.bars[0].txt, "9.5", cl.bars[0].opts);
+              addBarGraphic(g, x1, barW, cl.bars[1].val, 0, 100, 0, cl.bars[1].color, cl.bars[1].txt, "9.5", cl.bars[1].opts);
             } else {
               const barW = 56;
-              addBarGraphic(g, cx - barW / 2, barW, cl.bars[0].val, 0, 100, 0, cl.bars[0].color, cl.bars[0].txt, "10.5");
+              addBarGraphic(g, cx - barW / 2, barW, cl.bars[0].val, 0, 100, 0, cl.bars[0].color, cl.bars[0].txt, "10.5", cl.bars[0].opts);
             }
             addXLabels(g, cx, cl.label, cl.sub, "11", "9.3");
             bindHit(g, "c6-inspect", cl.note, cl.badge, "blue");
@@ -3414,8 +3604,8 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
 
           renderLegend("c6-legend", [
             { swatch: "#64748b", label: "Bare LLM (Full Context O(T²): EN 91.67% · KO 75.00%)" },
-            { swatch: "#d97706", label: "Mem0 Upper (55.8% on LME-S 500)" },
-            { swatch: "linear-gradient(135deg, #3b82f6, #10b981)", label: "AME O(1) Bounded Prompt (KO 83.33% · 100T KO 100% · _abs 76.67% · P3 55.20%)" }
+            { swatch: "#8492a6", label: "Mem0 Upper (55.8% on LME-S 500)" },
+            { cls: "ds-swatch", label: "AME O(1) Bounded Prompt (KO 83.33% · 100T KO 100% · _abs 76.67% · P3 55.20%)" }
           ]);
           setInspect("c6-inspect",
             "<strong>Cross-Lingual LongMemEval:</strong> <span class='mono'>AME</span> ties Bare EN (<span class='mono'>91.67%</span>), lifts Paired KO by <span class='mono'>+8.33%p</span> (<span class='mono'>83.33%</span> vs <span class='mono'>75.00%</span>), hits <span class='mono'>100.0%</span> on 100T KO &amp; <span class='mono'>76.67%</span> on <span class='mono'>_abs</span>.",

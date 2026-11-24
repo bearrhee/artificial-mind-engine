@@ -419,3 +419,10 @@ console.log({ warmCue, guardedCue, proactiveHint: wakeUp.proactiveHint, erasureR
 - [LLM Hot-Swap Adapters & ROI Routing Guide](./llm-adapters.md)
 - [Enterprise Security, Closed IP Protection & GDPR D3/D4 Guide](./enterprise-security.md)
 - [Full Benchmark Methodology, Empirical Scorecard & Reproducibility Harness](./benchmarks.md)
+
+---
+
+## Contact
+
+- **Website**: [artificialmind.me](https://artificialmind.me)
+- **Contact**: Shinyoung Rhee — [help@artificialmind.me](mailto:help@artificialmind.me)

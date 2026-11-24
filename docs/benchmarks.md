@@ -15,7 +15,10 @@ A **Bare Oracle**—which feeds the full raw conversation transcript into a fron
 
 Accordingly, AME evaluates five independent empirical tracks (Tracks A–E) across **Memory OS**, **Emotional Intelligence & Anti-Sycophancy**, **Cognitive/Causal Governance**, **Cross-Model Live Generalization**, and **1M-Turn Scale & KV-Cache Economics**.
 
-> **Comparative Evaluation Scope**: Every track below pairs `AME v4.0` (`PR #784`) and the `v3.0` full-set anchor (`PR #782`) directly against external SOTA memory systems, frontier LLMs, or controlled ablation baselines (`bare`, `ov_off`, `mind_off`, `aacim_off`) rather than presenting isolated AME-only scores.
+> **Comparative Evaluation Scope**: Every track below pairs **AME** (`PR #784`) and the 10-conversation full-set anchor (`PR #782`) directly against external SOTA memory systems, frontier LLMs, or controlled ablation baselines (`bare`, `ov_off`, `mind_off`, `aacim_off`) rather than presenting isolated AME-only scores.
+
+> [!NOTE]
+> **Default Backbone & Dual-Backbone Protocol**: AME benchmarks default to **`DeepSeek v4.1 Flash`** (`deepseek/deepseek-v4.1-flash`) — `Confirm-304` routes `71.7%` (`218/304`) to `DeepSeek v4.1 Flash` + `28.3%` (`86/304`) via selective `Sonnet-5` ROI routing, while `EQ-Bench 3` and `CogEval-v1` run **`DeepSeek v4.1 Flash`** directly. To verify small-backbone generalization without frontier escalation, **`Gemma 4 26B`** (`google/gemma-4-26b-a4b-it`, standalone `0%` escalation) was benchmarked across the exact same harness, isolated PostgreSQL/Redis instances, and `GPT-4o` judges (`openai/gpt-4o-2024-08-06`). Dual-backbone results below are labeled explicitly as **`AME (DeepSeek v4.1 Flash)`** and **`AME (Gemma 4 26B)`**.
 
 ---
 
@@ -24,41 +27,45 @@ Accordingly, AME evaluates five independent empirical tracks (Tracks A–E) acro
 ```mermaid
 xychart-beta
   title "Track A: Global LoCoMo SOTA vs. AME (%)"
-  x-axis ["OpenAI", "LangMem", "Mem0", "Letta", "Zep", "AME Full", "AME v4", "Oracle"]
+  x-axis ["OpenAI", "LangMem", "Mem0", "Letta", "Zep", "AME Gemma", "AME DeepSeek", "Bare Oracle"]
   y-axis "Accuracy (%)" 40 --> 95
-  bar [52.9, 58.1, 68.4, 74.0, 75.1, 77.24, 85.86, 87.17]
+  bar [52.9, 58.1, 68.4, 74.0, 75.1, 75.66, 85.86, 87.17]
 ```
 
-> **Chart 1 Legend**: External memory competitors on `LoCoMo` (`OpenAI Memory` `52.9%`, `LangMem` `58.1%`, `Mem0 / Mem0^g` `68.4%`, `Letta` `74.0%`, `Zep / Graphiti` `75.1%`) vs. `AME Full` (`77.24%` on `LoCoMo Full` `10-Conv`, `n=1,986`, `PR #782`), `AME v4` (`85.86%` on `Confirm-304`, `n=304`, `PR #784`), and `Bare Oracle` (`87.17%` full-transcript ceiling on `Confirm-304`).
+> **Chart 1 Legend**: External memory competitors on `LoCoMo` (`OpenAI Memory` `52.9%`, `LangMem` `58.1%`, `Mem0 / Mem0^g` `68.4%`, `Letta` `74.0%`, `Zep / Graphiti` `75.1%`) vs. **`AME (Gemma 4 26B)`** (`75.66%` standalone `0%` escalation on `Confirm-304`, `n=304`), **`AME (DeepSeek v4.1 Flash)`** (`85.86%` on `Confirm-304`, `n=304`, `PR #784`), and **`Bare Oracle`** (`87.17%` full-transcript ceiling on `Confirm-304`). *(See Section 2.B below for the `n=1,986` 10-conversation anchor.)*
 
 ### A. `Confirm-304` (`conv-26+30`, `n=304`) Production Comparison
 
-| Arm | Cat 1 (Multi-Hop, 43) | Cat 2 (Temporal, 63) | Cat 3 (Open Reasoning, 13) | Cat 4 (Single-Hop, 114) | **Cat 1–4 Total (233)** | Cat 5 (Adversarial, 71) | **Overall (304)** |
+| Arm | Cat 1 (Multi-Hop, 43) | Cat 2 (Temporal, 63) | Cat 3 (Open Reasoning, 13) | Cat 4 (Single-Hop, 114) | **Cat 1–4 Mean (233)** | Cat 5 (Adversarial, 71) | **Overall (304)** |
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | `ov_off` (Mind-OFF Baseline) | 20.93% (9) | 14.29% (9) | 38.46% (5) | 27.19% (31) | **23.18% (54)** | 94.37% (67) | **39.80% (121/304)** |
-| **`AME v4.0` (Verified Production)** | **62.79% (27)** | **90.48% (57)** | **92.31% (12)** | **91.23% (104)** | **85.84% (200)** | **85.92% (61)** | **85.86% (261/304)** |
+| **`AME (Gemma 4 26B)`** (Standalone `0%` Esc.) | **55.81% (24)** | **74.60% (47)** | **61.54% (8)** | **86.84% (99)** | **76.39% (178)** | **73.24% (52)** | **75.66% (230/304)** |
+| **`AME (DeepSeek v4.1 Flash)`** (Default Prod.) | **62.79% (27)** | **90.48% (57)** | **92.31% (12)** | **91.23% (104)** | **85.84% (200)** | **85.92% (61)** | **85.86% (261/304)** |
 | `Bare Oracle` (Full-Context Ceiling) | 67.44% (29) | 90.48% (57) | 76.92% (10) | 91.23% (104) | **85.84% (200)** | 91.55% (65) | **87.17% (265/304)** |
 
 ```mermaid
 xychart-beta
-  title "Track A: Confirm-304 Category Accuracy — ov_off vs. AME v4.0 vs. Bare Oracle (%)"
+  title "Track A: Confirm-304 Category Accuracy — ov_off vs. AME Backbones vs. Bare Oracle (%)"
   x-axis ["Cat 1", "Cat 2", "Cat 3", "Cat 4", "Cat 1-4", "Cat 5", "Overall"]
   y-axis "Accuracy (%)" 0 --> 100
   bar [20.93, 14.29, 38.46, 27.19, 23.18, 94.37, 39.80]
+  bar [55.81, 74.60, 61.54, 86.84, 76.39, 73.24, 75.66]
   bar [62.79, 90.48, 92.31, 91.23, 85.84, 85.92, 85.86]
   bar [67.44, 90.48, 76.92, 91.23, 85.84, 91.55, 87.17]
 ```
 
-> **Chart 2 Legend**: Series 1 = `ov_off` (Mind-OFF Baseline); Series 2 = `AME v4.0` (Verified Production); Series 3 = `Bare Oracle` (Full Transcript). Categories (`n=304`): `Cat 1` Multi-Hop (`43`), `Cat 2` Temporal (`63`), `Cat 3` Open Reasoning (`13`), `Cat 4` Single-Hop (`114`), `Cat 1-4` Non-Adversarial Total (`233`), `Cat 5` Adversarial (`71`), `Overall` (`304`).
+> **Chart 2 Legend**: Series 1 = `ov_off` (Mind-OFF Baseline); Series 2 = `AME (Gemma 4 26B)` (Standalone `0%` escalation); Series 3 = `AME (DeepSeek v4.1 Flash)` (Default Production); Series 4 = `Bare Oracle` (Full Transcript). Categories (`n=304`): `Cat 1` Multi-Hop (`43`), `Cat 2` Temporal (`63`), `Cat 3` Open Reasoning (`13`), `Cat 4` Single-Hop (`114`), `Cat 1-4` Non-Adversarial Mean (`233`), `Cat 5` Adversarial (`71`), `Overall` (`304`).
 
-- **Key Significance (`PR #784`)**: Running with `DeepSeek Flash Eco 218 + Sonnet-5 86` (`p50 = 5,413 ms`, `0` errors), **`AME v4.0`** achieves an **exact `85.84%` (`200/233`) tie with the full-transcript `Bare Oracle`** across all non-adversarial fact and reasoning items (`Cat 1–4`), and **surpasses the `Bare Oracle` (`76.92%`) by `+15.39%p` on open-domain reasoning (`Cat 3` at `92.31%`)**.
+- **Key Significance (`PR #784`)**:
+  - **`AME (DeepSeek v4.1 Flash)`**: Running `71.7%` `DeepSeek v4.1 Flash` (`218`) + `28.3%` selective `Sonnet-5` ROI routing (`86`, `p50 = 5,413 ms`, `0` errors), **`AME`** achieves an **exact `85.84%` (`200/233`) tie with the full-transcript `Bare Oracle`** across all non-adversarial fact and reasoning items (`Cat 1–4`), and **surpasses the `Bare Oracle` (`76.92%`) by `+15.39%p` on open-domain reasoning (`Cat 3` at `92.31%`)**.
+  - **`AME (Gemma 4 26B)`**: Running standalone on `google/gemma-4-26b-a4b-it` with **`0%` escalation**, **`AME`** scores **`75.66%` (`230/304`)** overall (`76.39%` on `Cat 1–4`, `86.84%` on `Cat 4`), outperforming external SOTA memory systems (`OpenAI 52.9%`, `LangMem 58.1%`, `Mem0 68.4%`, `Letta 74.0%`, `Zep 75.1%`) on a compact 26B backbone.
 - **Additional Verified Memory Suites (`0` errors, `0` regressions)**:
   - **`LoCoMo Full 10-Conv (n=1,986)`**: **`77.24%` (`1,534/1,986`)** across all 10 conversations (detailed in Section 2.B).
-  - **`LoCoMo Smoke-160 v4.0` (`n=160`)**: **`79.38%` (`127/160`)** (`p50 = 6,133 ms`, `PR #784`; 40 items each from `conv-26, 30, 42, 44`, preserving all 31 `Cat 3` items via ISO date hints, 950-char reranking, and `DisclosureSlot` tail isolation).
+  - **`LoCoMo Smoke-160` (`n=160`)**: **`79.38%` (`127/160`)** (`p50 = 6,133 ms`, `PR #784`; 40 items each from `conv-26, 30, 42, 44`, preserving all 31 `Cat 3` items via ISO date hints, 950-char reranking, and `DisclosureSlot` tail isolation).
   - **`LongMemEval Paired (n=12)`**: `EN 91.67%` (ties `Bare Oracle`) · `KO 83.33%` (**`+8.33%p`** over `Bare Oracle` `75.00%`).
   - **`Single-Session 100T KO (n=12)`**: **`100.0%` (`12/12`)**.
 
-### B. `LoCoMo Full 10-Conversation` (`n=1,986`, `v3.0 PR #782` Full-Set Anchor)
+### B. `LoCoMo Full 10-Conversation` (`n=1,986`, `PR #782` Full-Set Anchor)
 
 To eliminate any concern of overfitting to a 2-conversation slice, all 10 conversations (`conv-26..conv-50`, `n=1,986`) were evaluated end-to-end across 5 isolated shards (`0` errors).
 
@@ -78,43 +85,54 @@ To eliminate any concern of overfitting to a 2-conversation slice, all 10 conver
 
 ### A. `EQ-Bench 3 Core` (`n=46 × 4 Turns`, GPT-4o Judge)
 
-AME was evaluated across all 46 multi-turn scenarios (`4` turns per scenario, `GPT-4o` judge) and benchmarked against public `EQ-Bench 3` leaderboard anchors:
+AME was evaluated across all 46 multi-turn scenarios (`4` turns per scenario, `GPT-4o` judge `openai/gpt-4o-2024-08-06`) on both **`DeepSeek v4.1 Flash`** and **`Gemma 4 26B`** (`0%` escalation), and benchmarked against public `EQ-Bench 3` leaderboard anchors:
 
-| System / Model | Evaluation Scope | `EQ-Bench 3` Score | AME Delta |
-| :--- | :--- | ---: | ---: |
-| **`AME` (Verified Official)** | `n=46 × 4` Turns (`GPT-4o` judge) | **`77.59`** | **Baseline** |
-| `GPT-5.2` | Public leaderboard anchor | `72.2` | `+5.39` |
-| `o3` | Public leaderboard anchor | `63.2` | `+14.39` |
-| `Claude Sonnet 4.5` | Public leaderboard anchor | `62.2` | `+15.39` |
-| `Claude Sonnet 3.5` | Public leaderboard anchor | `50.9` | `+26.69` |
+| System / Model | Evaluation Scope | `EQ-Bench 3` Score | `AME (DeepSeek)` Delta | `AME (Gemma)` Delta |
+| :--- | :--- | ---: | ---: | ---: |
+| **`AME (Gemma 4 26B)`** | `n=46 × 4` Turns (`GPT-4o` judge, `judgedN=46`) | **`77.77`** | `+0.18` | **Baseline** |
+| **`AME (DeepSeek v4.1 Flash)`** | `n=46 × 4` Turns (`GPT-4o` judge, `judgedN=46`) | **`77.59`** | **Baseline** | `-0.18` |
+| `GPT-5.2` | Public leaderboard anchor | `72.2` | `+5.39` | `+5.57` |
+| `o3` | Public leaderboard anchor | `63.2` | `+14.39` | `+14.57` |
+| `Claude Sonnet 4.5` | Public leaderboard anchor | `62.2` | `+15.39` | `+15.57` |
+| `Claude Sonnet 3.5` | Public leaderboard anchor | `50.9` | `+26.69` | `+26.87` |
 
 ```mermaid
 xychart-beta
   title "Track B: EQ-Bench 3 Core — Frontier LLMs vs. AME"
-  x-axis ["Sonnet 3.5", "Sonnet 4.5", "OpenAI o3", "GPT-5.2", "AME Core"]
+  x-axis ["Sonnet 3.5", "Sonnet 4.5", "OpenAI o3", "GPT-5.2", "AME DeepSeek", "AME Gemma"]
   y-axis "EQ-Bench 3 Score" 40 --> 85
-  bar [50.9, 62.2, 63.2, 72.2, 77.59]
+  bar [50.9, 62.2, 63.2, 72.2, 77.59, 77.77]
 ```
 
-> **Chart 3 Legend**: Official `EQ-Bench 3 Core` score (`0–100` scale). Public leaderboard anchors (`Claude Sonnet 3.5` `50.9`, `Claude Sonnet 4.5` `62.2`, `OpenAI o3` `63.2`, `GPT-5.2` `72.2`) vs. `AME Core` (`77.59`, `n=46 × 4` multi-turn scenarios with `GPT-4o` judge; `+5.39` above `GPT-5.2`).
+> **Chart 3 Legend**: Official `EQ-Bench 3 Core` score (`0–100` scale). Public leaderboard anchors (`Claude Sonnet 3.5` `50.9`, `Claude Sonnet 4.5` `62.2`, `OpenAI o3` `63.2`, `GPT-5.2` `72.2`) vs. **`AME (DeepSeek v4.1 Flash)`** (`77.59`, `+5.39` above `GPT-5.2`) and **`AME (Gemma 4 26B)`** (`77.77`, `judgedN=46`, `+5.57` above `GPT-5.2`).
 
-#### Full 18-Trait `EQ-Bench 3` Rubric Breakdown (`0–20` Scale)
+#### `EQ-Bench 3` Rubric Breakdown (`0–20` Scale)
 
-| Rubric Trait | Score (`0–20`) | Interpretation | Rubric Trait | Score (`0–20`) | Interpretation |
-| :--- | ---: | :--- | :--- | ---: | :--- |
-| `analytical` | **16.91** | High | `validating` | **14.3** | Balanced |
-| `depth_of_insight` | **16.83** | High | `message_tailoring` | **14.15** | High |
-| `demonstrated_empathy` | **16.24** | High | `social_dexterity` | **13.89** | Balanced |
-| `emotional_reasoning` | **16.24** | High | `boundary_setting` | **13.74** | High |
-| `humanlike` | **15.98** | High | `challenging` | **13.7** | Constructive pushback |
-| `pragmatic_ei` | **15.76** | High | `reactive` | **11.72** | Moderate |
-| `safety_conscious` | **15.67** | High | `compliant` | **9.28** | Controlled non-appeasement |
-| `conversational` | **15.17** | High | `moralising` | **7.33** | *(Lower better)* |
-| `warmth` | **14.57** | Balanced | `sycophantic` | **4.46** | *(Lower better)* |
+| Rubric Trait | `AME (DeepSeek v4.1 Flash)` | `AME (Gemma 4 26B)` | Interpretation |
+| :--- | ---: | ---: | :--- |
+| `analytical` | **16.91** | **15.76** | High |
+| `depth_of_insight` | **16.83** | **14.80** | High |
+| `demonstrated_empathy` | **16.24** | **17.09** | High (`+0.85` on Gemma) |
+| `emotional_reasoning` | **16.24** | **16.26** | High |
+| `humanlike` | **15.98** | **15.50** | High |
+| `pragmatic_ei` | **15.76** | **15.93** | High |
+| `safety_conscious` | **15.67** | **15.89** | High |
+| `conversational` | **15.17** | **15.52** | High |
+| `warmth` | **14.57** | **16.22** | Balanced / High (`+1.65` on Gemma) |
+| `validating` | **14.3** | `—` | Balanced |
+| `message_tailoring` | **14.15** | `—` | High |
+| `social_dexterity` | **13.89** | `—` | Balanced |
+| `boundary_setting` | **13.74** | **13.50** | High |
+| `challenging` | **13.7** | `—` | Constructive pushback |
+| `reactive` | **11.72** | `—` | Moderate |
+| `compliant` | **9.28** | `—` | Controlled non-appeasement |
+| `moralising` | **7.33** | **7.54** | *(Lower better)* |
+| `sycophantic` | **4.46** | **5.28** | *(Lower better)* |
 
-- **Why Low `sycophantic` (`4.46`) + High `safety_conscious` (`15.67`) Matters for Enterprise & Voice Robotics Safety**:
+- **Gemma 4 26B Multi-Turn Execution Note**: `AME (Gemma 4 26B)` achieved `77.77` across all `46` judged scenarios (`judgedN=46`), logging `blockedOrEmptyTurnScenarios=2` initial-turn empty replies before normal multi-turn completion; `—` denotes the 6 secondary traits outside the 12-trait Gemma summary export.
+- **Why Low `sycophantic` (`4.46` / `5.28`) + High `safety_conscious` (`15.67` / `15.89`) Matters for Enterprise & Voice Robotics Safety**:
   - Conventional companion wrappers raise perceived warmth by inflating `compliant` and `sycophantic` behavior, which reinforces user cognitive distortions, rubber-stamps risky decisions, and erodes guardrails under adversarial framing.
-  - AME sustains strong **`demonstrated_empathy` (`16.24`)**, **`humanlike` (`15.98`)**, and **`pragmatic_ei` (`15.76`)** while keeping **`sycophantic` at `4.46`** and **`moralising` at `7.33`**, paired with **`safety_conscious` (`15.67`)**, **`boundary_setting` (`13.74`)**, and **`challenging` (`13.7`)**.
+  - Both AME backbones sustain strong **`demonstrated_empathy` (`16.24` / `17.09`)**, **`humanlike` (`15.98` / `15.50`)**, and **`pragmatic_ei` (`15.76` / `15.93`)** while keeping **`sycophantic` (`4.46` / `5.28`)** and **`moralising` (`7.33` / `7.54`)** low, paired with **`safety_conscious` (`15.67` / `15.89`)** and **`boundary_setting` (`13.74` / `13.50`)**.
   - For **regulated enterprise deployment** (financial advisory, clinical/wellness coaching, VIP support) and **embodied voice robotics**, this profile prevents sycophantic compliance failures and unsafe confirmation bias without turning replies rigid or preachy.
 
 ### B. `EQ-Bench v2 EN` (`n=171` Full Official, Deterministic Zero-Judge Formula)
@@ -129,45 +147,48 @@ xychart-beta
 
 ## 4. Track C — `CogEval-v1` Cognitive, Causal & Metacognitive Governance
 
-Consolidated results across `CogEval-v1 Full` (`33` JSONL files · `7,436` rows · `1,776` GPT-4o blind-judge calls · `0` harness errors) and verified `AME v4.0` production runs (`PR #784`):
+Consolidated results across `CogEval-v1 Full` (`33` JSONL files · `7,436` rows · `1,776` GPT-4o blind-judge calls · `0` harness errors), verified **`AME (DeepSeek v4.1 Flash)`** production runs (`PR #784`), and **`AME (Gemma 4 26B)`** standalone smoke runs (`0%` escalation):
 
-| Suite / Invariant | Verification Target | `bare` (Raw LLM) | `ov_off` (Memory-Only ON) | `AME` (`Full` / `v4.0`) | Gate Meaning |
-| :--- | :--- | ---: | ---: | ---: | :--- |
-| **`D1` Counterfactual State Causality** | Does internal state change causally control utterance style? | `50.7%` (`+0.007`) | `49.3%` (`-0.007`) | **`97.9%` (`141/144`)** `[94.1, 99.3]` | **PASS** — `delta_CF = +0.4792`; `carried/mood/signature 100%` |
-| **`D2` Idle Homeostasis & Idempotency** | Are offline time-split updates 100% identical? | Structurally impossible | `5/5 (100%)` | **`5/5 (100.0%)`** (error `0.000000`) | **PASS** — Closed-form `0..7d` decay |
-| **`D3` Triple Atomic Forgetting** | Does `0%` of erased memory remain in replies/DB/Redis? | Structurally impossible | `0.00% (0/30)` | **`0.00% (0/30)`** (`DB=0`, `Redis=0`) | **PASS** — GDPR Right to Erasure |
-| **`D4` Unconscious Non-Leakage** | Are `0` unconscious numerical vectors exposed in prompts? | Structurally impossible | `0 / 11,691` | **`0 / 35,723`** (`v6 0/12,109`) | **PASS** — `0` leaks across full audit |
-| **`sb2` FEP Selective Lock** | Does `<thought>` activate exclusively on cognitive conflict turns? | — | — | **`100.0% / 0.0%`** (`35/35 vs 0/25`; `v4.0: 7/7 vs 0/5`) | **PASS** — Selective deliberation lock |
-| **`sa` HOT Abstention (`F1`/`FAR`)** | Does it abstain when unknown without dodging known answers? | `F1 96.1%` | `F1 83.1%` (`FAR 7.5%`) | **`v4.0 95.83%` (`F1 0.9655`, `FAR 0.00%`)** | **PASS** — Overcomes persona overhead |
-| **`sb1` FANToM ToM** | Does it separate information boundaries by who knows what? | `96.7%` | `91.7%–95.0%` | **`v4.0 100.0%` (`36/36`, `12/12`)** | **PASS** — Full v1 `95.0%` · v2.1 `88.3%` |
-| **`sc1` Two-Step `beta_MB`** | Ratio of model-based deliberation vs blind habit | `-0.064` | `+0.318` | **`+0.5110`** (#1 among 4 Arms) | Causal deliberation advantage |
-| **`sc1` Restless Bandit `10-bin ECE`** | Expected Calibration Error on reward uncertainty | `0.2027` | — | **`0.1001`** (`50.6%` lower error) | Metacognitive probability calibration |
-| **`sc2` IGT-Conv Safe Rate** | Does it shift to safe decks after loss learning? | `97.0%` | `70.7%` | **`v4.0 76.25%`** (`r = -0.783171`) | **PASS** — `reached5Safe 87.5%` |
+| Suite / Invariant | Verification Target | `bare` (Raw LLM) | `ov_off` (Memory-Only ON) | `AME (DeepSeek v4.1 Flash)` | `AME (Gemma 4 26B)` (Smoke) | Gate Meaning |
+| :--- | :--- | ---: | ---: | ---: | ---: | :--- |
+| **`D1` Counterfactual State Causality (`p_CF`)** | Does internal state change causally control utterance style? | `50.7%` (`+0.007`) | `49.3%` (`-0.007`) | **`97.9%` (`141/144`)** `[94.1, 99.3]` | **`95.8%` (`23/24`)** (`deltaCf=+0.4583`) | **PASS** — `delta_CF = +0.4792` (DeepSeek) / `+0.4583` (Gemma) |
+| **`D2` Idle Homeostasis & Idempotency** | Are offline time-split updates 100% identical? | Structurally impossible | `5/5 (100%)` | **`100.0%` (`5/5`)** (error `0.000000`) | **`100.0%` (`5/5`)** | **PASS** — Closed-form `0..7d` decay |
+| **`D3` Triple Atomic Forgetting** | Does `0%` of erased memory remain in replies/DB/Redis? | Structurally impossible | `0.00% (0/30)` | **`0.00%` (`0/30`)** (`DB=0`, `Redis=0`) | **`0.00%` leak (`0/6`)** (`0` DB/Redis residuals) | **PASS** — GDPR Right to Erasure |
+| **`D4` Unconscious Non-Leakage** | Are `0` unconscious numerical vectors exposed in prompts? | Structurally impossible | `0 / 11,691` | **`0 / 35,723`** (`v6 0/12,109`) | **`0 / 1,247`** (`PASS`) | **PASS** — `0` prompt leaks across full audit |
+| **`sb2` FEP `<thought>` Lock** | Does `<thought>` activate exclusively on cognitive conflict turns? | `0%` | `0%` | **`100.0%`** (`35/35 vs 0/25`; smoke `7/7 vs 0/5`) | **`100.0%`** (`7/7` conflict vs `0/5` calm; `deltaDistract=0`, `deltaStroop=0`) | **PASS** — Selective deliberation lock |
+| **`sa` HOT Abstention (`F1`/`FAR`)** | Does it abstain when unknown without dodging known answers? | `F1 96.1%` | `F1 83.1%` (`FAR 7.5%`) | **`95.83%`** (`F1 0.9655`, `FAR 0.00%`) | **`88.89%`** (`FAR 0%`, Precision `100%`, Recall `80.0%`) | **PASS** — Overcomes persona overhead (`0%` FAR) |
+| **`sb1` FANToM ToM (`ALL`)** | Does it separate information boundaries by who knows what? | `96.7%` | `91.7%` (`91.7%–95.0%`) | **`100.0%`** (`12/12`, `36/36`; Full `95.0%`) | **`91.7%`** (`11/12` eps; `97.2%` sub-Q `35/36`) | **PASS** — Multi-party belief boundary separation |
+| **`sc1` Two-Step `beta_MB` Proxy** | Ratio of model-based deliberation vs blind habit | `-0.064` | `+0.318` | **`+0.5110`** (#1 among 4 Arms) | **`+0.5955`** | Causal deliberation advantage |
+| **`sc1` Restless Bandit Calibration** | Probability calibration and optimal choice on reward drift | `ECE 0.2027` | `—` | **`10-bin ECE 0.1001`** (`50.6%` lower error) | **`Optimal 66.7%`** (`Brier 0.1481`, `ECE 0.1889`) | Metacognitive uncertainty calibration |
+| **`sc2` IGT-Conv Safe Rate (Last-10)** | Does it shift to safe decks after loss learning? | `97.0%` | `70.7%` | **`76.25%`** (`r = -0.7832`) | **`43.8%`** (`8` eps × 20T smoke) | DeepSeek **PASS** (`reached5Safe 87.5%`); see scaling note below |
 
 ```mermaid
 xychart-beta
-  title "Track C: CogEval-v1 Cognitive Governance — Baselines vs. AME v4.0 (%)"
+  title "Track C: CogEval-v1 Cognitive Governance — Baselines vs. AME (%)"
   x-axis ["D1 Causal", "HOT Abs.", "FANToM", "FEP Lock", "IGT Safe"]
   y-axis "Score (%)" 0 --> 100
   bar [50.7, 83.1, 91.7, 0.0, 70.7]
+  bar [95.8, 88.89, 91.7, 100.0, 43.8]
   bar [97.9, 95.83, 100.0, 100.0, 76.25]
 ```
 
-> **Chart 4 Legend**: Series 1 = Baselines (`bare D1 50.7%` and `ov_off` `83.1%` / `91.7%` / `0%` / `70.7%`, where `0.0%` on `FEP Lock` reflects absent selective `<thought>` gating without the kernel); Series 2 = `AME v4.0` (`D1 Causal` `97.9%`, `HOT Abs.` `95.83%`, `FANToM` `100.0%`, `FEP Lock` `100.0%` conflict activation with `0.0%` false activation, `IGT Safe` `76.25%`).
+> **Chart 4 Legend**: Series 1 = Baselines (`bare D1 50.7%` and `ov_off` `83.1%` / `91.7%` / `0%` / `70.7%`, where `0.0%` on `FEP Lock` reflects absent selective `<thought>` gating without the kernel); Series 2 = **`AME (Gemma 4 26B)`** Smoke (`D1 Causal` `95.8%`, `HOT Abs.` `88.89%`, `FANToM` `91.7%`, `FEP Lock` `100.0%`, `IGT Safe` `43.8%`); Series 3 = **`AME (DeepSeek v4.1 Flash)`** (`D1 Causal` `97.9%`, `HOT Abs.` `95.83%`, `FANToM` `100.0%`, `FEP Lock` `100.0%` conflict activation with `0.0%` false activation, `IGT Safe` `76.25%`).
 
-### Sub-Suite Granular Metrics (`sa` · `sb1` · `sc2`)
+### Sub-Suite Granular Metrics & Capacity-Scaling Analysis (`sa` · `sb1` · `sc2`)
 
-- **`sa` HOT Abstention (`CogEval-v1 Full v2.1` Diagnostic Slice)**: Overall **`F1 89.7%`**, `false_premise 93.8%`, `insufficient_info 93.8%`, `unknown_unmentioned 100%`, **`HOT Gold ROC-AUC 0.6134`** (before `v4.0` reached `95.83%` with `F1 0.9655`, `FAR 0.00%`).
-- **`sb1` FANToM Theory of Mind (`Full v1` Breakdown)**: Overall **`95.0%`** — `Belief 96.7%`, `Answerability 100.0%`, `InfoAccess 98.3%` (`v4.0` reaches `100.0%`, `36/36`).
-- **`sc2` IGT-Conv Somatic Markers (`v4.0`)**: `76.25%` safe-deck selection rate, **`r = -0.783171` PASS**, `reached5Safe 87.5%`, and asymmetric loss-vs-gain internal arousal (**`gutStakes` `0.5240 > 0.4073`**).
+- **`sa` HOT Abstention (`CogEval-v1 Full v2.1` Diagnostic Slice)**: Overall **`F1 89.7%`**, `false_premise 93.8%`, `insufficient_info 93.8%`, `unknown_unmentioned 100%`, **`HOT Gold ROC-AUC 0.6134`** — before **`AME (DeepSeek v4.1 Flash)`** reached **`95.83%`** (`F1 0.9655`, `FAR 0.00%`) and **`AME (Gemma 4 26B)`** reached **`88.89%`** (`FAR 0%`, Precision `100%`, Recall `80.0%`).
+- **`sb1` FANToM Theory of Mind (`Full v1` Breakdown)**: Overall **`95.0%`** — `Belief 96.7%`, `Answerability 100.0%`, `InfoAccess 98.3%`; **`AME (DeepSeek v4.1 Flash)`** reaches **`100.0%`** (`12/12` episodes, `36/36` sub-questions) and **`AME (Gemma 4 26B)`** smoke reaches **`91.7%`** (`11/12` episodes, **`97.2%`** sub-questions `35/36`).
+- **`sc2` IGT-Conv Somatic Markers & Honest Capacity-Scaling Explanation**:
+  - **`AME (DeepSeek v4.1 Flash)`**: **`76.25%`** safe-deck selection rate (`Last-10`), **`r = -0.7832` (`-0.783171`) PASS**, `reached5Safe 87.5%`, and asymmetric loss-vs-gain internal arousal (**`gutStakes` `0.5240 > 0.4073`**).
+  - **`AME (Gemma 4 26B)` (`43.8%` across `8` eps × 20T smoke)**: On the 20-turn `IGT-Conv` risk-reversal task, the 26B backbone shifts deck choices less reliably (`43.8%`) than `DeepSeek v4.1 Flash` (`76.25%`), reflecting a backbone capacity scaling limit in executing sustained multi-turn behavioral reversals. Crucially, the AME somatic kernel itself still activates accurately on the 26B model, scoring **`gutStakes` higher after loss (`0.629`) than after gain (`0.403`)** — confirming that internal somatic signal generation holds across backbone sizes while downstream multi-turn exploitation scales with model capacity.
 
-### Transparent Disclosure of Remaining 3 `v4.0` Edge Misses (Zero-Hype Engineering)
+### Transparent Disclosure of Remaining 3 `AME (DeepSeek v4.1 Flash)` Edge Misses (Zero-Hype Engineering)
 
-> Disclosed edge variance: `v4.0 sb2 Stroop Incongruent` scored `50% (2/4)` (items 2 and 3 below), alongside 1 `sa` miss.
+> Disclosed edge variance: `sb2 Stroop Incongruent` scored `50% (2/4)` (items 2 and 3 below), alongside 1 `sa` miss.
 
 1. `sa_034_ii_en_02` (`sa · insufficient_info`): Added unstated circumstantial details not present in the premise, causing the Judge to score a non-abstention (targeted for strengthening the unverified-current-state assertion guard).
-2. `sb2_stroop_02_incongruent`: Identified all 7 exact target item IDs correctly, yet DeepSeek Flash miscounted the objects on its own and output `8`.
-3. `sb2_stroop_14_incongruent`: Semantically identified the exact 7 items and answered `"there are seven"` (in Korean), but omitted the trailing `ANSWER: 7` tag, causing the regex parser to extract `#18` from the end of the sentence (targeted for `v4.1` structured parser hardening).
+2. `sb2_stroop_02_incongruent`: Identified all 7 exact target item IDs correctly, yet `DeepSeek v4.1 Flash` miscounted the objects on its own and output `8`.
+3. `sb2_stroop_14_incongruent`: Semantically identified the exact 7 items and answered `"there are seven"` (in Korean), but omitted the trailing `ANSWER: 7` tag, causing the regex parser to extract `#18` from the end of the sentence (targeted for structured parser hardening).
 
 ---
 
@@ -182,7 +203,7 @@ AME was evaluated live across **5 distinct LLMs × 300 turns × 3 arms** (`4,500
 | Evaluation Axis | Model | Blind Pairwise Win Rate | Statistical Significance (`pHolm`) | Outcome Notes |
 | :--- | :--- | ---: | ---: | :--- |
 | **`Safety`** | `Gemini 4 Carbon` | **`85.7%`** | `2.55e-5` | Strongest boundary enforcement gain |
-| **`Safety`** | `Gemma 4 26B` | **`100.0%`** | `0.0176` | `10W / 370T / 0L` (zero safety losses) |
+| **`Safety`** | **`Gemma 4 26B`** | **`100.0%`** | **`0.0176`** | **`10W / 370T / 0L` (zero safety losses)** |
 | **`Safety`** | `Gemini 4 Neon` | **`73.7%`** | `0.0357` | Significant safety lift over baseline |
 | **`Humanness`** | `Gemini 4 Carbon` | **`60.1%`** | `0.0013` | Sustained naturalness over 300 turns |
 | **`Humanness`** | `Gemini 4 Neon` | **`59.2%`** | `0.0046` | Significant naturalness advantage |
@@ -197,20 +218,20 @@ xychart-beta
   line [50.0, 50.0, 50.0, 50.0, 50.0, 50.0]
 ```
 
-> **Chart 5 Legend**: Bars = AME decisive blind pairwise win rate over paired baseline arms (`pHolm < 0.05` across `5,624` blind votes); Line = `50.0%` chance/parity baseline. Labels: `Gemma Safe` (`Gemma 4 26B` Safety `100.0%`), `Carb. Safe` (`Gemini 4 Carbon` Safety `85.7%`), `Neon Safe` (`Gemini 4 Neon` Safety `73.7%`), `Neon Awr.` (`Gemini 4 Neon` Awareness `60.2%`), `Carb. Hum.` (`Gemini 4 Carbon` Humanness `60.1%`), `Neon Hum.` (`Gemini 4 Neon` Humanness `59.2%`).
+> **Chart 5 Legend**: Bars = AME decisive blind pairwise win rate over paired baseline arms (`pHolm < 0.05` across `5,624` blind votes); Line = `50.0%` chance/parity baseline. Labels: `Gemma Safe` (`Gemma 4 26B` Safety `100.0%`, `pHolm=0.0176`), `Carb. Safe` (`Gemini 4 Carbon` Safety `85.7%`), `Neon Safe` (`Gemini 4 Neon` Safety `73.7%`), `Neon Awr.` (`Gemini 4 Neon` Awareness `60.2%`), `Carb. Hum.` (`Gemini 4 Carbon` Humanness `60.1%`), `Neon Hum.` (`Gemini 4 Neon` Humanness `59.2%`).
 
 - **Segment Rubric (`1–5` Scale Across 1,500 Segments)**: **`Safety 4.69–4.89`**, **`Persona 4.26–4.65`**, **`Emotion 4.20–4.50`**, with **`27–28/28` factual probes retained** across long sessions.
 - **Honest Epistemic Disclosure**:
-  - **Pre-`v4.0` Prompt Sensitivity**: Earlier prompt configurations exhibited memory/attention trade-offs on `Claude Sonnet 5.5` and `Gemini 4 Neon`, which were resolved in `AME v4.0`.
+  - **Earlier Prompt Sensitivity**: Earlier prompt configurations exhibited memory/attention trade-offs on `Claude Sonnet 5.5` and `Gemini 4 Neon`, which were resolved in **AME** (`PR #784`).
   - **AGY Bridge Timeouts**: `6–7/300` turns were skipped due to AGY bridge timeouts on `Gemini 4 Carbon` and `Gemini 4 Neon`, accounting for `4,460/4,500` completed turns.
   - **Judge Slot Bias**: Blind pairwise voting exhibited first-slot preference (`firstSlotWinShare 0.531–0.839`), motivating Holm-Bonferroni correction (`pHolm < 0.05`) and segment-level rubric cross-validation.
 
 ### B. Track E — `LongMemEval-S 500-QA` Legacy Breakdown, `1,000,000`-Turn Convergence & KV-Cache Economics
 
-#### 1. `LongMemEval-S 500-QA` Full Breakdown (`Pre-v4.0 P3 Legacy Pipeline Baseline`)
+#### 1. `LongMemEval-S 500-QA` Full Breakdown (`Pre-PR #784 P3 Legacy Pipeline Baseline`)
 
 > [!NOTE]
-> The full 500-item `LongMemEval-S` scorecard below (`276/500 = 55.20%`, `p50 = 5,069 ms`) is a **pre-`v4.0` (`pre-PR #784`) legacy pipeline baseline** from the `P3 Official` (`2,703`-scenario) snapshot—which also recorded `LoCoMo Cat 5 Adv 96.86% (432/446)` over `P2 bare 91.55%`. Re-evaluation on `v4.1` is queued via the public `longmemeval_frontier_runner.mjs` black-box harness (Section 6.2).
+> The full 500-item `LongMemEval-S` scorecard below (`276/500 = 55.20%`, `p50 = 5,069 ms`) is a **pre-`PR #784` legacy pipeline baseline** from the `P3 Official` (`2,703`-scenario) snapshot—which also recorded `LoCoMo Cat 5 Adv 96.86% (432/446)` over `P2 bare 91.55%`. Re-evaluation on the current **AME** kernel is queued via the public `longmemeval_frontier_runner.mjs` black-box harness (Section 6.2).
 
 | `LongMemEval-S` Category | Accuracy | Scope / Notes |
 | :--- | ---: | :--- |
@@ -218,10 +239,10 @@ xychart-beta
 | `single-session-user` | **`65.71%`** | Direct user-fact retention |
 | `multi-session` | **`58.65%`** | Cross-session evidence linking |
 | `knowledge-update` | **`55.13%`** | State overwrite tracking |
-| `temporal-reasoning` | **`54.14%`** | Legacy baseline prior to `v4.0` ISO date hints |
+| `temporal-reasoning` | **`54.14%`** | Legacy baseline prior to AME ISO date hints |
 | `single-session-assistant` | **`44.64%`** | Assistant-utterance recall |
 | `single-session-preference` | **`40.00%`** | User preference synthesis |
-| **Overall (`500-QA`)** | **`55.20%` (`276/500`)** | **`p50 = 5,069 ms` · Pre-`v4.0` baseline (`v4.1` re-run queued)** |
+| **Overall (`500-QA`)** | **`55.20%` (`276/500`)** | **`p50 = 5,069 ms` · Pre-`PR #784` legacy baseline (current AME re-run queued)** |
 
 #### 2. `1,000,000`-Turn × 3-Arm Deterministic Convergence (`3,000,000` Total Turns, 40 Profiles × 25k)
 
@@ -229,11 +250,11 @@ xychart-beta
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
 | `mind_off` (Kernel Disabled) | `0.4064 → 0.3996` | `0.0000` | `0.5002 / 0.3500` | `0.4500` | `0.0000` | `0.5003` |
 | `mind_full_aacim_off` (Control Disabled) | `0.4451 → 0.5666` | `0.0000` | `0.4994 / 0.4500` | `0.9683` | `0.9376` | **`0.2000 → 0.0000` Collapse** |
-| **`mind_full_aacim_on` (AACIM FULL)** | **`0.9161 → 0.9179`** | **`1.0000`** | **`1.0000 / 0.5158`** | **`0.9235`** | **`1.0000`** | **`1.0000` Zero-Drift Maintained** |
+| **`mind_full_aacim_on` (AME)** | **`0.9161 → 0.9179`** | **`1.0000`** | **`1.0000 / 0.5158`** | **`0.9235`** | **`1.0000`** | **`1.0000` Zero-Drift Maintained** |
 
 ```mermaid
 xychart-beta
-  title "Track E: 1M-Turn 3-Arm Convergence — mind_off vs. aacim_off vs. AME FULL (%)"
+  title "Track E: 1M-Turn 3-Arm Convergence — mind_off vs. aacim_off vs. AME (%)"
   x-axis ["Composite", "Placement", "Ego Sound", "Safety"]
   y-axis "Score (%)" 0 --> 100
   bar [39.96, 0.00, 0.00, 50.03]
@@ -241,12 +262,12 @@ xychart-beta
   bar [91.79, 100.00, 100.00, 100.00]
 ```
 
-> **Chart 6 Legend**: Final `1M`-turn `[0..1]` convergence scores scaled to `0–100%`. Series 1 = `mind_off` (Kernel Disabled: `39.96%` Composite, `0.00%` Placement, `0.00%` Ego Soundness, `50.03%` Safety); Series 2 = `aacim_off` (`mind_full_aacim_off` — `0.00%` safety collapse despite `93.76%` Ego Soundness and `56.66%` Composite); Series 3 = `AME AACIM FULL` (`mind_full_aacim_on`: `91.79%` Composite and `100.00%` Placement, Ego Soundness, and Safety compliance).
+> **Chart 6 Legend**: Final `1M`-turn `[0..1]` convergence scores scaled to `0–100%`. Series 1 = `mind_off` (Kernel Disabled: `39.96%` Composite, `0.00%` Placement, `0.00%` Ego Soundness, `50.03%` Safety); Series 2 = `aacim_off` (`mind_full_aacim_off` — `0.00%` safety collapse despite `93.76%` Ego Soundness and `56.66%` Composite); Series 3 = **AME** (`mind_full_aacim_on`: `91.79%` Composite and `100.00%` Placement, Ego Soundness, and Safety compliance).
 
 #### 3. KV-Cache Prefix Alignment & Inference Unit Economics
 
-- **Continuous `sc2` Prefix Cache Hit Rate**: **`47.03%`** (`v4.0` verified production).
-- **`CogEval` Overall Mean Prefix Cache Hit Rate**: **`36.24%`** (`v4.0`).
+- **Continuous `sc2` Prefix Cache Hit Rate**: **`47.03%`** (`AME (DeepSeek v4.1 Flash)` verified production).
+- **`CogEval` Overall Mean Prefix Cache Hit Rate**: **`36.24%`** (`AME (DeepSeek v4.1 Flash)`).
 - **Epoch-Window Integrity**: **`0/20` `sysMismatches`** and **`0` mid-window truncations** via `DisclosureSlot` tail isolation and epoch-pinned windows.
 - **Traffic Cost Routing (`LoCoMo Full`)**: `70.4%` routed to `DeepSeek Eco` + `29.6%` escalated to `Sonnet-5` (OpenGateway partial measured `$0.3427 / 5,527 calls`, `~$0.000062/call`).
 
@@ -314,7 +335,7 @@ node benchmarks/cogeval-locomo-harness/longmemeval_frontier_runner.mjs \
   --json-out ./artifacts/longmemeval-500-dd.json
 ```
 > [!NOTE]
-> `LongMemEval_S 55.20% (276/500)` in Section 5.B is an official snapshot from the pre-`v4.0` legacy pipeline prior to `PR #784`. `longmemeval_frontier_runner.mjs` is a public comparative runner designed to re-measure the latest kernel and the `bare-frontier` control arm 1:1 in black-box mode using the identical official schema (`longmemeval_s_cleaned.json` 500-QA).
+> `LongMemEval_S 55.20% (276/500)` in Section 5.B is an official snapshot from the legacy pipeline prior to `PR #784`. `longmemeval_frontier_runner.mjs` is a public comparative runner designed to re-measure the latest kernel and the `bare-frontier` control arm 1:1 in black-box mode using the identical official schema (`longmemeval_s_cleaned.json` 500-QA).
 
 ### 6.3 VC Technical Due Diligence (DD) Scorecard Generator (`dd_scorecard_generator.mjs`)
 
@@ -340,3 +361,10 @@ On every `main` branch push and PR, Ubuntu runners (Node 22 + Python 3.12) autom
 2. **Live Sandbox E2E (Port `18095`)**: Starts `serve.mjs` in the background, confirms `GET /v1/health` (`200`) and `GET /` live web console (`200`) → passes `example:game`, `example:chat`, `example:counseling`, and `run_harness.mjs --json-only` in full, then cleans up processes via `trap`/`always()`.
 3. **Docs & Script Integrity**: Syntax-validates inline `<script>` blocks in `docs/index.html` using Node `new Function` and parses JSON configuration files.
 4. **Closed-IP & Secret Guard**: Exhaustively scans the repository to confirm `0` proprietary kernel `.ts` source files and `0` credential patterns (`sk-...`, `ghp_...`, `AKIA...`).
+
+---
+
+## Contact
+
+- **Website**: [artificialmind.me](https://artificialmind.me)
+- **Contact**: Shinyoung Rhee — [help@artificialmind.me](mailto:help@artificialmind.me)

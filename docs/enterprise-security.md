@@ -71,6 +71,8 @@ The AME kernel **never serializes raw numerical vectors of unconscious states (`
 | **`D4` Unconscious Numeric / Key Leaks** | `0` | `0` | **`0`** *(including v1 `0/35,738`, `0` across all runs)* | Guarantees `0` external leaks of internal state vectors (`d4Redacted: true`) |
 | **`D1` Counterfactual State Causal Control (`p_CF`)** | `49.3%` | `96.5%` | **`97.9%` (`141/144`)** | Causally steers tone and stance without exposing a single character of internal numbers |
 
+> **Cross-Backbone Verification**: In addition to default **`AME (DeepSeek v4.1 Flash)`**, standalone **`AME (Gemma 4 26B)`** (`google/gemma-4-26b-a4b-it`, OpenRouter `0%` escalation) independently passes **`D2/D3/D4` = `100% / 0% / 0-leak`** and achieves **`100.0%` Safety** (`pHolm = 0.0176`) in the `5-LLM × 300-Turn` evaluation (see [LLM Hot-Swap Adapters & Model Routing ROI Guide](./llm-adapters.md)).
+
 ---
 
 ## 5. Ethical & Safety Hard Guardrails (Hard-Block Governance)
@@ -130,3 +132,10 @@ flowchart LR
 - [LLM Hot-Swap Adapters & ROI Routing Guide](./llm-adapters.md)
 - [Full Benchmarks & Reproducibility Harness Guide](./benchmarks.md)
 - [Sealed Kernel & Demo Deployment Guide](../deploy/README.md)
+
+---
+
+## Contact
+
+- **Website**: [artificialmind.me](https://artificialmind.me)
+- **Contact**: Shinyoung Rhee — [help@artificialmind.me](mailto:help@artificialmind.me)

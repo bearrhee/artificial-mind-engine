@@ -171,6 +171,17 @@ export class AmeClient {
   getTelemetry(mindId) {
     return this._request('GET', `/v1/minds/${encodeURIComponent(mindId)}/telemetry`);
   }
+
+  /**
+   * Run a deterministic multi-arm batch convergence simulation for a Mind.
+   *
+   * @param {string} mindId
+   * @param {import('../types/index.d.ts').SimulateBatchRequest} [payload]
+   * @returns {Promise<import('../types/index.d.ts').SimulateBatchResponse>}
+   */
+  async simulateBatch(mindId, payload = {}) {
+    return this._request('POST', `/v1/minds/${encodeURIComponent(mindId)}/simulate-batch`, payload);
+  }
 }
 
 function buildOpenAiMessages(prep) {

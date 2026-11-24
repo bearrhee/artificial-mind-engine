@@ -47,6 +47,18 @@ flowchart LR
 
 ---
 
+## Testing the API & Reproducing Benchmarks: Public Contract Sandbox vs. Sealed Kernel
+
+Before deploying or benchmarking, choose the execution tier matching your evaluation goal:
+
+| Environment | How to Connect / Launch | What Works Out of the Box | Limits & Production Scope |
+| :--- | :--- | :--- | :--- |
+| **Public Contract Sandbox** (`mode: "sandbox-contract"`) | `npm run sandbox` (`http://127.0.0.1:8090`) or [thesoulthread.com/ame-demo](https://thesoulthread.com/ame-demo/) | Full OpenAPI 3.1 contract (`Mode A /turn`, `Mode B prepare/settle`, `idle-tick`, `DELETE /memories`, `D4 telemetry`, `simulate-batch`), BYO LLM keys or offline `mock`, schema/pipeline wiring checks | `O(N)` memory array bounded by `AME_SANDBOX_MAX_MEMORIES_PER_MIND=2000`; rule-based simulator instead of proprietary `AACIM-59` weights & 4-path PG/Jina RAG |
+| **Option A — Hosted Evaluation Gateway** (`mode: "sealed-kernel"`) | `export AME_BASE_URL=https://thesoulthread.com/ame-api` + issued `AME_API_KEY` (`X-AME-API-Key`, requestable via [help@artificialmind.me](mailto:help@artificialmind.me)) | Zero-setup access to the sealed proprietary kernel without pulling GHCR images or provisioning local Postgres/Redis | Real `LoCoMo`, `EQ-Bench 3`, `CogEval-v1`, `LongMemEval-S`, and real `100K–1M` kernel convergence (`sealed-kernel-production-eval`) |
+| **Option B — Self-Hosted Sealed Container** (`mode: "sealed-kernel"`) | `docker compose -f deploy/docker-compose.sealed.yml --env-file deploy/.env up -d` | Full sealed kernel running locally or in your private VPC with your own PostgreSQL (`pgvector`) & Redis | Full production benchmarks + air-gapped / VPC `Mode B Zero-Key` inference |
+
+---
+
 ## Prerequisites
 
 - **Docker Engine** and **Docker Compose v2+** (`docker compose version`)
@@ -126,23 +138,28 @@ Confirm `"mode": "sealed-kernel"` and `"ok": true`.
 
 ---
 
-## Running Examples & Benchmarks Against `http://127.0.0.1:8090`
+## Running Examples, Convergence & Benchmarks (Option A Hosted or Option B `:8090`)
 
 Both `@ame/sdk` (`packages/sdk-ts`) and `ame-sdk` (`packages/sdk-python`) read `AME_BASE_URL` and `AME_API_KEY` automatically.
 
 ### Set Target Environment Variables
 
-**Bash / Zsh:**
+**Bash / Zsh (Option B Self-Hosted `:8090` or Option A Hosted Gateway):**
 
 ```bash
+# Option B (Self-Hosted Sealed Kernel Container)
 export AME_BASE_URL="http://127.0.0.1:8090"
 export AME_API_KEY="your-ame-api-key-from-deploy-env"
+
+# OR Option A (Hosted Evaluation Gateway — request key via help@artificialmind.me)
+# export AME_BASE_URL="https://thesoulthread.com/ame-api"
+# export AME_API_KEY="your-issued-eval-api-key"
 ```
 
 **PowerShell:**
 
 ```powershell
-$env:AME_BASE_URL = "http://127.0.0.1:8090"
+$env:AME_BASE_URL = "http://127.0.0.1:8090" # or "https://thesoulthread.com/ame-api"
 $env:AME_API_KEY = "your-ame-api-key-from-deploy-env"
 ```
 
@@ -168,19 +185,53 @@ with AmeClient() as client:
 "
 ```
 
-### `cogeval-locomo-harness` Benchmark
+### 100K–1M Turn Kernel Convergence (`POST /v1/minds/{mindId}/simulate-batch`)
 
-Run the black-box evaluation harness against the live sealed kernel:
-
-```bash
-npm run bench:smoke
-```
-
-Equivalent direct invocation:
+Calling a live HTTP LLM `1,000,000` times turn-by-turn sequentially takes **~11.5+ days** and **thousands of dollars** in API fees, while the local sandbox memory array (`AME_SANDBOX_MAX_MEMORIES_PER_MIND=2000`) is scoped to contract verification. **`POST /v1/minds/{mindId}/simulate-batch`** runs `100K–1M` turns of deterministic kernel dynamics (`AACIM-59` / `FEP` / `PostHoc` across `40` profiles & `3` arms: `mind_off`, `aacim_off`, `ame_aacim_on`) in seconds with **0 LLM API calls**, strictly `D4`-redacted (`d4Redacted: true`):
 
 ```bash
-AME_BASE_URL=http://127.0.0.1:8090 AME_API_KEY="$AME_API_KEY" node benchmarks/cogeval-locomo-harness/run_harness.mjs
+# CLI convergence benchmark (works against Hosted Evaluation Gateway or http://127.0.0.1:8090)
+npm run bench:convergence -- --base-url https://thesoulthread.com/ame-api --api-key "$AME_API_KEY" --turns 1000000
 ```
+
+- **TypeScript (`@ame/sdk`):** `await client.simulateBatch(mind.mindId, { turns: 1_000_000, profileCount: 40, checkpoints: 8, compareArms: true })` (evaluates `mind_off`, `aacim_off`, `ame_aacim_on`)
+- **Python (`ame_sdk`):** `client.simulate_batch(mind["mindId"], turns=1_000_000, profile_count=40, checkpoints=8, compare_arms=True)`
+
+### Head-to-Head External Benchmarks & Unified DD Scorecard
+
+Run the black-box verification suite, `LoCoMo` / `LongMemEval-S` paired comparators (`ame-gateway` vs `bare-frontier`), and unified DD scorecard against your sealed kernel (`http://127.0.0.1:8090` or `https://thesoulthread.com/ame-api`):
+
+```bash
+# 1. 7-Gate CogEval black-box suite
+npm run bench:smoke -- --json-out ./artifacts/harness.json
+
+# 2. LoCoMo Paired Comparator (sample_locomo.json offline, or full locomo10.json / --conversations conv-26,conv-30 for Confirm-304)
+npm run bench:locomo -- --dataset benchmarks/cogeval-locomo-harness/sample_locomo.json --arm both --provider mock --json-out ./artifacts/locomo-smoke.json
+npm run bench:locomo -- \
+  --dataset /path/to/locomo10.json \
+  --conversations conv-26,conv-30 \
+  --arm both --provider deepseek --model deepseek-v4.1-flash --api-key "$DEEPSEEK_API_KEY" \
+  --ame-base-url "$AME_BASE_URL" --ame-api-key "$AME_API_KEY" \
+  --judge-provider openai --json-out ./artifacts/locomo-confirm-304.json
+
+# 3. LongMemEval-S 500-QA Paired Comparator
+npm run bench:longmemeval -- \
+  --dataset /path/to/longmemeval_s_cleaned.json \
+  --arm both --provider openai --model gpt-4o-mini --api-key "$OPENAI_API_KEY" \
+  --ame-base-url "$AME_BASE_URL" --ame-api-key "$AME_API_KEY" \
+  --json-out ./artifacts/lme-500-dd.json
+
+# 4. Unified DD Scorecard (strict sandbox-contract-verification vs sealed-kernel-production-eval separation)
+npm run bench:scorecard -- \
+  --harness-json ./artifacts/harness.json \
+  --lme-json ./artifacts/lme-500-dd.json \
+  --locomo-json ./artifacts/locomo-confirm-304.json \
+  --convergence-json ./artifacts/convergence-1m.json \
+  --out-md ./artifacts/vc-dd-scorecard.md \
+  --out-json ./artifacts/vc-dd-scorecard.json
+```
+
+Published `LoCoMo` reference benchmarks for comparison: `OpenAI Memory` (`52.9%`), `LangMem` (`58.1%`), `Mem0` (`68.4%`), `Letta` (`74.0%`), `Zep / Graphiti` (`75.1%`), `AME (Gemma 4 26B)` (`75.66%` Confirm-304 standalone), and `AME (DeepSeek v4.1 Flash)` (`85.86%` Confirm-304 / `77.24%` Full `n=1,986`).
 
 ---
 
@@ -237,3 +288,10 @@ Destroy containers **and wipe all persistent Mind memories and Redis epochs** (i
 ```bash
 docker compose -f deploy/docker-compose.sealed.yml --env-file deploy/.env down -v
 ```
+
+---
+
+## Contact
+
+- **Website**: [artificialmind.me](https://artificialmind.me)
+- **Contact**: Shinyoung Rhee — [help@artificialmind.me](mailto:help@artificialmind.me)

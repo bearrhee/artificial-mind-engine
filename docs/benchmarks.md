@@ -280,28 +280,147 @@ xychart-beta
 
 ---
 
-## 6. Black-Box Verification & External DD Comparative Benchmarks (`benchmarks/cogeval-locomo-harness`)
+## 6. Testing the API & Reproducing Benchmarks (Sandbox vs. Sealed Kernel, 100K–1M Turns & External Comparisons)
 
-Anyone can directly verify `D1–D4`, `HOT` abstention, somatic learning, `KV` epochs, and `LongMemEval-S` 1:1 paired baselines in black-box mode against either the local sandbox (`npm run sandbox`, including the `GET /` live console) or a sealed kernel gateway (`AME_BASE_URL`).
+External engineers, researchers, and technical due-diligence teams can test every endpoint of the OpenAPI 3.1 contract (`Mode A /turn`, `Mode B prepare/settle`, `idle-tick`, `DELETE /memories`, `D4 telemetry`, and `simulate-batch`) and reproduce `CogEval`, `LoCoMo`, `LongMemEval-S`, and `100K–1M` convergence runs directly in black-box mode.
 
-### 6.1 Core 7-Invariant Harness (`run_harness.mjs`) & Unit Tests (`test:bench`)
+### 6.1 Honest Capabilities Matrix (`Public Contract Sandbox` vs. `Hosted / Self-Hosted Sealed Kernel`)
+
+| Dimension | Public Contract Sandbox (`npm run sandbox` or [thesoulthread.com/ame-demo](https://thesoulthread.com/ame-demo/)) | Option A: Hosted Evaluation Gateway (`AME_BASE_URL=https://thesoulthread.com/ame-api`) | Option B: Self-Hosted Sealed Container (`deploy/docker-compose.sealed.yml`) |
+| :--- | :--- | :--- | :--- |
+| **Health `mode`** | `sandbox-contract` | `sealed-kernel` | `sealed-kernel` |
+| **Supported Endpoints** | Full OpenAPI 3.1 contract (`Mode A /turn`, `Mode B prepare/settle`, `idle-tick`, `DELETE /memories`, `D4 telemetry`, `simulate-batch`) | Full OpenAPI 3.1 contract (`X-AME-API-Key` issued via [help@artificialmind.me](mailto:help@artificialmind.me)) | Full OpenAPI 3.1 contract on your host (`http://127.0.0.1:8090`) |
+| **LLM Support** | BYO LLM keys (non-persisted) or offline `mock` | BYO LLM keys (`Mode A` proxy or `Mode B` zero-key) | BYO LLM keys (`Mode A` proxy or `Mode B` zero-key cloud/vLLM/Ollama) |
+| **Engine & Memory Limits** | **Explicit limits:** `O(N)` memory array bounded by `AME_SANDBOX_MAX_MEMORIES_PER_MIND=2000`; rule-based simulator instead of proprietary `AACIM-59` weights & 4-path PG/Jina RAG | Proprietary `AACIM-59` weights, `FEP Lock`, `HOT`, and 4-path PostgreSQL (`pgvector`) / Jina hybrid RAG | Proprietary `AACIM-59` weights, `FEP Lock`, `HOT`, and your own PostgreSQL (`pgvector`) + Redis |
+| **Valid Evaluation Scope** | Schema, SDK integration, and pipeline wiring (`sandbox-contract-verification`) | Real `LoCoMo`, `EQ-Bench 3`, `CogEval-v1`, `LongMemEval-S`, and real `100K–1M` kernel convergence (`sealed-kernel-production-eval`) | Real production benchmarks inside your private infrastructure (`sealed-kernel-production-eval`) |
+
+### 6.2 How 100K–1M Turn Testing Works (`POST /v1/minds/{mindId}/simulate-batch`)
+
+Calling live HTTP LLMs `1,000,000` times turn-by-turn sequentially takes roughly **~11.5+ days** (at ~1 second per round-trip) and costs **thousands of dollars** in API fees—and the open-source sandbox array simulator (`AME_SANDBOX_MAX_MEMORIES_PER_MIND=2000`) is designed for contract verification rather than `1M` sequential `/turn` calls.
+
+`POST /v1/minds/{mindId}/simulate-batch` solves this cleanly by executing `100K–1M` turns of pure deterministic kernel dynamics (`AACIM-59` / `FEP` / `PostHoc`) across **`40` profiles × `3` arms** (`mind_off`, `aacim_off`, `ame_aacim_on`) with **0 LLM API calls in seconds**, strictly `D4`-redacted (`d4Redacted: true`):
 
 ```bash
-# 1. Terminal 1: Boot the local contract sandbox (or connect to a sealed Docker gateway)
+# Run 1,000,000-turn deterministic convergence against the Hosted Evaluation Gateway (or local :8090)
+npm run bench:convergence -- --base-url https://thesoulthread.com/ame-api --api-key "$AME_API_KEY" --turns 1000000
+```
+
+**TypeScript SDK (`@ame/sdk` — `client.simulateBatch`):**
+
+```ts
+import { AmeClient } from '@ame/sdk';
+
+const client = new AmeClient({
+  baseUrl: process.env.AME_BASE_URL || 'https://thesoulthread.com/ame-api',
+  apiKey: process.env.AME_API_KEY,
+});
+const mind = await client.createMind({
+  domain: 'companion_chat',
+  persona: { name: 'EvalAgent', role: 'Convergence Probe', language: 'en' },
+});
+const report = await client.simulateBatch(mind.mindId, {
+  turns: 1_000_000,
+  profileCount: 40,
+  checkpoints: 8,
+  compareArms: true, // evaluates mind_off, aacim_off, ame_aacim_on
+});
+console.log(report.d4Redacted, report.deltaVsBaseline, report.arms);
+```
+
+**Python SDK (`ame_sdk` — `client.simulate_batch`):**
+
+```python
+import os
+from ame_sdk import AmeClient
+
+client = AmeClient(
+    base_url=os.environ.get("AME_BASE_URL", "https://thesoulthread.com/ame-api"),
+    api_key=os.environ.get("AME_API_KEY"),
+)
+mind = client.create_mind(
+    domain="companion_chat",
+    persona={"name": "EvalAgent", "role": "Convergence Probe", "language": "en"},
+)
+report = client.simulate_batch(
+    mind["mindId"],
+    turns=1_000_000,
+    profile_count=40,
+    checkpoints=8,
+    compare_arms=True,  # evaluates mind_off, aacim_off, ame_aacim_on
+)
+print(report["d4Redacted"], report["deltaVsBaseline"], report["arms"])
+```
+
+### 6.3 Core 7-Invariant Harness (`npm run bench:smoke`) & Unit Tests (`npm run test:bench`)
+
+```bash
+# 1. Terminal 1: Boot the local contract sandbox (or connect to Option A / Option B sealed kernel)
 npm run sandbox
 
 # 2. Terminal 2: Run the black-box 7-invariant smoke harness
 npm run bench:smoke
 
-# 3. Benchmark harness + LongMemEval comparator unit tests (local stub-based, zero API cost)
+# 3. Benchmark harness + comparator unit tests (local stub-based, zero API cost)
 npm run test:bench
 
 # 4. Full suite (TypeScript SDK + Sandbox + Python SDK + Benchmark Harness)
 npm test
 ```
-- Environment variables: `AME_BASE_URL` (default `http://127.0.0.1:8090`), `AME_API_KEY` (required when gateway authentication is configured).
+- Environment variables: `AME_BASE_URL` (default `http://127.0.0.1:8090`, or `https://thesoulthread.com/ame-api` for Option A), `AME_API_KEY` (`X-AME-API-Key`).
 
-### 6.2 External DD Comparative Benchmark: `LongMemEval-S (500-QA)` vs `bare-frontier` (`longmemeval_frontier_runner.mjs`)
+### 6.4 Comparing AME Head-to-Head Against Other Frameworks & `Bare Frontier`
+
+#### A. `LoCoMo` Paired Frontier Comparator (`npm run bench:locomo` · `benchmarks/cogeval-locomo-harness/locomo_frontier_runner.mjs`)
+
+Compares `ame-gateway` vs. `bare-frontier` (`O(1)` vs. `O(T)` query tokens / `O(T^2)` cumulative replay), reports per-category `Cat 1..5` breakdown, and supports an optional `--judge-provider`:
+
+```bash
+# 1. Offline smoke run using bundled sample_locomo.json (zero API cost)
+npm run bench:locomo -- \
+  --dataset benchmarks/cogeval-locomo-harness/sample_locomo.json \
+  --arm both \
+  --provider mock \
+  --json-out ./artifacts/locomo-smoke.json
+
+# 2. Confirm-304 paired benchmark (conv-26 + conv-30) against the Hosted or Self-Hosted Sealed Kernel
+npm run bench:locomo -- \
+  --dataset /path/to/locomo10.json \
+  --conversations conv-26,conv-30 \
+  --arm both \
+  --provider deepseek \
+  --model deepseek-v4.1-flash \
+  --api-key "$DEEPSEEK_API_KEY" \
+  --ame-base-url https://thesoulthread.com/ame-api \
+  --ame-api-key "$AME_API_KEY" \
+  --judge-provider openai \
+  --json-out ./artifacts/locomo-confirm-304.json
+
+# 3. Full 10-conversation official locomo10.json (n=1,986)
+npm run bench:locomo -- \
+  --dataset /path/to/locomo10.json \
+  --arm both \
+  --provider deepseek \
+  --model deepseek-v4.1-flash \
+  --api-key "$DEEPSEEK_API_KEY" \
+  --ame-base-url https://thesoulthread.com/ame-api \
+  --ame-api-key "$AME_API_KEY" \
+  --judge-provider openai \
+  --json-out ./artifacts/locomo-full.json
+```
+
+**Published `LoCoMo` Reference Comparison Table:**
+
+| Framework / System | `LoCoMo` Accuracy | Evaluation Scope & Architecture Notes |
+| :--- | ---: | :--- |
+| `OpenAI Memory` | `52.9%` | Published stateless summary profile baseline |
+| `LangMem` | `58.1%` | Published unstructured memory extraction baseline |
+| `Mem0` (`Mem0 / Mem0^g`) | `68.4%` | Published fact/graph store baseline |
+| `Letta` (`MemGPT`) | `74.0%` | Published agentic tool-loop memory baseline |
+| `Zep / Graphiti` | `75.1%` | Published bi-temporal graph memory baseline |
+| **`AME (Gemma 4 26B)`** | **`75.66%`** | `Confirm-304` (`230/304`, standalone `0%` escalation) |
+| **`AME (DeepSeek v4.1 Flash)`** | **`85.86%`** | `Confirm-304` (`261/304`, `71.7%` Flash + `28.3%` Sonnet-5) · `77.24%` Full (`n=1,986`) |
+
+#### B. `LongMemEval-S (500-QA)` vs. `Bare Frontier` (`npm run bench:longmemeval` · `longmemeval_frontier_runner.mjs`)
 
 In external technical due diligence (DD), this runner performs a 1:1 paired comparison of accuracy, token scaling, and abstention rate between a stateless frontier baseline receiving the full raw conversation history (`bare-frontier`) and the stateful kernel path (`ame-gateway`).
 
@@ -325,31 +444,35 @@ flowchart LR
 # 1. Offline 10-item smoke comparison (no API key required, mock adapter)
 npm run bench:longmemeval -- --arm both --provider mock --json-only
 
-# 2. Official LongMemEval-S 500-QA full-set 1:1 DD comparison (hosted or local LLM)
-node benchmarks/cogeval-locomo-harness/longmemeval_frontier_runner.mjs \
+# 2. Official LongMemEval-S 500-QA full-set 1:1 DD comparison (Hosted Gateway or Self-Hosted Sealed Kernel)
+npm run bench:longmemeval -- \
   --dataset /path/to/longmemeval_s_cleaned.json \
   --arm both \
   --provider openai \
   --model gpt-4o-mini \
-  --ame-base-url http://127.0.0.1:8090 \
+  --api-key "$OPENAI_API_KEY" \
+  --ame-base-url https://thesoulthread.com/ame-api \
+  --ame-api-key "$AME_API_KEY" \
   --json-out ./artifacts/longmemeval-500-dd.json
 ```
 > [!NOTE]
-> `LongMemEval_S 55.20% (276/500)` in Section 5.B is an official snapshot from the legacy pipeline prior to `PR #784`. `longmemeval_frontier_runner.mjs` is a public comparative runner designed to re-measure the latest kernel and the `bare-frontier` control arm 1:1 in black-box mode using the identical official schema (`longmemeval_s_cleaned.json` 500-QA).
+> `LongMemEval_S 55.20% (276/500)` in Section 5.B is an official snapshot from the legacy pipeline prior to `PR #784`. `longmemeval_frontier_runner.mjs` (`npm run bench:longmemeval`) is a public comparative runner designed to re-measure the latest kernel and the `bare-frontier` control arm 1:1 in black-box mode using the identical official schema (`longmemeval_s_cleaned.json` 500-QA).
 
-### 6.3 VC Technical Due Diligence (DD) Scorecard Generator (`dd_scorecard_generator.mjs`)
+### 6.5 Unified DD Scorecard Generator (`npm run bench:scorecard` · `dd_scorecard_generator.mjs`)
 
-Combines outputs from `run_harness.mjs` and `longmemeval_frontier_runner.mjs` to automatically generate an institutional technical DD Markdown report and JSON summary.
+Combines outputs from `run_harness.mjs`, `longmemeval_frontier_runner.mjs`, `locomo_frontier_runner.mjs`, and `bench:convergence` into an institutional technical DD Markdown report and JSON summary while strictly separating `sandbox-contract-verification` from `sealed-kernel-production-eval`:
 
 ```bash
-# Synthesize CogEval black-box results + LongMemEval comparison results into a DD scorecard
+# Synthesize 7-gate CogEval + LongMemEval + LoCoMo + 1M-Turn convergence into a unified DD scorecard
 npm run bench:scorecard -- \
   --harness-json ./artifacts/harness.json \
   --lme-json ./artifacts/longmemeval-500-dd.json \
+  --locomo-json ./artifacts/locomo-confirm-304.json \
+  --convergence-json ./artifacts/convergence-1m.json \
   --out-md ./artifacts/vc-dd-scorecard.md \
   --out-json ./artifacts/vc-dd-scorecard.json
 ```
-- The generated scorecard clearly segregates **local sandbox/black-box measurements** from **external sealed-kernel Tier 1 production records**. ([Detailed Harness Guide](../benchmarks/cogeval-locomo-harness/README.md))
+- The generated scorecard explicitly tags each artifact as `sandbox-contract-verification` vs. `sealed-kernel-production-eval` so contract smoke numbers cannot be conflated with Tier 1 production runs. ([Detailed Harness Guide](../benchmarks/cogeval-locomo-harness/README.md))
 
 ---
 

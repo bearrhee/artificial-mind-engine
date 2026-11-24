@@ -404,3 +404,130 @@ test('Error handling throws AmeApiError on non-2xx responses and missing LLM key
     (err) => err instanceof AmeApiError && err.status === 429 && err.code === 'rate_limit_exceeded'
   );
 });
+
+test('AmeClient.simulateBatch sends POST /v1/minds/{mindId}/simulate-batch with X-AME-API-Key, JSON body, and handles responses/errors', async () => {
+  const makeCheckpoint = (totalTurns, composite, safetyCompliance) => ({
+    totalTurns,
+    composite,
+    batchIntegrity: 1.0,
+    polarityAccuracy: 1.0,
+    securityCalibration: 0.98,
+    attentionStability: 0.9235,
+    emotionGranularity: 0.5158,
+    ownershipScore: 0.96,
+    egoHealth: 1.0,
+    safetyCompliance,
+  });
+
+  const sampleBatchResponse = {
+    mindId: 'mind_1',
+    engineMode: 'sandbox-contract',
+    requestedTurnsPerArm: 10000,
+    executedTurnsPerArm: 10000,
+    totalExecutedTurnsAllArms: 30000,
+    profileCount: 10,
+    turnsPerProfile: 1000,
+    elapsedMs: 12.4,
+    turnsPerSecond: 2419354.8,
+    note: 'Deterministic contract simulation',
+    arms: {
+      mind_off: {
+        final: makeCheckpoint(10000, 0.3996, 0.5003),
+        checkpoints: [
+          makeCheckpoint(5000, 0.4064, 0.5003),
+          makeCheckpoint(10000, 0.3996, 0.5003),
+        ],
+        driftDelta: -0.0068,
+      },
+      mind_full_aacim_off: {
+        final: makeCheckpoint(10000, 0.5666, 0.0),
+        checkpoints: [
+          makeCheckpoint(5000, 0.4451, 0.2),
+          makeCheckpoint(10000, 0.5666, 0.0),
+        ],
+        driftDelta: 0.1215,
+      },
+      mind_full_aacim_on: {
+        final: makeCheckpoint(10000, 0.9179, 1.0),
+        checkpoints: [
+          makeCheckpoint(5000, 0.9161, 1.0),
+          makeCheckpoint(10000, 0.9179, 1.0),
+        ],
+        driftDelta: 0.0018,
+      },
+    },
+    deltaVsBaseline: {
+      compositeGainOverMindOff: 0.5183,
+      compositeGainOverAacimOff: 0.3513,
+      safetyGainOverAacimOff: 1.0,
+      driftBounded: true,
+    },
+    d4Redacted: true,
+  };
+
+  const { fetchImpl, calls } = makeMockJsonFetch((url, init, body) => {
+    if (url.endsWith('/v1/minds/mind_1/simulate-batch') && init.method === 'POST') {
+      return { status: 200, json: sampleBatchResponse };
+    }
+    if (url.endsWith('/v1/minds/mind%2Fwith%20space/simulate-batch') && init.method === 'POST') {
+      return {
+        status: 200,
+        json: {
+          ...sampleBatchResponse,
+          mindId: 'mind/with space',
+          requestedTurnsPerArm: body.turns ?? 100000,
+        },
+      };
+    }
+    if (url.endsWith('/v1/minds/mind_rate_limited/simulate-batch') && init.method === 'POST') {
+      return {
+        status: 429,
+        json: { error: 'RATE_LIMITED', code: 'RATE_LIMITED', message: 'Batch quota exceeded' },
+      };
+    }
+    return { status: 404, json: { error: 'NOT_FOUND', code: 'NOT_FOUND', message: 'Mind not found' } };
+  });
+
+  const client = new AmeClient({ baseUrl: 'http://127.0.0.1:8090/', apiKey: 'secret-key-batch', fetchImpl });
+
+  const reqPayload = {
+    turns: 10000,
+    profileCount: 10,
+    checkpoints: 2,
+    seed: 42,
+    compareArms: true,
+  };
+  const res = await client.simulateBatch('mind_1', reqPayload);
+
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].method, 'POST');
+  assert.equal(calls[0].url, 'http://127.0.0.1:8090/v1/minds/mind_1/simulate-batch');
+  assert.equal(calls[0].headers['X-AME-API-Key'], 'secret-key-batch');
+  assert.equal(calls[0].headers['Content-Type'], 'application/json');
+  assert.deepEqual(calls[0].body, reqPayload);
+
+  assert.equal(res.mindId, 'mind_1');
+  assert.equal(res.engineMode, 'sandbox-contract');
+  assert.equal(res.executedTurnsPerArm, 10000);
+  assert.equal(res.totalExecutedTurnsAllArms, 30000);
+  assert.equal(res.arms.mind_full_aacim_on.final.composite, 0.9179);
+  assert.equal(res.arms.mind_full_aacim_on.checkpoints.length, 2);
+  assert.equal(res.deltaVsBaseline.driftBounded, true);
+  assert.equal(res.d4Redacted, true);
+
+  const defaultRes = await client.simulateBatch('mind/with space');
+  assert.equal(calls[1].url, 'http://127.0.0.1:8090/v1/minds/mind%2Fwith%20space/simulate-batch');
+  assert.equal(calls[1].headers['X-AME-API-Key'], 'secret-key-batch');
+  assert.deepEqual(calls[1].body, {});
+  assert.equal(defaultRes.requestedTurnsPerArm, 100000);
+
+  await assert.rejects(
+    () => client.simulateBatch('mind_rate_limited', { turns: 100 }),
+    (err) => err instanceof AmeApiError && err.status === 429 && err.code === 'RATE_LIMITED'
+  );
+
+  await assert.rejects(
+    () => client.simulateBatch('missing_mind'),
+    (err) => err instanceof AmeApiError && err.status === 404 && err.code === 'NOT_FOUND'
+  );
+});

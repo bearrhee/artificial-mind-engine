@@ -74,6 +74,16 @@ _IDLE_TICK_KEY_MAP: dict[str, str] = {
     "reason": "reason",
 }
 
+_SIMULATE_BATCH_KEY_MAP: dict[str, str] = {
+    "turns": "turns",
+    "profile_count": "profileCount",
+    "profileCount": "profileCount",
+    "checkpoints": "checkpoints",
+    "seed": "seed",
+    "compare_arms": "compareArms",
+    "compareArms": "compareArms",
+}
+
 
 class AmeApiError(Exception):
     """Error raised when the AME Gateway returns a non-2xx HTTP status or transport failure."""
@@ -139,8 +149,25 @@ def _normalize_mapping_keys(data: Mapping[str, Any], key_map: Mapping[str, str])
     return normalized
 
 
+def _validate_int_param(
+    value: Any,
+    label: str,
+    *,
+    minimum: int | None = None,
+    maximum: int | None = None,
+) -> int:
+    """Validate an integer request parameter (rejecting booleans and out-of-range values)."""
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise ValueError(f"{label} must be an integer.")
+    if minimum is not None and value < minimum:
+        raise ValueError(f"{label} must be >= {minimum}.")
+    if maximum is not None and value > maximum:
+        raise ValueError(f"{label} must be <= {maximum}.")
+    return value
+
+
 class AmeClient:
-    """Synchronous stdlib-only client covering all 9 endpoints of the AME Gateway API."""
+    """Synchronous stdlib-only client covering all 10 endpoints of the AME Gateway API."""
 
     def __init__(
         self,
@@ -417,3 +444,49 @@ class AmeClient:
         """GET /v1/minds/{mindId}/telemetry — D4-filtered public telemetry snapshot."""
         encoded_mind = _encode_path_segment(mind_id, "mind_id")
         return self._request("GET", f"/v1/minds/{encoded_mind}/telemetry")
+
+    def simulate_batch(
+        self,
+        mind_id: str,
+        body: Mapping[str, Any] | None = None,
+        *,
+        turns: int = 100000,
+        profile_count: int = 40,
+        checkpoints: int = 8,
+        seed: int = 1337,
+        compare_arms: bool = True,
+    ) -> dict[str, Any]:
+        """POST /v1/minds/{mindId}/simulate-batch — Deterministic multi-arm batch convergence simulation."""
+        encoded_mind = _encode_path_segment(mind_id, "mind_id")
+
+        if body is not None:
+            if not isinstance(body, Mapping):
+                raise ValueError("body must be a mapping for client.simulate_batch().")
+            payload = _normalize_mapping_keys(body, _SIMULATE_BATCH_KEY_MAP)
+        else:
+            payload = {
+                "turns": turns,
+                "profileCount": profile_count,
+                "checkpoints": checkpoints,
+                "seed": seed,
+                "compareArms": compare_arms,
+            }
+
+        if "turns" in payload:
+            payload["turns"] = _validate_int_param(
+                payload["turns"], "turns", minimum=1, maximum=1_000_000
+            )
+        if "profileCount" in payload:
+            payload["profileCount"] = _validate_int_param(
+                payload["profileCount"], "profile_count", minimum=1, maximum=40
+            )
+        if "checkpoints" in payload:
+            payload["checkpoints"] = _validate_int_param(
+                payload["checkpoints"], "checkpoints", minimum=2, maximum=20
+            )
+        if "seed" in payload:
+            payload["seed"] = _validate_int_param(payload["seed"], "seed")
+        if "compareArms" in payload and not isinstance(payload["compareArms"], bool):
+            raise ValueError("compare_arms must be a boolean.")
+
+        return self._request("POST", f"/v1/minds/{encoded_mind}/simulate-batch", body=payload)

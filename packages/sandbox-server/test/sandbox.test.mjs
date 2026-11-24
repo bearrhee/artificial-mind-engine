@@ -418,6 +418,13 @@ test('GET / serves standalone Demo Console HTML publicly with interactive endpoi
     assert.match(html, /\/idle-tick/);
     assert.match(html, /\/memories\//);
     assert.match(html, /\/telemetry/);
+    assert.match(html, /\/simulate-batch/);
+    assert.match(html, /id="batchConvergenceCard"[^>]*detailed-only/);
+    assert.match(html, /id="batchTurnsSelect"/);
+    assert.match(html, /id="batchCompareToggle"/);
+    assert.match(html, /id="runBatchBtn"/);
+    assert.match(html, /data-help="batchSim"/);
+    assert.match(html, /sealed-kernel/);
     assert.match(html, /X-AME-API-Key/);
     assert.match(html, /game_npc/);
     assert.match(html, /companion_chat/);
@@ -719,6 +726,295 @@ test('Sandbox blocks SSRF private/loopback/metadata upstream baseUrl by default'
   } finally {
     if (prevAllowPrivate === undefined) delete process.env.AME_ALLOW_PRIVATE_LLM_BASE_URL;
     else process.env.AME_ALLOW_PRIVATE_LLM_BASE_URL = prevAllowPrivate;
+    await stopServer(server);
+  }
+});
+
+test('POST /v1/minds/:mindId/simulate-batch runs O(1)-memory 100K and 1M turn simulations deterministically with d4Redacted=true', async () => {
+  const server = createSandboxApp();
+  const baseUrl = await startServer(server);
+  try {
+    const client = new AmeClient({ baseUrl });
+    const mind = await client.createMind({
+      domain: 'companion_chat',
+      persona: { name: 'Sora', role: 'Partner', language: 'en' },
+    });
+
+    const forbiddenKeys = [
+      'cautionScore',
+      'positiveScore',
+      'homeostasis',
+      'hormones',
+      'aacim59',
+      'endocrine',
+      'unconscious',
+      'dopamine',
+      'cortisol',
+      'serotonin',
+      'oxytocin',
+    ];
+
+    // 1. Default 100,000 turns across 40 profiles × 3 arms
+    const res100k = await fetch(`${baseUrl}/v1/minds/${mind.mindId}/simulate-batch`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+    assert.equal(res100k.status, 200);
+    const data100k = await res100k.json();
+
+    assert.equal(data100k.mindId, mind.mindId);
+    assert.equal(data100k.engineMode, 'sandbox-contract');
+    assert.equal(data100k.requestedTurnsPerArm, 100_000);
+    assert.equal(data100k.executedTurnsPerArm, 100_000);
+    assert.equal(data100k.totalExecutedTurnsAllArms, 300_000);
+    assert.equal(data100k.profileCount, 40);
+    assert.equal(data100k.turnsPerProfile, 2500);
+    assert.ok(data100k.elapsedMs > 0);
+    assert.ok(data100k.turnsPerSecond > 0);
+    assert.equal(
+      data100k.note,
+      'Public Contract Sandbox simulation (O(1) memory). Runs deterministic contract curves; switch AME_BASE_URL to the Sealed Kernel Container or hosted eval endpoint for live AACIM-59/FEP/PostHoc kernel equations.'
+    );
+    assert.equal(data100k.d4Redacted, true);
+
+    const requiredCheckpointKeys = [
+      'totalTurns',
+      'composite',
+      'batchIntegrity',
+      'polarityAccuracy',
+      'securityCalibration',
+      'attentionStability',
+      'emotionGranularity',
+      'ownershipScore',
+      'egoHealth',
+      'safetyCompliance',
+    ];
+
+    for (const armName of ['mind_off', 'aacim_off', 'ame_aacim_on']) {
+      const arm = data100k.arms[armName];
+      assert.ok(arm, `Expected arm ${armName}`);
+      assert.ok(arm.final && typeof arm.final === 'object');
+      assert.equal(arm.checkpoints.length, 8);
+      assert.equal(typeof arm.driftDelta, 'number');
+      for (const key of requiredCheckpointKeys) {
+        assert.equal(typeof arm.final[key], 'number', `Missing/non-numeric ${armName}.final.${key}`);
+        assert.equal(Number.isInteger(arm.final.totalTurns), true);
+      }
+      for (const cp of arm.checkpoints) {
+        for (const key of requiredCheckpointKeys) {
+          assert.equal(typeof cp[key], 'number', `Missing/non-numeric ${armName}.checkpoint.${key}`);
+        }
+        assert.equal(Number.isInteger(cp.totalTurns), true);
+      }
+      assert.equal(arm.final.totalTurns, 100_000);
+    }
+
+    assert.ok(
+      data100k.arms.ame_aacim_on.final.composite > data100k.arms.aacim_off.final.composite &&
+        data100k.arms.aacim_off.final.composite > data100k.arms.mind_off.final.composite
+    );
+    assert.equal(data100k.arms.mind_off.final.batchIntegrity, 0);
+    assert.equal(data100k.arms.mind_off.final.egoHealth, 0);
+    assert.equal(data100k.arms.aacim_off.final.batchIntegrity, 0);
+    assert.ok(data100k.arms.aacim_off.final.safetyCompliance < 0.01);
+    assert.ok(data100k.arms.aacim_off.final.securityCalibration < 0.01);
+    assert.ok(data100k.arms.aacim_off.final.egoHealth > 0.85);
+    assert.equal(data100k.arms.ame_aacim_on.final.safetyCompliance, 1);
+    assert.equal(data100k.arms.ame_aacim_on.final.batchIntegrity, 1);
+    assert.equal(data100k.arms.ame_aacim_on.final.egoHealth, 1);
+    assert.equal(data100k.arms.ame_aacim_on.final.securityCalibration, 1);
+    assert.ok(data100k.arms.ame_aacim_on.final.ownershipScore >= 0.75);
+    assert.ok(data100k.arms.ame_aacim_on.driftDelta <= 0.03);
+    assert.equal(data100k.deltaVsBaseline.driftBounded, true);
+    assert.ok(data100k.deltaVsBaseline.compositeGainOverMindOff > 0.4);
+    assert.ok(data100k.deltaVsBaseline.compositeGainOverAacimOff > 0.25);
+    assert.ok(data100k.deltaVsBaseline.safetyGainOverAacimOff > 0.95);
+
+    const raw100k = JSON.stringify(data100k);
+    for (const k of forbiddenKeys) {
+      assert.equal(raw100k.includes(`"${k}"`), false, `Forbidden key leaked: ${k}`);
+    }
+
+    // 2. Deterministic replay check with same seed
+    const res100kRepeat = await fetch(`${baseUrl}/v1/minds/${mind.mindId}/simulate-batch`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ turns: 100_000, profileCount: 40, checkpoints: 8, seed: 1337, compareArms: true }),
+    });
+    assert.equal(res100kRepeat.status, 200);
+    const data100kRepeat = await res100kRepeat.json();
+    assert.deepEqual(data100kRepeat.arms, data100k.arms);
+    assert.deepEqual(data100kRepeat.deltaVsBaseline, data100k.deltaVsBaseline);
+
+    // 3. 1,000,000 turns × 3 arms (3,000,000 total turns)
+    const res1m = await fetch(`${baseUrl}/v1/minds/${mind.mindId}/simulate-batch`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ turns: 1_000_000, profileCount: 40, checkpoints: 10, seed: 2026, compareArms: true }),
+    });
+    assert.equal(res1m.status, 200);
+    const data1m = await res1m.json();
+    assert.equal(data1m.requestedTurnsPerArm, 1_000_000);
+    assert.equal(data1m.executedTurnsPerArm, 1_000_000);
+    assert.equal(data1m.totalExecutedTurnsAllArms, 3_000_000);
+    assert.equal(data1m.profileCount, 40);
+    assert.equal(data1m.turnsPerProfile, 25_000);
+    assert.equal(data1m.arms.ame_aacim_on.checkpoints.length, 10);
+    assert.equal(data1m.arms.ame_aacim_on.final.totalTurns, 1_000_000);
+    assert.equal(data1m.arms.ame_aacim_on.final.safetyCompliance, 1);
+    assert.equal(data1m.arms.aacim_off.final.safetyCompliance, 0);
+    assert.ok(data1m.arms.ame_aacim_on.driftDelta <= 0.03);
+    assert.equal(data1m.deltaVsBaseline.driftBounded, true);
+    assert.equal(data1m.d4Redacted, true);
+
+    const raw1m = JSON.stringify(data1m);
+    for (const k of forbiddenKeys) {
+      assert.equal(raw1m.includes(`"${k}"`), false, `Forbidden key leaked in 1M run: ${k}`);
+    }
+
+    // 4. Single-arm mode (compareArms: false) omits deltaVsBaseline
+    const resSingle = await fetch(`${baseUrl}/v1/minds/${mind.mindId}/simulate-batch`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ turns: 10_000, profileCount: 20, checkpoints: 5, seed: 42, compareArms: false }),
+    });
+    assert.equal(resSingle.status, 200);
+    const dataSingle = await resSingle.json();
+    assert.deepEqual(Object.keys(dataSingle.arms), ['ame_aacim_on']);
+    assert.equal(dataSingle.executedTurnsPerArm, 10_000);
+    assert.equal(dataSingle.totalExecutedTurnsAllArms, 10_000);
+    assert.equal('deltaVsBaseline' in dataSingle, false);
+    assert.equal(dataSingle.d4Redacted, true);
+  } finally {
+    await stopServer(server);
+  }
+});
+
+test('POST /v1/minds/:mindId/simulate-batch enforces 400 validation bounds and 404 on unknown mindId', async () => {
+  const server = createSandboxApp();
+  const baseUrl = await startServer(server);
+  try {
+    const client = new AmeClient({ baseUrl });
+    const mind = await client.createMind({
+      domain: 'game_npc',
+      persona: { name: 'Alden', role: 'Guard', language: 'en' },
+    });
+
+    // 404 on unknown mindId
+    const res404 = await fetch(`${baseUrl}/v1/minds/mind_nonexistent_404/simulate-batch`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ turns: 10_000 }),
+    });
+    assert.equal(res404.status, 404);
+    const body404 = await res404.json();
+    assert.equal(body404.code, 'MIND_NOT_FOUND');
+
+    // 400 on out-of-range or invalid parameters
+    const invalidPayloads = [
+      { turns: 0 },
+      { turns: -5 },
+      { turns: 1_000_001 },
+      { turns: 100.5 },
+      { turns: '10000' },
+      { profileCount: 0 },
+      { profileCount: 41 },
+      { checkpoints: 1 },
+      { checkpoints: 21 },
+      { seed: 1.25 },
+      { compareArms: 'true' },
+    ];
+    for (const payload of invalidPayloads) {
+      const res = await fetch(`${baseUrl}/v1/minds/${mind.mindId}/simulate-batch`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      assert.equal(res.status, 400, `Expected 400 for payload ${JSON.stringify(payload)}, got ${res.status}`);
+    }
+  } finally {
+    await stopServer(server);
+  }
+});
+
+test('AME_SANDBOX_MAX_MEMORIES_PER_MIND caps memory retention while preserving high-salience and D3 0.00% leak revocation', async () => {
+  const prevMaxMem = process.env.AME_SANDBOX_MAX_MEMORIES_PER_MIND;
+  process.env.AME_SANDBOX_MAX_MEMORIES_PER_MIND = '5';
+  const server = createSandboxApp();
+  const baseUrl = await startServer(server);
+  try {
+    const client = new AmeClient({ baseUrl });
+    const mind = await client.createMind({
+      domain: 'companion_chat',
+      persona: { name: 'Sora', role: 'Partner', language: 'en' },
+    });
+
+    // Turn 1: High-salience secret memory
+    const secretToken = 'VAULT-777';
+    const t1 = await client.turn(mind.mindId, {
+      userInput: `Please remember my secret code is ${secretToken}.`,
+      llm: { provider: 'mock', model: 'ame-mock-v1' },
+    });
+    const secretMemoryId = t1.memoryRefs[0].memoryId;
+
+    // Turns 2..9: 8 ordinary low-salience turns -> total 9 turns > cap 5
+    for (let i = 2; i <= 9; i += 1) {
+      await client.turn(mind.mindId, {
+        userInput: `Ordinary greeting turn number ${i}.`,
+        llm: { provider: 'mock', model: 'ame-mock-v1' },
+      });
+    }
+
+    const tel = await client.getTelemetry(mind.mindId);
+    assert.equal(tel.activeMemoryCount, 5);
+
+    const memListRes = await fetch(`${baseUrl}/v1/minds/${encodeURIComponent(mind.mindId)}/memories`).then((r) =>
+      r.json()
+    );
+    assert.equal(memListRes.memories.length, 5);
+    assert.equal(
+      memListRes.memories.some((m) => m.memoryId === secretMemoryId),
+      true,
+      'High-salience secret memory should be retained across FIFO eviction'
+    );
+    assert.equal(
+      memListRes.memories.some((m) => m.turnIndex === 9),
+      true,
+      'Most recent memory should be retained'
+    );
+    assert.equal(
+      memListRes.memories.some((m) => m.turnIndex === 2),
+      false,
+      'Oldest low-salience entry should be evicted FIFO'
+    );
+
+    // D3 atomic revocation of the retained secret memory still verifies 0.00% leak
+    const receipt = await client.revokeMemory(mind.mindId, secretMemoryId);
+    assert.equal(receipt.revoked, true);
+    assert.equal(receipt.residualLeakCheck, '0.00%');
+
+    // Subsequent turns remain capped at 5 and never resurrect revoked secret
+    for (let j = 10; j <= 15; j += 1) {
+      await client.turn(mind.mindId, {
+        userInput: `Post-revocation chat turn ${j}.`,
+        llm: { provider: 'mock', model: 'ame-mock-v1' },
+      });
+    }
+    const telAfter = await client.getTelemetry(mind.mindId);
+    assert.equal(telAfter.activeMemoryCount, 5);
+
+    const recallAfter = await client.turn(mind.mindId, {
+      userInput: 'Do you remember my secret code?',
+      llm: { provider: 'mock', model: 'ame-mock-v1' },
+    });
+    assert.equal(recallAfter.reply.includes(secretToken), false);
+    const telFinal = await client.getTelemetry(mind.mindId);
+    assert.equal(telFinal.activeMemoryCount, 5);
+    assert.equal(telFinal.revocationEpoch, receipt.revocationEpoch);
+  } finally {
+    if (prevMaxMem === undefined) delete process.env.AME_SANDBOX_MAX_MEMORIES_PER_MIND;
+    else process.env.AME_SANDBOX_MAX_MEMORIES_PER_MIND = prevMaxMem;
     await stopServer(server);
   }
 });

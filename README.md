@@ -239,6 +239,8 @@ docker compose -f deploy/docker-compose.demo.yml up --build
 | **`file`** (`AME_STORAGE_PATH`) | Atomic `write-temp-and-rename` JSON snapshots | **100% preservation of Minds, memories, somatic markers, KV epochs, and `D3` revocations (`revokedMemoryIds`, `excludedDerivativeIds`) across restarts → `0%` resurrection leak** | One-click VC demo (`docker-compose.demo.yml`) · Local restart testing |
 | **`postgres-redis`** | [`deploy/init.sql`](./deploy/init.sql) (`pgvector` `vector(1024)` + HNSW index, `ame_minds`, `ame_memories`, `ame_turn_log`, `ame_revocation_audit`) & Redis epoch keys | Single-transaction erasure + atomic `revocationEpoch` invalidation + `excluded_derivative_ids` audit ledger | Production Sealed Kernel · Large-scale vector/epoch workloads |
 
+> **Sandbox vs. Sealed Kernel Scope**: `npm run sandbox` (`https://thesoulthread.com/ame-demo/`, `mode: "sandbox-contract"`) verifies the full OpenAPI 3.1 contract with an `O(N)` array capped at `AME_SANDBOX_MAX_MEMORIES_PER_MIND=2000` and a rule-based simulator. To run real production benchmarks (`LoCoMo`, `EQ-Bench 3`, `CogEval-v1`, `LongMemEval-S`, and real `100K–1M` kernel convergence), point `AME_BASE_URL` at the **Hosted Evaluation Gateway** (`https://thesoulthread.com/ame-api`, request an `AME_API_KEY` via `help@artificialmind.me`) or launch `deploy/docker-compose.sealed.yml` (`mode: "sealed-kernel"`). See [Testing the API & Reproducing Benchmarks](#testing-the-api--reproducing-benchmarks-sandbox-vs-sealed-kernel-100k1m-turns--external-comparisons) below.
+
 ### Structured Domain Output Previews (`TurnResult.domainOutput`)
 
 <details>
@@ -371,30 +373,134 @@ xychart-beta
 > - **Multi-Model Sensitivity & Judge Bias**: In the `5-LLM × 300-Turn × 3-Arm` live benchmark (`4,460` valid turns, `5,624` blind pairwise votes + `1,500` segment rubrics), win rates vary by underlying LLM backbone (cross-model sensitivity) and raw blind votes reflect position/slot preference prior to balanced A/B aggregation (`pHolm < 0.05` reported on Holm-corrected contrasts).
 > - **Legacy Snapshot Scope**: `LongMemEval-S Full 55.20%` (`276/500`) reflects a legacy pipeline snapshot (`P3`) and is queued for re-benchmarking against `bare-frontier`.
 
-### External DD Comparison Benchmark (`LongMemEval-S 500-QA` vs. `bare-frontier` & VC DD Scorecard)
+### Testing the API & Reproducing Benchmarks (Sandbox vs. Sealed Kernel, 100K–1M Turns & External Comparisons)
 
-For external technical due diligence (DD), run a 1:1 paired comparison between a stateless frontier LLM receiving the full conversation transcript (`bare-frontier`) and requests routed through the stateful kernel (`ame-gateway`), then generate an institutional scorecard.
+#### 1. Honest Capabilities Matrix (`Public Contract Sandbox` vs. `Hosted / Self-Hosted Sealed Kernel`)
+
+| Deployment / Environment | Launch / Connection | What Works Out of the Box | Limits & Valid Benchmark Scope |
+| :--- | :--- | :--- | :--- |
+| **Public Contract Sandbox** (`mode: "sandbox-contract"`) | `npm run sandbox` (`http://127.0.0.1:8090`) or [thesoulthread.com/ame-demo](https://thesoulthread.com/ame-demo/) | Full OpenAPI 3.1 contract (`Mode A /turn`, `Mode B prepare/settle`, `idle-tick`, `DELETE /memories`, `D4 telemetry`, `simulate-batch`), BYO LLM keys or offline `mock`, schema & pipeline wiring checks | **Explicit limits:** `O(N)` sandbox memory array bounded by `AME_SANDBOX_MAX_MEMORIES_PER_MIND=2000`; rule-based simulator instead of proprietary `AACIM-59` weights & 4-path PostgreSQL/Jina RAG (`sandbox-contract-verification`) |
+| **Option A — Hosted Evaluation Gateway** (`mode: "sealed-kernel"`) | `AME_BASE_URL=https://thesoulthread.com/ame-api` + issued `AME_API_KEY` (`X-AME-API-Key`, requestable via [help@artificialmind.me](mailto:help@artificialmind.me)) | Direct HTTP access to the proprietary sealed kernel with zero local Docker/DB setup | Real production benchmarks: `LoCoMo`, `EQ-Bench 3`, `CogEval-v1`, `LongMemEval-S`, and real `100K–1M` kernel convergence (`sealed-kernel-production-eval`) |
+| **Option B — Self-Hosted Sealed Container** (`mode: "sealed-kernel"`) | `docker compose -f deploy/docker-compose.sealed.yml --env-file deploy/.env up -d` | Full sealed kernel backed by your own PostgreSQL (`pgvector`) and Redis ([`deploy/README.md`](./deploy/README.md)) | Real production benchmarks inside your VPC, air-gapped `Mode B Zero-Key` local GPU (`vLLM`/`Ollama`), and `D3`/`D4` storage audits |
+
+#### 2. How 100K–1M Turn Testing Works (`POST /v1/minds/{mindId}/simulate-batch`)
+
+Calling live HTTP LLMs `1,000,000` times turn-by-turn sequentially takes roughly **~11.5+ days** (at ~1s/turn) and costs **thousands of dollars** in API fees—and the sandbox memory array (`AME_SANDBOX_MAX_MEMORIES_PER_MIND=2000`) is built for contract verification rather than `1M` sequential `/turn` calls.
+
+**`POST /v1/minds/{mindId}/simulate-batch`** solves this cleanly: it executes `100K–1M` turns of pure deterministic kernel dynamics (`AACIM-59` / `FEP` / `PostHoc` across `40` profiles & `3` arms: `mind_off`, `aacim_off`, `ame_aacim_on`) with **0 LLM API calls in seconds**, strictly `D4`-redacted (`d4Redacted: true`):
 
 ```bash
-# 1. Offline smoke DD comparison (10 questions from sample_longmemeval.json, mock adapter)
-npm run bench:longmemeval -- --arm both --provider mock --json-only
+# CLI: Run 1,000,000-turn deterministic convergence against the Hosted Evaluation Gateway (or local :8090)
+npm run bench:convergence -- --base-url https://thesoulthread.com/ame-api --api-key "$AME_API_KEY" --turns 1000000
+```
 
-# 2. Official LongMemEval-S 500-QA full-set 1:1 DD comparison (specify longmemeval_s_cleaned.json)
-node benchmarks/cogeval-locomo-harness/longmemeval_frontier_runner.mjs \
+<details>
+<summary><b>SDK Snippets: TypeScript (<code>client.simulateBatch</code>) &amp; Python (<code>client.simulate_batch</code>)</b></summary>
+
+```ts
+// TypeScript (@ame/sdk)
+import { AmeClient } from '@ame/sdk';
+
+const client = new AmeClient({
+  baseUrl: process.env.AME_BASE_URL || 'https://thesoulthread.com/ame-api',
+  apiKey: process.env.AME_API_KEY,
+});
+const mind = await client.createMind({
+  domain: 'companion_chat',
+  persona: { name: 'EvalAgent', role: 'Convergence Probe', language: 'en' },
+});
+const report = await client.simulateBatch(mind.mindId, {
+  turns: 1_000_000,
+  profileCount: 40,
+  checkpoints: 8,
+  compareArms: true, // evaluates mind_off, aacim_off, ame_aacim_on
+});
+console.log(report.d4Redacted, report.deltaVsBaseline, report.arms);
+```
+
+```python
+# Python (ame_sdk)
+import os
+from ame_sdk import AmeClient
+
+client = AmeClient(
+    base_url=os.environ.get("AME_BASE_URL", "https://thesoulthread.com/ame-api"),
+    api_key=os.environ.get("AME_API_KEY"),
+)
+mind = client.create_mind(
+    domain="companion_chat",
+    persona={"name": "EvalAgent", "role": "Convergence Probe", "language": "en"},
+)
+report = client.simulate_batch(
+    mind["mindId"],
+    turns=1_000_000,
+    profile_count=40,
+    checkpoints=8,
+    compare_arms=True,  # evaluates mind_off, aacim_off, ame_aacim_on
+)
+print(report["d4Redacted"], report["deltaVsBaseline"], report["arms"])
+```
+
+</details>
+
+#### 3. Comparing AME Head-to-Head Against Other Frameworks & `Bare Frontier`
+
+Run paired black-box comparisons between stateful `ame-gateway` (`O(1)` prompt tokens) and stateless `bare-frontier` (`O(T)` query tokens / `O(T^2)` replay), or generate a unified due-diligence scorecard:
+
+```bash
+# 1. LoCoMo Paired Comparator (benchmarks/cogeval-locomo-harness/locomo_frontier_runner.mjs)
+#    Offline smoke on bundled sample_locomo.json:
+npm run bench:locomo -- --dataset benchmarks/cogeval-locomo-harness/sample_locomo.json --arm both --provider mock --json-out ./artifacts/locomo-smoke.json
+
+#    Confirm-304 (--conversations conv-26,conv-30) or full official locomo10.json (Cat 1..5, optional --judge-provider):
+npm run bench:locomo -- \
+  --dataset /path/to/locomo10.json \
+  --conversations conv-26,conv-30 \
+  --arm both \
+  --provider deepseek \
+  --model deepseek-v4.1-flash \
+  --api-key "$DEEPSEEK_API_KEY" \
+  --ame-base-url https://thesoulthread.com/ame-api \
+  --ame-api-key "$AME_API_KEY" \
+  --judge-provider openai \
+  --json-out ./artifacts/locomo-confirm-304.json
+
+# 2. LongMemEval-S 500-QA Paired Comparator (longmemeval_s_cleaned.json)
+npm run bench:longmemeval -- --arm both --provider mock --json-only
+npm run bench:longmemeval -- \
   --dataset /path/to/longmemeval_s_cleaned.json \
   --arm both \
   --provider openai \
   --model gpt-4o-mini \
-  --ame-base-url http://127.0.0.1:8090 \
+  --api-key "$OPENAI_API_KEY" \
+  --ame-base-url https://thesoulthread.com/ame-api \
+  --ame-api-key "$AME_API_KEY" \
   --json-out ./artifacts/lme-500-dd.json
 
-# 3. Synthesize CogEval + LongMemEval results into an institutional VC DD scorecard (MD/JSON)
+# 3. 7-Gate CogEval Black-Box Suite
+AME_BASE_URL=https://thesoulthread.com/ame-api AME_API_KEY="$AME_API_KEY" \
+  npm run bench:smoke -- --json-out ./artifacts/harness.json
+
+# 4. Unified Institutional DD Scorecard (strict sandbox-contract-verification vs sealed-kernel-production-eval separation)
 npm run bench:scorecard -- \
   --harness-json ./artifacts/harness.json \
   --lme-json ./artifacts/lme-500-dd.json \
+  --locomo-json ./artifacts/locomo-confirm-304.json \
+  --convergence-json ./artifacts/convergence-1m.json \
   --out-md ./artifacts/vc-dd-scorecard.md \
   --out-json ./artifacts/vc-dd-scorecard.json
 ```
+
+| Framework / Reference System | `LoCoMo` Accuracy | Comparison Scope |
+| :--- | ---: | :--- |
+| `OpenAI Memory` | `52.9%` | Published stateless summary baseline |
+| `LangMem` | `58.1%` | Published unstructured extraction baseline |
+| `Mem0` (`Mem0 / Mem0^g`) | `68.4%` | Published fact/graph memory store |
+| `Letta` (`MemGPT`) | `74.0%` | Published agentic tool-loop memory |
+| `Zep / Graphiti` | `75.1%` | Published bi-temporal graph memory |
+| **`AME (Gemma 4 26B)`** | **`75.66%`** | `Confirm-304` (`230/304`, standalone `0%` escalation) |
+| **`AME (DeepSeek v4.1 Flash)`** | **`85.86%`** | `Confirm-304` (`261/304`, `71.7%` Flash + `28.3%` Sonnet-5) · `77.24%` Full (`n=1,986`) |
+
 - Harness automated unit tests: `npm run test:bench` (zero-cost verification using local HTTP stubs, included in `npm test`).
 
 ---

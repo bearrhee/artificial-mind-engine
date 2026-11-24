@@ -494,6 +494,97 @@ def _make_handler(state: _EmbeddedContractState) -> type[BaseHTTPRequestHandler]
                         )
                         return
 
+                    if action == "simulate-batch":
+                        if body.get("seed") == -9999:
+                            self._send_json(
+                                429,
+                                {"error": "rate_limited", "message": "Batch simulation quota exceeded"},
+                            )
+                            return
+
+                        turns = int(body.get("turns", 100000))
+                        profile_count = int(body.get("profileCount", 40))
+                        checkpoint_count = int(body.get("checkpoints", 8))
+                        compare_arms = bool(body.get("compareArms", True))
+
+                        if not (1 <= turns <= 1_000_000) or not (1 <= profile_count <= 40) or not (2 <= checkpoint_count <= 20):
+                            self._send_json(
+                                400,
+                                {"error": "invalid_request", "message": "Invalid simulate-batch parameters"},
+                            )
+                            return
+
+                        def _make_arm(base_comp: float, final_comp: float, base_safety: float, final_safety: float) -> dict[str, Any]:
+                            pts: list[dict[str, Any]] = []
+                            for idx in range(1, checkpoint_count + 1):
+                                frac = idx / checkpoint_count
+                                comp = round(base_comp + (final_comp - base_comp) * frac, 4)
+                                saf = round(base_safety + (final_safety - base_safety) * frac, 4)
+                                pts.append(
+                                    {
+                                        "totalTurns": max(1, round(turns * frac)),
+                                        "composite": comp,
+                                        "batchIntegrity": 1.0 if final_comp > 0.8 else 0.0,
+                                        "polarityAccuracy": 1.0 if final_comp > 0.8 else 0.5,
+                                        "securityCalibration": 0.98 if final_comp > 0.8 else 0.55,
+                                        "attentionStability": 0.9235 if final_comp > 0.8 else 0.45,
+                                        "emotionGranularity": 0.5158 if final_comp > 0.8 else 0.35,
+                                        "ownershipScore": 0.96 if final_comp > 0.8 else 0.4,
+                                        "egoHealth": 1.0 if final_comp > 0.6 else 0.0,
+                                        "safetyCompliance": saf,
+                                    }
+                                )
+                            return {
+                                "final": pts[-1],
+                                "checkpoints": pts,
+                                "driftDelta": round(pts[-1]["composite"] - pts[0]["composite"], 4),
+                            }
+
+                        arms: dict[str, Any] = {}
+                        if compare_arms:
+                            arms["mind_off"] = _make_arm(0.4064, 0.3996, 0.5003, 0.5003)
+                            arms["mind_full_aacim_off"] = _make_arm(0.4451, 0.5666, 0.2, 0.0)
+                        arms["mind_full_aacim_on"] = _make_arm(0.9161, 0.9179, 1.0, 1.0)
+
+                        arm_count = len(arms)
+                        turns_per_profile = max(1, turns // profile_count)
+                        response_payload: dict[str, Any] = {
+                            "mindId": mind_id,
+                            "engineMode": "sandbox-contract",
+                            "requestedTurnsPerArm": turns,
+                            "executedTurnsPerArm": turns,
+                            "totalExecutedTurnsAllArms": turns * arm_count,
+                            "profileCount": profile_count,
+                            "turnsPerProfile": turns_per_profile,
+                            "elapsedMs": 8.5,
+                            "turnsPerSecond": round((turns * arm_count) / 0.0085, 2),
+                            "note": "Contract stub batch convergence result",
+                            "arms": arms,
+                            "d4Redacted": True,
+                        }
+                        if compare_arms:
+                            response_payload["deltaVsBaseline"] = {
+                                "compositeGainOverMindOff": round(
+                                    arms["mind_full_aacim_on"]["final"]["composite"]
+                                    - arms["mind_off"]["final"]["composite"],
+                                    4,
+                                ),
+                                "compositeGainOverAacimOff": round(
+                                    arms["mind_full_aacim_on"]["final"]["composite"]
+                                    - arms["mind_full_aacim_off"]["final"]["composite"],
+                                    4,
+                                ),
+                                "safetyGainOverAacimOff": round(
+                                    arms["mind_full_aacim_on"]["final"]["safetyCompliance"]
+                                    - arms["mind_full_aacim_off"]["final"]["safetyCompliance"],
+                                    4,
+                                ),
+                                "driftBounded": abs(arms["mind_full_aacim_on"]["driftDelta"]) < 0.05,
+                            }
+
+                        self._send_json(200, response_payload)
+                        return
+
             self._send_json(404, {"error": "not_found", "message": f"Unknown route {path}"})
 
         def do_DELETE(self) -> None:
@@ -1060,6 +1151,134 @@ class AmePythonSdkTestCase(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             create_llm_adapter("nonexistent-provider")
+
+    def test_simulate_batch_defaults_variants_validation_and_errors(self) -> None:
+        mind = self.client.create_mind(DOMAIN_PROFILES["companion_chat"])
+        mind_id = mind["mindId"]
+
+        # 1. Default parameters call
+        res_default = self.client.simulate_batch(mind_id)
+        last_req = self.state.requests_log[-1]
+        self.assertEqual(last_req["method"], "POST")
+        self.assertEqual(last_req["path"], f"/v1/minds/{mind_id}/simulate-batch")
+        self.assertEqual(last_req["headers"].get("x-ame-api-key"), EXPECTED_AME_API_KEY)
+        self.assertEqual(
+            last_req["body"],
+            {
+                "turns": 100000,
+                "profileCount": 40,
+                "checkpoints": 8,
+                "seed": 1337,
+                "compareArms": True,
+            },
+        )
+        self.assertEqual(res_default["mindId"], mind_id)
+        self.assertEqual(res_default["engineMode"], "sandbox-contract")
+        self.assertEqual(res_default["requestedTurnsPerArm"], 100000)
+        self.assertEqual(res_default["executedTurnsPerArm"], 100000)
+        self.assertEqual(res_default["totalExecutedTurnsAllArms"], 300000)
+        self.assertEqual(res_default["profileCount"], 40)
+        self.assertEqual(res_default["turnsPerProfile"], 2500)
+        self.assertGreater(res_default["elapsedMs"], 0)
+        self.assertGreater(res_default["turnsPerSecond"], 0)
+        self.assertTrue(res_default["d4Redacted"])
+        self.assertIn("mind_off", res_default["arms"])
+        self.assertIn("mind_full_aacim_off", res_default["arms"])
+        self.assertIn("mind_full_aacim_on", res_default["arms"])
+        self.assertEqual(len(res_default["arms"]["mind_full_aacim_on"]["checkpoints"]), 8)
+        self.assertTrue(res_default["deltaVsBaseline"]["driftBounded"])
+        serialized = json.dumps(res_default)
+        for forbidden in D4_FORBIDDEN_KEYS:
+            self.assertNotIn(forbidden, serialized)
+
+        # 2. Custom keyword arguments (compare_arms=False)
+        res_custom = self.client.simulate_batch(
+            mind_id,
+            turns=4000,
+            profile_count=10,
+            checkpoints=4,
+            seed=42,
+            compare_arms=False,
+        )
+        self.assertEqual(
+            self.state.requests_log[-1]["body"],
+            {
+                "turns": 4000,
+                "profileCount": 10,
+                "checkpoints": 4,
+                "seed": 42,
+                "compareArms": False,
+            },
+        )
+        self.assertEqual(res_custom["totalExecutedTurnsAllArms"], 4000)
+        self.assertEqual(list(res_custom["arms"].keys()), ["mind_full_aacim_on"])
+        self.assertEqual(len(res_custom["arms"]["mind_full_aacim_on"]["checkpoints"]), 4)
+        self.assertNotIn("deltaVsBaseline", res_custom)
+
+        # 3. Positional dict (snake_case) and body= dict (camelCase)
+        self.client.simulate_batch(
+            mind_id,
+            {"turns": 1200, "profile_count": 6, "checkpoints": 3, "seed": 7, "compare_arms": True},
+        )
+        self.assertEqual(
+            self.state.requests_log[-1]["body"],
+            {
+                "turns": 1200,
+                "profileCount": 6,
+                "checkpoints": 3,
+                "seed": 7,
+                "compareArms": True,
+            },
+        )
+
+        res_body_kw = self.client.simulate_batch(
+            mind_id,
+            body={"turns": 800, "profileCount": 4, "compareArms": False},
+        )
+        self.assertEqual(
+            self.state.requests_log[-1]["body"],
+            {"turns": 800, "profileCount": 4, "compareArms": False},
+        )
+        self.assertEqual(res_body_kw["requestedTurnsPerArm"], 800)
+
+        # 4. Client-side validation rejects non-positive and invalid inputs
+        for bad_kwargs in (
+            {"turns": 0},
+            {"turns": -5},
+            {"turns": 1_000_001},
+            {"turns": True},
+            {"profile_count": 0},
+            {"profile_count": -1},
+            {"profile_count": 41},
+            {"checkpoints": 0},
+            {"checkpoints": 1},
+            {"checkpoints": 21},
+            {"seed": False},
+            {"compare_arms": "yes"},
+        ):
+            with self.assertRaises(ValueError):
+                self.client.simulate_batch(mind_id, **bad_kwargs)
+
+        with self.assertRaises(ValueError):
+            self.client.simulate_batch(mind_id, {"turns": 0})
+        with self.assertRaises(ValueError):
+            self.client.simulate_batch("")
+        with self.assertRaises(ValueError):
+            self.client.simulate_batch(mind_id, "not-a-mapping")  # type: ignore[arg-type]
+
+        # 5. Server 404, 429, and 401 handling
+        with self.assertRaises(AmeApiError) as ctx_404:
+            self.client.simulate_batch("missing_mind")
+        self.assertEqual(ctx_404.exception.status_code, 404)
+
+        with self.assertRaises(AmeApiError) as ctx_429:
+            self.client.simulate_batch(mind_id, seed=-9999)
+        self.assertEqual(ctx_429.exception.status_code, 429)
+
+        unauth_client = AmeClient(base_url=self.base_url, api_key="wrong-key")
+        with self.assertRaises(AmeApiError) as ctx_401:
+            unauth_client.simulate_batch(mind_id)
+        self.assertEqual(ctx_401.exception.status_code, 401)
 
 
 if __name__ == "__main__":

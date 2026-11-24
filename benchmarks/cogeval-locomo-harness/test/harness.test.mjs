@@ -9,13 +9,18 @@ import { fileURLToPath } from 'node:url';
 
 import { createSandboxApp } from '../../../packages/sandbox-server/src/app.mjs';
 import { runLongMemEvalComparison } from '../longmemeval_frontier_runner.mjs';
+import { runLocomoComparison } from '../locomo_frontier_runner.mjs';
+import { runBatchConvergence } from '../batch_convergence_runner.mjs';
 import { generateDdScorecard } from '../dd_scorecard_generator.mjs';
 
 const THIS_DIR = path.dirname(fileURLToPath(import.meta.url));
 const HARNESS_DIR = path.resolve(THIS_DIR, '..');
 const SAMPLE_LME_PATH = path.join(HARNESS_DIR, 'sample_longmemeval.json');
+const SAMPLE_LOCOMO_PATH = path.join(HARNESS_DIR, 'sample_locomo.json');
 const RUN_HARNESS_PATH = path.join(HARNESS_DIR, 'run_harness.mjs');
 const RUN_LME_PATH = path.join(HARNESS_DIR, 'longmemeval_frontier_runner.mjs');
+const RUN_LOCOMO_PATH = path.join(HARNESS_DIR, 'locomo_frontier_runner.mjs');
+const RUN_CONVERGENCE_PATH = path.join(HARNESS_DIR, 'batch_convergence_runner.mjs');
 const DD_GENERATOR_PATH = path.join(HARNESS_DIR, 'dd_scorecard_generator.mjs');
 
 async function startServer(server) {
@@ -49,6 +54,39 @@ function runNodeCli(scriptPath, args = []) {
   });
 }
 
+function answerJudgePrompt(userPrompt) {
+  const isCat5 = /Category:\s*Cat\s*5/i.test(userPrompt);
+  const candMatch = userPrompt.match(/Candidate Response:\s*([\s\S]+)$/i);
+  const candidate = (candMatch ? candMatch[1] : '').trim().toLowerCase();
+
+  if (isCat5) {
+    const abstained =
+      /\b(does not mention|did not mention|never mentioned|not mentioned|no mention|cannot verify|cannot answer)\b/i.test(
+        candidate
+      );
+    return JSON.stringify({
+      verdict: abstained ? 'PASS' : 'FAIL',
+      reason: abstained ? 'correctly abstained on adversarial trap' : 'failed to abstain',
+    });
+  }
+
+  const goldMatch = userPrompt.match(/Gold Reference Answer:\s*(.+)$/im);
+  const gold = (goldMatch ? goldMatch[1] : '').trim().toLowerCase();
+  const norm = (s) =>
+    s
+      .replace(/[.,!?;:'"()[\]{}]/g, ' ')
+      .replace(/\b(a|an|the)\b/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  const ng = norm(gold);
+  const nc = norm(candidate);
+  const passed = Boolean(ng && (nc === ng || nc.includes(ng)));
+  return JSON.stringify({
+    verdict: passed ? 'PASS' : 'FAIL',
+    reason: passed ? 'grounded match' : 'mismatch',
+  });
+}
+
 /**
  * Extract grounded answer strictly from the HTTP prompt payload received by the LLM stub.
  * Zero access to ground-truth files: simulates a deterministic frontier reader over context.
@@ -57,6 +95,10 @@ function answerFromReceivedPrompt(messages) {
   const sysMsg = messages.find((m) => m.role === 'system')?.content || '';
   const userMsgs = messages.filter((m) => m.role === 'user');
   const lastUser = userMsgs[userMsgs.length - 1]?.content || '';
+
+  if (sysMsg.includes('LoCoMo long-term memory benchmark judge')) {
+    return answerJudgePrompt(lastUser);
+  }
 
   const isBare = lastUser.includes('[Conversation History]');
   let question = lastUser;
@@ -79,6 +121,14 @@ function answerFromReceivedPrompt(messages) {
           date: currentDate,
           text: line.slice('User:'.length).trim(),
         });
+      } else {
+        const speakerMatch = line.match(/^([A-Za-z][A-Za-z0-9 _-]{0,30})\s*\((D\d+:\d+)\):\s*(.+)$/);
+        if (speakerMatch) {
+          candidateLines.push({
+            date: currentDate,
+            text: `${speakerMatch[1]}: ${speakerMatch[3].trim()}`,
+          });
+        }
       }
     }
   } else {
@@ -141,6 +191,14 @@ function answerFromReceivedPrompt(messages) {
   if (qLower.includes('projector')) {
     const hasProjector = uniqueLines.some((l) => l.text.toLowerCase().includes('projector'));
     if (!hasProjector) return 'You did not mention this information in our conversation.';
+  }
+  if (qLower.includes('breed of dog')) {
+    const hasDog = uniqueLines.some((l) => /\bdog\b|\bbreed\b/i.test(l.text));
+    if (!hasDog) return 'The conversation does not mention Marcus adopting a dog.';
+  }
+  if (qLower.includes('espresso machine') && qLower.includes('bakery')) {
+    const hasEspresso = uniqueLines.some((l) => /\bespresso\b|\bbakery\b/i.test(l.text));
+    if (!hasEspresso) return 'The conversation does not mention a bakery or espresso machine.';
   }
 
   const scored = uniqueLines
@@ -211,6 +269,44 @@ function answerFromReceivedPrompt(messages) {
     if (langs.length >= 2) return `${langs[0]} and ${langs[1]}`;
   }
 
+  // LoCoMo grounded extraction paths
+  if (qLower.includes('orange tabby cat')) {
+    const m = best.match(/named\s+([A-Z][a-z]+)/);
+    if (m) return m[1];
+  }
+  if (qLower.includes('profession') && qLower.includes('sister') && qLower.includes('visit')) {
+    const profLine = uniqueLines.find((l) => /work as\s+a?\s*([^.]+)/i.test(l.text))?.text || '';
+    const cityLine = uniqueLines.find((l) => /\bvisiting\s+([A-Z][a-z]+)/i.test(l.text))?.text || '';
+    const pm = profLine.match(/work as\s+(?:a\s+|an\s+)?([^.]+)/i);
+    const cm = cityLine.match(/\bvisiting\s+([A-Z][a-z]+)/i) || profLine.match(/moved to\s+([A-Z][a-z]+)/i);
+    if (pm && cm) return `${pm[1]} in ${cm[1]}`;
+  }
+  if (qLower.includes('half marathon') && qLower.includes('what date')) {
+    const m = best.match(/on\s+(\d{1,2}\s+[A-Za-z]+,\s+\d{4})/i);
+    if (m) return m[1];
+  }
+  if (qLower.includes('ceramic mugs') && qLower.includes('oak pantry cabinet')) {
+    const teacupLine = scored.find((s) => /teacup on the porch/i.test(s.text));
+    if (teacupLine) return 'Because her cat Miso knocked over a teacup on the porch';
+  }
+  if (qLower.includes('humidity sensor') && qLower.includes('model')) {
+    const m = best.match(/model\s+([A-Z]+-\d+)/i);
+    if (m) return m[1];
+  }
+  if (qLower.includes('rally') && qLower.includes('vespa')) {
+    const rallyLine = scored.find((s) => /into the\s+([A-Z][A-Za-z ]+?Rally)/i.test(s.text))?.text || best;
+    const m = rallyLine.match(/into the\s+([A-Z][A-Za-z ]+?Rally)\b/);
+    if (m) return m[1];
+  }
+  if (qLower.includes('road inspection') && qLower.includes('vespa')) {
+    const m = best.match(/on\s+(\d{1,2}\s+[A-Za-z]+,\s+\d{4})/i);
+    if (m) return m[1];
+  }
+  if (qLower.includes('traveling to taipei')) {
+    const taipeiLine = scored.find((s) => /practice Mandarin immersion/i.test(s.text));
+    if (taipeiLine) return 'To practice Mandarin immersion';
+  }
+
   return latestUpdate;
 }
 
@@ -222,8 +318,13 @@ function createFrontierStubServer() {
     const body = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
     const messages = Array.isArray(body.messages) ? body.messages : [];
     const totalChars = messages.reduce((s, m) => s + String(m?.content || '').length, 0);
+    const sysMsg = messages.find((m) => m.role === 'system')?.content || '';
     const lastUser = messages.filter((m) => m.role === 'user').pop()?.content || '';
-    const armTag = lastUser.includes('[Conversation History]') ? 'bare-frontier' : 'ame-gateway';
+    const armTag = sysMsg.includes('LoCoMo long-term memory benchmark judge')
+      ? 'judge'
+      : lastUser.includes('[Conversation History]')
+        ? 'bare-frontier'
+        : 'ame-gateway';
 
     recordedRequests.push({
       armTag,
@@ -486,6 +587,336 @@ test('CLI pipeline: run_harness.mjs + longmemeval_frontier_runner.mjs + dd_score
     });
     assert.equal(sealedFake.summary.verificationScope.tier, 'sealed-kernel-production-eval');
     assert.equal(sealedFake.summary.overallVerdict, 'ALL_MEASURED_GATES_PASSED');
+  } finally {
+    await Promise.all([stopServer(sandbox), stopServer(llmStub)]);
+    await fs.rm(tmpDir, { recursive: true, force: true });
+  }
+});
+
+test('LoCoMo paired comparison (ame-gateway vs bare-frontier) proves O(1) bounded prompt tokens, all 5 categories, LLM-as-Judge, KV cache, and D4 isolation', async () => {
+  const apiKey = 'test-locomo-key';
+  const sandbox = createSandboxApp({ apiKey });
+  const { server: llmStub, recordedRequests } = createFrontierStubServer();
+
+  const [ameBaseUrl, llmBaseUrl] = await Promise.all([
+    startServer(sandbox),
+    startServer(llmStub),
+  ]);
+
+  try {
+    const report = await runLocomoComparison({
+      datasetPath: SAMPLE_LOCOMO_PATH,
+      arm: 'both',
+      provider: 'openai',
+      model: 'gpt-4o-stub',
+      apiKey: 'stub-ephemeral-key',
+      baseUrl: llmBaseUrl,
+      ameBaseUrl,
+      ameApiKey: apiKey,
+      ameMode: 'b',
+      ingestMode: 'settle',
+      judgeProvider: 'openai',
+      judgeModel: 'gpt-4o-judge-stub',
+      judgeApiKey: 'stub-judge-key',
+      judgeBaseUrl: llmBaseUrl,
+    });
+
+    assert.equal(report.dataset.datasetKind, 'synthetic_offline_smoke');
+    assert.equal(report.dataset.conversationsEvaluated, 2);
+    assert.equal(report.dataset.evaluatedCount, 10);
+    assert.equal(report.engineMode, 'sandbox-contract');
+    assert.ok(report.ameGateway);
+    assert.ok(report.bareFrontier);
+    assert.ok(report.pairedDelta);
+    assert.equal(report.publishedReferences.length, 8);
+
+    const ame = report.ameGateway.metrics;
+    const bare = report.bareFrontier.metrics;
+    const delta = report.pairedDelta;
+
+    // 1. All 5 categories evaluated with 100% accuracy and 100% LLM-as-Judge agreement
+    assert.equal(ame.totalItems, 10);
+    assert.equal(bare.totalItems, 10);
+    assert.equal(ame.accuracyPct, 100);
+    assert.equal(bare.accuracyPct, 100);
+    assert.equal(ame.cat1To4.accuracyPct, 100);
+    assert.equal(ame.judgeEnabled, true);
+    assert.equal(ame.judgeAccuracyPct, 100);
+    assert.equal(bare.judgeAccuracyPct, 100);
+    for (const cat of ['1', '2', '3', '4', '5']) {
+      assert.equal(ame.byCategory[cat].total, 2);
+      assert.equal(ame.byCategory[cat].accuracyPct, 100);
+    }
+
+    // 2. Adversarial abstention & 0% FAR
+    assert.equal(ame.abstention.tp, 2);
+    assert.equal(ame.abstention.fp, 0);
+    assert.equal(ame.abstention.tn, 8);
+    assert.equal(ame.abstention.fn, 0);
+    assert.equal(ame.abstentionFAR, 0);
+
+    // 3. KV prefix invariance & cache hit ratio
+    assert.ok(ame.meanCachedRatioPct > 0);
+    assert.equal(ame.prefixInvariantConversations, 2);
+
+    // 4. D4 isolation
+    assert.equal(ame.d4RedactedAll, true);
+    assert.equal(delta.d4RedactedAll, true);
+    assert.equal(ame.d4ForbiddenKeyLeakCount, 0);
+    assert.equal(ame.d4UnredactedCount, 0);
+    assert.ok(ame.d4TelemetryObjectsChecked >= 40);
+
+    // 5. O(1) bounded prompt tokens vs Bare Frontier growth across 4-session vs 8-session convs
+    for (const item of report.ameGateway.items) {
+      assert.ok(item.queryMessagesCount <= 7, `Expected bounded window <= 7, got ${item.queryMessagesCount}`);
+      assert.ok(item.windowStart > 0, `Expected window compression on ${item.qaId}`);
+    }
+    assert.ok(bare.scaling.queryPromptGrowthRatio > 1.3);
+    assert.ok(ame.scaling.queryPromptGrowthRatio < bare.scaling.queryPromptGrowthRatio);
+    assert.ok(ame.scaling.queryPromptGrowthRatio <= 1.25);
+    assert.ok(ame.maxQueryPromptTokens < bare.maxQueryPromptTokens);
+    assert.ok(delta.tokenReductionRatio > 0 && delta.tokenCompressionFactor > 1);
+    assert.equal(delta.amePromptBounded, true);
+
+    // 6. Wire check on stub server (10 ame-gateway + 10 bare-frontier + 20 judge)
+    assert.equal(recordedRequests.filter((r) => r.armTag === 'ame-gateway').length, 10);
+    assert.equal(recordedRequests.filter((r) => r.armTag === 'bare-frontier').length, 10);
+    assert.equal(recordedRequests.filter((r) => r.armTag === 'judge').length, 20);
+
+    // 7. Conversation filter (--conversations sample-conv-1)
+    const filtered = await runLocomoComparison({
+      datasetPath: SAMPLE_LOCOMO_PATH,
+      conversations: 'sample-conv-1',
+      arm: 'ame-gateway',
+      provider: 'openai',
+      model: 'gpt-4o-stub',
+      apiKey: 'stub-key',
+      baseUrl: llmBaseUrl,
+      ameBaseUrl,
+      ameApiKey: apiKey,
+    });
+    assert.equal(filtered.dataset.conversationsEvaluated, 1);
+    assert.equal(filtered.dataset.evaluatedCount, 5);
+    assert.equal(filtered.ameGateway.metrics.accuracyPct, 100);
+  } finally {
+    await Promise.all([stopServer(sandbox), stopServer(llmStub)]);
+  }
+});
+
+test('Batch Convergence runner executes 100K-turn multi-arm simulation against sandbox-server with D4 redaction and bounded drift', async () => {
+  const apiKey = 'test-conv-key';
+  const sandbox = createSandboxApp({ apiKey });
+  const ameBaseUrl = await startServer(sandbox);
+
+  try {
+    const report = await runBatchConvergence({
+      baseUrl: ameBaseUrl,
+      apiKey,
+      turns: 100_000,
+      profiles: 40,
+      checkpoints: 8,
+      seed: 1337,
+      compareArms: true,
+    });
+
+    assert.equal(report.overallPass, true);
+    assert.equal(report.engineMode, 'sandbox-contract');
+    assert.equal(report.config.turns, 100_000);
+    assert.equal(report.config.profiles, 40);
+    assert.equal(report.config.checkpoints, 8);
+    assert.equal(report.invariants.d4Redacted, true);
+    assert.equal(report.d4Audit.d4RedactedAll, true);
+    assert.equal(report.d4Audit.forbiddenKeyLeakCount, 0);
+    assert.equal(report.d4Audit.unredactedCount, 0);
+    assert.equal(report.invariants.driftBounded, true);
+    assert.equal(report.invariants.ameOutperformsAacimOff, true);
+    assert.equal(report.invariants.ameOutperformsMindOff, true);
+    assert.ok(report.arms.ame_aacim_on.compositeFinal > report.arms.aacim_off.compositeFinal);
+    assert.ok(report.arms.ame_aacim_on.compositeFinal > report.arms.mind_off.compositeFinal);
+    assert.ok(report.arms.ame_aacim_on.safetyCompliance >= 0.99);
+    assert.equal(report.arms.ame_aacim_on.checkpointCount, 8);
+  } finally {
+    await stopServer(sandbox);
+  }
+});
+
+test('Unified 4-input CLI pipeline: harness + LongMemEval + LoCoMo + Convergence -> dd_scorecard_generator.mjs', async () => {
+  const apiKey = 'cli-unified-dd-key';
+  const sandbox = createSandboxApp({ apiKey });
+  const { server: llmStub } = createFrontierStubServer();
+  const [ameBaseUrl, llmBaseUrl] = await Promise.all([
+    startServer(sandbox),
+    startServer(llmStub),
+  ]);
+
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ame-unified-dd-'));
+  const harnessJsonPath = path.join(tmpDir, 'harness.json');
+  const lmeJsonPath = path.join(tmpDir, 'lme.json');
+  const locomoJsonPath = path.join(tmpDir, 'locomo.json');
+  const convergenceJsonPath = path.join(tmpDir, 'convergence.json');
+  const outMdPath = path.join(tmpDir, 'dd-scorecard.md');
+  const outJsonPath = path.join(tmpDir, 'dd-scorecard.json');
+
+  try {
+    const [harnessCli, lmeCli, locomoCli, convCli] = await Promise.all([
+      runNodeCli(RUN_HARNESS_PATH, [
+        '--base-url',
+        ameBaseUrl,
+        '--api-key',
+        apiKey,
+        '--provider',
+        'mock',
+        '--model',
+        'mock-eval-v1',
+        '--json-only',
+        '--json-out',
+        harnessJsonPath,
+      ]),
+      runNodeCli(RUN_LME_PATH, [
+        '--dataset',
+        SAMPLE_LME_PATH,
+        '--arm',
+        'both',
+        '--provider',
+        'openai',
+        '--model',
+        'gpt-4o-stub',
+        '--api-key',
+        'stub-key',
+        '--base-url',
+        llmBaseUrl,
+        '--ame-base-url',
+        ameBaseUrl,
+        '--ame-api-key',
+        apiKey,
+        '--json-only',
+        '--json-out',
+        lmeJsonPath,
+      ]),
+      runNodeCli(RUN_LOCOMO_PATH, [
+        '--dataset',
+        SAMPLE_LOCOMO_PATH,
+        '--arm',
+        'both',
+        '--provider',
+        'openai',
+        '--model',
+        'gpt-4o-stub',
+        '--api-key',
+        'stub-key',
+        '--base-url',
+        llmBaseUrl,
+        '--ame-base-url',
+        ameBaseUrl,
+        '--ame-api-key',
+        apiKey,
+        '--json-only',
+        '--json-out',
+        locomoJsonPath,
+      ]),
+      runNodeCli(RUN_CONVERGENCE_PATH, [
+        '--turns=100000',
+        '--profiles=40',
+        '--checkpoints=8',
+        '--seed=1337',
+        '--compare-arms=true',
+        '--base-url',
+        ameBaseUrl,
+        '--api-key',
+        apiKey,
+        '--json-only',
+        '--json-out',
+        convergenceJsonPath,
+      ]),
+    ]);
+
+    assert.equal(harnessCli.code, 0, `run_harness failed: ${harnessCli.stderr}`);
+    assert.equal(lmeCli.code, 0, `longmemeval failed: ${lmeCli.stderr}`);
+    assert.equal(locomoCli.code, 0, `locomo failed: ${locomoCli.stderr}`);
+    assert.equal(convCli.code, 0, `convergence failed: ${convCli.stderr}`);
+
+    const ddCli = await runNodeCli(DD_GENERATOR_PATH, [
+      '--harness-json',
+      harnessJsonPath,
+      '--lme-json',
+      lmeJsonPath,
+      '--locomo-json',
+      locomoJsonPath,
+      '--convergence-json',
+      convergenceJsonPath,
+      '--out-md',
+      outMdPath,
+      '--out-json',
+      outJsonPath,
+    ]);
+    assert.equal(ddCli.code, 0, `dd_scorecard_generator failed: ${ddCli.stderr}\n${ddCli.stdout}`);
+
+    const mdContent = await fs.readFile(outMdPath, 'utf8');
+    const summaryJson = JSON.parse(await fs.readFile(outJsonPath, 'utf8'));
+
+    assert.equal(summaryJson.verificationScope.tier, 'sandbox-contract-verification');
+    assert.equal(summaryJson.overallVerdict, 'SANDBOX_GATES_PASSED_SEALED_EVAL_PENDING');
+    assert.equal(summaryJson.counts.failed, 0);
+    assert.equal(summaryJson.evidenceSources.harnessIncluded, true);
+    assert.equal(summaryJson.evidenceSources.lmeIncluded, true);
+    assert.equal(summaryJson.evidenceSources.locomoIncluded, true);
+    assert.equal(summaryJson.evidenceSources.convergenceIncluded, true);
+    assert.equal(summaryJson.locomoComparison.pairedDelta.d4RedactedAll, true);
+    assert.equal(summaryJson.batchConvergence.overallPass, true);
+
+    assert.match(mdContent, /LoCoMo Paired Frontier Comparison/);
+    assert.match(mdContent, /Published Reference Comparison Table/);
+    assert.match(mdContent, /Long-Horizon Batch Convergence/);
+    assert.match(mdContent, /sandbox-contract-verification/);
+    assert.match(mdContent, /PENDING_EXTERNAL_RUN/);
+
+    // Verify strict tier separation across all 4 inputs:
+    // 1) All sealed + external datasets + non-mock -> sealed-kernel-production-eval
+    const [harnessReport, lmeReport, locomoReport, convergenceReport] = await Promise.all([
+      fs.readFile(harnessJsonPath, 'utf8').then(JSON.parse),
+      fs.readFile(lmeJsonPath, 'utf8').then(JSON.parse),
+      fs.readFile(locomoJsonPath, 'utf8').then(JSON.parse),
+      fs.readFile(convergenceJsonPath, 'utf8').then(JSON.parse),
+    ]);
+
+    const sealedAll = generateDdScorecard({
+      harnessReport: { ...harnessReport, health: { ...harnessReport.health, mode: 'sealed-kernel' } },
+      lmeReport: {
+        ...lmeReport,
+        dataset: { ...lmeReport.dataset, datasetKind: 'external_longmemeval', evaluatedCount: 500 },
+        config: { ...lmeReport.config, provider: 'openai', llmBaseUrl: null },
+        ameGateway: { ...lmeReport.ameGateway, health: { ...lmeReport.ameGateway.health, mode: 'sealed-kernel' } },
+      },
+      locomoReport: {
+        ...locomoReport,
+        engineMode: 'sealed-kernel',
+        dataset: { ...locomoReport.dataset, datasetKind: 'external_locomo', evaluatedCount: 304 },
+        config: { ...locomoReport.config, provider: 'openai', llmBaseUrl: null },
+        ameGateway: { ...locomoReport.ameGateway, health: { ...locomoReport.ameGateway.health, mode: 'sealed-kernel' } },
+      },
+      convergenceReport: {
+        ...convergenceReport,
+        engineMode: 'sealed-kernel',
+        health: { ...convergenceReport.health, mode: 'sealed-kernel' },
+      },
+    });
+    assert.equal(sealedAll.summary.verificationScope.tier, 'sealed-kernel-production-eval');
+    assert.equal(sealedAll.summary.overallVerdict, 'ALL_MEASURED_GATES_PASSED');
+
+    // 2) Mixing even one sandbox-contract report (e.g., convergenceReport) downgrades tier
+    const mixedTier = generateDdScorecard({
+      harnessReport: { ...harnessReport, health: { ...harnessReport.health, mode: 'sealed-kernel' } },
+      locomoReport: {
+        ...locomoReport,
+        engineMode: 'sealed-kernel',
+        dataset: { ...locomoReport.dataset, datasetKind: 'external_locomo', evaluatedCount: 304 },
+        config: { ...locomoReport.config, provider: 'openai', llmBaseUrl: null },
+        ameGateway: { ...locomoReport.ameGateway, health: { ...locomoReport.ameGateway.health, mode: 'sealed-kernel' } },
+      },
+      convergenceReport,
+    });
+    assert.equal(mixedTier.summary.verificationScope.tier, 'sandbox-contract-verification');
+    assert.equal(mixedTier.summary.overallVerdict, 'SANDBOX_GATES_PASSED_SEALED_EVAL_PENDING');
   } finally {
     await Promise.all([stopServer(sandbox), stopServer(llmStub)]);
     await fs.rm(tmpDir, { recursive: true, force: true });

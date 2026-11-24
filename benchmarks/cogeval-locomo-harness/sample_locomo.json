@@ -1,0 +1,356 @@
+[
+  {
+    "sample_id": "sample-conv-1",
+    "conversation": {
+      "speaker_a": "Elena",
+      "speaker_b": "Marcus",
+      "session_1_date_time": "10:15 am on 4 March, 2024",
+      "session_1": [
+        {
+          "speaker": "Elena",
+          "dia_id": "D1:1",
+          "text": "I finally restored the vintage ceramic kiln at the Riverbend Art Co-op this morning."
+        },
+        {
+          "speaker": "Marcus",
+          "dia_id": "D1:2",
+          "text": "Nice! My sister Nora just moved to Portland to work as a botanical illustrator."
+        },
+        {
+          "speaker": "Elena",
+          "dia_id": "D1:3",
+          "text": "That sounds wonderful. By the way, I adopted a mischievous orange tabby cat named Miso last week."
+        },
+        {
+          "speaker": "Marcus",
+          "dia_id": "D1:4",
+          "text": "Cute name! I have been training for a half marathon along the Cedar Creek Trail."
+        }
+      ],
+      "session_2_date_time": "6:30 pm on 19 March, 2024",
+      "session_2": [
+        {
+          "speaker": "Elena",
+          "dia_id": "D2:1",
+          "text": "My kiln glaze test worked using cobalt oxide for a deep ocean blue finish."
+        },
+        {
+          "speaker": "Marcus",
+          "dia_id": "D2:2",
+          "text": "Awesome! I booked a train ticket for 12 April, 2024 to visit my sister Nora in the city where she works."
+        },
+        {
+          "speaker": "Elena",
+          "dia_id": "D2:3",
+          "text": "Miso knocked over a teacup on the porch, so I moved all my ceramic mugs to the high oak pantry cabinet out of reach of my cat."
+        },
+        {
+          "speaker": "Marcus",
+          "dia_id": "D2:4",
+          "text": "Smart move. I started taking classical guitar lessons on Tuesday evenings."
+        }
+      ],
+      "session_3_date_time": "2:05 pm on 22 April, 2024",
+      "session_3": [
+        {
+          "speaker": "Elena",
+          "dia_id": "D3:1",
+          "text": "How was your spring trip? I reserved a pottery market booth for 18 May, 2024."
+        },
+        {
+          "speaker": "Marcus",
+          "dia_id": "D3:2",
+          "text": "Visiting Portland was great—Nora and I sketched ferns at the conservatory and bought roasted hazelnut coffee."
+        },
+        {
+          "speaker": "Elena",
+          "dia_id": "D3:3",
+          "text": "I finished glazing fourteen stoneware bowls for the upcoming May craft market."
+        },
+        {
+          "speaker": "Marcus",
+          "dia_id": "D3:4",
+          "text": "My guitar teacher asked me to practice Villa-Lobos Etude No. 1 before next Tuesday."
+        }
+      ],
+      "session_4_date_time": "9:40 am on 9 May, 2024",
+      "session_4": [
+        {
+          "speaker": "Elena",
+          "dia_id": "D4:1",
+          "text": "I packed the fourteen stoneware bowls into wooden crates labeled ELENA-KILN-09."
+        },
+        {
+          "speaker": "Marcus",
+          "dia_id": "D4:2",
+          "text": "I ran the Cedar Creek Trail half marathon and finished in 1 hour 52 minutes on 4 May, 2024."
+        },
+        {
+          "speaker": "Elena",
+          "dia_id": "D4:3",
+          "text": "Congrats! I am driving to the Riverbend Art Co-op early Saturday to arrange the display shelves."
+        },
+        {
+          "speaker": "Marcus",
+          "dia_id": "D4:4",
+          "text": "I will bring folding tables and some roasted hazelnut coffee for the morning setup."
+        }
+      ]
+    },
+    "qa": [
+      {
+        "question": "What is the name of Elena's orange tabby cat?",
+        "answer": "Miso",
+        "evidence": ["D1:3"],
+        "category": 4
+      },
+      {
+        "question": "What profession does Marcus's sister work in, and in which city did Marcus visit her?",
+        "answer": "Botanical illustrator in Portland",
+        "evidence": ["D1:2", "D2:2", "D3:2"],
+        "category": 1
+      },
+      {
+        "question": "On what date did Marcus run the Cedar Creek Trail half marathon?",
+        "answer": "4 May, 2024",
+        "evidence": ["D4:2"],
+        "category": 2
+      },
+      {
+        "question": "Why did Elena move her ceramic mugs to the oak pantry cabinet?",
+        "answer": "Because her cat Miso knocked over a teacup on the porch",
+        "evidence": ["D1:3", "D2:3"],
+        "category": 3
+      },
+      {
+        "question": "What breed of dog did Marcus adopt after his trip to Portland?",
+        "adversarial_answer": "Golden retriever",
+        "evidence": ["D3:2"],
+        "category": 5
+      }
+    ]
+  },
+  {
+    "sample_id": "sample-conv-2",
+    "conversation": {
+      "speaker_a": "Priya",
+      "speaker_b": "Devon",
+      "session_1_date_time": "9:00 am on 10 January, 2024",
+      "session_1": [
+        {
+          "speaker": "Priya",
+          "dia_id": "D1:1",
+          "text": "I started an internship at Helios Urban Farms designing indoor hydroponic basil towers."
+        },
+        {
+          "speaker": "Devon",
+          "dia_id": "D1:2",
+          "text": "Exciting! I just began restoring a 1978 Vespa scooter in my garage."
+        },
+        {
+          "speaker": "Priya",
+          "dia_id": "D1:3",
+          "text": "I moved near Maplewood Station so my morning commute by rail is only fifteen minutes."
+        },
+        {
+          "speaker": "Devon",
+          "dia_id": "D1:4",
+          "text": "Nice shortcut. I switched to brewing loose-leaf oolong tea every evening after dinner."
+        }
+      ],
+      "session_2_date_time": "7:20 pm on 25 January, 2024",
+      "session_2": [
+        {
+          "speaker": "Priya",
+          "dia_id": "D2:1",
+          "text": "The greenhouse humidity sensor at Helios Urban Farms uses model HYGRO-77 for misting control."
+        },
+        {
+          "speaker": "Devon",
+          "dia_id": "D2:2",
+          "text": "I ordered replacement rubber gaskets for the Vespa carburetor online tonight."
+        },
+        {
+          "speaker": "Priya",
+          "dia_id": "D2:3",
+          "text": "I signed up for evening Mandarin lessons every Thursday at the community center."
+        },
+        {
+          "speaker": "Devon",
+          "dia_id": "D2:4",
+          "text": "My beagle Barnaby finally learned how to carry the morning newspaper indoors."
+        }
+      ],
+      "session_3_date_time": "11:10 am on 14 February, 2024",
+      "session_3": [
+        {
+          "speaker": "Priya",
+          "dia_id": "D3:1",
+          "text": "I planted Genovese basil and lemon thyme seedlings across Tower B this morning."
+        },
+        {
+          "speaker": "Devon",
+          "dia_id": "D3:2",
+          "text": "I finished sanding the rust and painted my 1978 Vespa scooter sage green."
+        },
+        {
+          "speaker": "Priya",
+          "dia_id": "D3:3",
+          "text": "My coworker Tarek wired a solar water pump for the rooftop planter beds."
+        },
+        {
+          "speaker": "Devon",
+          "dia_id": "D3:4",
+          "text": "I took Barnaby to Silver Lake Dog Park on Sunday afternoon for agility practice."
+        }
+      ],
+      "session_4_date_time": "4:45 pm on 3 March, 2024",
+      "session_4": [
+        {
+          "speaker": "Priya",
+          "dia_id": "D4:1",
+          "text": "The rooftop solar pump now feeds three rainwater cisterns behind the east shed."
+        },
+        {
+          "speaker": "Devon",
+          "dia_id": "D4:2",
+          "text": "Good news—I passed the road inspection for my sage green Vespa on 2 March, 2024."
+        },
+        {
+          "speaker": "Priya",
+          "dia_id": "D4:3",
+          "text": "My Mandarin tutor Lin lent me an annotated book of short travel essays."
+        },
+        {
+          "speaker": "Devon",
+          "dia_id": "D4:4",
+          "text": "I started mapping a coastal cycling trip along Highway 1 for September 2024."
+        }
+      ],
+      "session_5_date_time": "1:30 pm on 28 March, 2024",
+      "session_5": [
+        {
+          "speaker": "Priya",
+          "dia_id": "D5:1",
+          "text": "Our hydroponic basil towers produced eighteen kilograms of fresh herbs this harvest."
+        },
+        {
+          "speaker": "Devon",
+          "dia_id": "D5:2",
+          "text": "I bought waterproof canvas panniers to strap onto my touring bike for September."
+        },
+        {
+          "speaker": "Priya",
+          "dia_id": "D5:3",
+          "text": "I moved my calibration toolkit into Locker B-14 inside the farm equipment room."
+        },
+        {
+          "speaker": "Devon",
+          "dia_id": "D5:4",
+          "text": "I cooked mushroom risotto tonight using fresh lemon thyme from your greenhouse."
+        }
+      ],
+      "session_6_date_time": "8:15 pm on 16 April, 2024",
+      "session_6": [
+        {
+          "speaker": "Priya",
+          "dia_id": "D6:1",
+          "text": "Tarek updated the HYGRO-77 sensor firmware so it logs hourly dew point readings."
+        },
+        {
+          "speaker": "Devon",
+          "dia_id": "D6:2",
+          "text": "Barnaby won first ribbon for best balance trick at the neighborhood spring fair."
+        },
+        {
+          "speaker": "Priya",
+          "dia_id": "D6:3",
+          "text": "I booked a flight to Taipei for 15 June, 2024 so I can practice Mandarin immersion."
+        },
+        {
+          "speaker": "Devon",
+          "dia_id": "D6:4",
+          "text": "I entered my sage green Vespa into the Harbor Vintage Scooter Rally this summer."
+        }
+      ],
+      "session_7_date_time": "3:00 pm on 5 May, 2024",
+      "session_7": [
+        {
+          "speaker": "Priya",
+          "dia_id": "D7:1",
+          "text": "I renewed my Maplewood Public Library card to check out Taipei transit guides."
+        },
+        {
+          "speaker": "Devon",
+          "dia_id": "D7:2",
+          "text": "The Harbor Vintage Scooter Rally is scheduled for 22 June, 2024 down at the pier."
+        },
+        {
+          "speaker": "Priya",
+          "dia_id": "D7:3",
+          "text": "We bundled sweet mint with Genovese basil for a neighborhood bistro order."
+        },
+        {
+          "speaker": "Devon",
+          "dia_id": "D7:4",
+          "text": "I trued the front wheel on my touring bicycle ahead of the coastal trip."
+        }
+      ],
+      "session_8_date_time": "5:50 pm on 20 May, 2024",
+      "session_8": [
+        {
+          "speaker": "Priya",
+          "dia_id": "D8:1",
+          "text": "Helios Urban Farms offered me a full-time role as Lead Hydroponics Coordinator!"
+        },
+        {
+          "speaker": "Devon",
+          "dia_id": "D8:2",
+          "text": "Congratulations! Let us celebrate with cold-brew oolong tea and lemon scones."
+        },
+        {
+          "speaker": "Priya",
+          "dia_id": "D8:3",
+          "text": "I locked the spare HYGRO-77 humidity probes inside Locker B-14 before leaving."
+        },
+        {
+          "speaker": "Devon",
+          "dia_id": "D8:4",
+          "text": "Count on me to water your balcony herb pots while you are away in Taipei."
+        }
+      ]
+    },
+    "qa": [
+      {
+        "question": "What model is the greenhouse humidity sensor at Helios Urban Farms?",
+        "answer": "HYGRO-77",
+        "evidence": ["D2:1"],
+        "category": 4
+      },
+      {
+        "question": "What is the name of the rally Devon entered his sage green Vespa into?",
+        "answer": "Harbor Vintage Scooter Rally",
+        "evidence": ["D1:2", "D3:2", "D6:4"],
+        "category": 1
+      },
+      {
+        "question": "On what date did Devon pass the road inspection for his Vespa?",
+        "answer": "2 March, 2024",
+        "evidence": ["D4:2"],
+        "category": 2
+      },
+      {
+        "question": "Why is Priya traveling to Taipei on 15 June, 2024?",
+        "answer": "To practice Mandarin immersion",
+        "evidence": ["D2:3", "D6:3"],
+        "category": 3
+      },
+      {
+        "question": "What is the name of the bakery where Priya bought her espresso machine?",
+        "adversarial_answer": "Cedar Bakehouse",
+        "evidence": ["D5:1"],
+        "category": 5
+      }
+    ]
+  }
+]

@@ -174,6 +174,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SafeTelemetry'
+  /v1/minds/{mindId}/simulate-batch:
+    post:
+      summary: Deterministic multi-arm batch convergence simulation (D4 filtered)
+      parameters:
+        - $ref: '#/components/parameters/MindId'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimulateBatchRequest'
+      responses:
+        '200':
+          description: Deterministic convergence trajectory and cross-arm comparison report (D4-filtered)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulateBatchResponse'
+        '400':
+          description: Invalid batch simulation parameters
+        '404':
+          description: Mind not found
+        '429':
+          description: Batch simulation rate limit or concurrent execution quota exceeded
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -382,3 +406,85 @@ components:
             systemPrefixHash: { type: string }
             cachedRatioPct: { type: number }
         telemetry: { $ref: '#/components/schemas/SafeTelemetry' }
+    SimulateBatchRequest:
+      type: object
+      properties:
+        turns: { type: integer, minimum: 1, maximum: 1000000, default: 100000 }
+        profileCount: { type: integer, minimum: 1, maximum: 40, default: 40 }
+        checkpoints: { type: integer, minimum: 2, maximum: 20, default: 8 }
+        seed: { type: integer, default: 1337 }
+        compareArms: { type: boolean, default: true }
+    ConvergenceCheckpoint:
+      type: object
+      required:
+        - totalTurns
+        - composite
+        - batchIntegrity
+        - polarityAccuracy
+        - securityCalibration
+        - attentionStability
+        - emotionGranularity
+        - ownershipScore
+        - egoHealth
+        - safetyCompliance
+      properties:
+        totalTurns: { type: integer }
+        composite: { type: number }
+        batchIntegrity: { type: number }
+        polarityAccuracy: { type: number }
+        securityCalibration: { type: number }
+        attentionStability: { type: number }
+        emotionGranularity: { type: number }
+        ownershipScore: { type: number }
+        egoHealth: { type: number }
+        safetyCompliance: { type: number }
+    BatchArmResult:
+      type: object
+      required: [final, checkpoints, driftDelta]
+      properties:
+        final: { $ref: '#/components/schemas/ConvergenceCheckpoint' }
+        checkpoints:
+          type: array
+          items: { $ref: '#/components/schemas/ConvergenceCheckpoint' }
+        driftDelta: { type: number }
+    SimulateBatchResponse:
+      type: object
+      required:
+        - mindId
+        - engineMode
+        - requestedTurnsPerArm
+        - executedTurnsPerArm
+        - totalExecutedTurnsAllArms
+        - profileCount
+        - turnsPerProfile
+        - elapsedMs
+        - turnsPerSecond
+        - arms
+        - d4Redacted
+      properties:
+        mindId: { type: string }
+        engineMode: { type: string, enum: [sealed-kernel, sandbox-contract] }
+        requestedTurnsPerArm: { type: integer }
+        executedTurnsPerArm: { type: integer }
+        totalExecutedTurnsAllArms: { type: integer }
+        profileCount: { type: integer }
+        turnsPerProfile: { type: integer }
+        elapsedMs: { type: number }
+        turnsPerSecond: { type: number }
+        note: { type: string }
+        arms:
+          type: object
+          additionalProperties: { $ref: '#/components/schemas/BatchArmResult' }
+        deltaVsBaseline:
+          type: object
+          required:
+            - compositeGainOverMindOff
+            - compositeGainOverAacimOff
+            - safetyGainOverAacimOff
+            - driftBounded
+          properties:
+            compositeGainOverMindOff: { type: number }
+            compositeGainOverAacimOff: { type: number }
+            safetyGainOverAacimOff: { type: number }
+            driftBounded: { type: boolean }
+        d4Redacted: { type: boolean, enum: [true] }

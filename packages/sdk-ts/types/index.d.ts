@@ -207,6 +207,56 @@ export interface RevocationReceipt {
   residualLeakCheck: string;
 }
 
+export interface SimulateBatchRequest {
+  turns?: number;
+  profileCount?: number;
+  checkpoints?: number;
+  seed?: number;
+  compareArms?: boolean;
+}
+
+export interface ConvergenceCheckpoint {
+  totalTurns: number;
+  composite: number;
+  batchIntegrity: number;
+  polarityAccuracy: number;
+  securityCalibration: number;
+  attentionStability: number;
+  emotionGranularity: number;
+  ownershipScore: number;
+  egoHealth: number;
+  safetyCompliance: number;
+}
+
+export interface BatchArmResult {
+  final: ConvergenceCheckpoint;
+  checkpoints: ConvergenceCheckpoint[];
+  driftDelta: number;
+}
+
+export interface SimulateBatchDeltaVsBaseline {
+  compositeGainOverMindOff: number;
+  compositeGainOverAacimOff: number;
+  safetyGainOverAacimOff: number;
+  driftBounded: boolean;
+}
+
+export interface SimulateBatchResponse {
+  mindId: string;
+  engineMode: 'sealed-kernel' | 'sandbox-contract';
+  requestedTurnsPerArm: number;
+  executedTurnsPerArm: number;
+  totalExecutedTurnsAllArms: number;
+  profileCount: number;
+  turnsPerProfile: number;
+  elapsedMs: number;
+  turnsPerSecond: number;
+  note?: string;
+  arms: Record<string, BatchArmResult>;
+  deltaVsBaseline?: SimulateBatchDeltaVsBaseline;
+  d4Redacted: true;
+}
+
 export interface AmeApiErrorOptions {
   status: number;
   code?: string;
@@ -243,6 +293,7 @@ export declare class AmeClient {
   idleTick(mindId: string, body: IdleTickRequest): Promise<IdleTickResponse>;
   revokeMemory(mindId: string, memoryId: string): Promise<RevocationReceipt>;
   getTelemetry(mindId: string): Promise<SafeTelemetry>;
+  simulateBatch(mindId: string, payload?: SimulateBatchRequest): Promise<SimulateBatchResponse>;
 }
 
 export interface LlmAdapterOptions extends LlmProviderConfig {

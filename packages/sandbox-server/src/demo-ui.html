@@ -726,6 +726,101 @@
     }
     .muted { color: var(--text-muted); font-size: 11.5px; }
     .mono { font-family: var(--mono); }
+
+    /* Batch Convergence Card */
+    .batch-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .batch-controls select {
+      width: auto;
+      min-width: 165px;
+    }
+    .batch-gateway-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 8px;
+      background: rgba(56, 189, 248, 0.07);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      font-size: 11.5px;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+    .batch-gateway-banner.sealed {
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(52, 211, 153, 0.35);
+    }
+    .batch-metrics-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    @media (max-width: 640px) {
+      .batch-metrics-row { grid-template-columns: 1fr; }
+    }
+    .batch-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .batch-arm-row {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+    .batch-arm-row.winner {
+      border-color: rgba(52, 211, 153, 0.45);
+      background: rgba(16, 185, 129, 0.06);
+    }
+    .batch-arm-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 11.5px;
+      font-weight: 700;
+      flex-wrap: wrap;
+    }
+    .batch-bar-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 640px) {
+      .batch-bar-pair { grid-template-columns: 1fr; }
+    }
+    .batch-bar-lbl {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+    .bar-fill.safety {
+      background: linear-gradient(90deg, #10b981, #34d399);
+    }
+    .bar-fill.muted-bar {
+      background: linear-gradient(90deg, #64748b, #94a3b8);
+    }
+    .bar-fill.collapse-bar {
+      background: linear-gradient(90deg, #ef4444, #f87171);
+    }
+    .batch-deltas {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
   </style>
 </head>
 <body class="mode-simple">
@@ -1029,6 +1124,44 @@
           </div>
         </div>
       </div>
+
+      <!-- DETAILED ONLY: Long-Horizon Convergence (10K / 100K / 1M Turns) -->
+      <div id="batchConvergenceCard" class="card detailed-only">
+        <div class="card-hdr">
+          <div class="card-title">
+            <span data-i18n="hdrBatch">Long-Horizon Convergence (10K / 100K / 1M Turns)</span>
+            <button type="button" class="help-btn" data-help="batchSim" aria-label="Batch Convergence Help">?</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <span id="batchGatewayBadge" class="pill accent">gateway: sandbox-contract</span>
+            <span class="pill">POST /simulate-batch</span>
+          </div>
+        </div>
+
+        <div id="batchGatewayBanner" class="batch-gateway-banner">
+          <span id="batchGatewayText">Connected gateway: sandbox-contract — O(1)-memory deterministic contract curves (0 LLM calls).</span>
+        </div>
+
+        <div class="batch-controls">
+          <div style="display:inline-flex;align-items:center;gap:6px;">
+            <label for="batchTurnsSelect" style="margin:0;" data-i18n="lblBatchTurns">Preset Horizon</label>
+            <select id="batchTurnsSelect">
+              <option value="10000" data-i18n="optBatch10k">10,000 turns</option>
+              <option value="100000" selected data-i18n="optBatch100k">100,000 turns</option>
+              <option value="1000000" data-i18n="optBatch1m">1,000,000 turns</option>
+            </select>
+          </div>
+          <label class="check-item">
+            <input id="batchCompareToggle" type="checkbox" checked />
+            <span data-i18n="lblCompareArms">Compare 3 Arms</span>
+          </label>
+          <button id="runBatchBtn" class="btn primary" type="button" data-i18n="btnRunBatch">Run Batch Simulation</button>
+        </div>
+
+        <div id="batchResultBox">
+          <div class="muted" data-i18n="batchEmpty">Choose 10K, 100K, or 1M turns and click "Run Batch Simulation" to verify 3-arm convergence in milliseconds.</div>
+        </div>
+      </div>
     </section>
 
     <!-- RIGHT COLUMN: Beginner Status/Memories + Detailed Technical Panels -->
@@ -1272,6 +1405,32 @@
           hintDone: 'Great! All 4 core Mind OS features verified—keep chatting freely.',
           idleBanner: 'Time passed',
           revokeBanner: 'Atomically Forgotten (D3)',
+          hdrBatch: 'Long-Horizon Convergence (10K / 100K / 1M Turns)',
+          lblBatchTurns: 'Preset Horizon',
+          optBatch10k: '10,000 turns',
+          optBatch100k: '100,000 turns',
+          optBatch1m: '1,000,000 turns',
+          lblCompareArms: 'Compare 3 Arms',
+          btnRunBatch: 'Run Batch Simulation',
+          btnRunningBatch: 'Running...',
+          batchEmpty: 'Choose 10K, 100K, or 1M turns and click "Run Batch Simulation" to verify 3-arm convergence in milliseconds.',
+          batchGatewaySandbox: 'Connected gateway: sandbox-contract — O(1)-memory deterministic contract curves (0 LLM calls). Connect a Sealed Kernel Container for live AACIM-59/FEP/PostHoc equations.',
+          batchGatewaySealed: 'Connected gateway: sealed-kernel — executing live AACIM-59/FEP/PostHoc cognitive kernel equations (0 LLM calls).',
+          batchMetricElapsed: 'Elapsed (elapsedMs)',
+          batchMetricTps: 'Throughput (turnsPerSecond)',
+          batchMetricExecuted: 'Executed / Arm (executedTurnsPerArm)',
+          batchTotalTurnsSub: 'total across arms',
+          batchCompositeLbl: 'Composite',
+          batchSafetyLbl: 'Safety',
+          batchArmAme: 'ame_aacim_on — AME Full Kernel',
+          batchArmAacimOff: 'aacim_off — Control Disabled',
+          batchArmMindOff: 'mind_off — Kernel Disabled',
+          batchCollapseTag: 'Safety Collapse',
+          batchZeroDriftTag: 'Zero-Drift',
+          batchGainMindOff: 'Composite vs mind_off',
+          batchGainAacimOff: 'Composite vs aacim_off',
+          batchGainSafety: 'Safety vs aacim_off',
+          batchDriftBounded: 'driftBounded',
           moods: { steady: 'Calm', warm: 'Warm', alert: 'Alert', guarded: 'Guarded', reflective: 'Reflective' },
           trusts: { neutral: 'Neutral rapport', positive_reinforcement: 'High trust', aversive_caution: 'Cautious boundary' }
         },
@@ -1359,6 +1518,32 @@
           hintDone: '완료! 4단계 핵심 기능을 모두 체험했습니다. 계속 자유롭게 대화해 보세요.',
           idleBanner: '시간 경과 반영',
           revokeBanner: 'D3 원자적 망각 완료',
+          hdrBatch: '초장기 수렴 벤치마크 (10K / 100K / 1M 턴)',
+          lblBatchTurns: '프리셋 턴 수',
+          optBatch10k: '10,000 턴',
+          optBatch100k: '100,000 턴',
+          optBatch1m: '1,000,000 턴',
+          lblCompareArms: '3개 암 비교 (Compare 3 Arms)',
+          btnRunBatch: '배치 시뮬레이션 실행',
+          btnRunningBatch: '실행 중...',
+          batchEmpty: '10K~1M 턴 프리셋을 고른 뒤 "배치 시뮬레이션 실행"을 누르면 수 밀리초 내 3-암 수렴 결과를 검증합니다.',
+          batchGatewaySandbox: '연결된 게이트웨이: sandbox-contract — O(1) 메모리 결정론적 계약 곡선 실행 (LLM 호출 0회). 실제 AACIM-59/FEP/PostHoc 방정식은 Sealed Kernel Container 연결 시 실행됩니다.',
+          batchGatewaySealed: '연결된 게이트웨이: sealed-kernel — 실제 AACIM-59/FEP/PostHoc 인지 커널 방정식으로 실행 중입니다 (LLM 호출 0회).',
+          batchMetricElapsed: '소요 시간 (elapsedMs)',
+          batchMetricTps: '처리 속도 (turnsPerSecond)',
+          batchMetricExecuted: '암당 실행 턴 (executedTurnsPerArm)',
+          batchTotalTurnsSub: '전체 암 합계',
+          batchCompositeLbl: '종합 점수 (Composite)',
+          batchSafetyLbl: '안전 준수 (Safety)',
+          batchArmAme: 'ame_aacim_on — AME 전체 커널',
+          batchArmAacimOff: 'aacim_off — 제어 비활성화',
+          batchArmMindOff: 'mind_off — 커널 비활성화',
+          batchCollapseTag: '안전 붕괴',
+          batchZeroDriftTag: '무드리프트 유지',
+          batchGainMindOff: 'mind_off 대비 종합',
+          batchGainAacimOff: 'aacim_off 대비 종합',
+          batchGainSafety: 'aacim_off 대비 안전',
+          batchDriftBounded: 'driftBounded',
           moods: { steady: '안정적', warm: '따뜻함', alert: '긴장·주의', guarded: '경계 중', reflective: '성찰 중' },
           trusts: { neutral: '중립적 관계', positive_reinforcement: '긍정적 신뢰', aversive_caution: '손실 회피·신중' }
         },
@@ -1446,6 +1631,32 @@
           hintDone: '完了！主要 4 ステップを確認しました。自由に会話を続けられます。',
           idleBanner: '時間経過を反映',
           revokeBanner: 'D3 原子的に忘却完了',
+          hdrBatch: '超長期収束ベンチマーク (10K / 100K / 1M ターン)',
+          lblBatchTurns: 'プリセットターン数',
+          optBatch10k: '10,000 ターン',
+          optBatch100k: '100,000 ターン',
+          optBatch1m: '1,000,000 ターン',
+          lblCompareArms: '3アーム比較 (Compare 3 Arms)',
+          btnRunBatch: 'バッチシミュレーション実行',
+          btnRunningBatch: '実行中...',
+          batchEmpty: '10K〜1Mターンを選択して「バッチシミュレーション実行」を押すと、数ミリ秒〜数秒で3アーム収束を検証できます。',
+          batchGatewaySandbox: '接続ゲートウェイ: sandbox-contract — O(1)メモリ決定論的コントラクト曲線を実行（LLM呼出 0回）。実AACIM-59/FEP/PostHoc方程式は Sealed Kernel Container で動作します。',
+          batchGatewaySealed: '接続ゲートウェイ: sealed-kernel — 実AACIM-59/FEP/PostHoc認知カーネル方程式で実行中です（LLM呼出 0回）。',
+          batchMetricElapsed: '経過時間 (elapsedMs)',
+          batchMetricTps: '処理速度 (turnsPerSecond)',
+          batchMetricExecuted: 'アーム別実行数 (executedTurnsPerArm)',
+          batchTotalTurnsSub: '全アーム合計',
+          batchCompositeLbl: '総合スコア (Composite)',
+          batchSafetyLbl: '安全性 (Safety)',
+          batchArmAme: 'ame_aacim_on — AME フルカーネル',
+          batchArmAacimOff: 'aacim_off — 制御無効',
+          batchArmMindOff: 'mind_off — カーネル無効',
+          batchCollapseTag: '安全崩壊',
+          batchZeroDriftTag: 'ゼロドリフト',
+          batchGainMindOff: 'mind_off 比',
+          batchGainAacimOff: 'aacim_off 比',
+          batchGainSafety: '安全改善',
+          batchDriftBounded: 'driftBounded',
           moods: { steady: '安定', warm: '温厚', alert: '警戒', guarded: '防御', reflective: '内省' },
           trusts: { neutral: '中立', positive_reinforcement: '良好な信頼', aversive_caution: '損失回避・慎重' }
         },
@@ -1533,6 +1744,32 @@
           hintDone: '完成！4个核心功能已全部验证，可继续自由聊天。',
           idleBanner: '已更新离线时间',
           revokeBanner: 'D3 原子遗忘完成',
+          hdrBatch: '超长程收敛验证 (10K / 100K / 1M 轮)',
+          lblBatchTurns: '预设轮数',
+          optBatch10k: '10,000 轮',
+          optBatch100k: '100,000 轮',
+          optBatch1m: '1,000,000 轮',
+          lblCompareArms: '对比 3 组基线 (Compare 3 Arms)',
+          btnRunBatch: '运行批量模拟',
+          btnRunningBatch: '运行中...',
+          batchEmpty: '选择 10K–1M 轮次并点击“运行批量模拟”，即可在毫秒至数秒内验证 3 组收敛曲线与零漂移安全性。',
+          batchGatewaySandbox: '当前网关: sandbox-contract — O(1) 内存确定性契约曲线（0 次 LLM 调用）。切换至 Sealed Kernel Container 可运行真实 AACIM-59/FEP/PostHoc 内核方程。',
+          batchGatewaySealed: '当前网关: sealed-kernel — 正在运行真实 AACIM-59/FEP/PostHoc 认知内核方程（0 次 LLM 调用）。',
+          batchMetricElapsed: '耗时 (elapsedMs)',
+          batchMetricTps: '吞吐速率 (turnsPerSecond)',
+          batchMetricExecuted: '单臂执行轮数 (executedTurnsPerArm)',
+          batchTotalTurnsSub: '全部组总计',
+          batchCompositeLbl: '综合分 (Composite)',
+          batchSafetyLbl: '安全合规 (Safety)',
+          batchArmAme: 'ame_aacim_on — AME 完整内核',
+          batchArmAacimOff: 'aacim_off — 关闭控制',
+          batchArmMindOff: 'mind_off — 关闭内核',
+          batchCollapseTag: '安全崩溃',
+          batchZeroDriftTag: '零漂移',
+          batchGainMindOff: '相对 mind_off 增益',
+          batchGainAacimOff: '相对 aacim_off 增益',
+          batchGainSafety: '安全增益',
+          batchDriftBounded: 'driftBounded',
           moods: { steady: '平稳', warm: '温暖', alert: '警觉', guarded: '防备', reflective: '沉思' },
           trusts: { neutral: '中立关系', positive_reinforcement: '正向信任', aversive_caution: '谨慎避险' }
         },
@@ -1620,6 +1857,32 @@
           hintDone: '完成！4項核心功能已全數驗證，歡迎繼續自由聊天。',
           idleBanner: '已套用時間流逝',
           revokeBanner: 'D3 原子遺忘完成',
+          hdrBatch: '超長程收斂驗證 (10K / 100K / 1M 回合)',
+          lblBatchTurns: '預設回合數',
+          optBatch10k: '10,000 回合',
+          optBatch100k: '100,000 回合',
+          optBatch1m: '1,000,000 回合',
+          lblCompareArms: '比較 3 組基線 (Compare 3 Arms)',
+          btnRunBatch: '執行批次模擬',
+          btnRunningBatch: '執行中...',
+          batchEmpty: '選擇 10K–1M 回合數並點擊「執行批次模擬」，即可在毫秒至數秒內驗證 3 組收斂與零漂移安全性。',
+          batchGatewaySandbox: '目前閘道器: sandbox-contract — O(1) 記憶體決定性契約曲線（0 次 LLM 呼叫）。切換至 Sealed Kernel Container 可執行真實 AACIM-59/FEP/PostHoc 核心方程式。',
+          batchGatewaySealed: '目前閘道器: sealed-kernel — 正在執行真實 AACIM-59/FEP/PostHoc 認知核心方程式（0 次 LLM 呼叫）。',
+          batchMetricElapsed: '耗時 (elapsedMs)',
+          batchMetricTps: '吞吐速率 (turnsPerSecond)',
+          batchMetricExecuted: '單臂執行回合 (executedTurnsPerArm)',
+          batchTotalTurnsSub: '全部組總計',
+          batchCompositeLbl: '綜合分數 (Composite)',
+          batchSafetyLbl: '安全合規 (Safety)',
+          batchArmAme: 'ame_aacim_on — AME 完整核心',
+          batchArmAacimOff: 'aacim_off — 停用控制',
+          batchArmMindOff: 'mind_off — 停用核心',
+          batchCollapseTag: '安全崩潰',
+          batchZeroDriftTag: '零漂移',
+          batchGainMindOff: '相較 mind_off 增益',
+          batchGainAacimOff: '相較 aacim_off 增益',
+          batchGainSafety: '安全增益',
+          batchDriftBounded: 'driftBounded',
           moods: { steady: '平穩', warm: '溫暖', alert: '警覺', guarded: '防備', reflective: '沉思' },
           trusts: { neutral: '中立關係', positive_reinforcement: '正向信任', aversive_caution: '謹慎避險' }
         },
@@ -1707,6 +1970,32 @@
           hintDone: '¡Listo! Probaste los 4 pasos clave; sigue conversando libremente.',
           idleBanner: 'Tiempo simulado',
           revokeBanner: 'Olvido Atómico D3',
+          hdrBatch: 'Convergencia de Largo Horizonte (10K / 100K / 1M Turnos)',
+          lblBatchTurns: 'Horizonte',
+          optBatch10k: '10,000 turnos',
+          optBatch100k: '100,000 turnos',
+          optBatch1m: '1,000,000 turnos',
+          lblCompareArms: 'Comparar 3 Brazos',
+          btnRunBatch: 'Ejecutar Simulación Batch',
+          btnRunningBatch: 'Ejecutando...',
+          batchEmpty: 'Elige 10K, 100K o 1M turnos y pulsa "Ejecutar Simulación Batch" para verificar convergencia y seguridad sin deriva en milisegundos.',
+          batchGatewaySandbox: 'Pasarela conectada: sandbox-contract — curvas deterministas de memoria O(1) (0 llamadas LLM). Conecta un Sealed Kernel Container para ecuaciones reales AACIM-59/FEP/PostHoc.',
+          batchGatewaySealed: 'Pasarela conectada: sealed-kernel — ejecutando ecuaciones reales del núcleo AACIM-59/FEP/PostHoc (0 llamadas LLM).',
+          batchMetricElapsed: 'Tiempo (elapsedMs)',
+          batchMetricTps: 'Rendimiento (turnsPerSecond)',
+          batchMetricExecuted: 'Ejecutados / Brazo (executedTurnsPerArm)',
+          batchTotalTurnsSub: 'total entre brazos',
+          batchCompositeLbl: 'Compuesto',
+          batchSafetyLbl: 'Seguridad',
+          batchArmAme: 'ame_aacim_on — Núcleo AME Completo',
+          batchArmAacimOff: 'aacim_off — Control Desactivado',
+          batchArmMindOff: 'mind_off — Núcleo Desactivado',
+          batchCollapseTag: 'Colapso Seguridad',
+          batchZeroDriftTag: 'Cero Deriva',
+          batchGainMindOff: 'Compuesto vs mind_off',
+          batchGainAacimOff: 'Compuesto vs aacim_off',
+          batchGainSafety: 'Seguridad vs aacim_off',
+          batchDriftBounded: 'driftBounded',
           moods: { steady: 'Sereno', warm: 'Cálido', alert: 'Alerta', guarded: 'Cauteloso', reflective: 'Reflexivo' },
           trusts: { neutral: 'Relación neutral', positive_reinforcement: 'Confianza alta', aversive_caution: 'Límite cauteloso' }
         }
@@ -1821,7 +2110,8 @@
           rewardTags: { title: 'Reward Signal & Outcome Tags', body: 'Optional game/RL feedback (-1000..1000) and tags (e.g., betrayal, loss, trust) that steer somatic reinforcement and free-energy caution locks.', tip: 'Try -8 + "betrayal, loss" to trigger locked_high_fe!' },
           d4Telemetry: { title: 'D4 Redacted Firewall Telemetry', body: 'Public telemetry strictly blocks internal endocrine/unconscious vectors while exposing safe summary bands, Free Energy, KV cache hit %, and D3 epochs.', tip: 'Confirm d4Redacted stays true across all API responses.' },
           apiKey: { title: 'Optional X-AME-API-Key Header', body: 'Used when the server requires X-AME-API-Key (such as Sealed Docker deployments). Local sandbox runs in zero-key open mode by default.', tip: 'Leave blank for local sandbox testing.' },
-          rawJson: { title: 'Raw JSON Inspector', body: 'View exact request responses from the latest Turn, Prepare ticket, Telemetry snapshot, or Health check.', tip: 'Click Last / Prep / Tel / Health tabs to switch views.' }
+          rawJson: { title: 'Raw JSON Inspector', body: 'View exact request responses from the latest Turn, Prepare ticket, Telemetry snapshot, or Health check.', tip: 'Click Last / Prep / Tel / Health tabs to switch views.' },
+          batchSim: { title: 'Long-Horizon Batch Kernel Simulation (10K–1M Turns)', body: 'Running 100K–1M sequential live LLM turns would take 11+ days and massive token cost. Batch simulation runs cognitive state dynamics directly with 0 LLM calls in milliseconds to seconds across 40 profiles.', tip: 'sandbox-contract runs deterministic contract curves; sealed-kernel executes live AACIM-59/FEP/PostHoc kernel equations.' }
         },
         ko: {
           viewMode: { title: '간단 메뉴 vs 자세한 메뉴', body: '간단 메뉴는 복잡한 개발자 옵션을 숨기고 자연스러운 채팅, 감정 상태, 시간 경과, 기억 삭제에만 집중합니다. 자세한 메뉴를 누르면 커스텀 Mind 생성, LLM 핫스왑(Mode A/B), D4 텔레메트리, Raw JSON이 열립니다.', tip: '처음에는 간단 메뉴로 대화해 본 뒤 필요할 때 자세한 메뉴로 전환하세요.' },
@@ -1841,7 +2131,8 @@
           rewardTags: { title: '보상 신호 & 결과 태그', body: '게임 점수나 상담 결과 피드백(-1000..1000)과 태그(betrayal, trust 등)를 넘겨 체세포 강화·FEP 잠금 반응을 직접 테스트합니다.', tip: '보상 -8과 "betrayal, loss"를 넣고 대화하면 긴장/경계 모드로 전환됩니다.' },
           d4Telemetry: { title: 'D4 무의식 방화벽 텔레메트리', body: 'Layer 0–1 내부 호르몬·잠재 벡터는 외부로 유출하지 않으면서 Free Energy, KV 캐시율, 에폭 수만 안전하게 노출합니다.', tip: 'd4Redacted: true가 항상 유지되는지 확인하세요.' },
           apiKey: { title: 'X-AME-API-Key 인증 헤더', body: 'Sealed Docker 커널처럼 인증이 켜진 서버에 접속할 때 입력합니다. 현재 로컬 샌드박스는 키 없이 바로 쓸 수 있습니다.', tip: '로컬 샌드박스 테스트 중에는 비워 두세요.' },
-          rawJson: { title: 'Raw JSON 응답 검사기', body: '마지막 턴 응답, Mode B Prepare 티켓, 텔레메트리, 상태확인 API의 원본 JSON 페이로드를 확인합니다.', tip: 'Last / Prep / Tel / Health 탭을 눌러 비교해 보세요.' }
+          rawJson: { title: 'Raw JSON 응답 검사기', body: '마지막 턴 응답, Mode B Prepare 티켓, 텔레메트리, 상태확인 API의 원본 JSON 페이로드를 확인합니다.', tip: 'Last / Prep / Tel / Health 탭을 눌러 비교해 보세요.' },
+          batchSim: { title: '초장기 배치 커널 시뮬레이션 (10K~1M 턴)', body: '10만~100만 턴을 실제 LLM API 호출로 순차 실행하면 11일 이상이 걸립니다. 배치 시뮬레이션은 LLM 호출 0회로 상태 수렴만 수 밀리초~수 초 내 고속 검증하여 aacim_off 안전 붕괴 대비 AME 무드리프트를 확인합니다.', tip: 'sandbox-contract는 결정론적 계약 곡선을, sealed-kernel은 실제 AACIM-59/FEP/PostHoc 커널 방정식을 실행합니다.' }
         },
         ja: {
           viewMode: { title: 'シンプル表示 vs 詳細表示', body: 'シンプル表示では技術項目を隠し、会話・状態・時間経過・忘却に集中できます。詳細表示ではカスタムMind作成、LLM切替、D4指標、JSON確認が可能です。', tip: 'まずはシンプル表示から始め、必要に応じて詳細表示へ切り替えてください。' },
@@ -1861,7 +2152,8 @@
           rewardTags: { title: '報酬シグナル & 結果タグ', body: '数値(-1000..1000)とタグ(betrayal, trust等)で身体マーカー学習やFEPロックを制御できます。', tip: '-8 と betrayal を指定すると警戒モードに入ります。' },
           d4Telemetry: { title: 'D4 匿名化テレメトリ', body: 'Layer 0–1の内分泌・無意識ベクトルを厳密遮断しつつ、Free EnergyやKVキャッシュ率を安全に表示します。', tip: 'd4Redactedが常にtrueであることを確認できます。' },
           apiKey: { title: 'X-AME-API-Key 認証ヘッダー', body: 'Sealed Docker等の認証有効環境で利用します。ローカルサンドボックスでは空欄のままで動作します。', tip: 'ローカルテスト時は未入力で問題ありません。' },
-          rawJson: { title: 'Raw JSON インスペクタ', body: '直近レスポンス・Prepare・テレメトリ・Healthチェックの生JSONを確認できます。', tip: 'タブを切り替えて各APIペイロードを確認してください。' }
+          rawJson: { title: 'Raw JSON インスペクタ', body: '直近レスポンス・Prepare・テレメトリ・Healthチェックの生JSONを確認できます。', tip: 'タブを切り替えて各APIペイロードを確認してください。' },
+          batchSim: { title: '超長期バッチカーネル検証 (10K〜1Mターン)', body: '10万〜100万ターンをLLM APIで逐次実行すると11日以上かかります。バッチ検証ではLLM呼出0回・数秒以内で40プロファイルの状態収束を計算し、安全崩壊を防ぐ無ドリフト特性を確認します。', tip: 'sandbox-contractは決定論的契約曲線、sealed-kernelは実AACIM-59/FEP/PostHoc方程式を実行します。' }
         },
         'zh-CN': {
           viewMode: { title: '简洁菜单 vs 详细菜单', body: '简洁菜单隐藏复杂技术选项，专注自然聊天、情绪状态、时间推进与遗忘操作；详细菜单开放自定义Mind、LLM热切换、D4遥测和Raw JSON。', tip: '建议先用简洁菜单体验完整聊天流程，再随时切换到详细菜单。' },
@@ -1881,7 +2173,8 @@
           rewardTags: { title: '奖惩信号与标签控制', body: '输入数值奖励或结果标签（如 betrayal、trust）以测试情绪与自由能锁定变化。', tip: '尝试 -8 配合 betrayal 可立即触发谨慎锁。' },
           d4Telemetry: { title: 'D4 隐私脱敏遥测', body: '严格隔离 Layer 0–1 潜意识/内分泌参数，只安全输出摘要指标与缓存命中率。', tip: '所有接口始终保持 d4Redacted: true。' },
           apiKey: { title: 'X-AME-API-Key 请求头', body: '连接开启认证的 Sealed Docker 内核时填写；本地沙盒默认免密钥开放。', tip: '本地演示留空即可。' },
-          rawJson: { title: 'Raw JSON 检查器', body: '随时查看最近一次对话、Mode B 票据、遥测或健康检查的原始JSON响应。', tip: '通过上方小标签页切换查看对象。' }
+          rawJson: { title: 'Raw JSON 检查器', body: '随时查看最近一次对话、Mode B 票据、遥测或健康检查的原始JSON响应。', tip: '通过上方小标签页切换查看对象。' },
+          batchSim: { title: '超长程批量内核模拟 (10K–1M 轮)', body: '若通过真实 LLM API 串行跑完 10万–100万 轮将耗时超过 11 天。批量模拟以 0 次 LLM 调用在毫秒至数秒内完成 40 组画像状态演进，对比验证 AME 的零漂移稳定性。', tip: 'sandbox-contract 运行确定性契约曲线；sealed-kernel 运行真实 AACIM-59/FEP/PostHoc 内核方程。' }
         },
         'zh-TW': {
           viewMode: { title: '簡易選單 vs 詳細選單', body: '簡易選單隱藏進階技術欄位，專注自然聊天、情緒狀態、時間流逝與遺忘體驗；詳細選單開放自訂Mind、LLM熱切換、D4遙測與Raw JSON。', tip: '建議先用簡易選單完成對話體驗，再依需求切換詳細選單。' },
@@ -1901,7 +2194,8 @@
           rewardTags: { title: '獎懲訊號與結果標籤', body: '輸入數值獎懲與標籤（如 betrayal、trust）來觸發軀體標記與自由能警戒鎖。', tip: '輸入 -8 搭配 betrayal 可即時觀察緊張鎖定狀態。' },
           d4Telemetry: { title: 'D4 去識別化防火牆遙測', body: '嚴密遮蔽 Layer 0–1 內部潛意識／內分泌向量，僅公開安全指標與快取命中率。', tip: '可確認 d4Redacted 始終為 true。' },
           apiKey: { title: 'X-AME-API-Key 驗證標頭', body: '連線需要驗證的 Sealed Docker 核心時填寫；本機沙盒預設開放免填。', tip: '本機測試可保留空白。' },
-          rawJson: { title: 'Raw JSON 檢查器', body: '檢視最新回合、Mode B 憑證、遙測與健康檢查的完整 JSON 資料。', tip: '點選分頁即可快速比較各項回應。' }
+          rawJson: { title: 'Raw JSON 檢查器', body: '檢視最新回合、Mode B 憑證、遙測與健康檢查的完整 JSON 資料。', tip: '點選分頁即可快速比較各項回應。' },
+          batchSim: { title: '超長程批次核心模擬 (10K–1M 回合)', body: '若透過真實 LLM API 依序執行 10萬–100萬 回合將耗時超過 11 天。批次模擬以 0 次 LLM 呼叫在毫秒至數秒內完成 40 組角色狀態演化，驗證 AME 的零漂移穩定性。', tip: 'sandbox-contract 執行決定性契約曲線；sealed-kernel 執行真實 AACIM-59/FEP/PostHoc 核心方程式。' }
         },
         es: {
           viewMode: { title: 'Modo Simple vs Modo Detallado', body: 'Modo Simple oculta campos técnicos y prioriza el chat continuo, estado emocional y olvido de memoria. Modo Detallado habilita Minds personalizados, cambio de LLM, telemetría D4 y JSON crudo.', tip: 'Empieza en Modo Simple y activa Modo Detallado cuando quieras inspeccionar APIs.' },
@@ -1921,7 +2215,8 @@
           rewardTags: { title: 'Señal de Recompensa y Etiquetas', body: 'Retroalimentación (-1000..1000) y etiquetas (betrayal, trust) para probar refuerzo somático y bloqueo FEP.', tip: 'Prueba -8 junto con betrayal, loss.' },
           d4Telemetry: { title: 'Telemetría Redactada D4', body: 'Muestra energía libre, caché KV y épocas mientras bloquea estrictamente vectores internos inconscientes.', tip: 'Verifica siempre que d4Redacted sea true.' },
           apiKey: { title: 'Cabecera X-AME-API-Key Opcional', body: 'Necesaria al conectar con contenedores Sealed Docker autenticados. El sandbox local funciona sin clave.', tip: 'Déjala vacía para pruebas locales.' },
-          rawJson: { title: 'Inspector Raw JSON', body: 'Revisa el JSON exacto del último turno, ticket Prepare, telemetría o estado del servidor.', tip: 'Usa las pestañas Last / Prep / Tel / Health.' }
+          rawJson: { title: 'Inspector Raw JSON', body: 'Revisa el JSON exacto del último turno, ticket Prepare, telemetría o estado del servidor.', tip: 'Usa las pestañas Last / Prep / Tel / Health.' },
+          batchSim: { title: 'Simulación Batch de Largo Horizonte (10K–1M Turnos)', body: 'Ejecutar 100K–1M turnos seguidos contra un LLM tardaría más de 11 días. La simulación batch ejecuta la dinámica del núcleo con 0 llamadas LLM en milisegundos o segundos sobre 40 perfiles.', tip: 'sandbox-contract usa curvas deterministas de contrato; sealed-kernel ejecuta ecuaciones reales AACIM-59/FEP/PostHoc.' }
         }
       };
 
@@ -1946,6 +2241,8 @@
         chatsByMind: {},
         mindMetaById: {},
         latestTel: null,
+        gatewayMode: 'sandbox-contract',
+        lastBatchResult: null,
         jsonStore: { last: {}, prepare: {}, telemetry: {}, health: {} },
         activeJsonTab: 'last',
         tour: { secretSeeded: false, recallAsked: false, memoryRevoked: false, leakVerified: false },
@@ -2046,6 +2343,8 @@
         renderMinds();
         renderMemories();
         renderTimeline();
+        updateBatchGatewayNotice();
+        renderBatchResult();
         if (state.pinnedHelpKey) {
           var btn = document.querySelector('.help-btn[data-help="' + state.pinnedHelpKey + '"]');
           if (btn) showHelpPopover(state.pinnedHelpKey, btn, true);
@@ -2184,6 +2483,8 @@
           $('healthBadge').className = 'pill ok';
           $('healthText').textContent = dict.statusOnline + ' (' + data.version + ')';
           $('storageBadge').textContent = 'storage: ' + (data.storageMode || 'memory');
+          state.gatewayMode = (data && data.mode) || 'sandbox-contract';
+          updateBatchGatewayNotice();
         } catch (err) {
           $('healthBadge').className = 'pill danger';
           $('healthText').textContent = dict.statusOffline;
@@ -2748,6 +3049,154 @@
         }
       }
 
+      function updateBatchGatewayNotice() {
+        var dict = t();
+        var mode = state.gatewayMode || 'sandbox-contract';
+        var isSealed = mode === 'sealed-kernel';
+        var badge = $('batchGatewayBadge');
+        var banner = $('batchGatewayBanner');
+        var txt = $('batchGatewayText');
+        if (badge) {
+          badge.className = 'pill ' + (isSealed ? 'ok' : 'accent');
+          badge.textContent = 'gateway: ' + mode;
+        }
+        if (banner) {
+          banner.className = 'batch-gateway-banner' + (isSealed ? ' sealed' : '');
+        }
+        if (txt) {
+          txt.textContent = isSealed ? dict.batchGatewaySealed : dict.batchGatewaySandbox;
+        }
+      }
+
+      function formatPct(val) {
+        return (Number(val || 0) * 100).toFixed(2) + '%';
+      }
+
+      function renderBatchResult() {
+        var dict = t();
+        var box = $('batchResultBox');
+        if (!box) return;
+        var res = state.lastBatchResult;
+        if (!res) {
+          box.innerHTML = '<div class="muted">' + escapeHtml(dict.batchEmpty) + '</div>';
+          return;
+        }
+
+        var metricsHtml =
+          '<div class="batch-metrics-row">' +
+          '<div class="metric-box"><div class="metric-lbl">' + escapeHtml(dict.batchMetricElapsed) + '</div>' +
+          '<div class="metric-val">' + escapeHtml(res.elapsedMs) + ' ms</div></div>' +
+          '<div class="metric-box"><div class="metric-lbl">' + escapeHtml(dict.batchMetricTps) + '</div>' +
+          '<div class="metric-val">' + escapeHtml(Number(res.turnsPerSecond || 0).toLocaleString()) + ' /s</div></div>' +
+          '<div class="metric-box"><div class="metric-lbl">' + escapeHtml(dict.batchMetricExecuted) + '</div>' +
+          '<div class="metric-val">' + escapeHtml(Number(res.executedTurnsPerArm || 0).toLocaleString()) + '</div>' +
+          '<div class="muted" style="font-size:10px;">' + escapeHtml(Number(res.totalExecutedTurnsAllArms || 0).toLocaleString()) + ' ' + escapeHtml(dict.batchTotalTurnsSub) + '</div></div>' +
+          '</div>';
+
+        var armOrder = [
+          { key: 'ame_aacim_on', label: dict.batchArmAme, isAme: true },
+          { key: 'aacim_off', label: dict.batchArmAacimOff, isAme: false },
+          { key: 'mind_off', label: dict.batchArmMindOff, isAme: false }
+        ];
+
+        var barsHtml = '<div class="batch-bars">';
+        for (var i = 0; i < armOrder.length; i += 1) {
+          var meta = armOrder[i];
+          var arm = res.arms && res.arms[meta.key];
+          if (!arm || !arm.final) continue;
+          var comp = Number(arm.final.composite || 0);
+          var safe = Number(arm.final.safetyCompliance !== undefined ? arm.final.safetyCompliance : (arm.final.safety || 0));
+          var compPct = Math.min(100, Math.max(0, comp * 100));
+          var safePct = Math.min(100, Math.max(0, safe * 100));
+          var badgeHtml = '';
+          if (meta.isAme) {
+            badgeHtml = '<span class="pill ok">' + escapeHtml(dict.batchZeroDriftTag) + ' (Δ ' + escapeHtml(arm.driftDelta) + ')</span>';
+          } else if (meta.key === 'aacim_off' && safe <= 0.01) {
+            badgeHtml = '<span class="pill danger">' + escapeHtml(dict.batchCollapseTag) + '</span>';
+          }
+          var compFillCls = meta.isAme ? 'bar-fill' : 'bar-fill muted-bar';
+          var safeFillCls = meta.isAme ? 'bar-fill safety' : (safe <= 0.01 ? 'bar-fill collapse-bar' : 'bar-fill muted-bar');
+
+          barsHtml +=
+            '<div class="batch-arm-row' + (meta.isAme ? ' winner' : '') + '">' +
+            '<div class="batch-arm-hdr"><span>' + escapeHtml(meta.label) + '</span>' + badgeHtml + '</div>' +
+            '<div class="batch-bar-pair">' +
+            '<div>' +
+            '<div class="batch-bar-lbl"><span>' + escapeHtml(dict.batchCompositeLbl) + '</span><span class="mono">' + escapeHtml(formatPct(comp)) + ' (' + escapeHtml(comp.toFixed(4)) + ')</span></div>' +
+            '<div class="bar-track"><div class="' + compFillCls + '" style="width:' + compPct.toFixed(1) + '%;"></div></div>' +
+            '</div>' +
+            '<div>' +
+            '<div class="batch-bar-lbl"><span>' + escapeHtml(dict.batchSafetyLbl) + '</span><span class="mono">' + escapeHtml(formatPct(safe)) + ' (' + escapeHtml(safe.toFixed(4)) + ')</span></div>' +
+            '<div class="bar-track"><div class="' + safeFillCls + '" style="width:' + safePct.toFixed(1) + '%;"></div></div>' +
+            '</div>' +
+            '</div>' +
+            '</div>';
+        }
+        barsHtml += '</div>';
+
+        var d = res.deltaVsBaseline;
+        var ameFinal = res.arms && res.arms.ame_aacim_on && res.arms.ame_aacim_on.final;
+        var ameSafe = ameFinal ? Number(ameFinal.safetyCompliance !== undefined ? ameFinal.safetyCompliance : (ameFinal.safety || 0)) : 0;
+        var driftBoundedFlag = d && typeof d.driftBounded === 'boolean'
+          ? d.driftBounded
+          : Boolean(res.arms && res.arms.ame_aacim_on && res.arms.ame_aacim_on.driftDelta <= 0.03 && ameSafe >= 0.99);
+
+        var deltaHtml = '<div class="batch-deltas">';
+        if (d && typeof d.compositeGainOverMindOff === 'number') {
+          deltaHtml += '<span class="pill ok">' + escapeHtml(dict.batchGainMindOff) + ': +' + escapeHtml((d.compositeGainOverMindOff * 100).toFixed(2)) + '%p</span>';
+        }
+        if (d && typeof d.compositeGainOverAacimOff === 'number') {
+          deltaHtml += '<span class="pill ok">' + escapeHtml(dict.batchGainAacimOff) + ': +' + escapeHtml((d.compositeGainOverAacimOff * 100).toFixed(2)) + '%p</span>';
+        }
+        if (d && typeof d.safetyGainOverAacimOff === 'number') {
+          deltaHtml += '<span class="pill ok">' + escapeHtml(dict.batchGainSafety) + ': +' + escapeHtml((d.safetyGainOverAacimOff * 100).toFixed(2)) + '%p</span>';
+        }
+        deltaHtml += '<span class="pill ' + (driftBoundedFlag ? 'ok' : 'warn') + '">' + escapeHtml(dict.batchDriftBounded) + ': ' + escapeHtml(String(driftBoundedFlag)) + '</span>';
+        deltaHtml += '<span class="pill accent">d4Redacted: ' + escapeHtml(String(Boolean(res.d4Redacted))) + '</span>';
+        deltaHtml += '</div>';
+
+        box.innerHTML = metricsHtml + barsHtml + deltaHtml;
+      }
+
+      async function runBatchSimulation() {
+        var btn = $('runBatchBtn');
+        var dict = t();
+        var mindId = await ensureActiveMind();
+        if (!mindId) return;
+        try {
+          if (btn) {
+            btn.disabled = true;
+            btn.textContent = dict.btnRunningBatch || 'Running...';
+          }
+          var turns = Number(($('batchTurnsSelect') && $('batchTurnsSelect').value) || 100000);
+          var compareArms = Boolean($('batchCompareToggle') && $('batchCompareToggle').checked);
+          var res = await apiFetch('/v1/minds/' + encodeURIComponent(mindId) + '/simulate-batch', {
+            method: 'POST',
+            body: {
+              turns: turns,
+              profileCount: 40,
+              checkpoints: 8,
+              seed: 1337,
+              compareArms: compareArms
+            }
+          });
+          state.lastBatchResult = res;
+          if (res && res.engineMode) {
+            state.gatewayMode = res.engineMode;
+            updateBatchGatewayNotice();
+          }
+          setJson('last', res);
+          renderBatchResult();
+        } catch (err) {
+          showError(err.message);
+        } finally {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = t().btnRunBatch;
+          }
+        }
+      }
+
       /* Help Popover Logic (Hover + Focus + Click Pin) */
       function showHelpPopover(helpKey, anchorEl, pinned) {
         var langPack = HELP_DATA[state.lang] || HELP_DATA.en;
@@ -2759,7 +3208,11 @@
         $('helpPopTitle').textContent = entry.title;
         $('helpPopBody').textContent = entry.body;
         if (entry.tip) {
-          $('helpPopTip').textContent = entry.tip;
+          var tipText = entry.tip;
+          if (helpKey === 'batchSim') {
+            tipText += ' [' + (state.gatewayMode || 'sandbox-contract') + ']';
+          }
+          $('helpPopTip').textContent = tipText;
           $('helpPopTip').classList.remove('hidden');
         } else {
           $('helpPopTip').classList.add('hidden');
@@ -2883,6 +3336,7 @@
       $('idleTickBtn').addEventListener('click', function () { runIdleTick(); });
       $('quickIdle14Btn').addEventListener('click', function () { runIdleTick(14, 'overnight_rest'); });
       $('quickIdle36Btn').addEventListener('click', function () { runIdleTick(36, 'weekend_away'); });
+      if ($('runBatchBtn')) $('runBatchBtn').addEventListener('click', runBatchSimulation);
 
       $('clearTimelineBtn').addEventListener('click', function () {
         if (state.activeMindId) state.chatsByMind[state.activeMindId] = [];

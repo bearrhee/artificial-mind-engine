@@ -1969,6 +1969,207 @@ docker run -d -p 8090:8090 -e AME_API_KEY="your-key" ghcr.io/bearrhee/ame-kernel
 curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
         </div>
       </div>
+
+      <!-- TESTING THE API & REPRODUCING BENCHMARKS (3 PILLARS) -->
+      <div class="sec-header" style="margin-top:36px;">
+        <span class="sec-eyebrow">08 · Testing the API &amp; Reproducing Benchmarks</span>
+        <h2 class="sec-title">Sandbox vs. Sealed Kernel, 100K–1M Turns &amp; External Framework Comparisons</h2>
+        <p class="sec-desc">
+          Verify the full OpenAPI 3.1 contract locally in seconds, scale deterministic kernel convergence to <code>1,000,000</code> turns via <code>POST /v1/minds/{mindId}/simulate-batch</code>, and benchmark AME head-to-head against external memory frameworks and <code>Bare Frontier</code>.
+        </p>
+      </div>
+
+      <!-- Pillar 1: Honest Capabilities Matrix -->
+      <div class="card" style="margin-bottom:18px;">
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
+          <div>
+            <span class="pill blue mono" style="margin-bottom:4px;">Pillar 1 · Honest Capabilities Matrix</span>
+            <h3 style="margin:0; font-size:1.08rem;">Public Contract Sandbox vs. Hosted / Self-Hosted Sealed Kernel</h3>
+          </div>
+          <span class="pill amber mono">AME_SANDBOX_MAX_MEMORIES_PER_MIND=2000</span>
+        </div>
+        <div class="table-wrap" style="margin-bottom:12px;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Deployment / Mode</th>
+                <th>Endpoint / Launch</th>
+                <th>What Works Out of the Box</th>
+                <th>Explicit Limits &amp; Benchmark Scope</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Public Contract Sandbox</strong><br><span class="mono" style="font-size:0.74rem; color:var(--text-dim);">mode: "sandbox-contract"</span></td>
+                <td class="mono">npm run sandbox<br><a href="https://thesoulthread.com/ame-demo/" target="_blank" rel="noopener" style="color:var(--accent-strong);">https://thesoulthread.com/ame-demo/</a></td>
+                <td>Full OpenAPI 3.1 contract (<code>Mode A /turn</code>, <code>Mode B prepare/settle</code>, <code>idle-tick</code>, <code>DELETE /memories</code>, <code>D4 telemetry</code>, <code>simulate-batch</code>), BYO LLM keys or offline <code>mock</code>, schema &amp; SDK pipeline wiring checks</td>
+                <td><code>O(N)</code> sandbox memory array bounded by <code>AME_SANDBOX_MAX_MEMORIES_PER_MIND=2000</code>; rule-based simulator instead of proprietary <code>AACIM-59</code> weights &amp; 4-path PG/Jina RAG (<code>sandbox-contract-verification</code>)</td>
+              </tr>
+              <tr>
+                <td><strong>Option A · Hosted Evaluation Gateway</strong><br><span class="mono" style="font-size:0.74rem; color:var(--emerald);">mode: "sealed-kernel"</span></td>
+                <td class="mono">AME_BASE_URL=https://thesoulthread.com/ame-api<br>X-AME-API-Key: $AME_API_KEY</td>
+                <td>Managed closed-IP kernel with issued <code>AME_API_KEY</code> (request via <a href="mailto:help@artificialmind.me" style="color:var(--accent-strong);">help@artificialmind.me</a>)</td>
+                <td>Runs real production benchmarks: <code>LoCoMo</code>, <code>EQ-Bench 3</code>, <code>CogEval-v1</code>, <code>LongMemEval-S</code>, and real <code>100K–1M</code> kernel convergence (<code>sealed-kernel-production-eval</code>)</td>
+              </tr>
+              <tr>
+                <td><strong>Option B · Self-Hosted Sealed Container</strong><br><span class="mono" style="font-size:0.74rem; color:var(--emerald);">mode: "sealed-kernel"</span></td>
+                <td class="mono">docker compose -f deploy/docker-compose.sealed.yml up -d</td>
+                <td>Proprietary <code>ame-kernel</code> paired with your own PostgreSQL (<code>pgvector</code>) &amp; Redis</td>
+                <td>Full production benchmarks inside your VPC, air-gapped <code>Mode B Zero-Key</code> local GPU (<code>vLLM</code>/<code>Ollama</code>), and <code>D3/D4</code> persistence audits</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout amber">
+          <strong>Provenance Guardrail:</strong> Sandbox contract runs verify API conformance, <code>O(1)</code> prompt bounding, and <code>D2/D3/D4</code> wiring; production SOTA claims require Option A (<code>https://thesoulthread.com/ame-api</code>) or Option B (<code>deploy/docker-compose.sealed.yml</code>).
+        </div>
+      </div>
+
+      <!-- Pillar 2: 100K-1M Turn Testing (POST /v1/minds/{mindId}/simulate-batch) -->
+      <div class="card" style="margin-bottom:18px;">
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
+          <div>
+            <span class="pill emerald mono" style="margin-bottom:4px;">Pillar 2 · 100K–1M Turn Convergence</span>
+            <h3 style="margin:0; font-size:1.08rem;">How 100K–1M Turn Testing Works (<code>POST /v1/minds/{mindId}/simulate-batch</code>)</h3>
+          </div>
+          <span class="pill violet mono">0 LLM Calls · Strictly D4-Redacted</span>
+        </div>
+        <div class="callout info" style="margin-bottom:14px;">
+          <strong>Why Not 1,000,000 Sequential <code>/turn</code> Calls?</strong> Calling a live HTTP LLM <code>1,000,000</code> times sequentially (~1s/turn) takes <strong>~11.5+ days</strong> and <strong>thousands of dollars</strong> in API spend, while the sandbox memory array (capped at <code>2,000</code> entries) is designed for contract checks. <code>POST /v1/minds/{mindId}/simulate-batch</code> executes <code>100K–1M</code> turns of pure deterministic kernel dynamics (<code>AACIM-59</code> / <code>FEP</code> / <code>PostHoc</code> across <code>40</code> profiles &amp; <code>3</code> arms: <code>mind_off</code>, <code>aacim_off</code>, <code>ame_aacim_on</code>) with <strong>0 LLM API calls in seconds</strong>, strictly <code>D4</code>-redacted.
+        </div>
+
+        <div class="code-shell" style="margin-bottom:14px;">
+          <div class="code-head">
+            <span>CLI · Run 1,000,000-Turn Convergence Benchmark</span>
+            <button class="btn btn-sm copy-cmd" type="button" data-copy-target="qs-5">Copy</button>
+          </div>
+          <pre id="qs-5" class="code-pre"><code>npm run bench:convergence -- --base-url https://thesoulthread.com/ame-api --api-key "$AME_API_KEY" --turns 1000000</code></pre>
+        </div>
+
+        <div class="split-equal">
+          <div class="code-shell">
+            <div class="code-head">
+              <span>TypeScript SDK (@ame/sdk · client.simulateBatch)</span>
+              <button class="btn btn-sm copy-cmd" type="button" data-copy-target="qs-6">Copy</button>
+            </div>
+            <pre id="qs-6" class="code-pre"><code>import { AmeClient } from '@ame/sdk';
+
+const client = new AmeClient({
+  baseUrl: process.env.AME_BASE_URL || 'https://thesoulthread.com/ame-api',
+  apiKey: process.env.AME_API_KEY,
+});
+const mind = await client.createMind({
+  domain: 'companion_chat',
+  persona: { name: 'EvalAgent', role: 'Convergence Probe', language: 'en' },
+});
+const report = await client.simulateBatch(mind.mindId, {
+  turns: 1_000_000,
+  profileCount: 40,
+  checkpoints: 8,
+  compareArms: true, // evaluates mind_off, aacim_off, ame_aacim_on
+});
+console.log(report.d4Redacted, report.deltaVsBaseline, report.arms);</code></pre>
+          </div>
+
+          <div class="code-shell">
+            <div class="code-head">
+              <span>Python SDK (ame_sdk · client.simulate_batch)</span>
+              <button class="btn btn-sm copy-cmd" type="button" data-copy-target="qs-7">Copy</button>
+            </div>
+            <pre id="qs-7" class="code-pre"><code>import os
+from ame_sdk import AmeClient
+
+client = AmeClient(
+    base_url=os.environ.get("AME_BASE_URL", "https://thesoulthread.com/ame-api"),
+    api_key=os.environ.get("AME_API_KEY"),
+)
+mind = client.create_mind(
+    domain="companion_chat",
+    persona={"name": "EvalAgent", "role": "Convergence Probe", "language": "en"},
+)
+report = client.simulate_batch(
+    mind["mindId"],
+    turns=1_000_000,
+    profile_count=40,
+    checkpoints=8,
+    compare_arms=True,  # evaluates mind_off, aacim_off, ame_aacim_on
+)
+print(report["d4Redacted"], report["deltaVsBaseline"], report["arms"])</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pillar 3: Head-to-Head Comparisons & Unified DD Scorecard -->
+      <div class="card">
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
+          <div>
+            <span class="pill violet mono" style="margin-bottom:4px;">Pillar 3 · External Framework &amp; Bare Frontier Comparisons</span>
+            <h3 style="margin:0; font-size:1.08rem;">Head-to-Head CLI Runners (<code>LoCoMo</code> · <code>LongMemEval-S</code> · <code>CogEval</code> · <code>DD Scorecard</code>)</h3>
+          </div>
+          <span class="pill emerald mono">O(1) vs O(T) Tokens · Strict Tier Separation</span>
+        </div>
+
+        <div class="split-equal" style="margin-bottom:16px;">
+          <div class="code-shell">
+            <div class="code-head">
+              <span>1. LoCoMo Paired Runner (sample_locomo.json / locomo10.json)</span>
+              <button class="btn btn-sm copy-cmd" type="button" data-copy-target="qs-8">Copy</button>
+            </div>
+            <pre id="qs-8" class="code-pre"><code># Offline contract smoke (sample_locomo.json)
+npm run bench:locomo -- --dataset benchmarks/cogeval-locomo-harness/sample_locomo.json --arm both --provider mock
+
+# Confirm-304 (conv-26,conv-30) or full locomo10.json vs bare-frontier (Cat 1..5, optional --judge-provider)
+npm run bench:locomo -- \
+  --dataset /path/to/locomo10.json \
+  --conversations conv-26,conv-30 \
+  --arm both --provider deepseek --model deepseek-v4.1-flash \
+  --ame-base-url https://thesoulthread.com/ame-api --ame-api-key "$AME_API_KEY" \
+  --judge-provider openai --json-out ./artifacts/locomo-confirm-304.json</code></pre>
+          </div>
+
+          <div class="code-shell">
+            <div class="code-head">
+              <span>2. LongMemEval-S · 7-Gate Smoke · Unified DD Scorecard</span>
+              <button class="btn btn-sm copy-cmd" type="button" data-copy-target="qs-9">Copy</button>
+            </div>
+            <pre id="qs-9" class="code-pre"><code># 7-Gate CogEval black-box suite &amp; 500-QA LongMemEval-S paired comparator
+npm run bench:smoke -- --json-out ./artifacts/harness.json
+npm run bench:longmemeval -- --dataset /path/to/longmemeval_s_cleaned.json --arm both --json-out ./artifacts/lme-500-dd.json
+
+# Unified DD scorecard (strict sandbox-contract-verification vs sealed-kernel-production-eval separation)
+npm run bench:scorecard -- \
+  --harness-json ./artifacts/harness.json \
+  --lme-json ./artifacts/lme-500-dd.json \
+  --locomo-json ./artifacts/locomo-confirm-304.json \
+  --convergence-json ./artifacts/convergence-1m.json \
+  --out-md ./artifacts/vc-dd-scorecard.md --out-json ./artifacts/vc-dd-scorecard.json</code></pre>
+          </div>
+        </div>
+
+        <div class="table-wrap" style="margin-bottom:12px;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Published LoCoMo Reference Framework</th>
+                <th>LoCoMo Accuracy</th>
+                <th>Comparison Baseline Context</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>OpenAI Memory</code></td><td class="mono">52.9%</td><td>Stateless profile summary injection</td></tr>
+              <tr><td><code>LangMem</code></td><td class="mono">58.1%</td><td>Unstructured memory extraction</td></tr>
+              <tr><td><code>Mem0</code> (<code>Mem0 / Mem0^g</code>)</td><td class="mono">68.4%</td><td>Fact/graph memory store without causal state or FEP</td></tr>
+              <tr><td><code>Letta</code> (<code>MemGPT</code>)</td><td class="mono">74.0%</td><td>Agentic self-directed tool loops</td></tr>
+              <tr><td><code>Zep / Graphiti</code></td><td class="mono">75.1%</td><td>Bi-temporal knowledge graph store</td></tr>
+              <tr><td><strong><code>AME (Gemma 4 26B)</code></strong></td><td class="mono"><strong>75.66%</strong></td><td><code>Confirm-304</code> (<code>230/304</code>, standalone <code>0%</code> escalation)</td></tr>
+              <tr><td><strong><code>AME (DeepSeek v4.1 Flash)</code></strong></td><td class="mono"><strong>85.86%</strong></td><td><code>Confirm-304</code> (<code>261/304</code>, <code>71.7%</code> Flash + <code>28.3%</code> Sonnet-5) &middot; <code>77.24%</code> Full (<code>n=1,986</code>)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout emerald">
+          <strong>Strict Tier Separation in <code>bench:scorecard</code>:</strong> Every generated scorecard records exact provenance—separating <code>sandbox-contract-verification</code> (offline <code>sample_locomo.json</code> / <code>sample_longmemeval.json</code> / local sandbox) from <code>sealed-kernel-production-eval</code> (live hosted or self-hosted sealed kernel on full official datasets).
+        </div>
+      </div>
     </section>
   </main>
 

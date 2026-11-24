@@ -13,6 +13,8 @@
     "example:counseling": "node examples/counseling-coach/run.mjs",
     "bench:smoke": "node benchmarks/cogeval-locomo-harness/run_harness.mjs",
     "bench:longmemeval": "node benchmarks/cogeval-locomo-harness/longmemeval_frontier_runner.mjs",
+    "bench:locomo": "node benchmarks/cogeval-locomo-harness/locomo_frontier_runner.mjs",
+    "bench:convergence": "node benchmarks/cogeval-locomo-harness/batch_convergence_runner.mjs",
     "bench:scorecard": "node benchmarks/cogeval-locomo-harness/dd_scorecard_generator.mjs",
     "test:bench": "node --test benchmarks/cogeval-locomo-harness/test/*.test.mjs",
     "test": "npm run test:ts && npm run test:py && npm run test:bench"

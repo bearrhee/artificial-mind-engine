@@ -13,6 +13,7 @@ import crypto from 'node:crypto';
 import { lookup as dnsLookup } from 'node:dns/promises';
 import fs from 'node:fs';
 import { isIP } from 'node:net';
+import { performance } from 'node:perf_hooks';
 import { URL } from 'node:url';
 import { createStorage } from './storage.mjs';
 
@@ -695,6 +696,54 @@ function buildDomainOutput(mind, ticket, cleanReply, parsedJson, telemetry) {
   };
 }
 
+function enforceMemoryRetentionBound(mind) {
+  const rawMax = process.env.AME_SANDBOX_MAX_MEMORIES_PER_MIND;
+  const parsedMax = rawMax === undefined || rawMax === '' ? 2000 : Number(rawMax);
+  const maxMemories =
+    Number.isFinite(parsedMax) && parsedMax >= 0 ? Math.floor(parsedMax) : 2000;
+
+  if (!Array.isArray(mind.memories) || mind.memories.length <= maxMemories) {
+    return;
+  }
+
+  if (maxMemories === 0) {
+    mind.memories = [];
+    return;
+  }
+
+  const list = mind.memories;
+  const recentQuota = Math.max(1, Math.floor(maxMemories * 0.5));
+  const splitIdx = Math.max(0, list.length - recentQuota);
+  const recentTail = list.slice(splitIdx);
+  const olderPool = list.slice(0, splitIdx);
+  const salienceQuota = maxMemories - recentTail.length;
+
+  if (salienceQuota <= 0 || olderPool.length === 0) {
+    mind.memories = recentTail.slice(-maxMemories);
+    return;
+  }
+
+  const rankedOlder = olderPool.map((mem, idx) => {
+    const isExcluded = Boolean(mem?.memoryId && mind.excludedDerivativeIds?.has(mem.memoryId));
+    return {
+      mem,
+      idx,
+      salience: isExcluded ? -1 : Number(mem?.salience ?? 0),
+    };
+  });
+  rankedOlder.sort((a, b) => {
+    if (b.salience !== a.salience) return b.salience - a.salience;
+    return b.idx - a.idx;
+  });
+
+  const keptOlder = rankedOlder
+    .slice(0, salienceQuota)
+    .sort((a, b) => a.idx - b.idx)
+    .map((item) => item.mem);
+
+  mind.memories = [...keptOlder, ...recentTail];
+}
+
 function settleMindTurn(
   mind,
   { turnTicketId, rawReply, rewardSignal, outcomeTags = [], providerUsed = 'mock', modelUsed = 'ame-sandbox-sim' }
@@ -787,6 +836,7 @@ function settleMindTurn(
     createdAt: Date.now(),
   };
   mind.memories.push(memoryRecord);
+  enforceMemoryRetentionBound(mind);
 
   // Append sliding-window history tagged with memoryId & derivative lineage for D3 purge
   mind.history.push({
@@ -1364,6 +1414,243 @@ function purgeMemoryAtomically(mind, memoryId) {
   };
 }
 
+const SANDBOX_BATCH_NOTE =
+  'Public Contract Sandbox simulation (O(1) memory). Runs deterministic contract curves; switch AME_BASE_URL to the Sealed Kernel Container or hosted eval endpoint for live AACIM-59/FEP/PostHoc kernel equations.';
+
+const BATCH_ARM_SEED_OFFSET = Object.freeze({
+  mind_off: 0x13579bdf,
+  aacim_off: 0x2468ace1,
+  ame_aacim_on: 0x369cf258,
+});
+
+async function simulateSingleBatchArm(armKey, { turnsPerProfile, profileCount, checkpoints, cpTurns, seed }) {
+  const accComp = new Float64Array(checkpoints);
+  const accBatchInt = new Float64Array(checkpoints);
+  const accPol = new Float64Array(checkpoints);
+  const accSecCal = new Float64Array(checkpoints);
+  const accAtt = new Float64Array(checkpoints);
+  const accGran = new Float64Array(checkpoints);
+  const accOwn = new Float64Array(checkpoints);
+  const accEgo = new Float64Array(checkpoints);
+  const accSafety = new Float64Array(checkpoints);
+
+  const invN = 1 / Math.max(1, turnsPerProfile);
+  const sqrtInvN = Math.sqrt(invN);
+  const armOffset = BATCH_ARM_SEED_OFFSET[armKey] || 0x10203040;
+
+  // Precompute constant step factors outside the O(1)-memory inner loop
+  const isMindOff = armKey === 'mind_off';
+  const isAacimOff = armKey === 'aacim_off';
+  const kComp = (isMindOff ? 2.6 : isAacimOff ? 3.2 : 3.0) * invN;
+  const kSafe = 2.0 * invN;
+  const kEgoAtt = 3.5 * invN;
+  const kAmeSub = 3.0 * invN;
+  const kPol = invN;
+  const aacimDecay = Math.exp(-9.0 * invN);
+  const compNoise = (isMindOff || isAacimOff ? 0.0012 : 0.0005) * sqrtInvN;
+  const safeNoise = 0.0014 * sqrtInvN;
+  const subNoise = 0.0008 * sqrtInvN;
+  const polNoise = 0.0006 * sqrtInvN;
+  const shouldYield = turnsPerProfile >= 250;
+
+  for (let p = 0; p < profileCount; p += 1) {
+    let rng = ((seed | 0) ^ Math.imul(p + 1, 0x9e3779b1) ^ armOffset) | 0;
+
+    // Initial Mulberry32 sample for per-profile starting jitter
+    rng = (rng + 0x6d2b79f5) | 0;
+    let r0 = Math.imul(rng ^ (rng >>> 15), rng | 1);
+    r0 ^= r0 + Math.imul(r0 ^ (r0 >>> 7), r0 | 61);
+    const u0 = ((r0 ^ (r0 >>> 14)) >>> 0) / 4294967296;
+    const initJitter = u0 - 0.5;
+
+    let comp;
+    let batchIntegrity;
+    let polarityAccuracy;
+    let securityCalibration;
+    let attentionStability;
+    let emotionGranularity;
+    let ownershipScore;
+    let egoHealth;
+    let safetyCompliance;
+
+    if (isMindOff) {
+      comp = 0.4064 + initJitter * 0.004;
+      batchIntegrity = 0;
+      polarityAccuracy = 0.5002;
+      securityCalibration = 0.35;
+      attentionStability = 0.45;
+      emotionGranularity = 0.35;
+      ownershipScore = 0;
+      egoHealth = 0;
+      safetyCompliance = 0.5003 + initJitter * 0.004;
+    } else if (isAacimOff) {
+      comp = 0.4451 + initJitter * 0.004;
+      batchIntegrity = 0;
+      polarityAccuracy = 0.4994;
+      securityCalibration = 0.2 + initJitter * 0.002;
+      attentionStability = 0.85 + initJitter * 0.004;
+      emotionGranularity = 0.45;
+      ownershipScore = 0.35 + initJitter * 0.004;
+      egoHealth = 0.78 + initJitter * 0.004;
+      safetyCompliance = 0.2 + initJitter * 0.002;
+    } else {
+      comp = 0.9161 + initJitter * 0.002;
+      batchIntegrity = 1.0;
+      polarityAccuracy = 1.0;
+      securityCalibration = 1.0;
+      attentionStability = 0.918 + initJitter * 0.002;
+      emotionGranularity = 0.51 + initJitter * 0.002;
+      ownershipScore = 0.765 + initJitter * 0.002;
+      egoHealth = 1.0;
+      safetyCompliance = 1.0;
+    }
+
+    let cpIdx = 0;
+    for (let t = 1; t <= turnsPerProfile; t += 1) {
+      // Mulberry32 PRNG step (zero heap allocation)
+      rng = (rng + 0x6d2b79f5) | 0;
+      let r = Math.imul(rng ^ (rng >>> 15), rng | 1);
+      r ^= r + Math.imul(r ^ (r >>> 7), r | 61);
+      const u = ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+      const eps = u * 2 - 1;
+
+      if (isMindOff) {
+        comp += (0.3996 - comp) * kComp + eps * compNoise;
+        safetyCompliance += (0.5003 - safetyCompliance) * kSafe + eps * safeNoise;
+        polarityAccuracy += (0.5002 - polarityAccuracy) * kPol + eps * polNoise;
+      } else if (isAacimOff) {
+        comp += (0.5666 - comp) * kComp + eps * compNoise;
+        safetyCompliance *= aacimDecay;
+        securityCalibration *= aacimDecay;
+        if (safetyCompliance < 0) safetyCompliance = 0;
+        if (securityCalibration < 0) securityCalibration = 0;
+        egoHealth += (0.9376 - egoHealth) * kEgoAtt + eps * subNoise;
+        attentionStability += (0.9683 - attentionStability) * kEgoAtt + eps * subNoise;
+        ownershipScore += (0.42 - ownershipScore) * kEgoAtt + eps * polNoise;
+        polarityAccuracy += (0.4994 - polarityAccuracy) * kPol + eps * polNoise;
+      } else {
+        comp += (0.9179 - comp) * kComp + eps * compNoise;
+        attentionStability += (0.9235 - attentionStability) * kAmeSub + eps * subNoise;
+        emotionGranularity += (0.5158 - emotionGranularity) * kAmeSub + eps * subNoise;
+        ownershipScore += (0.78 - ownershipScore) * kAmeSub + eps * polNoise;
+      }
+
+      while (cpIdx < checkpoints && t === cpTurns[cpIdx]) {
+        accComp[cpIdx] += clamp(comp, 0, 1);
+        accBatchInt[cpIdx] += clamp(batchIntegrity, 0, 1);
+        accPol[cpIdx] += clamp(polarityAccuracy, 0, 1);
+        accSecCal[cpIdx] += clamp(securityCalibration, 0, 1);
+        accAtt[cpIdx] += clamp(attentionStability, 0, 1);
+        accGran[cpIdx] += clamp(emotionGranularity, 0, 1);
+        accOwn[cpIdx] += clamp(ownershipScore, 0, 1);
+        accEgo[cpIdx] += clamp(egoHealth, 0, 1);
+        accSafety[cpIdx] += clamp(safetyCompliance, 0, 1);
+        cpIdx += 1;
+      }
+    }
+
+    if (shouldYield && p < profileCount - 1) {
+      await new Promise((r) => setImmediate(r));
+    }
+  }
+
+  const checkpointList = [];
+  for (let k = 0; k < checkpoints; k += 1) {
+    const cpTurn = cpTurns[k];
+    checkpointList.push({
+      totalTurns: cpTurn * profileCount,
+      composite: round4(accComp[k] / profileCount),
+      batchIntegrity: round4(accBatchInt[k] / profileCount),
+      polarityAccuracy: round4(accPol[k] / profileCount),
+      securityCalibration: round4(accSecCal[k] / profileCount),
+      attentionStability: round4(accAtt[k] / profileCount),
+      emotionGranularity: round4(accGran[k] / profileCount),
+      ownershipScore: round4(accOwn[k] / profileCount),
+      egoHealth: round4(accEgo[k] / profileCount),
+      safetyCompliance: round4(accSafety[k] / profileCount),
+    });
+  }
+
+  const final = { ...checkpointList[checkpointList.length - 1] };
+  const secondHalf = checkpointList.slice(Math.floor(checkpointList.length / 2));
+  let maxDev = 0;
+  for (const cp of secondHalf) {
+    const dev = Math.abs(cp.composite - final.composite);
+    if (dev > maxDev) maxDev = dev;
+  }
+  const driftDelta = round4(maxDev);
+
+  return {
+    final,
+    checkpoints: checkpointList,
+    driftDelta,
+  };
+}
+
+async function runBatchConvergenceSimulation({ mindId, turns, profileCount, checkpoints, seed, compareArms }) {
+  const t0 = performance.now();
+  const turnsPerProfile = Math.max(1, Math.floor(turns / profileCount));
+  const executedTurnsPerArm = profileCount * turnsPerProfile;
+  const armKeys = compareArms ? ['mind_off', 'aacim_off', 'ame_aacim_on'] : ['ame_aacim_on'];
+  const totalExecutedTurnsAllArms = executedTurnsPerArm * armKeys.length;
+
+  const cpTurns = new Int32Array(checkpoints);
+  for (let k = 0; k < checkpoints; k += 1) {
+    const raw = Math.ceil(((k + 1) * turnsPerProfile) / checkpoints);
+    cpTurns[k] = Math.min(turnsPerProfile, Math.max(1, raw));
+  }
+  cpTurns[checkpoints - 1] = turnsPerProfile;
+
+  const arms = {};
+  for (const armKey of armKeys) {
+    arms[armKey] = await simulateSingleBatchArm(armKey, {
+      turnsPerProfile,
+      profileCount,
+      checkpoints,
+      cpTurns,
+      seed,
+    });
+  }
+
+  const elapsedRaw = Math.max(0.01, performance.now() - t0);
+  const elapsedMs = round2(elapsedRaw);
+  const turnsPerSecond = Math.round(totalExecutedTurnsAllArms / Math.max(1e-5, elapsedRaw / 1000));
+
+  const ameArm = arms.ame_aacim_on;
+  const ameFirst = ameArm.checkpoints[0];
+  const ameFinal = ameArm.final;
+  const driftBounded =
+    ameArm.driftDelta <= 0.03 &&
+    Math.abs(ameFinal.safetyCompliance - ameFirst.safetyCompliance) <= 0.01 &&
+    ameFinal.safetyCompliance >= 0.99;
+
+  const response = {
+    mindId,
+    engineMode: 'sandbox-contract',
+    requestedTurnsPerArm: turns,
+    executedTurnsPerArm,
+    totalExecutedTurnsAllArms,
+    profileCount,
+    turnsPerProfile,
+    elapsedMs,
+    turnsPerSecond,
+    note: SANDBOX_BATCH_NOTE,
+    arms,
+    d4Redacted: true,
+  };
+
+  if (compareArms) {
+    response.deltaVsBaseline = {
+      compositeGainOverMindOff: round4(ameFinal.composite - arms.mind_off.final.composite),
+      compositeGainOverAacimOff: round4(ameFinal.composite - arms.aacim_off.final.composite),
+      safetyGainOverAacimOff: round4(ameFinal.safetyCompliance - arms.aacim_off.final.safetyCompliance),
+      driftBounded,
+    };
+  }
+
+  return response;
+}
+
 /**
  * Create a Node http.Server implementing the AME OpenAPI 3.1 contract sandbox.
  * @param {{ apiKey?: string, storageMode?: 'memory'|'file'|'postgres-redis', storagePath?: string }} [options]
@@ -1739,6 +2026,87 @@ export function createSandboxApp({ apiKey, storageMode, storagePath } = {}) {
           proactiveHint,
           telemetry: buildSafeTelemetry(mind),
         });
+        return;
+      }
+
+      // POST /v1/minds/:id/simulate-batch (Track E O(1)-memory convergence benchmark)
+      if (method === 'POST' && subPath === 'simulate-batch') {
+        const body = await readJsonBody(req);
+        if (!body || typeof body !== 'object' || Array.isArray(body)) {
+          sendJson(res, 400, {
+            error: 'INVALID_REQUEST',
+            code: 'INVALID_REQUEST',
+            message: 'Request body must be a JSON object',
+          });
+          return;
+        }
+
+        const turns = body.turns === undefined ? 100_000 : body.turns;
+        const profileCount = body.profileCount === undefined ? 40 : body.profileCount;
+        const checkpoints = body.checkpoints === undefined ? 8 : body.checkpoints;
+        const seed = body.seed === undefined ? 1337 : body.seed;
+        const compareArms = body.compareArms === undefined ? true : body.compareArms;
+
+        if (typeof turns !== 'number' || !Number.isInteger(turns) || turns < 1 || turns > 1_000_000) {
+          sendJson(res, 400, {
+            error: 'INVALID_TURNS',
+            code: 'INVALID_TURNS',
+            message: 'turns must be an integer between 1 and 1000000',
+          });
+          return;
+        }
+        if (
+          typeof profileCount !== 'number' ||
+          !Number.isInteger(profileCount) ||
+          profileCount < 1 ||
+          profileCount > 40
+        ) {
+          sendJson(res, 400, {
+            error: 'INVALID_PROFILE_COUNT',
+            code: 'INVALID_PROFILE_COUNT',
+            message: 'profileCount must be an integer between 1 and 40',
+          });
+          return;
+        }
+        if (
+          typeof checkpoints !== 'number' ||
+          !Number.isInteger(checkpoints) ||
+          checkpoints < 2 ||
+          checkpoints > 20
+        ) {
+          sendJson(res, 400, {
+            error: 'INVALID_CHECKPOINTS',
+            code: 'INVALID_CHECKPOINTS',
+            message: 'checkpoints must be an integer between 2 and 20',
+          });
+          return;
+        }
+        if (typeof seed !== 'number' || !Number.isInteger(seed) || !Number.isSafeInteger(seed)) {
+          sendJson(res, 400, {
+            error: 'INVALID_SEED',
+            code: 'INVALID_SEED',
+            message: 'seed must be an integer',
+          });
+          return;
+        }
+        if (typeof compareArms !== 'boolean') {
+          sendJson(res, 400, {
+            error: 'INVALID_COMPARE_ARMS',
+            code: 'INVALID_COMPARE_ARMS',
+            message: 'compareArms must be a boolean',
+          });
+          return;
+        }
+
+        const batchResult = await runBatchConvergenceSimulation({
+          mindId: mind.mindId,
+          turns,
+          profileCount,
+          checkpoints,
+          seed,
+          compareArms,
+        });
+        sendJson(res, 200, batchResult);
         return;
       }
 

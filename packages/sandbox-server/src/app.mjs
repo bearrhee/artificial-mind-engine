@@ -10,7 +10,11 @@
 
 import http from 'node:http';
 import crypto from 'node:crypto';
+import fs from 'node:fs';
 import { URL } from 'node:url';
+import { createStorage } from './storage.mjs';
+
+const DEMO_UI_HTML = fs.readFileSync(new URL('./demo-ui.html', import.meta.url), 'utf8');
 
 const VALID_DOMAINS = new Set([
   'game_npc',
@@ -155,6 +159,15 @@ function sendJson(res, status, payload) {
   res.end(body);
 }
 
+function sendHtml(res, status, html) {
+  res.writeHead(status, {
+    'Content-Type': 'text/html; charset=utf-8',
+    'Content-Length': Buffer.byteLength(html, 'utf8'),
+    'Cache-Control': 'no-store',
+  });
+  res.end(html);
+}
+
 async function readJsonBody(req, maxBytes = 2 * 1024 * 1024) {
   const chunks = [];
   let total = 0;
@@ -273,17 +286,24 @@ function buildMindSummary(mind) {
 }
 
 function retrieveActiveMemories(mind, userInput, limit = 5) {
-  if (mind.memories.length === 0) return [];
+  const activeMemories = (mind.memories || []).filter(
+    (mem) =>
+      mem &&
+      mem.memoryId &&
+      !mind.revokedMemoryIds?.has(mem.memoryId) &&
+      !mind.excludedDerivativeIds?.has(mem.memoryId)
+  );
+  if (activeMemories.length === 0) return [];
   const inputTokens = new Set(tokenize(userInput));
   const isRecall = RECALL_PATTERNS.some((p) => p.test(userInput));
 
-  const scored = mind.memories.map((mem, idx) => {
+  const scored = activeMemories.map((mem, idx) => {
     const memTokens = tokenize(`${mem.summary} ${mem.content}`);
     let overlap = 0;
     for (const tok of memTokens) {
       if (inputTokens.has(tok)) overlap += 1;
     }
-    const recencyBoost = (idx + 1) / Math.max(1, mind.memories.length);
+    const recencyBoost = (idx + 1) / Math.max(1, activeMemories.length);
     const score = overlap * 2.0 + mem.salience + (isRecall ? recencyBoost * 1.5 : recencyBoost * 0.4);
     return { mem, score, overlap };
   });
@@ -930,6 +950,13 @@ async function callUpstreamLlmEphemerally(prep, llm) {
 }
 
 function purgeMemoryAtomically(mind, memoryId) {
+  if (!(mind.revokedMemoryIds instanceof Set)) {
+    mind.revokedMemoryIds = new Set(mind.revokedMemoryIds || []);
+  }
+  if (!(mind.excludedDerivativeIds instanceof Set)) {
+    mind.excludedDerivativeIds = new Set(mind.excludedDerivativeIds || []);
+  }
+
   const idx = mind.memories.findIndex((m) => m.memoryId === memoryId);
   const alreadyRevoked = mind.revokedMemoryIds.has(memoryId);
   if (idx === -1 && !alreadyRevoked) {
@@ -942,16 +969,27 @@ function purgeMemoryAtomically(mind, memoryId) {
     mind.memories.splice(idx, 1);
   }
 
-  // Purge derivative history entries & derivative memories referencing the revoked memory
-  mind.history = mind.history.filter(
-    (h) =>
-      h.memoryId !== memoryId &&
-      !(Array.isArray(h.derivedFromMemoryIds) && h.derivedFromMemoryIds.includes(memoryId))
-  );
+  const newlyExcluded = new Set();
+
+  // Collect derivative IDs from history and purge derivative history entries
+  mind.history = mind.history.filter((h) => {
+    const isDirect = h.memoryId === memoryId;
+    const isDerivative =
+      Array.isArray(h.derivedFromMemoryIds) && h.derivedFromMemoryIds.includes(memoryId);
+    if (isDerivative && h.memoryId && h.memoryId !== memoryId) {
+      newlyExcluded.add(h.memoryId);
+      mind.excludedDerivativeIds.add(h.memoryId);
+    }
+    return !isDirect && !isDerivative;
+  });
 
   // Also scrub any derivative assistant summaries in remaining memories that relied on this memory
   for (const m of mind.memories) {
     if (Array.isArray(m.derivedFromMemoryIds) && m.derivedFromMemoryIds.includes(memoryId)) {
+      if (m.memoryId && m.memoryId !== memoryId) {
+        newlyExcluded.add(m.memoryId);
+        mind.excludedDerivativeIds.add(m.memoryId);
+      }
       m.assistantSummary = '[derivative redacted]';
       m.derivedFromMemoryIds = m.derivedFromMemoryIds.filter((id) => id !== memoryId);
     }
@@ -975,7 +1013,7 @@ function purgeMemoryAtomically(mind, memoryId) {
       (deletedContent.length >= 6 && h.content === deletedContent)
   );
 
-  return {
+  const receipt = {
     revoked: true,
     mindId: mind.mindId,
     memoryId,
@@ -983,18 +1021,28 @@ function purgeMemoryAtomically(mind, memoryId) {
     auditReceiptId: shortId('rcpt'),
     residualLeakCheck: !hasMemoryResidual && !hasHistoryResidual ? '0.00%' : 'LEAK_DETECTED',
   };
+
+  return {
+    receipt,
+    excludedDerivativeIds: Array.from(newlyExcluded),
+  };
 }
 
 /**
  * Create a Node http.Server implementing the AME OpenAPI 3.1 contract sandbox.
- * @param {{ apiKey?: string }} [options]
+ * @param {{ apiKey?: string, storageMode?: 'memory'|'file'|'postgres-redis', storagePath?: string }} [options]
  * @returns {import('node:http').Server}
  */
-export function createSandboxApp({ apiKey } = {}) {
-  const minds = new Map();
+export function createSandboxApp({ apiKey, storageMode, storagePath } = {}) {
+  const storage = createStorage({ mode: storageMode, filePath: storagePath });
+  const initialLoad = storage.load();
+  const readyPromise =
+    initialLoad && typeof initialLoad.then === 'function' ? initialLoad : Promise.resolve(initialLoad);
 
   const server = http.createServer(async (req, res) => {
     try {
+      await readyPromise;
+
       if (req.method === 'OPTIONS') {
         res.writeHead(204, {
           'Access-Control-Allow-Origin': '*',
@@ -1009,6 +1057,12 @@ export function createSandboxApp({ apiKey } = {}) {
       const pathname = url.pathname;
       const method = req.method || 'GET';
 
+      // GET / serves the standalone Live VC Interactive Demo Console publicly
+      if (method === 'GET' && (pathname === '/' || pathname === '/index.html')) {
+        sendHtml(res, 200, DEMO_UI_HTML);
+        return;
+      }
+
       // GET /v1/health is always unauthenticated per spec/openapi.yaml (security: [])
       if (method === 'GET' && pathname === '/v1/health') {
         sendJson(res, 200, {
@@ -1016,6 +1070,7 @@ export function createSandboxApp({ apiKey } = {}) {
           service: 'ame-sandbox-server',
           version: '1.0.0',
           mode: 'sandbox-contract',
+          storageMode: storage.mode,
           domains: ['game_npc', 'companion_chat', 'counseling_coach', 'custom'],
           notice:
             'Contract Sandbox Mode: simulates OpenAPI 3.1 contracts cleanly for zero-key integration. Proprietary weights and equations stay inside the Sealed Kernel.',
@@ -1035,6 +1090,15 @@ export function createSandboxApp({ apiKey } = {}) {
           });
           return;
         }
+      }
+
+      // GET /v1/minds (D4-safe list of Minds for console discovery across restarts)
+      if (method === 'GET' && pathname === '/v1/minds') {
+        const allMinds = await storage.listMinds();
+        sendJson(res, 200, {
+          minds: allMinds.map(buildMindSummary),
+        });
+        return;
       }
 
       // POST /v1/minds
@@ -1058,6 +1122,7 @@ export function createSandboxApp({ apiKey } = {}) {
         }
 
         const mindId = shortId('mind');
+        const nowIso = new Date().toISOString();
         const mind = {
           mindId,
           domain: body.domain,
@@ -1092,8 +1157,12 @@ export function createSandboxApp({ apiKey } = {}) {
           history: [],
           pendingTickets: new Map(),
           revokedMemoryIds: new Set(),
+          excludedDerivativeIds: new Set(),
+          revocationAudits: [],
+          createdAt: nowIso,
+          updatedAt: nowIso,
         };
-        minds.set(mindId, mind);
+        await storage.saveMind(mind);
         sendJson(res, 201, buildMindSummary(mind));
         return;
       }
@@ -1111,7 +1180,7 @@ export function createSandboxApp({ apiKey } = {}) {
 
       const mindId = decodeURIComponent(mindMatch[1]);
       const subPath = mindMatch[2] || '';
-      const mind = minds.get(mindId);
+      const mind = await storage.getMind(mindId);
       if (!mind) {
         sendJson(res, 404, {
           error: 'MIND_NOT_FOUND',
@@ -1133,6 +1202,32 @@ export function createSandboxApp({ apiKey } = {}) {
         return;
       }
 
+      // GET /v1/minds/:id/memories (D3-safe active non-revoked memories for Console UI)
+      if (method === 'GET' && subPath === 'memories') {
+        const activeMemories = (mind.memories || [])
+          .filter(
+            (m) =>
+              m &&
+              m.memoryId &&
+              !mind.revokedMemoryIds?.has(m.memoryId) &&
+              !mind.excludedDerivativeIds?.has(m.memoryId)
+          )
+          .map((m) => ({
+            memoryId: m.memoryId,
+            summary: m.summary,
+            salience: m.salience,
+            turnIndex: m.turnIndex,
+            tags: m.tags || [],
+            createdAt: m.createdAt,
+          }));
+        sendJson(res, 200, {
+          mindId: mind.mindId,
+          revocationEpoch: mind.revocationEpoch,
+          memories: activeMemories,
+        });
+        return;
+      }
+
       // POST /v1/minds/:id/prepare
       if (method === 'POST' && subPath === 'prepare') {
         const body = await readJsonBody(req);
@@ -1145,6 +1240,7 @@ export function createSandboxApp({ apiKey } = {}) {
           return;
         }
         const prep = prepareMindTurn(mind, body);
+        await storage.saveMind(mind);
         sendJson(res, 200, prep);
         return;
       }
@@ -1161,6 +1257,7 @@ export function createSandboxApp({ apiKey } = {}) {
           return;
         }
         const result = settleMindTurn(mind, body);
+        await storage.saveMind(mind);
         sendJson(res, 200, result);
         return;
       }
@@ -1189,9 +1286,15 @@ export function createSandboxApp({ apiKey } = {}) {
           llm.provider !== 'mock' &&
           (Boolean(llm.apiKey) || (llm.provider === 'openai-compat' && Boolean(llm.baseUrl)));
 
-        const rawReply = canCallRemote
-          ? await callUpstreamLlmEphemerally(prep, llm)
-          : simulateSandboxLlmReply(prep);
+        let rawReply;
+        try {
+          rawReply = canCallRemote
+            ? await callUpstreamLlmEphemerally(prep, llm)
+            : simulateSandboxLlmReply(prep);
+        } catch (upstreamErr) {
+          mind.pendingTickets.delete(prep.turnTicketId);
+          throw upstreamErr;
+        }
 
         const result = settleMindTurn(mind, {
           turnTicketId: prep.turnTicketId,
@@ -1201,6 +1304,7 @@ export function createSandboxApp({ apiKey } = {}) {
           providerUsed: llm.provider,
           modelUsed: llm.model,
         });
+        await storage.saveMind(mind);
         sendJson(res, 200, result);
         return;
       }
@@ -1244,6 +1348,8 @@ export function createSandboxApp({ apiKey } = {}) {
           proactiveHint = `시간 경과(${elapsedHours}시간)에 따른 일주기 변화가 반영되었습니다. 자연스러운 인사말로 대화를 이어가세요.`;
         }
 
+        await storage.saveMind(mind);
+
         sendJson(res, 200, {
           mindId: mind.mindId,
           elapsedHours,
@@ -1259,8 +1365,8 @@ export function createSandboxApp({ apiKey } = {}) {
       const memMatch = subPath.match(/^memories\/([^/]+)$/);
       if (method === 'DELETE' && memMatch) {
         const memoryId = decodeURIComponent(memMatch[1]);
-        const receipt = purgeMemoryAtomically(mind, memoryId);
-        if (!receipt) {
+        const purged = purgeMemoryAtomically(mind, memoryId);
+        if (!purged) {
           sendJson(res, 404, {
             error: 'MEMORY_NOT_FOUND',
             code: 'MEMORY_NOT_FOUND',
@@ -1268,7 +1374,12 @@ export function createSandboxApp({ apiKey } = {}) {
           });
           return;
         }
-        sendJson(res, 200, receipt);
+        await storage.deleteMemoryAndRevoke(mindId, memoryId, {
+          ...purged.receipt,
+          excludedDerivativeIds: purged.excludedDerivativeIds,
+          revokedAt: new Date().toISOString(),
+        });
+        sendJson(res, 200, purged.receipt);
         return;
       }
 

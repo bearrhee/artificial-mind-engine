@@ -1,11 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
+import fs from 'node:fs';
+import os from 'node:os';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 import { createSandboxApp } from '../src/app.mjs';
+import {
+  createPostgresRedisHooks,
+  createStorage,
+  POSTGRES_DDL_REF,
+} from '../src/storage.mjs';
 import { AmeApiError, AmeClient, createLlmAdapter, runTurnWithLocalLlm } from '../../sdk-ts/src/index.mjs';
 
 async function startServer(server) {
@@ -374,5 +381,201 @@ test('bin/serve.mjs CLI boots on AME_PORT=0, prints Sealed Kernel notice, and se
     child.kill();
     await new Promise((resolve) => child.once('exit', resolve));
   }
+});
+
+test('GET / serves standalone Demo Console HTML publicly with interactive endpoints and zero CDN scripts', async () => {
+  const server = createSandboxApp({ apiKey: 'demo-console-secret' });
+  const baseUrl = await startServer(server);
+  try {
+    const res = await fetch(`${baseUrl}/`);
+    assert.equal(res.status, 200);
+    assert.match(res.headers.get('content-type') || '', /text\/html/i);
+
+    const html = await res.text();
+    assert.match(html, /Artificial Mind Engine/i);
+    assert.match(html, /\/v1\/health/);
+    assert.match(html, /\/v1\/minds/);
+    assert.match(html, /\/turn/);
+    assert.match(html, /\/prepare/);
+    assert.match(html, /\/settle/);
+    assert.match(html, /\/idle-tick/);
+    assert.match(html, /\/memories\//);
+    assert.match(html, /\/telemetry/);
+    assert.match(html, /X-AME-API-Key/);
+    assert.match(html, /game_npc/);
+    assert.match(html, /companion_chat/);
+    assert.match(html, /counseling_coach/);
+    assert.match(html, /openai-compat/);
+
+    // Zero external CDN script/stylesheet links
+    assert.equal(/<script[^>]+src=/i.test(html), false);
+    assert.equal(/<link[^>]+href=/i.test(html), false);
+    assert.equal(/https?:\/\/(cdn\.|unpkg\.com|cdn\.jsdelivr\.net|fonts\.googleapis\.com)/i.test(html), false);
+
+    // Every inline <script> parses cleanly via Node new Function(...)
+    const scriptMatches = [...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/gi)];
+    assert.ok(scriptMatches.length >= 1);
+    for (const match of scriptMatches) {
+      assert.doesNotThrow(() => new Function(match[1]));
+    }
+  } finally {
+    await stopServer(server);
+  }
+});
+
+test('File persistence preserves Mind state, KV epochs, and D3 revocations across restarts with 0% resurrection', async () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ame-sandbox-persist-'));
+  const storagePath = path.join(tmpDir, 'state.json');
+  const secretToken = 'PHOENIX-909';
+
+  try {
+    // Boot #1: create Mind, store secret memory, recall it (creating derivative), trigger somatic/FEP shift, revoke memory
+    const server1 = createSandboxApp({ storageMode: 'file', storagePath });
+    const baseUrl1 = await startServer(server1);
+    let mindId;
+    let secretMemoryId;
+
+    try {
+      const client1 = new AmeClient({ baseUrl: baseUrl1 });
+      const mind = await client1.createMind({
+        domain: 'companion_chat',
+        persona: { name: '미르', role: '지속 기억 파트너' },
+      });
+      mindId = mind.mindId;
+
+      const t1 = await client1.turn(mindId, {
+        userInput: `내 비밀 코드는 ${secretToken}이야 꼭 기억해둬.`,
+        llm: { provider: 'mock', model: 'ame-mock-v1' },
+      });
+      secretMemoryId = t1.memoryRefs[0].memoryId;
+      assert.equal(t1.turnIndex, 1);
+
+      // Turn 2 recalls secret before revocation (creates derivative history & memory entry)
+      const t2 = await client1.turn(mindId, {
+        userInput: '내가 아까 말한 비밀 코드가 뭐였지?',
+        llm: { provider: 'mock', model: 'ame-mock-v1' },
+      });
+      assert.ok(t2.reply.includes(secretToken));
+
+      // Turn 3 shifts FEP/somatic state
+      const t3 = await client1.turn(mindId, {
+        userInput: '갑자기 약속이 어긋나서 손실이 생겼어.',
+        rewardSignal: -6,
+        outcomeTags: ['betrayal', 'loss'],
+        llm: { provider: 'mock', model: 'ame-mock-v1' },
+      });
+      assert.equal(t3.turnIndex, 3);
+      assert.equal(t3.telemetry.fepMode, 'locked_high_fe');
+
+      // D3 atomic revocation before restart
+      const receipt = await client1.revokeMemory(mindId, secretMemoryId);
+      assert.equal(receipt.revoked, true);
+      assert.equal(receipt.revocationEpoch, 2);
+      assert.equal(receipt.residualLeakCheck, '0.00%');
+    } finally {
+      await stopServer(server1);
+    }
+
+    assert.equal(fs.existsSync(storagePath), true);
+
+    // Boot #2: new server instance pointing at same storagePath
+    const server2 = createSandboxApp({ storageMode: 'file', storagePath });
+    const baseUrl2 = await startServer(server2);
+    try {
+      const client2 = new AmeClient({ baseUrl: baseUrl2 });
+
+      const health2 = await client2.health();
+      assert.equal(health2.storageMode, 'file');
+
+      const summaryAfter = await client2.getMind(mindId);
+      assert.equal(summaryAfter.mindId, mindId);
+      assert.equal(summaryAfter.turnCount, 3);
+      assert.equal(summaryAfter.revocationEpoch, 2);
+      assert.equal(summaryAfter.telemetry.kvPrefixEpoch, 2);
+      assert.equal(summaryAfter.telemetry.revocationEpoch, 2);
+      assert.equal(summaryAfter.telemetry.d4Redacted, true);
+
+      // Active memories endpoint omits revoked secret and exposes 0% leaked token
+      const memRes = await fetch(`${baseUrl2}/v1/minds/${encodeURIComponent(mindId)}/memories`).then((r) => r.json());
+      assert.equal(memRes.memories.some((m) => m.memoryId === secretMemoryId), false);
+      assert.equal(JSON.stringify(memRes).includes(secretToken), false);
+
+      // Post-restart prepare & turn prove ZERO resurrection of revoked memory or derivative leak
+      const prepAfter = await client2.prepare(mindId, {
+        userInput: '내가 아까 말한 비밀 코드가 뭐였지?',
+      });
+      assert.equal(prepAfter.kvCacheEpoch, 2);
+      assert.equal(prepAfter.systemPrompt.includes(secretToken), false);
+      for (const msg of prepAfter.messages) {
+        assert.equal(msg.content.includes(secretToken), false);
+      }
+
+      const turnAfter = await client2.turn(mindId, {
+        userInput: '내가 아까 말한 비밀 코드가 뭐였지?',
+        llm: { provider: 'mock', model: 'ame-mock-v1' },
+      });
+      assert.equal(turnAfter.turnIndex, 4);
+      assert.equal(turnAfter.reply.includes(secretToken), false);
+      assert.equal(turnAfter.telemetry.revocationEpoch, 2);
+    } finally {
+      await stopServer(server2);
+    }
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+});
+
+test('Storage module aligns POSTGRES_DDL_REF with deploy/init.sql and provides clean postgres-redis hooks', async () => {
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const initSqlPath = path.resolve(__dirname, '../../../deploy/init.sql');
+  const initSql = fs.readFileSync(initSqlPath, 'utf8');
+
+  assert.equal(POSTGRES_DDL_REF.embeddingDimension, 1024);
+  for (const tableName of ['ame_minds', 'ame_memories', 'ame_turn_log', 'ame_revocation_audit']) {
+    assert.ok(tableName in POSTGRES_DDL_REF.tables);
+    assert.ok(initSql.includes(`CREATE TABLE IF NOT EXISTS ${tableName}`));
+  }
+  assert.ok(initSql.includes('CREATE EXTENSION IF NOT EXISTS vector'));
+  assert.ok(initSql.includes('vector(1024)'));
+
+  assert.throws(
+    () => createStorage({ mode: 'postgres-redis' }),
+    /requires injected \{ pg, redis \}/i
+  );
+
+  const sqlCalls = [];
+  const redisCalls = [];
+  const hooks = createPostgresRedisHooks({
+    pg: {
+      query: async (sql, params) => {
+        sqlCalls.push({ sql, params });
+        return { rows: [] };
+      },
+    },
+    redis: {
+      set: async (k, v) => redisCalls.push(['set', k, v]),
+      sadd: async (k, ...v) => redisCalls.push(['sadd', k, ...v]),
+    },
+  });
+
+  await hooks.saveMind({
+    mindId: 'mind_pg1',
+    domain: 'game_npc',
+    persona: { name: 'Kael', role: 'Guard' },
+    memories: [],
+    history: [],
+    pendingTickets: new Map(),
+    revokedMemoryIds: new Set(),
+    excludedDerivativeIds: new Set(),
+  });
+  await hooks.deleteMemoryAndRevoke('mind_pg1', 'mem_1', {
+    revocationEpoch: 2,
+    excludedDerivativeIds: ['mem_2'],
+  });
+
+  assert.ok(sqlCalls.some((c) => c.sql.includes('INSERT INTO ame_minds')));
+  assert.ok(sqlCalls.some((c) => c.sql.includes('INSERT INTO ame_revocation_audit')));
+  assert.ok(redisCalls.some((c) => c[0] === 'set' && c[1] === 'ame:mind:mind_pg1:revocation_epoch'));
+  assert.ok(redisCalls.some((c) => c[0] === 'sadd' && c[1] === 'ame:mind:mind_pg1:revoked_memories'));
 });
 

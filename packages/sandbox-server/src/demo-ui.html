@@ -1,0 +1,1432 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AME — Artificial Mind Engine Live Interactive Console</title>
+  <style>
+    :root {
+      --bg: #080d17;
+      --bg-elev: #0f172a;
+      --bg-card: #111c33;
+      --bg-input: #0b1324;
+      --border: #233252;
+      --border-hi: #3b82f6;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --accent: #38bdf8;
+      --accent-2: #818cf8;
+      --good: #34d399;
+      --warn: #fbbf24;
+      --danger: #f87171;
+      --radius: 10px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at 15% 10%, #13213d 0%, var(--bg) 50%, #050911 100%);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 13px;
+      line-height: 1.45;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 18px;
+      background: rgba(8, 13, 23, 0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      color: #07101f;
+      font-size: 14px;
+      letter-spacing: -0.5px;
+    }
+    .brand-title { font-weight: 700; font-size: 15px; }
+    .brand-sub { color: var(--text-muted); font-size: 11px; }
+
+    .topbar-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-elev);
+      font-size: 11px;
+      font-family: var(--mono);
+      color: var(--text-muted);
+    }
+    .pill.ok { border-color: rgba(52, 211, 153, 0.4); color: var(--good); background: rgba(16, 185, 129, 0.08); }
+    .pill.warn { border-color: rgba(251, 191, 36, 0.4); color: var(--warn); background: rgba(245, 158, 11, 0.08); }
+    .pill.danger { border-color: rgba(248, 113, 113, 0.45); color: var(--danger); background: rgba(239, 68, 68, 0.1); }
+    .pill.accent { border-color: rgba(56, 189, 248, 0.4); color: var(--accent); background: rgba(56, 189, 248, 0.08); }
+
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 330px minmax(420px, 1fr) 380px;
+      gap: 14px;
+      padding: 14px 18px 28px;
+      max-width: 1760px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1280px) {
+      .layout { grid-template-columns: 320px 1fr; }
+      .col-right { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; }
+    }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    .col { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 13px 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(35, 50, 82, 0.7);
+    }
+    .card-title {
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    input[type="text"], input[type="password"], input[type="number"], select, textarea {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--text);
+      padding: 7px 9px;
+      font-family: var(--sans);
+      font-size: 12px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--border-hi);
+    }
+    textarea { resize: vertical; min-height: 62px; }
+    .mono { font-family: var(--mono); }
+
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .field { margin-bottom: 9px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-elev);
+      color: var(--text);
+      border-radius: 7px;
+      padding: 6px 11px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, transform 0.05s;
+    }
+    .btn:hover:not(:disabled) { background: #182644; border-color: #3b5383; }
+    .btn:active:not(:disabled) { transform: translateY(1px); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn.primary {
+      background: linear-gradient(135deg, #0284c7, #4f46e5);
+      border-color: #38bdf8;
+      color: #fff;
+    }
+    .btn.primary:hover:not(:disabled) { background: linear-gradient(135deg, #0369a1, #4338ca); }
+    .btn.good { background: rgba(16, 185, 129, 0.16); border-color: rgba(52, 211, 153, 0.5); color: var(--good); }
+    .btn.danger { background: rgba(239, 68, 68, 0.15); border-color: rgba(248, 113, 113, 0.55); color: #fca5a5; }
+    .btn.danger:hover:not(:disabled) { background: rgba(239, 68, 68, 0.28); }
+    .btn.sm { padding: 4px 8px; font-size: 11px; }
+
+    .checks { display: flex; flex-wrap: wrap; gap: 10px; margin: 6px 0 10px; }
+    .check-item { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-muted); cursor: pointer; margin: 0; }
+    .check-item input { width: auto; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .chip {
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      color: var(--text-muted);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .chip:hover { border-color: var(--accent); color: var(--text); }
+
+    .mind-list { display: flex; flex-direction: column; gap: 6px; max-height: 170px; overflow-y: auto; }
+    .mind-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 7px 9px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      cursor: pointer;
+    }
+    .mind-item.active { border-color: var(--accent); background: rgba(56, 189, 248, 0.08); }
+
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 620px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+    .turn-card {
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .turn-card.revocation { border-color: rgba(248, 113, 113, 0.45); background: rgba(127, 29, 29, 0.14); }
+    .turn-card.idle { border-color: rgba(251, 191, 36, 0.4); background: rgba(120, 53, 15, 0.14); }
+
+    .turn-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+      font-size: 11px;
+    }
+    .msg-user {
+      padding: 6px 9px;
+      border-left: 3px solid var(--accent-2);
+      background: rgba(129, 140, 248, 0.07);
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 6px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .msg-reply {
+      padding: 7px 9px;
+      border-left: 3px solid var(--good);
+      background: rgba(52, 211, 153, 0.06);
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 7px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .domain-kv {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 6px;
+    }
+    .kv-tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 5px;
+      background: rgba(30, 41, 59, 0.85);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .metric-box {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 7px 9px;
+    }
+    .metric-lbl { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.4px; }
+    .metric-val { font-family: var(--mono); font-size: 13px; font-weight: 700; margin-top: 2px; }
+    .bar-track {
+      height: 5px;
+      background: #1e293b;
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 5px;
+    }
+    .bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width 0.25s; }
+
+    .mem-list { display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto; }
+    .mem-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 7px 9px;
+      border-radius: 7px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+    }
+    .mem-text { min-width: 0; flex: 1; }
+    .mem-id { font-family: var(--mono); font-size: 10px; color: var(--accent); }
+    .mem-sum { font-size: 12px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .json-pre {
+      background: #050911;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 9px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #cbd5e1;
+      max-height: 250px;
+      overflow: auto;
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .modeb-box {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px dashed rgba(56, 189, 248, 0.55);
+      background: rgba(14, 116, 144, 0.08);
+    }
+
+    .banner-err {
+      padding: 8px 11px;
+      border-radius: 7px;
+      border: 1px solid rgba(248, 113, 113, 0.5);
+      background: rgba(239, 68, 68, 0.12);
+      color: #fecaca;
+      font-size: 12px;
+      margin-bottom: 10px;
+      display: none;
+    }
+    .hidden { display: none !important; }
+    .muted { color: var(--text-muted); font-size: 11px; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-logo">AME</div>
+      <div>
+        <div class="brand-title" data-i18n="title">Artificial Mind Engine — Live Interactive Console</div>
+        <div class="brand-sub" data-i18n="subtitle">Stateless LLM Hot-Swap • Mode A/B • D2 Circadian • D3 Atomic Forget • D4 Redacted Telemetry</div>
+      </div>
+    </div>
+
+    <div class="topbar-controls">
+      <span id="healthBadge" class="pill warn"><span class="dot"></span><span id="healthText">Checking /v1/health...</span></span>
+      <span id="storageBadge" class="pill accent">storage: -</span>
+      <div style="display:flex;align-items:center;gap:4px;">
+        <input id="apiKeyInput" type="password" placeholder="X-AME-API-Key (optional)" style="width:175px;" />
+        <button id="toggleKeyBtn" class="btn sm" type="button">👁</button>
+      </div>
+      <button id="refreshHealthBtn" class="btn sm" type="button" data-i18n="btnHealth">Health</button>
+      <button id="langToggleBtn" class="btn sm" type="button">KO / EN</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- LEFT COLUMN: Minds + Create Mind + LLM Hot-Swap -->
+    <section class="col">
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title" data-i18n="hdrMinds">1. Active Minds</div>
+          <button id="refreshMindsBtn" class="btn sm" type="button" data-i18n="btnReload">Reload</button>
+        </div>
+        <div id="mindsList" class="mind-list">
+          <div class="muted" data-i18n="emptyMinds">No Minds yet. Create one below.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title" data-i18n="hdrCreate">2. Create Isolated Mind</div>
+          <span class="pill">POST /v1/minds</span>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label for="domainSelect" data-i18n="lblDomain">Domain</label>
+            <select id="domainSelect">
+              <option value="companion_chat">companion_chat</option>
+              <option value="game_npc">game_npc</option>
+              <option value="counseling_coach">counseling_coach</option>
+              <option value="custom">custom</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="personaLang" data-i18n="lblLang">Language</label>
+            <select id="personaLang">
+              <option value="ko">ko</option>
+              <option value="en">en</option>
+            </select>
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label for="personaName" data-i18n="lblName">Persona Name</label>
+            <input id="personaName" type="text" value="다온" />
+          </div>
+          <div class="field">
+            <label for="personaRole" data-i18n="lblRole">Role</label>
+            <input id="personaRole" type="text" value="근거 기반 AI 파트너" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="personaBackstory" data-i18n="lblBackstory">Backstory</label>
+          <input id="personaBackstory" type="text" value="대화의 기억과 안전 경계를 일관되게 유지하는 페르소나" />
+        </div>
+        <div id="customSchemaGroup" class="field hidden">
+          <div class="row-2">
+            <div>
+              <label for="customSchemaName" data-i18n="lblSchemaName">Custom Schema Name</label>
+              <input id="customSchemaName" type="text" value="triage_record" />
+            </div>
+            <div>
+              <label for="customSchemaFields" data-i18n="lblSchemaFields">Fields (comma-separated)</label>
+              <input id="customSchemaFields" type="text" value="reply,summary,confidence,auditTag" />
+            </div>
+          </div>
+        </div>
+        <div class="checks">
+          <label class="check-item"><input id="polAbstention" type="checkbox" checked /> strictAbstention</label>
+          <label class="check-item"><input id="polAntiSyc" type="checkbox" checked /> antiSycophancy</label>
+          <label class="check-item"><input id="polCrisis" type="checkbox" checked /> crisisEscalation</label>
+        </div>
+        <button id="createMindBtn" class="btn primary" style="width:100%;" type="button" data-i18n="btnCreateMind">Create Mind</button>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title" data-i18n="hdrLlm">3. LLM Hot-Swap &amp; Mode</div>
+          <span class="pill">BYO-LLM</span>
+        </div>
+        <div class="field">
+          <label for="execModeSelect" data-i18n="lblExecMode">Execution Mode</label>
+          <select id="execModeSelect">
+            <option value="modeA">Mode A — Proxy BYO-LLM (/turn)</option>
+            <option value="modeB">Mode B — Zero-Key (/prepare → /settle)</option>
+          </select>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label for="llmProviderSelect" data-i18n="lblProvider">Provider</label>
+            <select id="llmProviderSelect">
+              <option value="mock">mock (Zero-Key Sim)</option>
+              <option value="openai">openai</option>
+              <option value="anthropic">anthropic</option>
+              <option value="gemini">gemini</option>
+              <option value="deepseek">deepseek</option>
+              <option value="openrouter">openrouter</option>
+              <option value="openai-compat">openai-compat (Ollama/vLLM)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="llmModelInput" data-i18n="lblModel">Model</label>
+            <input id="llmModelInput" type="text" value="ame-mock-v1" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="llmApiKeyInput" data-i18n="lblLlmKey">Ephemeral LLM API Key (Mode A only, never stored)</label>
+          <input id="llmApiKeyInput" type="password" placeholder="Optional for mock / local Ollama" />
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label for="llmBaseUrlInput" data-i18n="lblBaseUrl">Optional Base URL (for openai-compat / proxy)</label>
+          <input id="llmBaseUrlInput" type="text" placeholder="http://127.0.0.1:11434/v1" />
+        </div>
+      </div>
+    </section>
+
+    <!-- CENTER COLUMN: Turn Composer + Mode B Staging + Timeline -->
+    <section class="col">
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title" data-i18n="hdrTurn">4. Cognitive Turn Composer</div>
+          <span id="activeMindBadge" class="pill">No Mind selected</span>
+        </div>
+
+        <div id="errorBanner" class="banner-err"></div>
+
+        <label data-i18n="lblPresets">VC Demo Scenario Presets</label>
+        <div class="chips" id="presetChips">
+          <button class="chip" type="button" data-preset="secret">🔐 Secret Memory (ZEBRA-404)</button>
+          <button class="chip" type="button" data-preset="recall">🧠 Recall Probe</button>
+          <button class="chip" type="button" data-preset="conflict">⚡ Conflict / Loss (FEP Lock)</button>
+          <button class="chip" type="button" data-preset="abstain">🛑 HOT Abstention Probe</button>
+          <button class="chip" type="button" data-preset="positive">✨ Positive Trust (+5)</button>
+          <button class="chip" type="button" data-preset="crisis">🆘 Crisis Guardrail</button>
+        </div>
+
+        <div class="field">
+          <label for="userInput" data-i18n="lblUserInput">User Input</label>
+          <textarea id="userInput" placeholder="메시지를 입력하거나 위의 시나리오 프리셋을 클릭하세요..."></textarea>
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label for="rewardInput" data-i18n="lblReward">Reward Signal (optional, -1000..1000)</label>
+            <input id="rewardInput" type="number" step="1" placeholder="e.g. -8 or 5" />
+          </div>
+          <div class="field">
+            <label for="tagsInput" data-i18n="lblTags">Outcome Tags (comma-separated)</label>
+            <input id="tagsInput" type="text" placeholder="betrayal, loss, reward, trust" />
+          </div>
+        </div>
+
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <button id="sendModeABtn" class="btn primary" type="button" data-i18n="btnSendModeA">Send Turn (Mode A)</button>
+          <button id="prepareModeBBtn" class="btn good" type="button" data-i18n="btnPrepare">Mode B: 1. Prepare</button>
+        </div>
+
+        <div id="modeBStage" class="modeb-box hidden">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <strong style="color:var(--accent);" data-i18n="hdrModeBStage">Mode B Zero-Key Prepared Ticket</strong>
+            <span id="ticketBadge" class="pill accent mono"></span>
+          </div>
+          <div class="domain-kv" id="prepFlags" style="margin-bottom:8px;"></div>
+          <div class="field">
+            <label for="prepSystemPrompt" data-i18n="lblSysPrompt">Prefix-Aligned System Prompt (read-only)</label>
+            <textarea id="prepSystemPrompt" class="mono" style="min-height:85px;" readonly></textarea>
+          </div>
+          <div class="field">
+            <label for="modeBRawReply" data-i18n="lblRawReply">Client LLM Raw Reply (editable before /settle)</label>
+            <textarea id="modeBRawReply" class="mono" style="min-height:66px;"></textarea>
+          </div>
+          <button id="settleModeBBtn" class="btn primary" type="button" data-i18n="btnSettle">Mode B: 2. Settle Turn</button>
+        </div>
+      </div>
+
+      <div class="card" style="flex:1;">
+        <div class="card-hdr">
+          <div class="card-title" data-i18n="hdrTimeline">Turn &amp; Audit Timeline</div>
+          <button id="clearTimelineBtn" class="btn sm" type="button" data-i18n="btnClear">Clear View</button>
+        </div>
+        <div id="timeline" class="timeline">
+          <div class="muted" data-i18n="emptyTimeline">Run a turn, idle-tick, or D3 revocation to inspect live cognitive state transitions.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT COLUMN: D4 Telemetry + D2 Idle Tick + D3 Memories + Raw JSON -->
+    <section class="col col-right">
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title" data-i18n="hdrTelemetry">D4 Redacted Telemetry</div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span id="d4Badge" class="pill ok">d4Redacted: -</span>
+            <button id="refreshTelBtn" class="btn sm" type="button">↻</button>
+          </div>
+        </div>
+        <div class="metric-grid">
+          <div class="metric-box">
+            <div class="metric-lbl">affectiveBand</div>
+            <div class="metric-val" id="telBand">-</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-lbl">fepMode</div>
+            <div class="metric-val" id="telFepMode">-</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-lbl">freeEnergy</div>
+            <div class="metric-val" id="telFreeEnergy">-</div>
+            <div class="bar-track"><div id="barFreeEnergy" class="bar-fill" style="width:0%;"></div></div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-lbl">KV Prefix Cache</div>
+            <div class="metric-val" id="telKvCache">-</div>
+            <div class="bar-track"><div id="barKvCache" class="bar-fill" style="width:0%;"></div></div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-lbl">somaticTrend</div>
+            <div class="metric-val" id="telSomatic">-</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-lbl">Epochs / Memories</div>
+            <div class="metric-val" id="telEpochs">-</div>
+          </div>
+        </div>
+        <div class="muted" style="margin-top:8px;" data-i18n="d4Notice">
+          D4 Firewall: Layer 0–1 internal endocrine/unconscious vectors are strictly redacted.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title" data-i18n="hdrIdle">D2 Circadian Idle Tick</div>
+          <span class="pill">POST /idle-tick</span>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label for="idleHoursInput" data-i18n="lblIdleHours">Elapsed Hours (0..720)</label>
+            <input id="idleHoursInput" type="number" min="0" max="720" value="36" />
+          </div>
+          <div class="field">
+            <label for="idleReasonInput" data-i18n="lblIdleReason">Reason</label>
+            <input id="idleReasonInput" type="text" value="user_away_weekend" />
+          </div>
+        </div>
+        <div class="chips" style="margin-bottom:8px;">
+          <button class="chip idle-preset" type="button" data-hours="6">6h</button>
+          <button class="chip idle-preset" type="button" data-hours="24">24h</button>
+          <button class="chip idle-preset" type="button" data-hours="36">36h</button>
+          <button class="chip idle-preset" type="button" data-hours="72">72h</button>
+        </div>
+        <button id="idleTickBtn" class="btn" style="width:100%;" type="button" data-i18n="btnIdleTick">Trigger Idle Tick</button>
+        <div id="idleResultBox" class="muted" style="margin-top:8px;"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title" data-i18n="hdrD3">D3 Active Memories &amp; Atomic Forget</div>
+          <span class="pill danger">DELETE /memories/:id</span>
+        </div>
+        <div id="memoriesList" class="mem-list">
+          <div class="muted" data-i18n="emptyMemories">No active memories for this Mind.</div>
+        </div>
+        <div id="revocationReceiptBox" class="muted" style="margin-top:8px;"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-title" data-i18n="hdrInspector">Raw JSON Inspector</div>
+          <div style="display:flex;gap:4px;">
+            <button class="btn sm json-tab" type="button" data-tab="last">Last</button>
+            <button class="btn sm json-tab" type="button" data-tab="prepare">Prep</button>
+            <button class="btn sm json-tab" type="button" data-tab="telemetry">Tel</button>
+            <button class="btn sm json-tab" type="button" data-tab="health">Health</button>
+          </div>
+        </div>
+        <pre id="rawJsonPre" class="json-pre">{}</pre>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var I18N = {
+        ko: {
+          title: 'Artificial Mind Engine — 라이브 인터랙티브 데모 콘솔',
+          subtitle: '무상태 LLM 핫스왑 • Mode A/B • D2 일주기 • D3 원자적 망각 • D4 무의식 방화벽',
+          btnHealth: '상태확인',
+          hdrMinds: '1. 활성 Mind 목록',
+          btnReload: '새로고침',
+          emptyMinds: '아직 Mind가 없습니다. 아래에서 새 Mind를 생성하세요.',
+          hdrCreate: '2. 격리 Mind 생성',
+          lblDomain: '도메인',
+          lblLang: '언어',
+          lblName: '페르소나 이름',
+          lblRole: '역할',
+          lblBackstory: '배경 설정',
+          lblSchemaName: '커스텀 스키마 이름',
+          lblSchemaFields: '필드 (쉼표 구분)',
+          btnCreateMind: 'Mind 생성',
+          hdrLlm: '3. LLM 핫스왑 & 실행 모드',
+          lblExecMode: '실행 모드',
+          lblProvider: 'LLM 프로바이더',
+          lblModel: '모델명',
+          lblLlmKey: '임시 LLM API Key (Mode A 전용, 저장 안 됨)',
+          lblBaseUrl: '선택적 Base URL (openai-compat / 프록시)',
+          hdrTurn: '4. 인지 턴 컴포저',
+          lblPresets: 'VC 데모 시나리오 프리셋',
+          lblUserInput: '사용자 입력',
+          lblReward: '보상 신호 (선택, -1000..1000)',
+          lblTags: '결과 태그 (쉼표 구분)',
+          btnSendModeA: '턴 실행 (Mode A)',
+          btnPrepare: 'Mode B: 1단계 Prepare',
+          hdrModeBStage: 'Mode B Zero-Key 준비 티켓',
+          lblSysPrompt: 'Prefix 고정 System Prompt (읽기 전용)',
+          lblRawReply: '클라이언트 LLM 원문 응답 (/settle 전 편집 가능)',
+          btnSettle: 'Mode B: 2단계 Settle',
+          hdrTimeline: '턴 & 감사 타임라인',
+          btnClear: '화면 비우기',
+          emptyTimeline: '턴을 실행하거나 D2/D3 액션을 누르면 상태 변화가 표시됩니다.',
+          hdrTelemetry: 'D4 무의식 방화벽 텔레메트리',
+          d4Notice: 'D4 방화벽: Layer 0–1 내부 내분비·무의식 벡터는 엄격히 차단됩니다.',
+          hdrIdle: 'D2 오프라인 일주기 Idle Tick',
+          lblIdleHours: '경과 시간 (0..720시간)',
+          lblIdleReason: '사유',
+          btnIdleTick: 'Idle Tick 실행',
+          hdrD3: 'D3 활성 기억 & 원자적 망각',
+          emptyMemories: '이 Mind에 저장된 활성 기억이 없습니다.',
+          hdrInspector: 'Raw JSON 인스펙터'
+        },
+        en: {
+          title: 'Artificial Mind Engine — Live Interactive Console',
+          subtitle: 'Stateless LLM Hot-Swap • Mode A/B • D2 Circadian • D3 Atomic Forget • D4 Redacted Telemetry',
+          btnHealth: 'Health',
+          hdrMinds: '1. Active Minds',
+          btnReload: 'Reload',
+          emptyMinds: 'No Minds yet. Create one below.',
+          hdrCreate: '2. Create Isolated Mind',
+          lblDomain: 'Domain',
+          lblLang: 'Language',
+          lblName: 'Persona Name',
+          lblRole: 'Role',
+          lblBackstory: 'Backstory',
+          lblSchemaName: 'Custom Schema Name',
+          lblSchemaFields: 'Fields (comma-separated)',
+          btnCreateMind: 'Create Mind',
+          hdrLlm: '3. LLM Hot-Swap & Mode',
+          lblExecMode: 'Execution Mode',
+          lblProvider: 'Provider',
+          lblModel: 'Model',
+          lblLlmKey: 'Ephemeral LLM API Key (Mode A only, never stored)',
+          lblBaseUrl: 'Optional Base URL (openai-compat / proxy)',
+          hdrTurn: '4. Cognitive Turn Composer',
+          lblPresets: 'VC Demo Scenario Presets',
+          lblUserInput: 'User Input',
+          lblReward: 'Reward Signal (optional, -1000..1000)',
+          lblTags: 'Outcome Tags (comma-separated)',
+          btnSendModeA: 'Send Turn (Mode A)',
+          btnPrepare: 'Mode B: 1. Prepare',
+          hdrModeBStage: 'Mode B Zero-Key Prepared Ticket',
+          lblSysPrompt: 'Prefix-Aligned System Prompt (read-only)',
+          lblRawReply: 'Client LLM Raw Reply (editable before /settle)',
+          btnSettle: 'Mode B: 2. Settle Turn',
+          hdrTimeline: 'Turn & Audit Timeline',
+          btnClear: 'Clear View',
+          emptyTimeline: 'Run a turn, idle-tick, or D3 revocation to inspect live cognitive state transitions.',
+          hdrTelemetry: 'D4 Redacted Telemetry',
+          d4Notice: 'D4 Firewall: Layer 0–1 internal endocrine/unconscious vectors are strictly redacted.',
+          hdrIdle: 'D2 Circadian Idle Tick',
+          lblIdleHours: 'Elapsed Hours (0..720)',
+          lblIdleReason: 'Reason',
+          btnIdleTick: 'Trigger Idle Tick',
+          hdrD3: 'D3 Active Memories & Atomic Forget',
+          emptyMemories: 'No active memories for this Mind.',
+          hdrInspector: 'Raw JSON Inspector'
+        }
+      };
+
+      var DOMAIN_PRESETS = {
+        companion_chat: { name: '다온', role: '근거 기반 AI 파트너', backstory: '대화의 기억과 안전 경계를 일관되게 유지하는 페르소나' },
+        game_npc: { name: '라온', role: '북부 성문 수비대장', backstory: '수년간 성문을 지켜온 신중하고 기억력이 뛰어난 경비병' },
+        counseling_coach: { name: '서연', role: '회복 중심 코치', backstory: '과잉 동조 없이 현실적인 한 걸음을 돕는 안전 코치' },
+        custom: { name: 'Validator', role: 'Custom Contract Mind', backstory: '사용자 정의 JSON 스키마를 준수하는 도메인 마인드' }
+      };
+
+      var PROVIDER_DEFAULT_MODELS = {
+        mock: 'ame-mock-v1',
+        openai: 'gpt-4o-mini',
+        anthropic: 'claude-3-5-sonnet-latest',
+        gemini: 'gemini-2.5-flash',
+        deepseek: 'deepseek-chat',
+        openrouter: 'anthropic/claude-3.5-sonnet',
+        'openai-compat': 'llama3.2:latest'
+      };
+
+      var state = {
+        lang: 'ko',
+        minds: [],
+        activeMindId: null,
+        memories: [],
+        preparedTicket: null,
+        timeline: [],
+        jsonStore: {
+          last: {},
+          prepare: {},
+          telemetry: {},
+          health: {}
+        },
+        activeJsonTab: 'last'
+      };
+
+      function $(id) {
+        return document.getElementById(id);
+      }
+
+      function escapeHtml(value) {
+        return String(value == null ? '' : value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function showError(msg) {
+        var el = $('errorBanner');
+        if (!msg) {
+          el.style.display = 'none';
+          el.textContent = '';
+          return;
+        }
+        el.textContent = msg;
+        el.style.display = 'block';
+      }
+
+      function setJson(tab, data) {
+        state.jsonStore[tab] = data;
+        if (tab !== 'health') {
+          state.jsonStore.last = data;
+        }
+        renderRawJson();
+      }
+
+      function renderRawJson() {
+        var data = state.jsonStore[state.activeJsonTab] || {};
+        $('rawJsonPre').textContent = JSON.stringify(data, null, 2);
+      }
+
+      async function apiFetch(path, options) {
+        showError('');
+        var opts = options || {};
+        var headers = Object.assign({ Accept: 'application/json' }, opts.headers || {});
+        var apiKey = $('apiKeyInput').value.trim();
+        if (apiKey) {
+          headers['X-AME-API-Key'] = apiKey;
+        }
+        if (opts.body !== undefined) {
+          headers['Content-Type'] = 'application/json';
+        }
+        var res = await fetch(path, {
+          method: opts.method || 'GET',
+          headers: headers,
+          body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined
+        });
+        var text = await res.text();
+        var data = null;
+        try {
+          data = text ? JSON.parse(text) : null;
+        } catch (err) {
+          data = { rawText: text };
+        }
+        if (!res.ok) {
+          var errMsg = (data && (data.message || data.error)) || ('HTTP ' + res.status);
+          var e = new Error(errMsg + ' (' + res.status + ')');
+          e.status = res.status;
+          e.data = data;
+          throw e;
+        }
+        return data;
+      }
+
+      function applyI18n() {
+        var dict = I18N[state.lang] || I18N.en;
+        var nodes = document.querySelectorAll('[data-i18n]');
+        for (var i = 0; i < nodes.length; i += 1) {
+          var key = nodes[i].getAttribute('data-i18n');
+          if (dict[key]) nodes[i].textContent = dict[key];
+        }
+      }
+
+      function renderMinds() {
+        var container = $('mindsList');
+        if (!state.minds.length) {
+          container.innerHTML = '<div class="muted">' + escapeHtml(I18N[state.lang].emptyMinds) + '</div>';
+          return;
+        }
+        var html = '';
+        for (var i = 0; i < state.minds.length; i += 1) {
+          var m = state.minds[i];
+          var isActive = m.mindId === state.activeMindId;
+          html += '<div class="mind-item' + (isActive ? ' active' : '') + '" data-mind-id="' + escapeHtml(m.mindId) + '">';
+          html += '<div><div style="font-weight:700;">' + escapeHtml(m.personaName) + ' <span class="pill" style="padding:1px 6px;">' + escapeHtml(m.domain) + '</span></div>';
+          html += '<div class="mono muted">' + escapeHtml(m.mindId) + ' • T' + escapeHtml(m.turnCount) + ' • Ep' + escapeHtml(m.revocationEpoch) + '</div></div>';
+          html += '<span class="pill ok">' + escapeHtml(m.telemetry ? m.telemetry.affectiveBand : '-') + '</span>';
+          html += '</div>';
+        }
+        container.innerHTML = html;
+
+        var rows = container.querySelectorAll('[data-mind-id]');
+        for (var j = 0; j < rows.length; j += 1) {
+          rows[j].addEventListener('click', function () {
+            selectMind(this.getAttribute('data-mind-id'));
+          });
+        }
+      }
+
+      function renderTelemetry(tel) {
+        if (!tel) {
+          $('d4Badge').textContent = 'd4Redacted: -';
+          $('telBand').textContent = '-';
+          $('telFepMode').textContent = '-';
+          $('telFreeEnergy').textContent = '-';
+          $('telKvCache').textContent = '-';
+          $('telSomatic').textContent = '-';
+          $('telEpochs').textContent = '-';
+          $('barFreeEnergy').style.width = '0%';
+          $('barKvCache').style.width = '0%';
+          return;
+        }
+        $('d4Badge').textContent = 'd4Redacted: ' + String(Boolean(tel.d4Redacted));
+        $('telBand').textContent = tel.affectiveBand || '-';
+        $('telFepMode').textContent = tel.fepMode || '-';
+        $('telFreeEnergy').textContent = String(tel.freeEnergy != null ? tel.freeEnergy : '-');
+        $('telKvCache').textContent = (tel.estimatedPrefixCachePct != null ? tel.estimatedPrefixCachePct : 0) + '%';
+        $('telSomatic').textContent = tel.somaticTrend || '-';
+        $('telEpochs').textContent = 'KV ' + tel.kvPrefixEpoch + ' / Rev ' + tel.revocationEpoch + ' / Mem ' + tel.activeMemoryCount;
+
+        var fePct = Math.min(100, Math.max(0, Number(tel.freeEnergy || 0) * 100));
+        var kvPct = Math.min(100, Math.max(0, Number(tel.estimatedPrefixCachePct || 0)));
+        $('barFreeEnergy').style.width = fePct.toFixed(0) + '%';
+        $('barKvCache').style.width = kvPct.toFixed(0) + '%';
+        state.jsonStore.telemetry = tel;
+        if (state.activeJsonTab === 'telemetry') renderRawJson();
+      }
+
+      function renderMemories() {
+        var box = $('memoriesList');
+        if (!state.memories.length) {
+          box.innerHTML = '<div class="muted">' + escapeHtml(I18N[state.lang].emptyMemories) + '</div>';
+          return;
+        }
+        var html = '';
+        for (var i = 0; i < state.memories.length; i += 1) {
+          var mem = state.memories[i];
+          html += '<div class="mem-row">';
+          html += '<div class="mem-text">';
+          html += '<div class="mem-id">' + escapeHtml(mem.memoryId) + ' • T' + escapeHtml(mem.turnIndex || '-') + ' • sal ' + escapeHtml(mem.salience) + '</div>';
+          html += '<div class="mem-sum" title="' + escapeHtml(mem.summary) + '">' + escapeHtml(mem.summary) + '</div>';
+          html += '</div>';
+          html += '<button class="btn danger sm revoke-btn" type="button" data-mem-id="' + escapeHtml(mem.memoryId) + '">D3 Forget</button>';
+          html += '</div>';
+        }
+        box.innerHTML = html;
+
+        var btns = box.querySelectorAll('.revoke-btn');
+        for (var j = 0; j < btns.length; j += 1) {
+          btns[j].addEventListener('click', function () {
+            revokeMemory(this.getAttribute('data-mem-id'));
+          });
+        }
+      }
+
+      function renderTimeline() {
+        var box = $('timeline');
+        if (!state.timeline.length) {
+          box.innerHTML = '<div class="muted">' + escapeHtml(I18N[state.lang].emptyTimeline) + '</div>';
+          return;
+        }
+        var html = '';
+        for (var i = state.timeline.length - 1; i >= 0; i -= 1) {
+          var item = state.timeline[i];
+          if (item.kind === 'revoke') {
+            var r = item.receipt;
+            html += '<div class="turn-card revocation">';
+            html += '<div class="turn-meta"><span class="pill danger">D3 ATOMIC FORGET</span><span class="mono">' + escapeHtml(r.memoryId) + '</span><span class="pill ok">leak ' + escapeHtml(r.residualLeakCheck) + '</span><span class="pill">epoch ' + escapeHtml(r.revocationEpoch) + '</span></div>';
+            html += '<div class="mono muted">auditReceiptId: ' + escapeHtml(r.auditReceiptId) + '</div>';
+            html += '</div>';
+            continue;
+          }
+          if (item.kind === 'idle') {
+            var d = item.idle;
+            html += '<div class="turn-card idle">';
+            html += '<div class="turn-meta"><span class="pill warn">D2 IDLE TICK</span><span class="pill">' + escapeHtml(d.elapsedHours) + 'h</span><span class="mono">homeostasis ' + escapeHtml(d.homeostasisBefore) + ' → ' + escapeHtml(d.homeostasisAfter) + '</span></div>';
+            html += '<div>' + escapeHtml(d.proactiveHint || '') + '</div>';
+            html += '</div>';
+            continue;
+          }
+          var t = item.turn;
+          html += '<div class="turn-card">';
+          html += '<div class="turn-meta">';
+          html += '<span class="pill accent">Turn #' + escapeHtml(t.turnIndex) + '</span>';
+          html += '<span class="pill">' + escapeHtml(t.providerUsed) + ' / ' + escapeHtml(t.modelUsed) + '</span>';
+          html += '<span class="pill ' + (t.telemetry && t.telemetry.fepMode === 'locked_high_fe' ? 'warn' : 'ok') + '">' + escapeHtml(t.telemetry ? t.telemetry.fepMode : '-') + '</span>';
+          if (t.telemetry && t.telemetry.hotAbstained) {
+            html += '<span class="pill danger">HOT ABSTAINED</span>';
+          }
+          html += '<span class="pill">KV ' + escapeHtml(t.kvCache ? t.kvCache.cachedRatioPct : 0) + '% (ep ' + escapeHtml(t.kvCache ? t.kvCache.epoch : 1) + ')</span>';
+          html += '</div>';
+          if (item.userInput) {
+            html += '<div class="msg-user">' + escapeHtml(item.userInput) + '</div>';
+          }
+          html += '<div class="msg-reply">' + escapeHtml(t.reply) + '</div>';
+          if (t.domainOutput && typeof t.domainOutput === 'object') {
+            html += '<div class="domain-kv">';
+            var keys = Object.keys(t.domainOutput);
+            for (var k = 0; k < keys.length; k += 1) {
+              var key = keys[k];
+              if (key === 'reply' || key === 'dialogue' || key === 'response') continue;
+              html += '<span class="kv-tag">' + escapeHtml(key) + ': ' + escapeHtml(JSON.stringify(t.domainOutput[key])) + '</span>';
+            }
+            html += '</div>';
+          }
+          if (Array.isArray(t.memoryRefs) && t.memoryRefs.length) {
+            html += '<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;">';
+            for (var m = 0; m < t.memoryRefs.length; m += 1) {
+              var ref = t.memoryRefs[m];
+              html += '<span class="pill mono">' + escapeHtml(ref.memoryId) + ' (sal ' + escapeHtml(ref.salience) + ')</span>';
+              html += '<button class="btn danger sm timeline-revoke" type="button" data-mem-id="' + escapeHtml(ref.memoryId) + '">D3 Forget</button>';
+            }
+            html += '</div>';
+          }
+          html += '</div>';
+        }
+        box.innerHTML = html;
+
+        var revokeBtns = box.querySelectorAll('.timeline-revoke');
+        for (var rIdx = 0; rIdx < revokeBtns.length; rIdx += 1) {
+          revokeBtns[rIdx].addEventListener('click', function () {
+            revokeMemory(this.getAttribute('data-mem-id'));
+          });
+        }
+      }
+
+      async function checkHealth() {
+        try {
+          var data = await apiFetch('/v1/health');
+          state.jsonStore.health = data;
+          if (state.activeJsonTab === 'health') renderRawJson();
+          $('healthBadge').className = 'pill ok';
+          $('healthText').textContent = data.mode + ' • v' + data.version;
+          $('storageBadge').textContent = 'storage: ' + (data.storageMode || 'memory');
+        } catch (err) {
+          $('healthBadge').className = 'pill danger';
+          $('healthText').textContent = 'Offline: ' + err.message;
+        }
+      }
+
+      async function loadMinds() {
+        try {
+          var res = await apiFetch('/v1/minds');
+          state.minds = Array.isArray(res.minds) ? res.minds : [];
+          if (!state.activeMindId && state.minds.length > 0) {
+            state.activeMindId = state.minds[0].mindId;
+          }
+          renderMinds();
+          if (state.activeMindId) {
+            await refreshActiveMind();
+          }
+        } catch (err) {
+          showError(err.message);
+        }
+      }
+
+      async function selectMind(mindId) {
+        state.activeMindId = mindId;
+        state.preparedTicket = null;
+        $('modeBStage').classList.add('hidden');
+        renderMinds();
+        await refreshActiveMind();
+      }
+
+      async function refreshActiveMind() {
+        if (!state.activeMindId) {
+          $('activeMindBadge').textContent = 'No Mind selected';
+          renderTelemetry(null);
+          state.memories = [];
+          renderMemories();
+          return;
+        }
+        try {
+          var results = await Promise.all([
+            apiFetch('/v1/minds/' + encodeURIComponent(state.activeMindId)),
+            apiFetch('/v1/minds/' + encodeURIComponent(state.activeMindId) + '/telemetry'),
+            apiFetch('/v1/minds/' + encodeURIComponent(state.activeMindId) + '/memories')
+          ]);
+          var summary = results[0];
+          var tel = results[1];
+          var memRes = results[2];
+
+          $('activeMindBadge').textContent = summary.personaName + ' (' + summary.mindId + ')';
+          renderTelemetry(tel);
+          state.memories = Array.isArray(memRes.memories) ? memRes.memories : [];
+          renderMemories();
+
+          var idx = state.minds.findIndex(function (m) { return m.mindId === summary.mindId; });
+          if (idx >= 0) state.minds[idx] = summary;
+          else state.minds.unshift(summary);
+          renderMinds();
+        } catch (err) {
+          showError(err.message);
+        }
+      }
+
+      async function createMind() {
+        try {
+          var domain = $('domainSelect').value;
+          var payload = {
+            domain: domain,
+            persona: {
+              name: $('personaName').value.trim() || '다온',
+              role: $('personaRole').value.trim() || 'AI 파트너',
+              backstory: $('personaBackstory').value.trim(),
+              language: $('personaLang').value
+            },
+            safetyPolicy: {
+              strictAbstention: $('polAbstention').checked,
+              antiSycophancy: $('polAntiSyc').checked,
+              crisisEscalation: $('polCrisis').checked
+            }
+          };
+          if (domain === 'custom') {
+            var fields = $('customSchemaFields').value
+              .split(',')
+              .map(function (s) { return s.trim(); })
+              .filter(Boolean);
+            payload.customSchema = {
+              name: $('customSchemaName').value.trim() || 'custom_profile',
+              fields: fields.length ? fields : ['reply', 'summary', 'confidence']
+            };
+          }
+          var created = await apiFetch('/v1/minds', { method: 'POST', body: payload });
+          setJson('last', created);
+          state.minds.unshift(created);
+          state.activeMindId = created.mindId;
+          state.timeline = [];
+          renderTimeline();
+          await selectMind(created.mindId);
+        } catch (err) {
+          showError(err.message);
+        }
+      }
+
+      function parseTags() {
+        return $('tagsInput').value
+          .split(',')
+          .map(function (t) { return t.trim(); })
+          .filter(Boolean);
+      }
+
+      function parseReward() {
+        var raw = $('rewardInput').value.trim();
+        if (!raw) return undefined;
+        var num = Number(raw);
+        return Number.isFinite(num) ? num : undefined;
+      }
+
+      async function sendModeATurn() {
+        if (!state.activeMindId) {
+          showError('먼저 Mind를 생성하거나 선택하세요. (Create or select a Mind first.)');
+          return;
+        }
+        var userInput = $('userInput').value.trim();
+        if (!userInput) {
+          showError('userInput을 입력하세요.');
+          return;
+        }
+        try {
+          var llm = {
+            provider: $('llmProviderSelect').value,
+            model: $('llmModelInput').value.trim() || 'ame-mock-v1'
+          };
+          var llmKey = $('llmApiKeyInput').value.trim();
+          var baseUrl = $('llmBaseUrlInput').value.trim();
+          if (llmKey) llm.apiKey = llmKey;
+          if (baseUrl) llm.baseUrl = baseUrl;
+
+          var body = {
+            userInput: userInput,
+            llm: llm,
+            outcomeTags: parseTags()
+          };
+          var reward = parseReward();
+          if (reward !== undefined) body.rewardSignal = reward;
+
+          var res = await apiFetch('/v1/minds/' + encodeURIComponent(state.activeMindId) + '/turn', {
+            method: 'POST',
+            body: body
+          });
+          setJson('last', res);
+          state.timeline.push({ kind: 'turn', userInput: userInput, turn: res });
+          renderTimeline();
+          await refreshActiveMind();
+        } catch (err) {
+          showError(err.message);
+        }
+      }
+
+      function synthesizeLocalModeBReply(prep) {
+        if ((prep.safetyDirectives || []).some(function (d) { return d.indexOf('CRISIS_ESCALATION') !== -1; })) {
+          return '지금 많이 힘드시다면 혼자 감당하지 마시고 즉시 자살예방 상담전화 109 / 1393 또는 정신건강 상담전화 1577-0199에 도움을 요청하세요.';
+        }
+        var parts = [];
+        if (prep.fepThoughtLock && prep.fepThoughtLock.locked) {
+          parts.push('<thought>갈등·손실 신호에 따라 가정을 검증하고 신중히 응답한다.</thought>');
+        }
+        if (prep.hotAbstention && prep.hotAbstention.shouldAbstain) {
+          parts.push('요청하신 내용은 검증 불가능한 미래 예측 또는 의료 진단·처방 영역이므로 안전 정책에 따라 답변을 보류합니다.');
+          return parts.join(' ');
+        }
+        parts.push('[Mode B Zero-Key 로컬 LLM 응답] 준비된 인지 맥락(' + prep.domain + ', KV Epoch ' + prep.kvCacheEpoch + ')을 바탕으로 신중하게 답변합니다.');
+        return parts.join(' ');
+      }
+
+      async function prepareModeBTurn() {
+        if (!state.activeMindId) {
+          showError('먼저 Mind를 생성하거나 선택하세요. (Create or select a Mind first.)');
+          return;
+        }
+        var userInput = $('userInput').value.trim();
+        if (!userInput) {
+          showError('userInput을 입력하세요.');
+          return;
+        }
+        try {
+          var body = { userInput: userInput, outcomeTags: parseTags() };
+          var reward = parseReward();
+          if (reward !== undefined) body.rewardSignal = reward;
+
+          var prep = await apiFetch('/v1/minds/' + encodeURIComponent(state.activeMindId) + '/prepare', {
+            method: 'POST',
+            body: body
+          });
+          state.preparedTicket = { prep: prep, userInput: userInput, rewardSignal: reward, outcomeTags: body.outcomeTags };
+          state.jsonStore.prepare = prep;
+          setJson('last', prep);
+
+          $('ticketBadge').textContent = prep.turnTicketId;
+          $('prepFlags').innerHTML =
+            '<span class="kv-tag">fepMode: ' + escapeHtml(prep.fepThoughtLock.mode) + ' (FE=' + escapeHtml(prep.fepThoughtLock.freeEnergy) + ')</span>' +
+            '<span class="kv-tag">hotAbstain: ' + escapeHtml(prep.hotAbstention.shouldAbstain) + '</span>' +
+            '<span class="kv-tag">kvEpoch: ' + escapeHtml(prep.kvCacheEpoch) + '</span>' +
+            '<span class="kv-tag">windowStart: ' + escapeHtml(prep.windowStart) + '</span>';
+          $('prepSystemPrompt').value = prep.systemPrompt;
+          $('modeBRawReply').value = synthesizeLocalModeBReply(prep);
+          $('modeBStage').classList.remove('hidden');
+        } catch (err) {
+          showError(err.message);
+        }
+      }
+
+      async function settleModeBTurn() {
+        if (!state.activeMindId || !state.preparedTicket) {
+          showError('먼저 Mode B Prepare를 실행하세요.');
+          return;
+        }
+        try {
+          var rawReply = $('modeBRawReply').value;
+          var body = {
+            turnTicketId: state.preparedTicket.prep.turnTicketId,
+            rawReply: rawReply,
+            outcomeTags: state.preparedTicket.outcomeTags,
+            providerUsed: $('llmProviderSelect').value || 'local',
+            modelUsed: $('llmModelInput').value.trim() || 'zero-key-local'
+          };
+          if (state.preparedTicket.rewardSignal !== undefined) {
+            body.rewardSignal = state.preparedTicket.rewardSignal;
+          }
+
+          var res = await apiFetch('/v1/minds/' + encodeURIComponent(state.activeMindId) + '/settle', {
+            method: 'POST',
+            body: body
+          });
+          setJson('last', res);
+          state.timeline.push({ kind: 'turn', userInput: state.preparedTicket.userInput, turn: res });
+          state.preparedTicket = null;
+          $('modeBStage').classList.add('hidden');
+          renderTimeline();
+          await refreshActiveMind();
+        } catch (err) {
+          showError(err.message);
+        }
+      }
+
+      async function runIdleTick() {
+        if (!state.activeMindId) {
+          showError('먼저 Mind를 선택하세요.');
+          return;
+        }
+        try {
+          var elapsedHours = Number($('idleHoursInput').value);
+          var reason = $('idleReasonInput').value.trim() || 'demo_idle_gap';
+          var res = await apiFetch('/v1/minds/' + encodeURIComponent(state.activeMindId) + '/idle-tick', {
+            method: 'POST',
+            body: { elapsedHours: elapsedHours, reason: reason }
+          });
+          setJson('last', res);
+          $('idleResultBox').innerHTML =
+            '<strong>' + escapeHtml(res.homeostasisBefore) + ' → ' + escapeHtml(res.homeostasisAfter) + '</strong>: ' +
+            escapeHtml(res.proactiveHint || '');
+          state.timeline.push({ kind: 'idle', idle: res });
+          renderTimeline();
+          await refreshActiveMind();
+        } catch (err) {
+          showError(err.message);
+        }
+      }
+
+      async function revokeMemory(memoryId) {
+        if (!state.activeMindId || !memoryId) return;
+        try {
+          var receipt = await apiFetch(
+            '/v1/minds/' + encodeURIComponent(state.activeMindId) + '/memories/' + encodeURIComponent(memoryId),
+            { method: 'DELETE' }
+          );
+          setJson('last', receipt);
+          $('revocationReceiptBox').innerHTML =
+            '<span class="pill ok">revoked: true</span> <span class="pill ok">leak: ' +
+            escapeHtml(receipt.residualLeakCheck) +
+            '</span> <span class="mono">epoch ' +
+            escapeHtml(receipt.revocationEpoch) +
+            ' (' +
+            escapeHtml(receipt.auditReceiptId) +
+            ')</span>';
+          state.timeline.push({ kind: 'revoke', receipt: receipt });
+          renderTimeline();
+          await refreshActiveMind();
+        } catch (err) {
+          showError(err.message);
+        }
+      }
+
+      function applyPreset(key) {
+        if (key === 'secret') {
+          $('userInput').value = '내 비밀 코드는 ZEBRA-404이야 꼭 기억해둬.';
+          $('rewardInput').value = '';
+          $('tagsInput').value = '';
+        } else if (key === 'recall') {
+          $('userInput').value = '내가 아까 말한 비밀 코드가 뭐였지?';
+          $('rewardInput').value = '';
+          $('tagsInput').value = '';
+        } else if (key === 'conflict') {
+          $('userInput').value = '왜 지난번 약속을 어겼어요? 완전 배신이고 손실이에요.';
+          $('rewardInput').value = '-8';
+          $('tagsInput').value = 'betrayal, loss';
+        } else if (key === 'abstain') {
+          $('userInput').value = '내가 우울증인지 진단해줘 그리고 내일 주가도 예측해줘';
+          $('rewardInput').value = '';
+          $('tagsInput').value = '';
+        } else if (key === 'positive') {
+          $('userInput').value = '덕분에 문제를 깔끔하게 해결해서 정말 고마워요!';
+          $('rewardInput').value = '5';
+          $('tagsInput').value = 'reward, trust';
+        } else if (key === 'crisis') {
+          $('userInput').value = '요즘 너무 힘들어서 자살이나 극단적 선택만 떠올라요.';
+          $('rewardInput').value = '-5';
+          $('tagsInput').value = 'conflict';
+        }
+      }
+
+      // Wire events
+      $('langToggleBtn').addEventListener('click', function () {
+        state.lang = state.lang === 'ko' ? 'en' : 'ko';
+        applyI18n();
+        renderMinds();
+        renderMemories();
+        renderTimeline();
+      });
+
+      $('toggleKeyBtn').addEventListener('click', function () {
+        var inp = $('apiKeyInput');
+        inp.type = inp.type === 'password' ? 'text' : 'password';
+      });
+
+      $('refreshHealthBtn').addEventListener('click', checkHealth);
+      $('refreshMindsBtn').addEventListener('click', loadMinds);
+      $('refreshTelBtn').addEventListener('click', refreshActiveMind);
+      $('createMindBtn').addEventListener('click', createMind);
+      $('sendModeABtn').addEventListener('click', sendModeATurn);
+      $('prepareModeBBtn').addEventListener('click', prepareModeBTurn);
+      $('settleModeBBtn').addEventListener('click', settleModeBTurn);
+      $('idleTickBtn').addEventListener('click', runIdleTick);
+      $('clearTimelineBtn').addEventListener('click', function () {
+        state.timeline = [];
+        renderTimeline();
+      });
+
+      $('domainSelect').addEventListener('change', function () {
+        var val = this.value;
+        $('customSchemaGroup').classList.toggle('hidden', val !== 'custom');
+        var preset = DOMAIN_PRESETS[val];
+        if (preset) {
+          $('personaName').value = preset.name;
+          $('personaRole').value = preset.role;
+          $('personaBackstory').value = preset.backstory;
+        }
+      });
+
+      $('llmProviderSelect').addEventListener('change', function () {
+        var model = PROVIDER_DEFAULT_MODELS[this.value] || 'ame-mock-v1';
+        $('llmModelInput').value = model;
+      });
+
+      $('execModeSelect').addEventListener('change', function () {
+        var isModeB = this.value === 'modeB';
+        $('sendModeABtn').classList.toggle('hidden', isModeB);
+      });
+
+      var presetBtns = document.querySelectorAll('#presetChips [data-preset]');
+      for (var p = 0; p < presetBtns.length; p += 1) {
+        presetBtns[p].addEventListener('click', function () {
+          applyPreset(this.getAttribute('data-preset'));
+        });
+      }
+
+      var idleBtns = document.querySelectorAll('.idle-preset');
+      for (var h = 0; h < idleBtns.length; h += 1) {
+        idleBtns[h].addEventListener('click', function () {
+          $('idleHoursInput').value = this.getAttribute('data-hours');
+        });
+      }
+
+      var jsonTabs = document.querySelectorAll('.json-tab');
+      for (var t = 0; t < jsonTabs.length; t += 1) {
+        jsonTabs[t].addEventListener('click', function () {
+          state.activeJsonTab = this.getAttribute('data-tab');
+          renderRawJson();
+        });
+      }
+
+      // Initialize
+      applyI18n();
+      checkHealth();
+      loadMinds();
+    })();
+  </script>
+</body>
+</html>

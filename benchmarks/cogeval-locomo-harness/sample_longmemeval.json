@@ -1,0 +1,2660 @@
+[
+  {
+    "question_id": "smoke_synth_01_ssu",
+    "question_type": "single-session-user",
+    "question": "What is the access code for my community ceramics studio locker?",
+    "question_date": "2024/05/20 (Mon) 10:00",
+    "answer": "KILN-482",
+    "answer_session_ids": [
+      "smoke_sess_01_04"
+    ],
+    "haystack_dates": [
+      "2024/05/01 (Wed) 08:15",
+      "2024/05/04 (Sat) 11:30",
+      "2024/05/07 (Tue) 19:05",
+      "2024/05/11 (Sat) 14:20",
+      "2024/05/14 (Tue) 20:40",
+      "2024/05/17 (Fri) 17:50"
+    ],
+    "haystack_session_ids": [
+      "smoke_sess_01_01",
+      "smoke_sess_01_02",
+      "smoke_sess_01_03",
+      "smoke_sess_01_04",
+      "smoke_sess_01_05",
+      "smoke_sess_01_06"
+    ],
+    "haystack_sessions": [
+      [
+        {
+          "role": "user",
+          "content": "I started my morning with a brisk 3km walk along the canal before breakfast.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "A morning walk along the canal is a great way to start the day with steady energy.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I also set a timer for twenty minutes so the rest of the evening stays unhurried.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Setting a short timer keeps evening routines relaxed and predictable.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I am prepping a batch of roasted chickpeas and lemon tahini dressing for lunch.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "That sounds flavorful and balanced. Roasted chickpeas keep a nice crunch for meal prep.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "The weather was mild with a light breeze, so I opened the windows for fresh air.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Mild weather and cross-ventilation always make indoor chores more pleasant.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I replaced the front brake pads on my commuter bicycle tonight after work.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Keeping brake pads fresh makes city commuting much safer and smoother.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I wrote a quick three-line checklist on sticky notes for tomorrow morning.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "A brief three-line checklist keeps priorities clear without feeling overwhelming.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I rented locker #19 at the community ceramics studio today, and the access code is KILN-482.",
+          "has_answer": true
+        },
+        {
+          "role": "assistant",
+          "content": "Nice! Having dedicated studio storage at locker #19 makes pottery sessions much more convenient.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Afterward I listened to an instrumental acoustic album while tidying the living room.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Instrumental music gives a calm background pace for evening tidying.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I finished reading a short collection of architectural history essays before bed.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Architectural essays are great evening reading—did any particular chapter stand out?",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I double-checked my calendar for next week so nothing overlaps on Wednesday afternoon.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Reviewing the upcoming week early prevents last-minute scheduling surprises.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I watered the rosemary and mint pots on my apartment balcony this afternoon.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Fresh rosemary and mint thrive nicely with regular afternoon care.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Before turning in, I brewed a cup of decaf peppermint tea and stretched for five minutes.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Peppermint tea and light stretching are a steady wind-down habit.",
+          "has_answer": false
+        }
+      ]
+    ]
+  },
+  {
+    "question_id": "smoke_synth_02_ssu",
+    "question_type": "single-session-user",
+    "question": "Which brand of single-origin espresso beans did I say I ordered for my home grinder?",
+    "question_date": "2024/06/18 (Tue) 09:15",
+    "answer": "Bluebird Roasters Ethiopia Yirgacheffe",
+    "answer_session_ids": [
+      "smoke_sess_02_06"
+    ],
+    "haystack_dates": [
+      "2024/05/12 (Sun) 09:00",
+      "2024/05/15 (Wed) 18:10",
+      "2024/05/19 (Sun) 13:45",
+      "2024/05/22 (Wed) 20:00",
+      "2024/05/25 (Sat) 10:30",
+      "2024/05/29 (Wed) 08:25",
+      "2024/06/02 (Sun) 16:00",
+      "2024/06/05 (Wed) 19:15",
+      "2024/06/08 (Sat) 11:40",
+      "2024/06/11 (Tue) 21:05",
+      "2024/06/14 (Fri) 15:20",
+      "2024/06/16 (Sun) 17:30"
+    ],
+    "haystack_session_ids": [
+      "smoke_sess_02_01",
+      "smoke_sess_02_02",
+      "smoke_sess_02_03",
+      "smoke_sess_02_04",
+      "smoke_sess_02_05",
+      "smoke_sess_02_06",
+      "smoke_sess_02_07",
+      "smoke_sess_02_08",
+      "smoke_sess_02_09",
+      "smoke_sess_02_10",
+      "smoke_sess_02_11",
+      "smoke_sess_02_12"
+    ],
+    "haystack_sessions": [
+      [
+        {
+          "role": "user",
+          "content": "I cleaned out my pantry shelf and labeled all the glass mason jars this morning.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Labeled glass jars always make a pantry feel calm and easy to navigate.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I also set a timer for twenty minutes so the rest of the evening stays unhurried.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Setting a short timer keeps evening routines relaxed and predictable.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I practiced three jazz chord voicings on my keyboard after dinner.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Consistent short practice sessions build great harmonic familiarity.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "The weather was mild with a light breeze, so I opened the windows for fresh air.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Mild weather and cross-ventilation always make indoor chores more pleasant.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I donated two boxes of old paperbacks to the neighborhood library book sale.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "That frees up shelf space while supporting the local library.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I wrote a quick three-line checklist on sticky notes for tomorrow morning.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "A brief three-line checklist keeps priorities clear without feeling overwhelming.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I updated my spreadsheet tracking monthly electricity and water bills.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Tracking utility trends monthly makes seasonal changes easy to spot.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Afterward I listened to an instrumental acoustic album while tidying the living room.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Instrumental music gives a calm background pace for evening tidying.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I went to the farmer's market early and picked up fresh asparagus and strawberries.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Spring asparagus and strawberries are hard to beat when picked fresh.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I double-checked my calendar for next week so nothing overlaps on Wednesday afternoon.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Reviewing the upcoming week early prevents last-minute scheduling surprises.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "For my home espresso grinder, I ordered Bluebird Roasters Ethiopia Yirgacheffe single-origin beans.",
+          "has_answer": true
+        },
+        {
+          "role": "assistant",
+          "content": "Ethiopia Yirgacheffe brings bright floral and citrus notes—hope your grinder dials it in well!",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Before turning in, I brewed a cup of decaf peppermint tea and stretched for five minutes.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Peppermint tea and light stretching are a steady wind-down habit.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I patched a small tear in my canvas weekend backpack using heavy thread.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "A sturdy hand-stitched repair can add years of life to a canvas pack.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I also set a timer for twenty minutes so the rest of the evening stays unhurried.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Setting a short timer keeps evening routines relaxed and predictable.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I attended an evening talk on urban tree canopies at the civic center.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Urban forestry talks often have fascinating heat-island data.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "The weather was mild with a light breeze, so I opened the windows for fresh air.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Mild weather and cross-ventilation always make indoor chores more pleasant.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I tightened a wobbly dining chair leg with wood glue and a bar clamp.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Clamping wood glue overnight gives a clean, rock-solid joint.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I wrote a quick three-line checklist on sticky notes for tomorrow morning.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "A brief three-line checklist keeps priorities clear without feeling overwhelming.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I watched a classic documentary about vintage typewriter restoration.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Mechanical typewriters have remarkable precision engineering inside.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Afterward I listened to an instrumental acoustic album while tidying the living room.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Instrumental music gives a calm background pace for evening tidying.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I sorted my digital photo archive by year and backed it up to an external drive.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Having an organized offline backup is always reassuring.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I double-checked my calendar for next week so nothing overlaps on Wednesday afternoon.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Reviewing the upcoming week early prevents last-minute scheduling surprises.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I made homemade vegetable ramen broth with ginger, scallions, and dried shiitake.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Simmering dried shiitake and ginger creates deep umami flavor.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Before turning in, I brewed a cup of decaf peppermint tea and stretched for five minutes.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Peppermint tea and light stretching are a steady wind-down habit.",
+          "has_answer": false
+        }
+      ]
+    ]
+  },
+  {
+    "question_id": "smoke_synth_03_tr",
+    "question_type": "temporal-reasoning",
+    "question": "On what date did I complete my passport renewal appointment?",
+    "question_date": "2024/07/01 (Mon) 14:00",
+    "answer": "2024/04/12",
+    "answer_session_ids": [
+      "smoke_sess_03_04"
+    ],
+    "haystack_dates": [
+      "2024/03/05 (Tue) 11:20",
+      "2024/03/19 (Tue) 09:40",
+      "2024/04/02 (Tue) 18:15",
+      "2024/04/12 (Fri) 15:10",
+      "2024/05/03 (Fri) 12:30",
+      "2024/05/16 (Thu) 19:50",
+      "2024/06/04 (Tue) 16:25",
+      "2024/06/20 (Thu) 20:05"
+    ],
+    "haystack_session_ids": [
+      "smoke_sess_03_01",
+      "smoke_sess_03_02",
+      "smoke_sess_03_03",
+      "smoke_sess_03_04",
+      "smoke_sess_03_05",
+      "smoke_sess_03_06",
+      "smoke_sess_03_07",
+      "smoke_sess_03_08"
+    ],
+    "haystack_sessions": [
+      [
+        {
+          "role": "user",
+          "content": "I gathered my old travel forms and photos ahead of booking a passport renewal slot.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Having all paperwork ready in advance makes government appointments go smoothly.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I also set a timer for twenty minutes so the rest of the evening stays unhurried.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Setting a short timer keeps evening routines relaxed and predictable.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I signed up for a Saturday morning community swim lap pass.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Swimming laps on weekends is fantastic low-impact cardio.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "The weather was mild with a light breeze, so I opened the windows for fresh air.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Mild weather and cross-ventilation always make indoor chores more pleasant.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I bought a new pair of polarized sunglasses for summer driving.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Polarized lenses cut down road glare substantially.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I wrote a quick three-line checklist on sticky notes for tomorrow morning.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "A brief three-line checklist keeps priorities clear without feeling overwhelming.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I completed my passport renewal appointment downtown today on 2024/04/12 and got receipt PR-901.",
+          "has_answer": true
+        },
+        {
+          "role": "assistant",
+          "content": "Glad your passport renewal appointment went through cleanly—keep receipt PR-901 handy.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Afterward I listened to an instrumental acoustic album while tidying the living room.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Instrumental music gives a calm background pace for evening tidying.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I tried baking sourdough focaccia with sea salt and olives for the first time.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Focaccia is wonderfully forgiving and crispy with plenty of olive oil.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I double-checked my calendar for next week so nothing overlaps on Wednesday afternoon.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Reviewing the upcoming week early prevents last-minute scheduling surprises.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I swapped my winter duvet for a lighter linen blanket this week.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Breathable linen is ideal as temperatures warm up.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Before turning in, I brewed a cup of decaf peppermint tea and stretched for five minutes.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Peppermint tea and light stretching are a steady wind-down habit.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I organized a trivia night team with three coworkers at the neighborhood cafe.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Team trivia nights are always a fun mid-week break.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I also set a timer for twenty minutes so the rest of the evening stays unhurried.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Setting a short timer keeps evening routines relaxed and predictable.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I tuned up my acoustic violin bow and replaced the worn E string.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Fresh strings brighten the upper register right away.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "The weather was mild with a light breeze, so I opened the windows for fresh air.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Mild weather and cross-ventilation always make indoor chores more pleasant.",
+          "has_answer": false
+        }
+      ]
+    ]
+  },
+  {
+    "question_id": "smoke_synth_04_tr",
+    "question_type": "temporal-reasoning",
+    "question": "Which city did I visit in March 2024 before my Tokyo conference?",
+    "question_date": "2024/08/10 (Sat) 16:30",
+    "answer": "Seattle",
+    "answer_session_ids": [
+      "smoke_sess_04_05"
+    ],
+    "haystack_dates": [
+      "2024/01/12 (Fri) 10:00",
+      "2024/01/26 (Fri) 14:20",
+      "2024/02/09 (Fri) 19:00",
+      "2024/02/22 (Thu) 17:15",
+      "2024/03/14 (Thu) 18:00",
+      "2024/03/28 (Thu) 11:30",
+      "2024/04/15 (Mon) 20:10",
+      "2024/05/09 (Thu) 09:30",
+      "2024/05/24 (Fri) 16:40",
+      "2024/06/07 (Fri) 13:05",
+      "2024/06/21 (Fri) 18:50",
+      "2024/07/05 (Fri) 12:15",
+      "2024/07/19 (Fri) 15:45",
+      "2024/08/02 (Fri) 19:30"
+    ],
+    "haystack_session_ids": [
+      "smoke_sess_04_01",
+      "smoke_sess_04_02",
+      "smoke_sess_04_03",
+      "smoke_sess_04_04",
+      "smoke_sess_04_05",
+      "smoke_sess_04_06",
+      "smoke_sess_04_07",
+      "smoke_sess_04_08",
+      "smoke_sess_04_09",
+      "smoke_sess_04_10",
+      "smoke_sess_04_11",
+      "smoke_sess_04_12",
+      "smoke_sess_04_13",
+      "smoke_sess_04_14"
+    ],
+    "haystack_sessions": [
+      [
+        {
+          "role": "user",
+          "content": "I renewed my annual museum membership card for the winter art exhibitions.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Winter exhibitions are a peaceful way to spend weekend afternoons.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I wrote a quick three-line checklist on sticky notes for tomorrow morning.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "A brief three-line checklist keeps priorities clear without feeling overwhelming.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I tested a new lentil soup recipe with smoked paprika and carrots.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Smoked paprika adds wonderful warmth to hearty lentil soup.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Afterward I listened to an instrumental acoustic album while tidying the living room.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Instrumental music gives a calm background pace for evening tidying.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I rotated my living room desk to face the east window for morning sunlight.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Natural morning light at your desk can boost focus significantly.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I double-checked my calendar for next week so nothing overlaps on Wednesday afternoon.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Reviewing the upcoming week early prevents last-minute scheduling surprises.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I bought an extra USB-C charger strictly for my travel carry-on pouch.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Keeping a dedicated travel charger avoids forgetting cables at home.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Before turning in, I brewed a cup of decaf peppermint tea and stretched for five minutes.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Peppermint tea and light stretching are a steady wind-down habit.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "In March 2024 before my Tokyo conference, I visited Seattle to meet college friends.",
+          "has_answer": true
+        },
+        {
+          "role": "assistant",
+          "content": "Reconnecting with college friends in Seattle sounds like a memorable March trip.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I also set a timer for twenty minutes so the rest of the evening stays unhurried.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Setting a short timer keeps evening routines relaxed and predictable.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I replaced the air filter on my bedroom humidifier before spring allergy season.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Fresh filters keep indoor air clean and prevent buildup.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "The weather was mild with a light breeze, so I opened the windows for fresh air.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Mild weather and cross-ventilation always make indoor chores more pleasant.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I downloaded two offline city transit maps onto my phone for upcoming trips.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Offline transit maps are invaluable when stepping out of airports.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I wrote a quick three-line checklist on sticky notes for tomorrow morning.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "A brief three-line checklist keeps priorities clear without feeling overwhelming.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I arrived in Japan for my Tokyo conference and checked in near Shibuya.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Welcome to Tokyo! Staying near Shibuya puts you right on convenient rail lines.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Afterward I listened to an instrumental acoustic album while tidying the living room.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Instrumental music gives a calm background pace for evening tidying.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I brought home matcha tea bags and stationary notebooks as gifts.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Matcha and stationery make thoughtful, packable gifts.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I double-checked my calendar for next week so nothing overlaps on Wednesday afternoon.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Reviewing the upcoming week early prevents last-minute scheduling surprises.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I hung up two framed botanical prints in the hallway yesterday.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Framed botanical prints brighten up hallway walls nicely.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Before turning in, I brewed a cup of decaf peppermint tea and stretched for five minutes.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Peppermint tea and light stretching are a steady wind-down habit.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I scheduled a routine eye checkup and updated my reading glasses prescription.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Updated lenses reduce eye strain noticeably during screen work.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I also set a timer for twenty minutes so the rest of the evening stays unhurried.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Setting a short timer keeps evening routines relaxed and predictable.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I tried indoor bouldering for the first time with my cousin on Saturday.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Bouldering is a great full-body puzzle—your forearms probably felt it!",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "The weather was mild with a light breeze, so I opened the windows for fresh air.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Mild weather and cross-ventilation always make indoor chores more pleasant.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I trimmed back the basil plants so they branch out more densely.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Pinching basil above leaf nodes always encourages bushier growth.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I wrote a quick three-line checklist on sticky notes for tomorrow morning.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "A brief three-line checklist keeps priorities clear without feeling overwhelming.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I cataloged my kitchen spice drawer alphabetically using small tins.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Alphabetized spice tins cut cooking prep time in half.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Afterward I listened to an instrumental acoustic album while tidying the living room.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Instrumental music gives a calm background pace for evening tidying.",
+          "has_answer": false
+        }
+      ]
+    ]
+  },
+  {
+    "question_id": "smoke_synth_05_ku",
+    "question_type": "knowledge-update",
+    "question": "What is my current monthly cloud storage plan limit after the upgrade?",
+    "question_date": "2024/06/25 (Tue) 12:00",
+    "answer": "2 TB",
+    "answer_session_ids": [
+      "smoke_sess_05_07"
+    ],
+    "haystack_dates": [
+      "2024/01/15 (Mon) 10:00",
+      "2024/02/08 (Thu) 13:20",
+      "2024/03/03 (Sun) 16:40",
+      "2024/03/27 (Wed) 20:10",
+      "2024/04/18 (Thu) 11:50",
+      "2024/05/09 (Thu) 18:30",
+      "2024/05/28 (Tue) 19:20",
+      "2024/06/12 (Wed) 09:45"
+    ],
+    "haystack_session_ids": [
+      "smoke_sess_05_01",
+      "smoke_sess_05_02",
+      "smoke_sess_05_03",
+      "smoke_sess_05_04",
+      "smoke_sess_05_05",
+      "smoke_sess_05_06",
+      "smoke_sess_05_07",
+      "smoke_sess_05_08"
+    ],
+    "haystack_sessions": [
+      [
+        {
+          "role": "user",
+          "content": "My monthly cloud storage plan limit is 200 GB for backing up family photos.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "A 200 GB tier works well for starting a family photo backup library.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I double-checked my calendar for next week so nothing overlaps on Wednesday afternoon.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Reviewing the upcoming week early prevents last-minute scheduling surprises.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I ordered new microfiber cloths for cleaning camera lenses and monitors.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Clean microfiber cloths keep coated optics smudge-free.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Before turning in, I brewed a cup of decaf peppermint tea and stretched for five minutes.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Peppermint tea and light stretching are a steady wind-down habit.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I went on a rainy afternoon walk through the botanical conservatory.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Glass conservatories feel wonderfully warm and tropical on rainy days.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I also set a timer for twenty minutes so the rest of the evening stays unhurried.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Setting a short timer keeps evening routines relaxed and predictable.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I set up automatic calendar reminders for car tire rotations every six months.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Regular tire rotations extend tread life and keep handling even.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "The weather was mild with a light breeze, so I opened the windows for fresh air.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Mild weather and cross-ventilation always make indoor chores more pleasant.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I cooked sesame soba noodles with cucumber and shredded carrots for dinner.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Chilled sesame soba is refreshing and quick on busy evenings.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I wrote a quick three-line checklist on sticky notes for tomorrow morning.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "A brief three-line checklist keeps priorities clear without feeling overwhelming.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I tested two different ergonomic desk mice at the electronics shop.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Trying grip comfort in person prevents wrist fatigue later.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Afterward I listened to an instrumental acoustic album while tidying the living room.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Instrumental music gives a calm background pace for evening tidying.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "Update: I upgraded my monthly cloud storage plan limit from 200 GB to 2 TB today.",
+          "has_answer": true
+        },
+        {
+          "role": "assistant",
+          "content": "Upgrading to 2 TB gives you plenty of headroom for photos and video archives.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I double-checked my calendar for next week so nothing overlaps on Wednesday afternoon.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Reviewing the upcoming week early prevents last-minute scheduling surprises.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I hung a cork pinboard above my workbench for paper notes and receipts.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "A cork board keeps temporary checklists visible without cluttering your desk.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Before turning in, I brewed a cup of decaf peppermint tea and stretched for five minutes.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Peppermint tea and light stretching are a steady wind-down habit.",
+          "has_answer": false
+        }
+      ]
+    ]
+  },
+  {
+    "question_id": "smoke_synth_06_ku",
+    "question_type": "knowledge-update",
+    "question": "Where is my main backup acoustic guitar currently stored?",
+    "question_date": "2024/07/14 (Sun) 11:45",
+    "answer": "Westside rehearsal locker",
+    "answer_session_ids": [
+      "smoke_sess_06_10"
+    ],
+    "haystack_dates": [
+      "2024/02/03 (Sat) 14:15",
+      "2024/02/20 (Tue) 19:00",
+      "2024/03/08 (Fri) 12:30",
+      "2024/03/25 (Mon) 17:45",
+      "2024/04/10 (Wed) 20:20",
+      "2024/04/28 (Sun) 11:10",
+      "2024/05/14 (Tue) 18:05",
+      "2024/06/01 (Sat) 15:30",
+      "2024/06/15 (Sat) 10:00",
+      "2024/06/29 (Sat) 17:40",
+      "2024/07/06 (Sat) 13:50",
+      "2024/07/11 (Thu) 21:15"
+    ],
+    "haystack_session_ids": [
+      "smoke_sess_06_01",
+      "smoke_sess_06_02",
+      "smoke_sess_06_03",
+      "smoke_sess_06_04",
+      "smoke_sess_06_05",
+      "smoke_sess_06_06",
+      "smoke_sess_06_07",
+      "smoke_sess_06_08",
+      "smoke_sess_06_09",
+      "smoke_sess_06_10",
+      "smoke_sess_06_11",
+      "smoke_sess_06_12"
+    ],
+    "haystack_sessions": [
+      [
+        {
+          "role": "user",
+          "content": "My main backup acoustic guitar is currently stored in my parents' attic closet.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Keeping a spare acoustic guitar in a hardshell case protects it from temperature swings.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I also set a timer for twenty minutes so the rest of the evening stays unhurried.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Setting a short timer keeps evening routines relaxed and predictable.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I brewed iced barley tea to keep in the refrigerator this week.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Cold roasted barley tea is crisp and caffeine-free.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "The weather was mild with a light breeze, so I opened the windows for fresh air.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Mild weather and cross-ventilation always make indoor chores more pleasant.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I read two chapters of a biography about early oceanographers.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Early deep-sea mapping expeditions have fascinating engineering stories.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I wrote a quick three-line checklist on sticky notes for tomorrow morning.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "A brief three-line checklist keeps priorities clear without feeling overwhelming.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I oiled my wooden cutting board with food-grade mineral oil tonight.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Mineral oil keeps end-grain boards hydrated and crack-free.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Afterward I listened to an instrumental acoustic album while tidying the living room.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Instrumental music gives a calm background pace for evening tidying.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I picked up three boxes of archival file folders for tax documents.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Archival folders keep annual tax records neatly grouped.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I double-checked my calendar for next week so nothing overlaps on Wednesday afternoon.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Reviewing the upcoming week early prevents last-minute scheduling surprises.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I cycled along the riverside loop for forty minutes before noon.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "A forty-minute riverside ride is great weekend conditioning.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Before turning in, I brewed a cup of decaf peppermint tea and stretched for five minutes.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Peppermint tea and light stretching are a steady wind-down habit.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I changed the batteries in all three hallway smoke detectors.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Replacing detector batteries on a set schedule gives good peace of mind.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I also set a timer for twenty minutes so the rest of the evening stays unhurried.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Setting a short timer keeps evening routines relaxed and predictable.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I visited a Sunday flea market and bought a brass desk lamp.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Vintage brass lamps add warm character to a study desk.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "The weather was mild with a light breeze, so I opened the windows for fresh air.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Mild weather and cross-ventilation always make indoor chores more pleasant.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I froze extra tomato sauce in silicone trays for quick weeknight pasta.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Portioned sauce cubes defrost in minutes when you are short on time.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I wrote a quick three-line checklist on sticky notes for tomorrow morning.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "A brief three-line checklist keeps priorities clear without feeling overwhelming.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "Update: I moved my main backup acoustic guitar to my Westside rehearsal locker today.",
+          "has_answer": true
+        },
+        {
+          "role": "assistant",
+          "content": "Having your backup acoustic guitar in the Westside rehearsal locker saves carrying it across town.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Afterward I listened to an instrumental acoustic album while tidying the living room.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Instrumental music gives a calm background pace for evening tidying.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I watched an evening jazz quartet perform at the municipal park.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Outdoor summer jazz concerts have a wonderful relaxed energy.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I double-checked my calendar for next week so nothing overlaps on Wednesday afternoon.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Reviewing the upcoming week early prevents last-minute scheduling surprises.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I ordered fresh ink cartridges for my fountain pen.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Refilling fountain pen ink always feels satisfying.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Before turning in, I brewed a cup of decaf peppermint tea and stretched for five minutes.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Peppermint tea and light stretching are a steady wind-down habit.",
+          "has_answer": false
+        }
+      ]
+    ]
+  },
+  {
+    "question_id": "smoke_synth_07_ms",
+    "question_type": "multi-session",
+    "question": "What are the two weekend hiking trails I finished across April and May?",
+    "question_date": "2024/06/15 (Sat) 20:00",
+    "answer": "Pine Ridge Trail and Silver Creek Loop",
+    "answer_session_ids": [
+      "smoke_sess_07_03",
+      "smoke_sess_07_08"
+    ],
+    "haystack_dates": [
+      "2024/04/05 (Fri) 18:10",
+      "2024/04/12 (Fri) 19:20",
+      "2024/04/20 (Sat) 17:10",
+      "2024/04/26 (Fri) 12:00",
+      "2024/05/04 (Sat) 09:30",
+      "2024/05/10 (Fri) 20:15",
+      "2024/05/14 (Tue) 18:40",
+      "2024/05/18 (Sat) 16:45",
+      "2024/05/27 (Mon) 11:20",
+      "2024/06/05 (Wed) 21:00"
+    ],
+    "haystack_session_ids": [
+      "smoke_sess_07_01",
+      "smoke_sess_07_02",
+      "smoke_sess_07_03",
+      "smoke_sess_07_04",
+      "smoke_sess_07_05",
+      "smoke_sess_07_06",
+      "smoke_sess_07_07",
+      "smoke_sess_07_08",
+      "smoke_sess_07_09",
+      "smoke_sess_07_10"
+    ],
+    "haystack_sessions": [
+      [
+        {
+          "role": "user",
+          "content": "I waterproofed my leather boots with beeswax balm before spring weather.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Beeswax conditioning protects boot leather well against muddy trails.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I also set a timer for twenty minutes so the rest of the evening stays unhurried.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Setting a short timer keeps evening routines relaxed and predictable.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I cooked roasted cauliflower and turmeric rice bowls for dinner.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Turmeric rice pairs wonderfully with caramelized cauliflower.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "The weather was mild with a light breeze, so I opened the windows for fresh air.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Mild weather and cross-ventilation always make indoor chores more pleasant.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I finished the Pine Ridge Trail weekend hiking trail today and saw wild lupines.",
+          "has_answer": true
+        },
+        {
+          "role": "assistant",
+          "content": "Wild lupines along Pine Ridge Trail must have looked vibrant in April.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I wrote a quick three-line checklist on sticky notes for tomorrow morning.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "A brief three-line checklist keeps priorities clear without feeling overwhelming.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I replaced the kitchen sink aerator to improve water flow.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Swapping an aerator is a five-minute fix with an immediate difference.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Afterward I listened to an instrumental acoustic album while tidying the living room.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Instrumental music gives a calm background pace for evening tidying.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I organized my digital music playlists by tempo for morning runs.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Tempo-matched playlists keep running cadence steady.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I double-checked my calendar for next week so nothing overlaps on Wednesday afternoon.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Reviewing the upcoming week early prevents last-minute scheduling surprises.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I visited the downtown hardware store for picture hanging hooks.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Rated wall hooks keep frames level and secure.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Before turning in, I brewed a cup of decaf peppermint tea and stretched for five minutes.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Peppermint tea and light stretching are a steady wind-down habit.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I baked blueberry oat muffins to share at the office morning meeting.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Homemade blueberry oat muffins are always welcome at morning meetings.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I also set a timer for twenty minutes so the rest of the evening stays unhurried.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Setting a short timer keeps evening routines relaxed and predictable.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I finished the Silver Creek Loop weekend hiking trail with clear river views.",
+          "has_answer": true
+        },
+        {
+          "role": "assistant",
+          "content": "Silver Creek Loop is rewarding when the spring river runs clear.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "The weather was mild with a light breeze, so I opened the windows for fresh air.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Mild weather and cross-ventilation always make indoor chores more pleasant.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I spent Monday morning pruning dead branches off the patio fern.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Clearing old fronds helps new fern growth unfurl cleanly.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I wrote a quick three-line checklist on sticky notes for tomorrow morning.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "A brief three-line checklist keeps priorities clear without feeling overwhelming.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I checked out a mystery novel from the neighborhood branch library.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Enjoy the mystery read—hope it keeps you guessing!",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Afterward I listened to an instrumental acoustic album while tidying the living room.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Instrumental music gives a calm background pace for evening tidying.",
+          "has_answer": false
+        }
+      ]
+    ]
+  },
+  {
+    "question_id": "smoke_synth_08_ms",
+    "question_type": "multi-session",
+    "question": "Which two programming languages am I using for my home weather station project?",
+    "question_date": "2024/07/22 (Mon) 19:00",
+    "answer": "Rust and Python",
+    "answer_session_ids": [
+      "smoke_sess_08_04",
+      "smoke_sess_08_10"
+    ],
+    "haystack_dates": [
+      "2024/03/10 (Sun) 15:00",
+      "2024/03/19 (Tue) 19:40",
+      "2024/03/28 (Thu) 18:10",
+      "2024/04/04 (Thu) 21:00",
+      "2024/04/18 (Thu) 17:30",
+      "2024/05/02 (Thu) 12:15",
+      "2024/05/16 (Thu) 20:00",
+      "2024/05/29 (Wed) 08:45",
+      "2024/06/05 (Wed) 19:10",
+      "2024/06/11 (Tue) 20:15",
+      "2024/06/24 (Mon) 14:30",
+      "2024/07/03 (Wed) 16:50",
+      "2024/07/12 (Fri) 11:20",
+      "2024/07/18 (Thu) 18:35"
+    ],
+    "haystack_session_ids": [
+      "smoke_sess_08_01",
+      "smoke_sess_08_02",
+      "smoke_sess_08_03",
+      "smoke_sess_08_04",
+      "smoke_sess_08_05",
+      "smoke_sess_08_06",
+      "smoke_sess_08_07",
+      "smoke_sess_08_08",
+      "smoke_sess_08_09",
+      "smoke_sess_08_10",
+      "smoke_sess_08_11",
+      "smoke_sess_08_12",
+      "smoke_sess_08_13",
+      "smoke_sess_08_14"
+    ],
+    "haystack_sessions": [
+      [
+        {
+          "role": "user",
+          "content": "I mounted a wooden birdhouse on the fence post facing away from prevailing wind.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Sheltering the entrance from prevailing wind helps nesting birds stay dry.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I double-checked my calendar for next week so nothing overlaps on Wednesday afternoon.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Reviewing the upcoming week early prevents last-minute scheduling surprises.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I calibrated my kitchen digital scale using a standard reference weight.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Accurate kitchen scale readings help a lot with baking ratios.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Before turning in, I brewed a cup of decaf peppermint tea and stretched for five minutes.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Peppermint tea and light stretching are a steady wind-down habit.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I sorted spare Ethernet cables into labeled zip pouches.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Labeled cable pouches prevent tangles when setting up hardware.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I also set a timer for twenty minutes so the rest of the evening stays unhurried.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Setting a short timer keeps evening routines relaxed and predictable.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "For the sensor firmware on my home weather station project, I am using Rust.",
+          "has_answer": true
+        },
+        {
+          "role": "assistant",
+          "content": "Rust works nicely for reliable low-power microcontroller sensor firmware.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "The weather was mild with a light breeze, so I opened the windows for fresh air.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Mild weather and cross-ventilation always make indoor chores more pleasant.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I baked sesame flatbread in a cast-iron skillet for dinner.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Cast-iron skillets give flatbread great blistering and char.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I wrote a quick three-line checklist on sticky notes for tomorrow morning.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "A brief three-line checklist keeps priorities clear without feeling overwhelming.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I swept autumn leaves left behind the backyard garden shed.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Clearing behind the shed keeps moisture from pooling near the wood.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Afterward I listened to an instrumental acoustic album while tidying the living room.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Instrumental music gives a calm background pace for evening tidying.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I signed up for a neighborhood composting drop-off bin.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Community compost drop-offs make reducing kitchen waste easy.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I double-checked my calendar for next week so nothing overlaps on Wednesday afternoon.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Reviewing the upcoming week early prevents last-minute scheduling surprises.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I picked up roasted almonds and dried apricots for trail snacks.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Almonds and dried apricots pack plenty of compact energy.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Before turning in, I brewed a cup of decaf peppermint tea and stretched for five minutes.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Peppermint tea and light stretching are a steady wind-down habit.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I cleaned the dust filters on my studio air purifier.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Regular filter cleaning keeps fan noise low and airflow strong.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I also set a timer for twenty minutes so the rest of the evening stays unhurried.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Setting a short timer keeps evening routines relaxed and predictable.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "For the data analysis script on my home weather station project, I am using Python.",
+          "has_answer": true
+        },
+        {
+          "role": "assistant",
+          "content": "Python is ideal for parsing barometric logs and plotting trends.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "The weather was mild with a light breeze, so I opened the windows for fresh air.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Mild weather and cross-ventilation always make indoor chores more pleasant.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I tested waterproof silicone sealant around the balcony window frame.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Sealing exterior window gaps keeps summer storms outside.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I wrote a quick three-line checklist on sticky notes for tomorrow morning.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "A brief three-line checklist keeps priorities clear without feeling overwhelming.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I listened to a history podcast series on ancient maritime trade routes.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Monsoon navigation strategies in maritime history are fascinating.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Afterward I listened to an instrumental acoustic album while tidying the living room.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Instrumental music gives a calm background pace for evening tidying.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I tightened the loose screws on my kitchen cabinet hinges.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "A quick hinge adjustment keeps cabinet doors aligned properly.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I double-checked my calendar for next week so nothing overlaps on Wednesday afternoon.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Reviewing the upcoming week early prevents last-minute scheduling surprises.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I froze fresh blackberries from the weekend picking trip.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Frozen blackberries work wonderfully in smoothies and yogurt bowls.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Before turning in, I brewed a cup of decaf peppermint tea and stretched for five minutes.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Peppermint tea and light stretching are a steady wind-down habit.",
+          "has_answer": false
+        }
+      ]
+    ]
+  },
+  {
+    "question_id": "smoke_synth_09_abs",
+    "question_type": "abstention",
+    "question": "What brand of sea kayak did I say I purchased last spring?",
+    "question_date": "2024/06/30 (Sun) 15:00",
+    "answer": "You did not mention this information. You mentioned renting a stand-up paddleboard, not purchasing a sea kayak.",
+    "answer_session_ids": [
+      "smoke_sess_09_04"
+    ],
+    "haystack_dates": [
+      "2024/04/03 (Wed) 09:20",
+      "2024/04/16 (Tue) 18:05",
+      "2024/05/01 (Wed) 12:15",
+      "2024/05/12 (Sun) 16:40",
+      "2024/05/25 (Sat) 10:50",
+      "2024/06/04 (Tue) 19:30",
+      "2024/06/14 (Fri) 14:10",
+      "2024/06/22 (Sat) 11:00"
+    ],
+    "haystack_session_ids": [
+      "smoke_sess_09_01",
+      "smoke_sess_09_02",
+      "smoke_sess_09_03",
+      "smoke_sess_09_04",
+      "smoke_sess_09_05",
+      "smoke_sess_09_06",
+      "smoke_sess_09_07",
+      "smoke_sess_09_08"
+    ],
+    "haystack_sessions": [
+      [
+        {
+          "role": "user",
+          "content": "I stocked up on cedar shoe trees for my dress shoes.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Cedar shoe trees absorb moisture and keep leather shapes crisp.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I also set a timer for twenty minutes so the rest of the evening stays unhurried.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Setting a short timer keeps evening routines relaxed and predictable.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I tried a cold-brew green tea recipe steeped overnight in the fridge.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Cold-brewed green tea keeps bitterness low and highlights sweetness.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "The weather was mild with a light breeze, so I opened the windows for fresh air.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Mild weather and cross-ventilation always make indoor chores more pleasant.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I replaced the worn grip tape on my tennis racket handle.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Fresh overgrip makes a huge difference on humid court days.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I wrote a quick three-line checklist on sticky notes for tomorrow morning.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "A brief three-line checklist keeps priorities clear without feeling overwhelming.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "Last spring at the calm reservoir, I rented a stand-up paddleboard for two hours.",
+          "has_answer": true
+        },
+        {
+          "role": "assistant",
+          "content": "Two hours on a stand-up paddleboard is great core balance work!",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Afterward I listened to an instrumental acoustic album while tidying the living room.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Instrumental music gives a calm background pace for evening tidying.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I organized my spice rack with refillable glass shakers.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Matching glass shakers keep cooking stations tidy.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I double-checked my calendar for next week so nothing overlaps on Wednesday afternoon.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Reviewing the upcoming week early prevents last-minute scheduling surprises.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I practiced hand lettering with a brush pen for twenty minutes.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Brush pen strokes reward slow, relaxed wrist control.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Before turning in, I brewed a cup of decaf peppermint tea and stretched for five minutes.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Peppermint tea and light stretching are a steady wind-down habit.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I checked air pressure on both bicycle tires before Saturday's ride.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Proper tire pressure prevents pinch flats and lowers rolling resistance.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I also set a timer for twenty minutes so the rest of the evening stays unhurried.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Setting a short timer keeps evening routines relaxed and predictable.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I made roasted sweet potato tacos with black beans and lime.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Lime brightens roasted sweet potato and black bean tacos nicely.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "The weather was mild with a light breeze, so I opened the windows for fresh air.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Mild weather and cross-ventilation always make indoor chores more pleasant.",
+          "has_answer": false
+        }
+      ]
+    ]
+  },
+  {
+    "question_id": "smoke_synth_10_abs",
+    "question_type": "abstention",
+    "question": "What is the serial number of my vintage film projector?",
+    "question_date": "2024/07/28 (Sun) 13:30",
+    "answer": "You did not mention this information. You mentioned organizing vintage camera lenses, not a vintage film projector.",
+    "answer_session_ids": [
+      "smoke_sess_10_06"
+    ],
+    "haystack_dates": [
+      "2024/05/02 (Thu) 18:00",
+      "2024/05/08 (Wed) 20:15",
+      "2024/05/15 (Wed) 11:40",
+      "2024/05/21 (Tue) 17:25",
+      "2024/05/28 (Tue) 19:50",
+      "2024/06/04 (Tue) 15:10",
+      "2024/06/11 (Tue) 08:30",
+      "2024/06/18 (Tue) 21:00",
+      "2024/06/25 (Tue) 14:45",
+      "2024/07/04 (Thu) 10:20",
+      "2024/07/12 (Fri) 16:35",
+      "2024/07/20 (Sat) 12:10"
+    ],
+    "haystack_session_ids": [
+      "smoke_sess_10_01",
+      "smoke_sess_10_02",
+      "smoke_sess_10_03",
+      "smoke_sess_10_04",
+      "smoke_sess_10_05",
+      "smoke_sess_10_06",
+      "smoke_sess_10_07",
+      "smoke_sess_10_08",
+      "smoke_sess_10_09",
+      "smoke_sess_10_10",
+      "smoke_sess_10_11",
+      "smoke_sess_10_12"
+    ],
+    "haystack_sessions": [
+      [
+        {
+          "role": "user",
+          "content": "I scrubbed the balcony deck tiles with soapy water after pollen season.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Washing away spring pollen makes outdoor seating inviting again.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I wrote a quick three-line checklist on sticky notes for tomorrow morning.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "A brief three-line checklist keeps priorities clear without feeling overwhelming.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I tested a homemade granola batch with toasted pecans and maple.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Maple pecan granola fills the kitchen with a great aroma.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Afterward I listened to an instrumental acoustic album while tidying the living room.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Instrumental music gives a calm background pace for evening tidying.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I sorted my workbench Allen wrenches back onto their plastic holder.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Keeping hex keys in order saves endless hunting mid-project.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I double-checked my calendar for next week so nothing overlaps on Wednesday afternoon.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Reviewing the upcoming week early prevents last-minute scheduling surprises.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I planted two dwarf cherry tomato seedlings in fabric grow bags.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Fabric grow bags aerate roots well for container tomatoes.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Before turning in, I brewed a cup of decaf peppermint tea and stretched for five minutes.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Peppermint tea and light stretching are a steady wind-down habit.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I backed up my handwritten journal scans into a clean PDF folder.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Scanning handwritten pages preserves both layout and sketches.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I also set a timer for twenty minutes so the rest of the evening stays unhurried.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Setting a short timer keeps evening routines relaxed and predictable.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I spent Sunday cleaning and organizing my vintage camera lenses inside a dry cabinet.",
+          "has_answer": true
+        },
+        {
+          "role": "assistant",
+          "content": "A humidity-controlled dry cabinet keeps vintage lens glass in top shape.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "The weather was mild with a light breeze, so I opened the windows for fresh air.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Mild weather and cross-ventilation always make indoor chores more pleasant.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I learned how to fold crisp origami cranes using Japanese washi paper.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Washi paper holds clean creases while showing subtle fiber texture.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I wrote a quick three-line checklist on sticky notes for tomorrow morning.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "A brief three-line checklist keeps priorities clear without feeling overwhelming.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I walked through the neighborhood evening night market for street dumplings.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Fresh pan-fried dumplings are hard to pass up at an evening market.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Afterward I listened to an instrumental acoustic album while tidying the living room.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Instrumental music gives a calm background pace for evening tidying.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I changed the carbon filter pitcher in my kitchen refrigerator.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Fresh carbon filters keep chilled drinking water crisp.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I double-checked my calendar for next week so nothing overlaps on Wednesday afternoon.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Reviewing the upcoming week early prevents last-minute scheduling surprises.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I listened to a piano solo recital broadcast over public radio.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Live public radio piano recitals make relaxing holiday listening.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "Before turning in, I brewed a cup of decaf peppermint tea and stretched for five minutes.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Peppermint tea and light stretching are a steady wind-down habit.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I labeled my spare laptop chargers with colored tape for travel bags.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Color-coded tape lets you identify wattage at a glance.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "I also set a timer for twenty minutes so the rest of the evening stays unhurried.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Setting a short timer keeps evening routines relaxed and predictable.",
+          "has_answer": false
+        }
+      ],
+      [
+        {
+          "role": "user",
+          "content": "I boiled ginger root and lemon slices for a soothing evening tea.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Simmered ginger and lemon is warm and comforting in the evening.",
+          "has_answer": false
+        },
+        {
+          "role": "user",
+          "content": "The weather was mild with a light breeze, so I opened the windows for fresh air.",
+          "has_answer": false
+        },
+        {
+          "role": "assistant",
+          "content": "Mild weather and cross-ventilation always make indoor chores more pleasant.",
+          "has_answer": false
+        }
+      ]
+    ]
+  }
+]

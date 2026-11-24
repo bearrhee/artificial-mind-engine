@@ -78,7 +78,49 @@ AME 커널은 **무의식 상태(`Layer 0–1`)의 원시 수치 벡터를 LLM �
 
 ---
 
+## 6. 플러그형 영속 계층 & PostgreSQL/Redis 원자 파기 스키마
+
+로컬 샌드박스(`packages/sandbox-server/src/storage.mjs`)와 엔터프라이즈 배포 템플릿([`deploy/init.sql`](../deploy/init.sql))은 `AME_STORAGE_MODE`에 따라 3가지 영속 백엔드를 지원하며, 프로세스 재시작 이후에도 `D3` 비부활 불변식을 유지한다.
+
+```mermaid
+flowchart LR
+  APP["AME Gateway (:8090 / GET / + /v1/*)"] --> STORE{"AME_STORAGE_MODE"}
+  STORE -->|"memory"| MEM["In-Memory Map Store (Unit Tests)"]
+  STORE -->|"file (AME_STORAGE_PATH)"| FILE["Atomic Temp+Rename JSON Snapshot (Persists D3 Revoked Sets)"]
+  STORE -->|"postgres-redis"| PG["PostgreSQL 17 + pgvector (deploy/init.sql)"]
+  STORE -->|"postgres-redis"| RD["Redis 7 (Epoch & Revoked Sets)"]
+```
+
+| 저장소 계층 | 핵심 스키마 / 키 구조 | `D3` 재시작 후 부활 방지 메커니즘 |
+| :--- | :--- | :--- |
+| **`file` 모드** | `AME_STORAGE_PATH` (기본 `./.ame-sandbox-state.json`) | 임시 파일 기록 후 원자적 `rename`으로 저장하며, `revokedMemoryIds`와 `excludedDerivativeIds` 집합을 재로딩 시 강제 필터링해 재시작 후 누설 `0%` 유지 |
+| **PostgreSQL (`deploy/init.sql`)** | `ame_minds`, `ame_memories` (`embedding vector(1024)` + HNSW 인덱스), `ame_turn_log`, `ame_revocation_audit` | `ame_memories`·`ame_turn_log`·`derived_from_memory_ids` (GIN 인덱스) 트랜잭션 파기 + `ame_revocation_audit` 불변 감사 원장 기록 |
+| **Redis Epoch 저장소** | `ame:mind:{mindId}:revocation_epoch`, `kv_epoch`, `revoked_memories`, `excluded_derivatives`, `ame:ticket:{turnTicketId}` | 철회 즉시 `revocationEpoch` 단조 증가 및 파생 캐시 키 일괄 무효화 |
+
+### 원클릭 데모 스택 vs 봉인 커널 배포 비교
+
+| 스택 구성 | Compose 파일 | 포함 서비스 | 용도 및 보안 경계 |
+| :--- | :--- | :--- | :--- |
+| **원클릭 데모 스택** | [`deploy/docker-compose.demo.yml`](../deploy/docker-compose.demo.yml) | `ame-demo` (`Dockerfile.sandbox`, `GET /` 웹 데모 콘솔, `AME_STORAGE_MODE=file`) + `postgres` (`init.sql` 마운트) + `redis` | API 키 없는 즉시 시연·재시작 연속성·`D3`/`D4` 실시간 브라우저 검증 |
+| **봉인 커널 스택** | [`deploy/docker-compose.sealed.yml`](../deploy/docker-compose.sealed.yml) | `ame-kernel` (`ghcr.io/bearrhee/ame-kernel-sealed:latest`, `AME_MODE=sealed-kernel`, `AME_D4_STRICT_REDACTION=true`) + `postgres` + `redis` | 소스/소스맵 `0`개 봉인 런타임 · 상용/평가 라이선스 운영 |
+
+---
+
+## 7. CI/CD 보안 가드 및 비공개 커널 GHCR 발행 연동
+
+1. **자동 IP·시크릿 가드 ([`.github/workflows/ci.yml`](../.github/workflows/ci.yml))**:
+   - `main` 대상 `push`/`pull_request`마다 `npm run test:ts`, `npm run test:py`, `npm run test:bench`를 실행한다.
+   - 포트 `18095`에 샌드박스를 기동해 `GET /v1/health` (`200`) + `GET /` (`200`) + 3대 예제 + `run_harness.mjs --json-only`를 라이브 검증한 뒤 `trap` 및 `always()`로 서버를 정리한다.
+   - `docs/index.html` 인라인 `<script>`를 Node `new Function`으로 검증하고, 독점 `.ts` 파일(`aacim-affect-plasticity.ts`, `hierarchical-pc.ts`, `fep-selective-attention.ts`, `somatic-markers.ts` 등)과 자격 증명 패턴(`sk-...`, `ghp_...`, `AKIA...`)이 `0`건임을 강제한다.
+2. **GitHub Pages 문서 자동 배포 ([`.github/workflows/pages.yml`](../.github/workflows/pages.yml))**:
+   - `docs/**` 변경 시 `./docs` 아티팩트를 공식 `actions/upload-pages-artifact@v3` + `actions/deploy-pages@v4`로 게시한다(비공개 저장소 상태에서는 GitHub 조직/계정 플랜에 따라 Pages 활성화가 제한될 수 있음).
+3. **비공개 커널 GHCR 발행 파이프라인 연동**:
+   - 비공개 코어 저장소(`character_chat`)의 `.github/workflows/publish-ame-sealed.yml`이 `services/orchestrator/Dockerfile.ame-sealed`를 컴파일·번들링해 `.ts`와 `.map` 파일이 완전히 제거된 이미지를 `ghcr.io/bearrhee/ame-kernel-sealed:latest`로 발행한다. 본 공개 저장소는 소스 코드 접근 없이 해당 봉인 이미지만 참조해 구동한다.
+
+---
+
 ## 관련 문서
 - [5계층 인지 OS 커널 아키텍처](./architecture-kr.md)
 - [LLM 교체 어댑터 및 ROI 라우팅 가이드](./llm-adapters-kr.md)
 - [전 벤치마크 실증 및 재현 하네스 가이드](./benchmarks-kr.md)
+- [봉인 커널 및 데모 배포 가이드](../deploy/README.md)

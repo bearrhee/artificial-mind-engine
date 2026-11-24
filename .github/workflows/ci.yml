@@ -1,0 +1,195 @@
+name: AME CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-and-sandbox-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run TypeScript SDK & Sandbox tests
+        run: npm run test:ts
+
+      - name: Run Python SDK tests
+        run: npm run test:py
+
+      - name: Run Benchmark Harness unit tests
+        run: npm run test:bench
+
+      - name: Boot Sandbox on 18095 & Run Live Examples + Black-Box Harness
+        shell: bash
+        run: |
+          set -euo pipefail
+          AME_PORT=18095 AME_HOST=127.0.0.1 AME_API_KEY=ci-sandbox-key \
+            node packages/sandbox-server/bin/serve.mjs > /tmp/ame-sandbox.log 2>&1 </dev/null &
+          SANDBOX_PID=$!
+          echo "$SANDBOX_PID" > /tmp/ame-sandbox.pid
+
+          cleanup() {
+            if [ -f /tmp/ame-sandbox.pid ]; then
+              kill "$(cat /tmp/ame-sandbox.pid)" 2>/dev/null || true
+              wait "$(cat /tmp/ame-sandbox.pid)" 2>/dev/null || true
+              rm -f /tmp/ame-sandbox.pid
+            fi
+          }
+          trap cleanup EXIT
+
+          ready=0
+          for _ in $(seq 1 30); do
+            health_code=$(curl -s -o /tmp/health.json -w '%{http_code}' http://127.0.0.1:18095/v1/health || true)
+            ui_code=$(curl -s -o /tmp/ui.html -w '%{http_code}' http://127.0.0.1:18095/ || true)
+            if [ "$health_code" = "200" ] && [ "$ui_code" = "200" ]; then
+              ready=1
+              break
+            fi
+            sleep 0.5
+          done
+
+          if [ "$ready" -ne 1 ]; then
+            echo "Sandbox failed to reach 200 on /v1/health and /"
+            cat /tmp/ame-sandbox.log || true
+            exit 1
+          fi
+
+          node -e "
+            const fs = require('node:fs');
+            const health = JSON.parse(fs.readFileSync('/tmp/health.json', 'utf8'));
+            if (!health.ok) throw new Error('Unexpected /v1/health payload: ' + JSON.stringify(health));
+            const html = fs.readFileSync('/tmp/ui.html', 'utf8');
+            if (!html.toLowerCase().includes('<html')) throw new Error('GET / did not return HTML');
+            console.log('Verified /v1/health (200) and GET / (200, ' + html.length + ' bytes)');
+          "
+
+          export AME_BASE_URL="http://127.0.0.1:18095"
+          export AME_API_KEY="ci-sandbox-key"
+
+          npm run example:game
+          npm run example:chat
+          npm run example:counseling
+
+          node benchmarks/cogeval-locomo-harness/run_harness.mjs --json-only > /tmp/harness-report.json
+          node -e "
+            const fs = require('node:fs');
+            const report = JSON.parse(fs.readFileSync('/tmp/harness-report.json', 'utf8'));
+            console.log('Harness passed:', report.passed + '/' + report.total, 'overallPass=' + report.overallPass);
+            if (!report.overallPass) {
+              console.error(JSON.stringify(report, null, 2));
+              process.exit(1);
+            }
+          "
+
+      - name: Cleanup Sandbox Server (always)
+        if: always()
+        shell: bash
+        run: |
+          if [ -f /tmp/ame-sandbox.pid ]; then
+            kill "$(cat /tmp/ame-sandbox.pid)" 2>/dev/null || true
+            rm -f /tmp/ame-sandbox.pid
+          fi
+          if [ "${{ job.status }}" != "success" ] && [ -f /tmp/ame-sandbox.log ]; then
+            cat /tmp/ame-sandbox.log
+          fi
+
+  docs-and-ip-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate docs/index.html inline scripts and JSON configs
+        run: |
+          node -e "
+            const fs = require('node:fs');
+            const html = fs.readFileSync('docs/index.html', 'utf8');
+            const matches = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)];
+            if (matches.length === 0) {
+              throw new Error('Expected at least one inline <script> in docs/index.html');
+            }
+            for (const [idx, m] of matches.entries()) {
+              new Function(m[1]);
+              console.log('Validated docs/index.html script #' + idx + ' (' + m[1].length + ' chars)');
+            }
+            for (const jsonPath of [
+              'package.json',
+              'benchmarks/cogeval-locomo-harness/sample_suite.json',
+              'benchmarks/cogeval-locomo-harness/sample_longmemeval.json'
+            ]) {
+              if (fs.existsSync(jsonPath)) {
+                JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+                console.log('Validated JSON:', jsonPath);
+              }
+            }
+          "
+
+      - name: Closed-IP & Secret Guard
+        run: |
+          python - <<'PY'
+          import pathlib
+          import re
+          import sys
+
+          root = pathlib.Path('.').resolve()
+          forbidden_names = {
+              'aacim-affect-plasticity.ts',
+              'hierarchical-pc.ts',
+              'fep-selective-attention.ts',
+              'somatic-markers.ts',
+          }
+          secret_pattern = re.compile(
+              r'(sk-[A-Za-z0-9_-]{20,}|ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{30,}|-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----)'
+          )
+
+          ts_violations = []
+          secret_violations = []
+
+          for path in root.rglob('*'):
+              if not path.is_file():
+                  continue
+              if any(part in {'.git', 'node_modules', '__pycache__'} for part in path.parts):
+                  continue
+              rel = path.relative_to(root).as_posix()
+              if path.name in forbidden_names or (path.suffix == '.ts' and not path.name.endswith('.d.ts')):
+                  ts_violations.append(rel)
+              try:
+                  text = path.read_text(encoding='utf-8')
+              except UnicodeDecodeError:
+                  continue
+              for line_no, line in enumerate(text.splitlines(), 1):
+                  for m in secret_pattern.finditer(line):
+                      secret_violations.append(f'{rel}:{line_no} ({m.group(1)[:10]}...)')
+
+          if ts_violations:
+              print('FORBIDDEN CLOSED-IP .TS FILES DETECTED:', ts_violations, file=sys.stderr)
+              sys.exit(1)
+          if secret_violations:
+              print('POTENTIAL CREDENTIAL PATTERNS DETECTED:', secret_violations, file=sys.stderr)
+              sys.exit(1)
+
+          print('Closed-IP & Secret Guard passed: 0 proprietary .ts files, 0 credential patterns.')
+          PY

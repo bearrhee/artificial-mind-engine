@@ -12,7 +12,10 @@
     "example:chat": "node examples/companion-chat/run.mjs",
     "example:counseling": "node examples/counseling-coach/run.mjs",
     "bench:smoke": "node benchmarks/cogeval-locomo-harness/run_harness.mjs",
-    "test": "npm run test:ts && npm run test:py"
+    "bench:longmemeval": "node benchmarks/cogeval-locomo-harness/longmemeval_frontier_runner.mjs",
+    "bench:scorecard": "node benchmarks/cogeval-locomo-harness/dd_scorecard_generator.mjs",
+    "test:bench": "node --test benchmarks/cogeval-locomo-harness/test/*.test.mjs",
+    "test": "npm run test:ts && npm run test:py && npm run test:bench"
   },
   "engines": {
     "node": ">=20.0.0"

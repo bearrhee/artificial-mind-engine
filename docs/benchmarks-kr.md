@@ -124,16 +124,84 @@ xychart-beta
 
 ---
 
-## 6. 블랙박스 검증 하네스 실행 방법 (`benchmarks/cogeval-locomo-harness`)
+## 6. 블랙박스 검증 및 외부 DD 비교 벤치마크 (`benchmarks/cogeval-locomo-harness`)
 
-누구나 로컬 샌드박스(`npm run sandbox`) 또는 봉인된 커널 게이트웨이(`AME_BASE_URL`)를 상대로 `D1–D4`, `HOT` 기권, 체성 학습, `KV` 에폭 불변식을 블랙박스로 직접 검증할 수 있다.
+누구나 로컬 샌드박스(`npm run sandbox`, `GET /` 라이브 콘솔 포함) 또는 봉인된 커널 게이트웨이(`AME_BASE_URL`)를 상대로 `D1–D4`, `HOT` 기권, 체성 학습, `KV` 에폭, `LongMemEval-S` 1:1 대조군 지표를 블랙박스로 직접 검증할 수 있다.
+
+### 6.1 기본 7대 불변식 하네스 (`run_harness.mjs`) 및 단위 테스트 (`test:bench`)
 
 ```bash
 # 1. 터미널 1: 로컬 계약 샌드박스 실행 (또는 sealed Docker 게이트웨이 연결)
 npm run sandbox
 
-# 2. 터미널 2: 블랙박스 스모크 벤치마크 하네스 실행
+# 2. 터미널 2: 블랙박스 7대 불변식 스모크 하네스 실행
 npm run bench:smoke
+
+# 3. 벤치마크 하네스 + LongMemEval 비교기 단위 테스트 (로컬 스텁 기반 무과금 검증)
+npm run test:bench
+
+# 4. 전체 스위트 (TypeScript SDK + Sandbox + Python SDK + Benchmark Harness)
+npm test
 ```
 - 환경 변수: `AME_BASE_URL` (기본 `http://127.0.0.1:8090`), `AME_API_KEY` (게이트웨이 인증 설정 시 지정).
-- 전체 단위 테스트(`sdk-ts`, `sandbox-server`, `sdk-python`) 실행: `npm test`
+
+### 6.2 외부 DD 비교 벤치마크: `LongMemEval-S (500-QA)` vs `bare-frontier` (`longmemeval_frontier_runner.mjs`)
+
+외부 기술 실사(DD)에서 무상태 프론티어 LLM에 전체 대화 이력을 그대로 넣는 기준선(`bare-frontier`)과 상태유지 커널 경유 경로(`ame-gateway`)의 정확도·토큰 스케일링·기권률을 1:1 쌍대 비교한다.
+
+```mermaid
+flowchart LR
+  DS["LongMemEval-S Dataset (sample_longmemeval.json or 500-QA JSON)"] --> RUN["longmemeval_frontier_runner.mjs"]
+  RUN -->|"Arm 1: ame-gateway"| GW["AME Gateway /v1/minds + Turn/Query"]
+  GW --> M1["Bounded O(1) Prompt Tokens + KV Cache % + d4RedactedAll"]
+  RUN -->|"Arm 2: bare-frontier"| BARE["Flattened Full Haystack Prompt -> LLM Adapter"]
+  BARE --> M2["Unbounded O(T^2) Prompt Tokens + Raw Frontier Accuracy"]
+  M1 --> DELTA["Paired Delta Report (accuracyDeltaPct, tokenReductionRatio)"]
+  M2 --> DELTA
+```
+
+| 비교 Arm (`--arm`) | 동작 방식 | 측정 핵심 지표 |
+| :--- | :--- | :--- |
+| **`ame-gateway`** | 문항별 격리 `Mind` 생성 → `haystack_sessions` 순차 투입 → Mode A/B 질의 | Exact/Contains/Token-F1, `abstentionAccuracy`, `abstentionFAR`, KV `cachedRatioPct`, `O(1)` 프롬프트 토큰 상한, `d4Redacted === true` |
+| **`bare-frontier`** | 날짜 포함 전체 `haystack_sessions`를 단일 무상태 프롬프트로 패킹해 `createLlmAdapter` 호출 | 원문 전체 투입 기준 정확도, 턴 수 증가에 따른 $\Theta(T^2)$ 프롬프트 토큰 증가량, 응답 지연 |
+
+```bash
+# 1. 오프라인 10문항 스모크 비교 실행 (API 키 불필요, mock 어댑터)
+npm run bench:longmemeval -- --arm both --provider mock --json-only
+
+# 2. 공식 LongMemEval-S 500-QA 풀셋 1:1 DD 비교 실행 (유료/로컬 LLM 연결)
+node benchmarks/cogeval-locomo-harness/longmemeval_frontier_runner.mjs \
+  --dataset /path/to/longmemeval_s_cleaned.json \
+  --arm both \
+  --provider openai \
+  --model gpt-4o-mini \
+  --ame-base-url http://127.0.0.1:8090 \
+  --json-out ./artifacts/longmemeval-500-dd.json
+```
+> [!NOTE]
+> Section 5.A의 `LongMemEval_S 55.20% (276/500)`는 `PR #784` 이전 구 파이프라인의 공식 스냅샷이다. `longmemeval_frontier_runner.mjs`는 동일 공식 스키마(`longmemeval_s_cleaned.json` 500-QA)를 사용해 최신 커널과 `bare-frontier` 대조군을 블랙박스 1:1로 재측정하기 위한 공개 비교 러너다.
+
+### 6.3 VC 기술 실사(DD) 스코어카드 생성 (`dd_scorecard_generator.mjs`)
+
+`run_harness.mjs` 결과와 `longmemeval_frontier_runner.mjs` 결과를 결합해 기관 투자자 기술 실사용 Markdown 리포트와 JSON 요약을 자동 생성한다.
+
+```bash
+# CogEval 블랙박스 결과 + LongMemEval 비교 결과를 DD 스코어카드로 합성
+npm run bench:scorecard -- \
+  --harness-json ./artifacts/harness.json \
+  --lme-json ./artifacts/longmemeval-500-dd.json \
+  --out-md ./artifacts/vc-dd-scorecard.md \
+  --out-json ./artifacts/vc-dd-scorecard.json
+```
+- 생성된 스코어카드는 **로컬 샌드박스/블랙박스 실측 결과**와 **외부 봉인 커널 Tier 1 프로덕션 기록**을 명확히 분리 표기한다. ([하네스 상세 가이드](../benchmarks/cogeval-locomo-harness/README.md))
+
+---
+
+## 7. GitHub Actions CI 자동 검증 파이프라인 ([`ci.yml`](../.github/workflows/ci.yml))
+
+`main` 브랜치 push 및 PR마다 Ubuntu 환경(Node 22 + Python 3.12)에서 다음 4단계 게이트를 자동 검증한다.
+
+1. **전체 단위 테스트**: `npm run test:ts` + `npm run test:py` + `npm run test:bench` (`0` 실패).
+2. **라이브 샌드박스 E2E (포트 `18095`)**: `serve.mjs` 백그라운드 기동 후 `GET /v1/health` (`200`) 및 `GET /` 라이브 웹 콘솔(`200`) 확인 → `example:game`, `example:chat`, `example:counseling`, `run_harness.mjs --json-only` 전수 통과 후 `trap`/`always()`로 프로세스 정리.
+3. **문서·스크립트 무결성**: `docs/index.html` 인라인 `<script>`를 Node `new Function`으로 구문 검증하고 JSON 설정 파일을 파싱한다.
+4. **Closed-IP & 시크릿 가드**: 독점 커널 `.ts` 소스 및 자격 증명 패턴(`sk-...`, `ghp_...`, `AKIA...`) 유입이 `0`건인지 전수 검사한다.

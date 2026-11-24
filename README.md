@@ -149,10 +149,11 @@ res = run_turn_with_local_llm(client, mind["mindId"], user_input="다행히 무�
 
 동일한 커널을 `domain` 설정 하나로 3대 산업 + 커스텀 스키마에 즉시 적용한다. ([도메인 연동 가이드](./docs/domain-guide-kr.md))
 
-### 1분 로컬 빠른 시작 (API 키 불필요 · Zero-Key Sandbox)
+### 1분 로컬 빠른 시작 (API 키 불필요 · Live Web Demo Console)
 
+1. **로컬 계약 샌드박스 + 라이브 웹 콘솔 (`GET /` on `:8090`)**:
 ```bash
-# 터미널 1: 로컬 계약 샌드박스 게이트웨이 실행 (http://127.0.0.1:8090)
+# 터미널 1: 계약 샌드박스 게이트웨이 + 브라우저 라이브 콘솔 (http://127.0.0.1:8090/)
 npm run sandbox
 
 # 터미널 2: 3대 도메인 예제 및 블랙박스 검증 하네스 실행
@@ -160,8 +161,23 @@ npm run example:game        # 게임 NPC: LLM 교체, 보상/배신(-250/+50), 1
 npm run example:chat        # AI 동반자: Mode B Zero-Key, 에폭 KV-캐시 추적
 npm run example:counseling  # 심리상담: HOT 기권, D3 원자적 기억 파기(0.00% 누설), D4 검증
 npm run bench:smoke         # 블랙박스 인지·기억·보안 불변식 스모크 하네스
-npm test                    # TypeScript SDK + Sandbox + Python SDK 전체 테스트
+npm test                    # TypeScript SDK + Sandbox + Python SDK + Benchmark 전체 테스트
 ```
+
+2. **원클릭 Docker 데모 스택 (`Sandbox + Live Web Console + PostgreSQL/pgvector + Redis`)**:
+```bash
+# 브라우저 라이브 콘솔(http://127.0.0.1:8090/) + 파일 영속화 + pgvector/Redis 참조 스키마 일괄 기동
+docker compose -f deploy/docker-compose.demo.yml up --build
+```
+- 브라우저에서 `http://127.0.0.1:8090/`을 열면 [라이브 인터랙티브 웹 데모 콘솔](./packages/sandbox-server/src/demo-ui.html)이 실행되어 `/v1/health`, `/v1/minds`, Mode A(`/turn`), Mode B Zero-Key(`/prepare` → `/settle`), `/idle-tick`, `D3` 원자적 기억 파기(`DELETE /memories`), `D4` 텔레메트리를 실시간 호출·검증한다.
+
+### 플러그형 영속 계층 (`memory` / `file` / `postgres-redis`, [`deploy/init.sql`](./deploy/init.sql))
+
+| 모드 (`AME_STORAGE_MODE`) | 동작 방식 | 재시작 연속성 · `D3` 불변식 | 주요 용도 |
+| :--- | :--- | :--- | :--- |
+| **`memory`** *(기본값)* | 인메모리 `Map` 저장소 | 프로세스 종료 시 초기화 | `npm test` · 무상태 빠른 계약 검증 |
+| **`file`** (`AME_STORAGE_PATH`) | 임시 파일 기록 후 원자적 이름 바꾸기(`write-temp-and-rename`) JSON 스냅샷 | **재시작 후에도 Mind·기억·체성표지·KV 에폭 및 `D3` 철회(`revokedMemoryIds`, `excludedDerivativeIds`) 100% 보존 → 부활 누설 `0%`** | 원클릭 VC 데모(`docker-compose.demo.yml`) · 로컬 재시작 테스트 |
+| **`postgres-redis`** | [`deploy/init.sql`](./deploy/init.sql) (`pgvector` `vector(1024)` + HNSW 인덱스, `ame_minds`·`ame_memories`·`ame_turn_log`·`ame_revocation_audit`) & Redis 에폭 키 연동 인터페이스 | 단일 트랜잭션 파기 + `revocationEpoch` 원자적 무효화 + `excluded_derivative_ids` 감사 원장 | 프로덕션 Sealed Kernel · 대규모 벡터/에폭 운영 |
 
 ### 도메인별 구조화 출력 (`TurnResult.domainOutput`) 미리보기
 
@@ -238,11 +254,57 @@ xychart-beta
 
 > **투명성 및 인식론적 격리 안내**: `100k`-턴 다모델 승수 곡선(`Gemini Flash 0.885 → DeepSeek Eco 0.915 → Sonnet 3.5 0.952 → Opus 3.5 0.978`)은 PR #773 원칙에 따른 **Tier 5 비실증 설계 목표 시나리오**이며, 위 Tier 1 라이브 실측과는 별도 분리한다. 또한 `R4 sb2 Stroop Incongruent` `50% (2/4)` 변이(DeepSeek 카운팅·한국어 수 표기 편차)는 [벤치마크 문서](./docs/benchmarks-kr.md)에 원시 로그와 함께 투명 공개한다.
 
+### 외부 DD 비교 벤치마크 (`LongMemEval-S 500-QA` vs `bare-frontier` & VC DD 스코어카드)
+
+외부 기술 실사(DD)에서 무상태 프론티어 LLM에 전체 대화 이력을 그대로 투입하는 기준선(`bare-frontier`)과 상태유지 커널 경유(`ame-gateway`)를 1:1 쌍대 비교하고 스코어카드를 생성할 수 있다.
+
+```bash
+# 1. 오프라인 스모크 DD 비교 (sample_longmemeval.json 10문항, mock 어댑터)
+npm run bench:longmemeval -- --arm both --provider mock --json-only
+
+# 2. 공식 LongMemEval-S 500-QA 풀셋 1:1 DD 비교 (longmemeval_s_cleaned.json 지정)
+node benchmarks/cogeval-locomo-harness/longmemeval_frontier_runner.mjs \
+  --dataset /path/to/longmemeval_s_cleaned.json \
+  --arm both \
+  --provider openai \
+  --model gpt-4o-mini \
+  --ame-base-url http://127.0.0.1:8090 \
+  --json-out ./artifacts/lme-500-dd.json
+
+# 3. CogEval + LongMemEval 결과를 기관 투자자용 VC DD 스코어카드(MD/JSON)로 합성
+npm run bench:scorecard -- \
+  --harness-json ./artifacts/harness.json \
+  --lme-json ./artifacts/lme-500-dd.json \
+  --out-md ./artifacts/vc-dd-scorecard.md \
+  --out-json ./artifacts/vc-dd-scorecard.json
+```
+- 하네스 자동화 단위 테스트: `npm run test:bench` (로컬 HTTP 스텁 기반 무과금 검증, `npm test`에 통합 포함).
+
 ---
 
-## 7. IP 보호 & 비공개 커널 배포 모델 (`Sealed Docker / Managed API`)
+## 7. IP 보호 · CI/CD 자동화 · 비공개 커널 배포 모델 (`Sealed Docker / GHCR`)
 
 본 공개 저장소는 OpenAPI 계약, SDK, 도메인 템플릿, 샌드박스, 검증 하네스만 **MIT 라이선스**로 제공한다([`NOTICE.md`](./NOTICE.md)). 독점 5계층 인지 커널(`ame-kernel`)은 소스 코드와 소스맵이 완전히 제거된 봉인 컨테이너 또는 Managed API로만 제공된다.
+
+```mermaid
+flowchart LR
+  subgraph PUB["Public Interface Repo (artificial-mind-engine, MIT)"]
+    CI["GitHub Actions CI (ci.yml: test:ts, test:py, test:bench, :18095 Live E2E, IP/Secret Guard)"]
+    PAGES["GitHub Pages (pages.yml: ./docs static artifact)"]
+    DEMO["One-Click Demo Stack (deploy/docker-compose.demo.yml + GET / Web Console)"]
+  end
+
+  subgraph PRIV["Private Core Repo (character_chat, Closed IP)"]
+    PUBLISH["GHCR Publish Workflow (.github/workflows/publish-ame-sealed.yml)"]
+    SEAL["Sealed Kernel Image (ghcr.io/bearrhee/ame-kernel-sealed:latest, 0 .ts/.map)"]
+    PUBLISH --> SEAL
+  end
+
+  SEAL -->|"docker compose -f deploy/docker-compose.sealed.yml up -d"| ENT["Enterprise VPC / Managed API (:8090 + pgvector + Redis)"]
+```
+
+- **원클릭 데모 스택 (`deploy/docker-compose.demo.yml`)**: MIT 샌드박스(`Dockerfile.sandbox`, `GET /` 라이브 콘솔, `AME_STORAGE_MODE=file`) + `pgvector/pgvector:pg17`(`deploy/init.sql`) + `redis:7-alpine` 구성.
+- **봉인 커널 스택 (`deploy/docker-compose.sealed.yml`)**: `ghcr.io/bearrhee/ame-kernel-sealed:latest` (`AME_MODE=sealed-kernel`, `AME_D4_STRICT_REDACTION=true`) + `pgvector/pgvector:pg17` + `redis:7-alpine` (상세 가이드: [`deploy/README.md`](./deploy/README.md)).
 
 ```bash
 # deploy/docker-compose.sealed.yml 기반 엔터프라이즈 봉인 커널 기동
@@ -250,8 +312,13 @@ cp deploy/.env.example deploy/.env
 docker compose -f deploy/docker-compose.sealed.yml up -d
 ```
 
-- 이미지: `ghcr.io/bearrhee/ame-kernel-sealed:latest` (`AME_MODE=sealed-kernel`, `AME_D4_STRICT_REDACTION=true`)
-- 구성: `ame-kernel` + `pgvector/pgvector:pg17` + `redis:7-alpine` (상세 가이드: [`deploy/README.md`](./deploy/README.md))
+### GitHub Actions CI (`ci.yml`), Pages (`pages.yml`) & 비공개 커널 GHCR 연동
+
+| 워크플로 | 트리거 | 검증 · 배포 내용 |
+| :--- | :--- | :--- |
+| **[`.github/workflows/ci.yml`](./.github/workflows/ci.yml)** | `push` / `pull_request` (`main`) | Node 22 + Python 3.12에서 `test:ts`·`test:py`·`test:bench` 실행, 포트 `18095` 라이브 샌드박스(`/v1/health` `200` + `GET /` `200` + 3대 예제 + `run_harness.mjs --json-only`) 검증, `docs/index.html` 인라인 `<script>` `new Function` 검사, 독점 `.ts` 0개 & 시크릿 패턴 0건 가드 |
+| **[`.github/workflows/pages.yml`](./.github/workflows/pages.yml)** | `push` (`docs/**`) · 수동 실행 | `./docs` 정적 쇼케이스 및 문서를 `actions/upload-pages-artifact@v3` + `actions/deploy-pages@v4`로 GitHub Pages 배포 *(비공개 저장소는 GitHub 플랜 정책에 따라 활성화가 제한될 수 있음)* |
+| **비공개 커널 GHCR 발행 연동** | 코어 저장소 태그 `ame-v*` · 수동 실행 | 비공개 코어 저장소의 `publish-ame-sealed.yml`이 `Dockerfile.ame-sealed`를 빌드해 소스/소스맵 없는 `ghcr.io/bearrhee/ame-kernel-sealed:latest`를 GHCR에 자동 발행 |
 
 ---
 

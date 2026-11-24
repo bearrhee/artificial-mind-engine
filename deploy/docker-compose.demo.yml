@@ -1,0 +1,68 @@
+services:
+  ame-demo:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.sandbox
+    ports:
+      - "${AME_PORT:-8090}:8090"
+    environment:
+      AME_HOST: "0.0.0.0"
+      AME_PORT: "8090"
+      AME_API_KEY: ${AME_API_KEY:-}
+      AME_STORAGE_MODE: ${AME_STORAGE_MODE:-file}
+      AME_STORAGE_PATH: ${AME_STORAGE_PATH:-/data/ame-sandbox-state.json}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-ame}:${POSTGRES_PASSWORD:-ame-demo-local}@postgres:5432/${POSTGRES_DB:-ame}
+      AME_DATABASE_URL: postgresql://${POSTGRES_USER:-ame}:${POSTGRES_PASSWORD:-ame-demo-local}@postgres:5432/${POSTGRES_DB:-ame}
+      REDIS_URL: redis://redis:6379/0
+      AME_REDIS_URL: redis://redis:6379/0
+    volumes:
+      - ame_demo_data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - node -e "fetch('http://127.0.0.1:8090/v1/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ame}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ame-demo-local}
+      POSTGRES_DB: ${POSTGRES_DB:-ame}
+    volumes:
+      - ame_demo_postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - ame_demo_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+volumes:
+  ame_demo_data:
+  ame_demo_postgres_data:
+  ame_demo_redis_data:

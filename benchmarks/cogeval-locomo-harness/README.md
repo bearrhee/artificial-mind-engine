@@ -1,19 +1,32 @@
-# AME Black-Box CogEval + LoCoMo Benchmark Harness
+# AME Black-Box CogEval + LoCoMo + LongMemEval-S Benchmark Suite
 
-Black-box evaluation harness for **Artificial Mind Engine (AME)** verifying episodic memory continuity, metacognitive abstention, somatic learning, offline homeostasis, atomic forgetting (`D3`), unconscious telemetry isolation (`D4`), and KV prefix cache stability strictly through the public OpenAPI 3.1 contract (`../../spec/openapi.yaml`) and `@ame/sdk` (`../../packages/sdk-ts/src/index.mjs`).
+Black-box evaluation suite for **Artificial Mind Engine (AME)** verifying episodic memory continuity, metacognitive abstention, somatic learning, offline homeostasis, atomic forgetting (`D3`), unconscious telemetry isolation (`D4`), KV prefix cache stability, and paired **LongMemEval-S vs Bare Frontier** unit economics strictly through the public OpenAPI 3.1 contract (`../../spec/openapi.yaml`) and `@ame/sdk` (`../../packages/sdk-ts/src/index.mjs`).
 
 ---
 
-## 1. Benchmark Methodology
+## Suite Components
 
-Unlike prompt-inspection harnesses that rely on privileged database or Redis access, this runner treats the AME Gateway as an opaque black box:
+| File | Role | Notes |
+| :--- | :--- | :--- |
+| `run_harness.mjs` | 7-Gate CogEval + LoCoMo Black-Box Harness | Exercises Mode A + Mode B across all 7 invariants |
+| `sample_suite.json` | Default 7-gate smoke suite | Korean/English synthetic scenarios & safety probes |
+| `longmemeval_frontier_runner.mjs` | LongMemEval-S + Bare Frontier Paired Comparator | Supports up to full 500-QA `longmemeval_s_cleaned.json` |
+| `sample_longmemeval.json` | 10-item synthetic offline smoke fixture | Strictly offline smoke verification (zero external claims) |
+| `dd_scorecard_generator.mjs` | Institutional VC Technical DD Scorecard Generator | Synthesizes Markdown + JSON with strict tier isolation |
+| `test/harness.test.mjs` | Automated `node --test` integration suite | Runs sandbox + local HTTP LLM stub (zero API cost) |
+
+---
+
+## 1. Benchmark Methodology (`run_harness.mjs`)
+
+Unlike prompt-inspection harnesses that rely on privileged database or Redis access, this suite treats the AME Gateway as an opaque black box:
 
 - **Zero kernel internals**: interacts exclusively via `AmeClient`, `createLlmAdapter`, and `runTurnWithLocalLlm` from `@ame/sdk`.
 - **Dual execution modes**: exercises both **Mode A** (`POST /v1/minds/{mindId}/turn`) and **Mode B** (`prepare -> adapter.generate -> settle`).
 - **Contract-identical portability**: runs unchanged against either the local open-source **Contract Sandbox** (`mode: "sandbox-contract"`) or the proprietary **Sealed Kernel Container** (`mode: "sealed-kernel"`).
 - **Isolated Minds per dimension**: every benchmark dimension provisions fresh `Mind` instances so cross-scenario contamination cannot mask regressions.
 
-### The 7 Benchmark Gates
+### The 7 Benchmark Gates (`run_harness.mjs`)
 
 | # | Dimension | What It Tests | Default Pass Threshold |
 | :-: | :--- | :--- | :--- |
@@ -27,7 +40,7 @@ Unlike prompt-inspection harnesses that rely on privileged database or Redis acc
 
 ---
 
-## 2. Quick Start
+## 2. Quick Start (`run_harness.mjs`)
 
 ### A. Run Against the Local Contract Sandbox
 
@@ -69,14 +82,124 @@ the harness automatically sends `AME_API_KEY` (default `dev-sandbox-key`) in `X-
    AME_LLM_PROVIDER=openai \
    AME_LLM_MODEL=gpt-4o-mini \
    AME_LLM_API_KEY=sk-... \
-   node benchmarks/cogeval-locomo-harness/run_harness.mjs --json-out ./artifacts/sealed-eval.json
+   node benchmarks/cogeval-locomo-harness/run_harness.mjs --json-out ./artifacts/harness-sealed.json
    ```
 
    You can also swap to local vLLM / Ollama via `AME_LLM_PROVIDER=openai-compat` and `AME_LLM_BASE_URL=http://127.0.0.1:11434/v1` without storing any provider keys inside the sealed container.
 
 ---
 
-## 3. CLI Flags & Environment Variables
+## 3. LongMemEval-S + Bare Frontier Paired Comparator (`longmemeval_frontier_runner.mjs`)
+
+`longmemeval_frontier_runner.mjs` provides a black-box paired comparator between:
+
+- **`ame-gateway`**: provisions an isolated Mind per question via `AmeClient`, ingests `haystack_sessions` turns sequentially with timestamps, queries via Mode B (`prepare -> adapter.generate -> settle`, default for exact prompt-token visibility) or Mode A (`/turn`), and records Exact Match, Contains Match, Token-F1, `abstentionAccuracy`, `abstentionFAR`, KV `cachedRatioPct`, `O(1)` bounded prompt tokens vs haystack length, query latency `p50`/`p95`, and `d4RedactedAll`.
+- **`bare-frontier`**: packs all dated `haystack_sessions` into a single flattened stateless prompt and calls the user-selected frontier LLM via `createLlmAdapter` (`openai`, `anthropic`, `gemini`, `deepseek`, `openrouter`, `openai-compat`, `mock`), measuring raw `O(T)` single-query / `O(T^2)` replay prompt tokens, accuracy, and latency.
+- **`pairedDelta`**: computes `accuracyDeltaPct`, `tokenReductionRatio`, `tokenCompressionFactor`, `amePromptBounded`, and `d4RedactedAll`.
+
+### Running on the 10-Item Synthetic Offline Smoke Fixture (`sample_longmemeval.json`)
+
+> [!NOTE]
+> `sample_longmemeval.json` is a 10-item synthetic offline smoke dataset covering `single-session-user`, `temporal-reasoning`, `knowledge-update`, `multi-session`, and `abstention` (`_abs`) schemas. It contains zero real-world benchmark claims and is designed for schema, contract, and `O(1)` prompt-bounding verification. (When run with `--provider mock`, `@ame/sdk`'s built-in Korean mock checks pipeline plumbing, `O(1)` bounding, KV cache, and D4 redaction; use a real LLM provider or the test suite's local HTTP frontier stub to evaluate English QA accuracy.)
+
+```bash
+node benchmarks/cogeval-locomo-harness/longmemeval_frontier_runner.mjs \
+  --dataset benchmarks/cogeval-locomo-harness/sample_longmemeval.json \
+  --arm both \
+  --provider openai \
+  --model gpt-4o-mini \
+  --api-key "$OPENAI_API_KEY" \
+  --json-out ./artifacts/lme-smoke.json
+```
+
+### Running on the Full 500-QA Official `longmemeval_s_cleaned.json` Dataset
+
+Against the proprietary **Sealed Kernel Container** (`AME_BASE_URL=http://127.0.0.1:8090`):
+
+```bash
+AME_BASE_URL=http://127.0.0.1:8090 \
+AME_API_KEY=your-gateway-api-key \
+node benchmarks/cogeval-locomo-harness/longmemeval_frontier_runner.mjs \
+  --dataset /path/to/longmemeval_s_cleaned.json \
+  --arm both \
+  --provider openai \
+  --model gpt-4o-mini \
+  --api-key "$OPENAI_API_KEY" \
+  --limit 500 \
+  --json-out ./artifacts/lme-sealed-500.json
+```
+
+Use `--arm ame-gateway` or `--arm bare-frontier` to run a single arm, `--ame-mode a` to test Mode A `/turn` instead of Mode B `prepare/settle`, and `--base-url http://127.0.0.1:11434/v1 --provider openai-compat` for local Ollama/vLLM endpoints.
+
+### Comparator CLI Flags
+
+| Flag | Description | Default |
+| :--- | :--- | :--- |
+| `--dataset <path>` | Path to LongMemEval-S JSON array (e.g. `sample_longmemeval.json` or 500-QA `longmemeval_s_cleaned.json`) | `./sample_longmemeval.json` |
+| `--arm <mode>` | `ame-gateway` \| `bare-frontier` \| `both` | `both` |
+| `--provider <name>` | `mock` \| `openai` \| `anthropic` \| `gemini` \| `deepseek` \| `openrouter` \| `openai-compat` | `AME_LLM_PROVIDER` or `mock` |
+| `--model <name>` | Upstream LLM model identifier | `AME_LLM_MODEL` or `mock-eval-v1` |
+| `--api-key <key>` | Upstream LLM API key | `AME_LLM_API_KEY` |
+| `--base-url <url>` | Upstream LLM base URL override | `AME_LLM_BASE_URL` |
+| `--ame-base-url <url>` | AME Gateway base URL | `AME_BASE_URL` or `http://127.0.0.1:8090` |
+| `--ame-api-key <key>` | Gateway `X-AME-API-Key` header | `AME_API_KEY` or `dev-sandbox-key` |
+| `--ame-mode <a\|b>` | Query path: `b` (Mode B `prepare/generate/settle`) or `a` (Mode A `/turn`) | `b` |
+| `--ingest-mode <mode>` | Haystack replay: `settle` (zero-cost Mode B historical settle) or `mode-a` | `settle` |
+| `--chunk-chars <n>` | Optional max characters per ingested user chunk (`0` = unsplit turn) | `0` |
+| `--limit <n>` | Evaluate up to `<n>` items | all items in dataset |
+| `--offset <n>` | Start offset into dataset | `0` |
+| `--json-out <path>` | Write structured JSON report to `<path>` | disabled |
+| `--json-only` | Suppress human summary and emit JSON only | `false` |
+
+---
+
+## 4. VC Technical Due-Diligence Scorecard Generator (`dd_scorecard_generator.mjs`)
+
+`dd_scorecard_generator.mjs` synthesizes the outputs of `run_harness.mjs` and `longmemeval_frontier_runner.mjs` into an institutional Markdown DD report and JSON summary while strictly separating **live contract sandbox verification** (`sandbox-contract-verification`) from **live sealed-kernel production evaluation** (`sealed-kernel-production-eval`).
+
+```bash
+# 1. Run 7-gate harness
+node benchmarks/cogeval-locomo-harness/run_harness.mjs \
+  --json-only --json-out ./artifacts/harness.json
+
+# 2. Run LongMemEval-S paired comparator
+node benchmarks/cogeval-locomo-harness/longmemeval_frontier_runner.mjs \
+  --dataset benchmarks/cogeval-locomo-harness/sample_longmemeval.json \
+  --arm both \
+  --json-only --json-out ./artifacts/lme.json
+
+# 3. Generate institutional DD Scorecard (Markdown + JSON)
+node benchmarks/cogeval-locomo-harness/dd_scorecard_generator.mjs \
+  --harness-json ./artifacts/harness.json \
+  --lme-json ./artifacts/lme.json \
+  --out-md ./artifacts/dd-scorecard.md \
+  --out-json ./artifacts/dd-scorecard.json
+```
+
+### Scorecard Generator CLI Flags
+
+| Flag | Description | Default |
+| :--- | :--- | :--- |
+| `--harness-json <path>` | Path to `run_harness.mjs` JSON output | optional (one input required) |
+| `--lme-json <path>` | Path to `longmemeval_frontier_runner.mjs` JSON output | optional (one input required) |
+| `--out-md <path>` | Output Markdown report path | disabled (prints to stdout) |
+| `--out-json <path>` | Output JSON summary path | disabled |
+| `--title <text>` | Custom report title | default DD title |
+| `--json-only` | Emit JSON summary to stdout instead of Markdown | `false` |
+
+---
+
+## 5. Automated Test Verification
+
+Run the self-contained automated test suite (boots the local `sandbox-server` on port `0` and an isolated local HTTP frontier LLM stub with zero external API calls):
+
+```bash
+node --test benchmarks/cogeval-locomo-harness/test/harness.test.mjs
+```
+
+---
+
+## 6. `run_harness.mjs` CLI Flags & Suite Schema (`sample_suite.json`)
 
 ### CLI Flags
 
@@ -104,87 +227,7 @@ the harness automatically sends `AME_API_KEY` (default `dev-sandbox-key`) in `X-
 | `AME_LLM_TEMPERATURE` | Sampling temperature override | unset |
 | `AME_LLM_MAX_TOKENS` | Max output token limit override | unset |
 
----
-
-## 4. Suite Schema (`sample_suite.json`)
-
-The harness reads all test cases and gate thresholds dynamically from JSON:
-
-```jsonc
-{
-  "suiteName": "ame-cogeval-locomo-blackbox-v1",
-  "suiteVersion": "1.0.0",
-  "thresholds": {
-    "continuityMinRecallRate": 1.0,
-    "hotMinAccuracy": 0.85,
-    "hotMaxFalseAbstentionRate": 0.2,
-    "d2ZeroTickMaxDelta": 0.000001,
-    "d2MinTotalDelta": 0.0001,
-    "d3MaxLeakRatePct": 0.0,
-    "d4MaxLeakCount": 0,
-    "kvMinCachedRatioPct": 1.0,
-    "kvRequireEpochBumpOnRevoke": true
-  },
-  "suiteA_continuity": { "scenarios": [ /* Mode A domain, persona, seedTurns, recallProbes */ ] },
-  "suiteB_mode_b_continuity": { "scenarios": [ /* Mode B domain, persona, seedTurns, recallProbes */ ] },
-  "hot_abstention": { "domain": "...", "persona": {}, "seedContextTurns": [], "cases": [ /* expectedAbstain: true|false */ ] },
-  "somatic_learning": { "domain": "game_npc", "persona": {}, "negativeBranch": {}, "positiveBranch": {} },
-  "d2_idle_progression": { "domain": "companion_chat", "persona": {}, "perturbationTurn": {}, "ticks": [] },
-  "d3_revocation": { "domain": "companion_chat", "persona": {}, "benignSeedTurn": {}, "sensitiveSeedTurn": {}, "postRevocationProbes": [] },
-  "d4_telemetry_isolation": { "domain": "counseling_coach", "persona": {}, "probeTurns": [], "forbiddenObjectKeys": [], "forbiddenPromptIdentifiers": [] },
-  "kv_prefix_stability": { "domain": "companion_chat", "persona": {}, "turns": [], "postRevokeTurn": {} }
-}
-```
-
----
-
-## 5. Output Report & Exit Codes
-
-The harness prints a human-readable **Pass/Fail Scorecard** followed by a **Structured JSON Summary Report** (or pure JSON with `--json-only`):
-
-```json
-{
-  "benchmark": "AME Black-Box CogEval + LoCoMo Harness",
-  "suiteName": "ame-cogeval-locomo-blackbox-v1",
-  "suiteVersion": "1.0.0",
-  "checks": [
-    {
-      "id": "suite_ab_continuity",
-      "dimension": "1. Suite A & Suite B Continuity (Mode A + Mode B)",
-      "passed": true,
-      "summary": "...",
-      "metrics": {},
-      "details": {},
-      "failures": []
-    }
-  ],
-  "metrics": {
-    "continuityRecallRate": 1,
-    "hotAbstentionAccuracy": 1,
-    "hotAbstentionPrecision": 1,
-    "hotAbstentionRecall": 1,
-    "hotAbstentionF1": 1,
-    "hotFalseAbstentionRate": 0,
-    "somaticNegativeTrend": "aversive_caution",
-    "somaticPositiveTrend": "positive_reinforcement",
-    "d2ZeroTickDelta": 0,
-    "d2HomeostasisDelta": 0.145,
-    "d3RevocationLeakRatePct": 0,
-    "d4LeakCount": 0,
-    "d4RedactedAll": true,
-    "kvPrefixStableTurns": 5,
-    "kvMeanCachedRatioPct": 70.0,
-    "kvEpochBeforeRevoke": 1,
-    "kvEpochAfterRevoke": 2,
-    "totalApiCalls": 65,
-    "durationMs": 120
-  },
-  "passed": 7,
-  "failed": 0,
-  "total": 7,
-  "overallPass": true
-}
-```
+### Exit Codes (`run_harness.mjs`)
 
 - **Exit code `0`**: `health()` succeeded and all 7 benchmark gates passed (`overallPass === true`).
 - **Exit code `1`**: Gateway unreachable, malformed suite/flags, or one or more benchmark gates failed (`overallPass === false`).

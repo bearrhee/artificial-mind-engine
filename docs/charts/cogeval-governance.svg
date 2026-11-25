@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 440" width="980" height="440" role="img" aria-label="CogEval-v1 Causality &amp; Governance: Baseline vs. AME Backbones (%)">
+  <defs>
+    <linearGradient id="grad-emerald" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#0891b2" />
+    </linearGradient>
+    <linearGradient id="grad-coral" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f43f5e" />
+      <stop offset="100%" stop-color="#f97316" />
+    </linearGradient>
+    <filter id="shadow-ame" x="-18%" y="-12%" width="136%" height="132%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.18" />
+    </filter>
+  </defs>
+  <style>
+    text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    .tabular { font-variant-numeric: tabular-nums; }
+  </style>
+  <rect x="1" y="1" width="978" height="438" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.4" />
+  <text x="32" y="34" font-size="18.5" font-weight="750" fill="#0f172a" letter-spacing="-0.2">CogEval-v1 Causality &amp; Governance: Baseline vs. AME Backbones (%)</text>
+  <text x="32" y="55" font-size="12" font-weight="450" fill="#475569">Stateless &amp; ov_off baselines fail D1 causality (50.7%) and FEP Lock (0.0%), while AME locks 100.0% conflict gating and 97.9% causality</text>
+  <line x1="64" y1="334.00" x2="948" y2="334.00" stroke="#94a3b8" stroke-width="1.3" />
+      <text x="54" y="338.00" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">0%</text>
+  <line x1="64" y1="291.86" x2="948" y2="291.86" stroke="#e2e8f0" stroke-width="1" />
+      <text x="54" y="295.86" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">20%</text>
+  <line x1="64" y1="249.71" x2="948" y2="249.71" stroke="#e2e8f0" stroke-width="1" />
+      <text x="54" y="253.71" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">40%</text>
+  <line x1="64" y1="207.57" x2="948" y2="207.57" stroke="#e2e8f0" stroke-width="1" />
+      <text x="54" y="211.57" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">60%</text>
+  <line x1="64" y1="165.43" x2="948" y2="165.43" stroke="#e2e8f0" stroke-width="1" />
+      <text x="54" y="169.43" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">80%</text>
+  <line x1="64" y1="123.29" x2="948" y2="123.29" stroke="#e2e8f0" stroke-width="1" />
+      <text x="54" y="127.29" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">100%</text>
+  <g>
+        <g>
+            <path d="M 101.33 334.00 L 101.33 232.17 Q 101.33 227.17 106.33 227.17 L 134.33 227.17 Q 139.33 227.17 139.33 232.17 L 139.33 334.00 Z" fill="#94a3b8" />
+            <text x="120.3" y="220.2" text-anchor="middle" font-size="10" font-weight="600" fill="#475569" class="tabular">50.7%</text>
+          </g>
+    <g>
+            <path d="M 148.33 334.00 L 148.33 132.71 Q 148.33 127.71 153.33 127.71 L 181.33 127.71 Q 186.33 127.71 186.33 132.71 L 186.33 334.00 Z" fill="url(#grad-emerald)" stroke="#047857" stroke-width="1.8" filter="url(#shadow-ame)" />
+            <text x="167.3" y="120.7" text-anchor="middle" font-size="10" font-weight="750" fill="#065f46" class="tabular">97.9%</text>
+          </g>
+    <g>
+            <path d="M 195.33 334.00 L 195.33 137.14 Q 195.33 132.14 200.33 132.14 L 228.33 132.14 Q 233.33 132.14 233.33 137.14 L 233.33 334.00 Z" fill="url(#grad-coral)" stroke="#be123c" stroke-width="1.8" filter="url(#shadow-ame)" />
+            <text x="214.3" y="125.1" text-anchor="middle" font-size="10" font-weight="750" fill="#be123c" class="tabular">95.8%</text>
+          </g>
+        <g>
+    <rect x="138.8" y="89.7" width="104.0" height="18" rx="9.0" fill="#ecfdf5" stroke="#10b981" stroke-width="1.2" />
+    <text x="190.8" y="102.0" text-anchor="middle" font-size="9.5" font-weight="700" fill="#065f46" class="tabular">★ OURS · +47.2%p</text>
+  </g>
+        <text x="167.3" y="353" text-anchor="middle" font-size="12" font-weight="700" fill="#1e293b">D1 Causal</text>
+        <text x="167.3" y="368" text-anchor="middle" font-size="10.2" font-weight="500" fill="#64748b">(p_CF)</text>
+      </g>
+  <g>
+        <g>
+            <path d="M 270.67 334.00 L 270.67 163.90 Q 270.67 158.90 275.67 158.90 L 303.67 158.90 Q 308.67 158.90 308.67 163.90 L 308.67 334.00 Z" fill="#94a3b8" />
+            <text x="289.7" y="151.9" text-anchor="middle" font-size="10" font-weight="600" fill="#475569" class="tabular">83.1%</text>
+          </g>
+    <g>
+            <path d="M 317.67 334.00 L 317.67 137.07 Q 317.67 132.07 322.67 132.07 L 350.67 132.07 Q 355.67 132.07 355.67 137.07 L 355.67 334.00 Z" fill="url(#grad-emerald)" stroke="#047857" stroke-width="1.8" filter="url(#shadow-ame)" />
+            <text x="336.7" y="125.1" text-anchor="middle" font-size="10" font-weight="750" fill="#065f46" class="tabular">95.83%</text>
+          </g>
+    <g>
+            <path d="M 364.67 334.00 L 364.67 151.70 Q 364.67 146.70 369.67 146.70 L 397.67 146.70 Q 402.67 146.70 402.67 151.70 L 402.67 334.00 Z" fill="url(#grad-coral)" stroke="#be123c" stroke-width="1.8" filter="url(#shadow-ame)" />
+            <text x="383.7" y="139.7" text-anchor="middle" font-size="10" font-weight="750" fill="#be123c" class="tabular">88.89%</text>
+          </g>
+        
+        <text x="336.7" y="353" text-anchor="middle" font-size="12" font-weight="700" fill="#1e293b">HOT Abs.</text>
+        <text x="336.7" y="368" text-anchor="middle" font-size="10.2" font-weight="500" fill="#64748b">(sa F1)</text>
+      </g>
+  <g>
+        <g>
+            <path d="M 440.00 334.00 L 440.00 145.78 Q 440.00 140.78 445.00 140.78 L 473.00 140.78 Q 478.00 140.78 478.00 145.78 L 478.00 334.00 Z" fill="#94a3b8" />
+            <text x="459.0" y="133.8" text-anchor="middle" font-size="10" font-weight="600" fill="#475569" class="tabular">91.7%</text>
+          </g>
+    <g>
+            <path d="M 487.00 334.00 L 487.00 128.29 Q 487.00 123.29 492.00 123.29 L 520.00 123.29 Q 525.00 123.29 525.00 128.29 L 525.00 334.00 Z" fill="url(#grad-emerald)" stroke="#047857" stroke-width="1.8" filter="url(#shadow-ame)" />
+            <text x="506.0" y="116.3" text-anchor="middle" font-size="10" font-weight="750" fill="#065f46" class="tabular">100.0%</text>
+          </g>
+    <g>
+            <path d="M 534.00 334.00 L 534.00 145.78 Q 534.00 140.78 539.00 140.78 L 567.00 140.78 Q 572.00 140.78 572.00 145.78 L 572.00 334.00 Z" fill="url(#grad-coral)" stroke="#be123c" stroke-width="1.8" filter="url(#shadow-ame)" />
+            <text x="553.0" y="133.8" text-anchor="middle" font-size="10" font-weight="750" fill="#be123c" class="tabular">91.7%</text>
+          </g>
+        
+        <text x="506.0" y="353" text-anchor="middle" font-size="12" font-weight="700" fill="#1e293b">FANToM</text>
+        <text x="506.0" y="368" text-anchor="middle" font-size="10.2" font-weight="500" fill="#64748b">(sb1 ToM)</text>
+      </g>
+  <g>
+        <g>
+            <rect x="609.33" y="332.00" width="38.00" height="2" rx="1" fill="#94a3b8" opacity="0.65" />
+            <text x="628.3" y="327.0" text-anchor="middle" font-size="10" font-weight="600" fill="#475569" class="tabular">0.0%</text>
+          </g>
+    <g>
+            <path d="M 656.33 334.00 L 656.33 128.29 Q 656.33 123.29 661.33 123.29 L 689.33 123.29 Q 694.33 123.29 694.33 128.29 L 694.33 334.00 Z" fill="url(#grad-emerald)" stroke="#047857" stroke-width="1.8" filter="url(#shadow-ame)" />
+            <text x="675.3" y="116.3" text-anchor="middle" font-size="10" font-weight="750" fill="#065f46" class="tabular">100.0%</text>
+          </g>
+    <g>
+            <path d="M 703.33 334.00 L 703.33 128.29 Q 703.33 123.29 708.33 123.29 L 736.33 123.29 Q 741.33 123.29 741.33 128.29 L 741.33 334.00 Z" fill="url(#grad-coral)" stroke="#be123c" stroke-width="1.8" filter="url(#shadow-ame)" />
+            <text x="722.3" y="116.3" text-anchor="middle" font-size="10" font-weight="750" fill="#be123c" class="tabular">100.0%</text>
+          </g>
+        <g>
+    <rect x="654.3" y="85.3" width="89.0" height="18" rx="9.0" fill="#ecfdf5" stroke="#10b981" stroke-width="1.2" />
+    <text x="698.8" y="97.6" text-anchor="middle" font-size="9.5" font-weight="700" fill="#065f46" class="tabular">★ 100.0% Lock</text>
+  </g>
+        <text x="675.3" y="353" text-anchor="middle" font-size="12" font-weight="700" fill="#1e293b">FEP Lock</text>
+        <text x="675.3" y="368" text-anchor="middle" font-size="10.2" font-weight="500" fill="#64748b">(sb2)</text>
+      </g>
+  <g>
+        <g>
+            <path d="M 778.67 334.00 L 778.67 190.03 Q 778.67 185.03 783.67 185.03 L 811.67 185.03 Q 816.67 185.03 816.67 190.03 L 816.67 334.00 Z" fill="#94a3b8" />
+            <text x="797.7" y="178.0" text-anchor="middle" font-size="10" font-weight="600" fill="#475569" class="tabular">70.7%</text>
+          </g>
+    <g>
+            <path d="M 825.67 334.00 L 825.67 178.33 Q 825.67 173.33 830.67 173.33 L 858.67 173.33 Q 863.67 173.33 863.67 178.33 L 863.67 334.00 Z" fill="url(#grad-emerald)" stroke="#047857" stroke-width="1.8" filter="url(#shadow-ame)" />
+            <text x="844.7" y="166.3" text-anchor="middle" font-size="10" font-weight="750" fill="#065f46" class="tabular">76.25%</text>
+          </g>
+    <g>
+            <path d="M 872.67 334.00 L 872.67 246.71 Q 872.67 241.71 877.67 241.71 L 905.67 241.71 Q 910.67 241.71 910.67 246.71 L 910.67 334.00 Z" fill="url(#grad-coral)" stroke="#be123c" stroke-width="1.8" filter="url(#shadow-ame)" />
+            <text x="891.7" y="234.7" text-anchor="middle" font-size="10" font-weight="750" fill="#be123c" class="tabular">43.8%</text>
+          </g>
+        
+        <text x="844.7" y="353" text-anchor="middle" font-size="12" font-weight="700" fill="#1e293b">IGT Safe</text>
+        <text x="844.7" y="368" text-anchor="middle" font-size="10.2" font-weight="500" fill="#64748b">(sc2)</text>
+      </g>
+  <g>
+    <rect x="32" y="386" width="916" height="34" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" />
+    <rect x="229.3" y="397.5" width="14" height="11" rx="3" fill="#94a3b8" /><text x="249.3" y="407.0" font-size="11" font-weight="500" fill="#334155">Baseline (Bare / ov_off)</text>
+    <rect x="403.9" y="397.5" width="14" height="11" rx="3" fill="url(#grad-emerald)" stroke="#047857" stroke-width="1.4" /><text x="423.9" y="407.0" font-size="11" font-weight="700" fill="#065f46">AME (DeepSeek v4.1 Flash)</text>
+    <rect x="606.5" y="397.5" width="14" height="11" rx="3" fill="url(#grad-coral)" stroke="#be123c" stroke-width="1.4" /><text x="626.5" y="407.0" font-size="11" font-weight="700" fill="#be123c">AME (Gemma 4 26B)</text>
+  </g>
+</svg>

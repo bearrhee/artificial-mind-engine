@@ -2,6 +2,12 @@
 
 > **Thesis:** Frontier LLMs are commoditizing as **Stateless CPUs**. **Artificial Mind Engine (AME)** is the proprietary **Stateful Cognitive Control OS Kernel** that sits above any swappable LLM to deliver human-grade persistent memory (**`85.86%` Confirm-304** on `AME (DeepSeek v4.1 Flash)` and **`75.66%` standalone on `AME (Gemma 4 26B)`**, beating all external memory competitors even on 26B open weights), leading multi-turn emotional intelligence (**`77.77` `AME (Gemma 4 26B)` / `77.59` `AME (DeepSeek v4.1 Flash)` on `EQ-Bench 3`**, **`78.69` `EQ-Bench v2`**), provable cognitive governance (**`D1–D4`** invariants), and **`47.03%`** prefix KV-cache unit economics.
 
+### Executive Hook (10-Second Summary)
+
+- **What It Is:** A source-free **Stateful Cognitive Control OS Kernel** (`MIT` OpenAPI/SDK interface + sealed proprietary kernel) running via `Mode A` proxy or `Mode B` zero-key `prepare`/`settle` over any cloud or edge LLM.
+- **Why It Wins:** Replaces stateless RAG (`Mem0`/`Letta`/`Zep`) and $\Theta(T^2)$ full-context prompting (`Bare Oracle`) with closed-form homeostatic state, counterfactual tone causality (`D1`), atomic erasure (`D3`), selective conflict deliberation (`FEP`), and `O(1)` prefix-aligned windows.
+- **Verified Numbers:** **`85.86%`** `Confirm-304` / **`75.66%`** `Gemma 4 26B` standalone (`>` `Zep 75.1%`) · **`EQ-Bench 3` `77.77` / `77.59`** (`>` `GPT-5.2 72.2`) · **`D1 97.9%`** · **`D3 0.00%`** · **`1M`-Turn `1.0000`** safety · **`47.03%`** KV cache hit.
+
 ---
 
 ## 1. The Structural Market Gap (2024–2026)
@@ -23,31 +29,11 @@ All figures below are directly measured across isolated verification environment
 > - **Default Benchmark Backbone — `DeepSeek v4.1 Flash` (`deepseek/deepseek-v4.1-flash`)**: `Confirm-304` uses **`71.7%` `DeepSeek v4.1 Flash` + `28.3%` selective `Sonnet-5` escalation**; `EQ-Bench 3 Core` and `CogEval-v1` run **`100%` `DeepSeek v4.1 Flash`**.
 > - **Open-Weight Standalone Verification — `Gemma 4 26B` (`google/gemma-4-26b-a4b-it`)**: Benchmarked with **standalone `0%` escalation** under the **same AME harness and `GPT-4o` judges (`openai/gpt-4o-2024-08-06`)**.
 
-```mermaid
-xychart-beta
-  title "LoCoMo SOTA & Confirm-304 (n=304): Competitors vs. AME"
-  x-axis ["OpenAI", "LangMem", "Mem0", "Letta", "Zep", "AME (Gemma)", "AME (DS)", "Oracle"]
-  y-axis "Accuracy (%)" 40 --> 95
-  bar [52.9, 58.1, 68.4, 74.0, 75.1, 75.66, 85.86, 87.17]
-```
+![LoCoMo SOTA & Confirm-304 (n=304): Competitors vs. AME](./charts/locomo-sota.svg)
 
-```mermaid
-xychart-beta
-  title "EQ-Bench 3 Core (n=46 x 4T): Frontier LLMs vs. AME"
-  x-axis ["Sonnet 3.5", "Sonnet 4.5", "OpenAI o3", "GPT-5.2", "AME (DS)", "AME (Gemma)"]
-  y-axis "EQ-Bench 3 Score" 40 --> 85
-  bar [50.9, 62.2, 63.2, 72.2, 77.59, 77.77]
-```
+![EQ-Bench 3 Core (n=46 × 4T): Frontier LLMs vs. AME](./charts/eqbench3-core.svg)
 
-```mermaid
-xychart-beta
-  title "CogEval-v1: Baseline vs. AME (DS) vs. AME (Gemma)"
-  x-axis ["D1 Causal", "HOT Abs.", "FANToM", "FEP Lock", "IGT Safe"]
-  y-axis "Score (%)" 0 --> 100
-  bar [50.7, 83.1, 91.7, 0.0, 70.7]
-  bar [97.9, 95.83, 100.0, 100.0, 76.25]
-  bar [95.8, 88.89, 91.7, 100.0, 43.8]
-```
+![CogEval-v1: Baseline vs. AME Backbones](./charts/cogeval-governance.svg)
 
 | Benchmark Track | Metric / Slice | Baseline (`ov_off` / `Bare` / External SOTA) | **AME (`DeepSeek v4.1 Flash` — Default)** | **AME (`Gemma 4 26B` — Standalone `0%` Esc.)** | Significance for Enterprise & DD |
 | :--- | :--- | :--- | :--- | :--- | :--- |

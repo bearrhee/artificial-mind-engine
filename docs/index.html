@@ -36,6 +36,25 @@
       --svg-text: #f1f5f9;
       --svg-sub: #94a3b8;
       --svg-border: #2a3a54;
+      --ds-grad-0: #00f5a0;
+      --ds-grad-1: #00d9f5;
+      --ds-stroke: #5eead4;
+      --ds-glow: rgba(0, 245, 160, 0.35);
+      --ds-pill-bg: rgba(0, 245, 160, 0.14);
+      --ds-pill-stroke: #5eead4;
+      --ds-pill-text: #5eead4;
+      --gm-grad-0: #ff5e7e;
+      --gm-grad-1: #ff9f43;
+      --gm-stroke: #fda4af;
+      --gm-glow: rgba(255, 94, 126, 0.35);
+      --gm-pill-bg: rgba(255, 94, 126, 0.14);
+      --gm-pill-stroke: #fda4af;
+      --gm-pill-text: #fda4af;
+      --ec-grad-0: #00f5a0;
+      --ec-grad-1: #ff5e7e;
+      --ec-grad-2: #ff9f43;
+      --oracle-fill: #6e6a86;
+      --oracle-stroke: #9a95b3;
       --radius: 14px;
       --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
       --font-mono: "JetBrains Mono", "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
@@ -71,6 +90,25 @@
       --svg-text: #0f172a;
       --svg-sub: #475569;
       --svg-border: #cbd5e1;
+      --ds-grad-0: #059669;
+      --ds-grad-1: #0284c7;
+      --ds-stroke: #047857;
+      --ds-glow: rgba(5, 150, 105, 0.22);
+      --ds-pill-bg: rgba(5, 150, 105, 0.12);
+      --ds-pill-stroke: #047857;
+      --ds-pill-text: #065f46;
+      --gm-grad-0: #e11d48;
+      --gm-grad-1: #ea580c;
+      --gm-stroke: #9f1239;
+      --gm-glow: rgba(225, 29, 72, 0.22);
+      --gm-pill-bg: rgba(225, 29, 72, 0.12);
+      --gm-pill-stroke: #be123c;
+      --gm-pill-text: #9f1239;
+      --ec-grad-0: #059669;
+      --ec-grad-1: #e11d48;
+      --ec-grad-2: #ea580c;
+      --oracle-fill: #64748b;
+      --oracle-stroke: #475569;
     }
 
     * { box-sizing: border-box; }
@@ -307,16 +345,65 @@
       color: var(--accent-strong);
     }
     .hero-copy {
-      margin: 0 0 24px;
+      margin: 0 0 18px;
       color: var(--text-muted);
       max-width: 840px;
       font-size: 0.98rem;
+    }
+    .hook-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 860px) {
+      .hook-grid { grid-template-columns: 1fr; }
+    }
+    .hook-card {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-top: 2.5px solid var(--accent);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .hook-card.hook-emerald { border-top-color: var(--emerald); }
+    .hook-card.hook-violet { border-top-color: var(--violet); }
+    .hook-title {
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--accent-strong);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .hook-card.hook-emerald .hook-title { color: var(--emerald); }
+    .hook-card.hook-violet .hook-title { color: var(--violet); }
+    .hook-body {
+      margin: 0;
+      font-size: 0.82rem;
+      line-height: 1.48;
+      color: var(--text-muted);
+    }
+    .hook-body strong { color: var(--text); }
+    .hook-body code {
+      font-family: var(--font-mono);
+      font-size: 0.77rem;
+      padding: 1px 4px;
+      border-radius: 4px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text);
     }
     .hero-actions {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      margin-bottom: 28px;
+      margin-bottom: 24px;
     }
 
     /* KPI Grid */
@@ -726,23 +813,23 @@
       flex-shrink: 0;
     }
     .legend-swatch.ds-swatch {
-      background: linear-gradient(135deg, #00f5a0, #00d9f5);
-      border: 1.5px solid #5eead4;
-      box-shadow: 0 0 8px rgba(0, 245, 160, 0.35);
+      background: linear-gradient(135deg, var(--ds-grad-0), var(--ds-grad-1));
+      border: 1.5px solid var(--ds-stroke);
+      box-shadow: 0 0 8px var(--ds-glow);
     }
     .legend-swatch.gm-swatch {
-      background: linear-gradient(135deg, #ff5e7e, #ff9f43);
-      border: 1.5px solid #fda4af;
-      box-shadow: 0 0 8px rgba(255, 94, 126, 0.35);
+      background: linear-gradient(135deg, var(--gm-grad-0), var(--gm-grad-1));
+      border: 1.5px solid var(--gm-stroke);
+      box-shadow: 0 0 8px var(--gm-glow);
     }
     .legend-swatch.ec-swatch {
-      background: linear-gradient(135deg, #00f5a0, #ff5e7e, #ff9f43);
-      border: 1.5px solid #5eead4;
-      box-shadow: 0 0 8px rgba(0, 245, 160, 0.3);
+      background: linear-gradient(135deg, var(--ec-grad-0), var(--ec-grad-1), var(--ec-grad-2));
+      border: 1.5px solid var(--ds-stroke);
+      box-shadow: 0 0 8px var(--ds-glow);
     }
     .legend-swatch.oracle-swatch {
-      background: #6e6a86;
-      border: 1.5px dashed #9a95b3;
+      background: var(--oracle-fill);
+      border: 1.5px dashed var(--oracle-stroke);
     }
     .legend-line {
       width: 18px;
@@ -866,6 +953,26 @@
           AME decouples a persistent cognitive kernel (AACIM-59 · Panksepp 7 · FEP Selective Lock · GWT · HOT) and 4-path hybrid long-term memory above stateless LLMs.
           Hot-swap Claude, GPT, Gemini, DeepSeek, or local vLLM/Ollama behind a single OpenAPI 3.1 contract while enforcing counterfactual causality (<code>D1</code>), idle homeostasis (<code>D2</code>), triple atomic memory erasure (<code>D3</code>), and unconscious isolation (<code>D4</code>) as code invariants.
         </p>
+        <div class="hook-grid" aria-label="AME 10-Second Summary">
+          <div class="hook-card">
+            <div class="hook-title">What It&#39;s For</div>
+            <p class="hook-body">
+              Drop-in Stateful Cognitive OS above any LLM (<code>Companion</code>, <code>Game NPC</code>, <code>Digital Health</code>, <code>VIP Concierge</code>, <code>Voice Robotics + TTS</code>).
+            </p>
+          </div>
+          <div class="hook-card hook-emerald">
+            <div class="hook-title">Why It&#39;s Better</div>
+            <p class="hook-body">
+              Replaces <code>&Theta;(T&sup2;)</code> transcript replay &amp; passive vector-only stores (<code>Mem0</code>/<code>Letta</code>/<code>Zep</code>) with causal affect (<code>D1</code>), selective attention (<code>FEP</code>), <code>0.00%</code> erasure (<code>D3</code>), and <code>47.03%</code> KV cache.
+            </p>
+          </div>
+          <div class="hook-card hook-violet">
+            <div class="hook-title">How Good It Is</div>
+            <p class="hook-body">
+              <strong><code>85.86%</code></strong> Confirm-304 (<code>75.66%</code> standalone on <code>Gemma 4 26B</code> &gt; <code>Zep 75.1%</code>), <strong><code>EQ-Bench 3 77.77</code></strong> (&gt; <code>GPT-5.2 72.2</code>), <strong><code>D1 97.9%</code></strong>, <strong><code>1M</code>-Turn <code>1.0000</code> safety</strong>.
+            </p>
+          </div>
+        </div>
         <div class="hero-actions">
           <a href="#hotswap" class="btn btn-primary">LLM Hot-Swap Playground</a>
           <a href="#simulator" class="btn">Multi-Domain &amp; D3 Purge Simulator</a>
@@ -1496,12 +1603,12 @@
           <svg id="svg-locomo-chart" viewBox="0 0 960 365" class="diagram-svg" role="img" aria-label="LoCoMo Long-Term Memory SOTA Competitors vs AME Bar Chart">
             <defs>
               <linearGradient id="c1-grad-ds" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#00f5a0" />
-                <stop offset="100%" stop-color="#00d9f5" />
+                <stop offset="0%" stop-color="var(--ds-grad-0)" />
+                <stop offset="100%" stop-color="var(--ds-grad-1)" />
               </linearGradient>
               <linearGradient id="c1-grad-gm" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#ff5e7e" />
-                <stop offset="100%" stop-color="#ff9f43" />
+                <stop offset="0%" stop-color="var(--gm-grad-0)" />
+                <stop offset="100%" stop-color="var(--gm-grad-1)" />
               </linearGradient>
               <filter id="c1-glow-ds" x="-20%" y="-20%" width="140%" height="140%">
                 <feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="blur" />
@@ -1544,12 +1651,12 @@
           <svg id="svg-eq-chart" viewBox="0 0 960 365" class="diagram-svg" role="img" aria-label="EQ-Bench 3 Frontier LLMs vs AME Bar Chart">
             <defs>
               <linearGradient id="c2-grad-ds" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#00f5a0" />
-                <stop offset="100%" stop-color="#00d9f5" />
+                <stop offset="0%" stop-color="var(--ds-grad-0)" />
+                <stop offset="100%" stop-color="var(--ds-grad-1)" />
               </linearGradient>
               <linearGradient id="c2-grad-gm" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#ff5e7e" />
-                <stop offset="100%" stop-color="#ff9f43" />
+                <stop offset="0%" stop-color="var(--gm-grad-0)" />
+                <stop offset="100%" stop-color="var(--gm-grad-1)" />
               </linearGradient>
               <filter id="c2-glow-ds" x="-20%" y="-20%" width="140%" height="140%">
                 <feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="blur" />
@@ -1592,12 +1699,12 @@
           <svg id="svg-cogeval-chart" viewBox="0 0 960 365" class="diagram-svg" role="img" aria-label="CogEval-v1 Cognitive Causality and Governance Comparison Chart">
             <defs>
               <linearGradient id="c3-grad-ds" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#00f5a0" />
-                <stop offset="100%" stop-color="#00d9f5" />
+                <stop offset="0%" stop-color="var(--ds-grad-0)" />
+                <stop offset="100%" stop-color="var(--ds-grad-1)" />
               </linearGradient>
               <linearGradient id="c3-grad-gm" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#ff5e7e" />
-                <stop offset="100%" stop-color="#ff9f43" />
+                <stop offset="0%" stop-color="var(--gm-grad-0)" />
+                <stop offset="100%" stop-color="var(--gm-grad-1)" />
               </linearGradient>
               <filter id="c3-glow-ds" x="-20%" y="-20%" width="140%" height="140%">
                 <feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="blur" />
@@ -1643,8 +1750,8 @@
           <svg id="svg-convergence-chart" viewBox="0 0 960 365" class="diagram-svg" role="img" aria-label="1M-Turn Convergence and sc1 Cognitive Control Chart">
             <defs>
               <linearGradient id="c4-grad-ds" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#00f5a0" />
-                <stop offset="100%" stop-color="#00d9f5" />
+                <stop offset="0%" stop-color="var(--ds-grad-0)" />
+                <stop offset="100%" stop-color="var(--ds-grad-1)" />
               </linearGradient>
               <filter id="c4-glow-ds" x="-20%" y="-20%" width="140%" height="140%">
                 <feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="blur" />
@@ -1681,13 +1788,13 @@
           <svg id="svg-multillm-chart" viewBox="0 0 960 365" class="diagram-svg" role="img" aria-label="5-LLM x 300-Turn Live Generalization Holm Win Rates Chart">
             <defs>
               <linearGradient id="c5-grad-ds" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#00f5a0" />
-                <stop offset="100%" stop-color="#00d9f5" />
+                <stop offset="0%" stop-color="var(--ds-grad-0)" />
+                <stop offset="100%" stop-color="var(--ds-grad-1)" />
               </linearGradient>
               <linearGradient id="c5-grad-ec" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#00f5a0" />
-                <stop offset="52%" stop-color="#ff5e7e" />
-                <stop offset="100%" stop-color="#ff9f43" />
+                <stop offset="0%" stop-color="var(--ec-grad-0)" />
+                <stop offset="52%" stop-color="var(--ec-grad-1)" />
+                <stop offset="100%" stop-color="var(--ec-grad-2)" />
               </linearGradient>
               <filter id="c5-glow-ds" x="-20%" y="-20%" width="140%" height="140%">
                 <feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="blur" />
@@ -1730,8 +1837,8 @@
           <svg id="svg-econ-chart" viewBox="0 0 960 365" class="diagram-svg" role="img" aria-label="Unit Economics KV Cache and Cross-Lingual LongMemEval Bar Chart">
             <defs>
               <linearGradient id="c6-grad-ds" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#00f5a0" />
-                <stop offset="100%" stop-color="#00d9f5" />
+                <stop offset="0%" stop-color="var(--ds-grad-0)" />
+                <stop offset="100%" stop-color="var(--ds-grad-1)" />
               </linearGradient>
               <filter id="c6-glow-ds" x="-20%" y="-20%" width="140%" height="140%">
                 <feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="blur" />
@@ -3187,23 +3294,23 @@ npm run bench:scorecard -- \
       function styleDs(cId) {
         return {
           color: "url(#" + cId + "-grad-ds)",
-          opts: { stroke: "#5eead4", strokeWidth: "2", filter: "url(#" + cId + "-glow-ds)" }
+          opts: { stroke: "var(--ds-stroke)", strokeWidth: "2", filter: "url(#" + cId + "-glow-ds)" }
         };
       }
       function styleGm(cId) {
         return {
           color: "url(#" + cId + "-grad-gm)",
-          opts: { stroke: "#fda4af", strokeWidth: "2", filter: "url(#" + cId + "-glow-gm)" }
+          opts: { stroke: "var(--gm-stroke)", strokeWidth: "2", filter: "url(#" + cId + "-glow-gm)" }
         };
       }
       function styleEc5() {
         return {
           color: "url(#c5-grad-ec)",
-          opts: { stroke: "#5eead4", strokeWidth: "2.2", filter: "url(#c5-glow-ec)" }
+          opts: { stroke: "var(--ds-stroke)", strokeWidth: "2.2", filter: "url(#c5-glow-ec)" }
         };
       }
-      const ORACLE_OPTS = { stroke: "#9a95b3", strokeWidth: "1.5", strokeDasharray: "4 3" };
-      const COLLAPSE_OPTS = { stroke: "#94a3b8", strokeWidth: "1.2", strokeDasharray: "3 2" };
+      const ORACLE_OPTS = { stroke: "var(--oracle-stroke)", strokeWidth: "1.5", strokeDasharray: "4 3" };
+      const COLLAPSE_OPTS = { stroke: "var(--svg-sub)", strokeWidth: "1.2", strokeDasharray: "3 2" };
 
       const PCT_TICKS_100 = [
         { val: 0, label: "0%" }, { val: 20, label: "20%" }, { val: 40, label: "40%" },
@@ -3221,7 +3328,7 @@ npm run bench:scorecard -- \
         { label: "Zep / Graphiti", sub: "(Prior SOTA)", pct: 75.1, txt: "75.1%", color: "#8492a6", pSize: "9.6", sSize: "8.4", badge: "Prior SOTA · 75.1%", note: "<strong>Zep / Graphiti:</strong> <code>75.1%</code> prior external commercial GPT SOTA ceiling" },
         { label: "AME", sub: "(Gemma 4 26B)", pct: 75.66, txt: "75.66%", color: C1_GM.color, opts: C1_GM.opts, pSize: "10.6", sSize: "8.4", badge: "Gemma 4 26B · 75.66%", note: "<strong>AME (Gemma 4 26B):</strong> <code>75.66%</code> Confirm-304 with standalone <code>0%</code> escalation (<code>google/gemma-4-26b-a4b-it</code>) — surpasses Zep (<code>75.1%</code>)" },
         { label: "AME", sub: "(DeepSeek v4.1 Flash)", pct: 85.86, txt: "85.86%", color: C1_DS.color, opts: C1_DS.opts, pSize: "10.6", sSize: "7.8", badge: "DeepSeek v4.1 Flash · 85.86%", note: "<strong>AME (DeepSeek v4.1 Flash, Default):</strong> <code>85.86%</code> Confirm-304 (261/304; <code>71.7%</code> DeepSeek v4.1 Flash + <code>28.3%</code> selective Sonnet-5 ROI escalation) — ties Bare Oracle on Cat 1–4 (<code>85.84%</code>)" },
-        { label: "Bare Oracle", sub: "(Ceiling)", pct: 87.17, txt: "87.17%", color: "#6e6a86", opts: ORACLE_OPTS, pSize: "9.8", sSize: "8.4", badge: "Ceiling · 87.17%", note: "<strong>Bare Oracle (Ceiling):</strong> <code>87.17%</code> (265/304) — theoretical untruncated full-transcript upper ceiling, only 1.31%p above AME (DeepSeek v4.1 Flash)" }
+        { label: "Bare Oracle", sub: "(Ceiling)", pct: 87.17, txt: "87.17%", color: "var(--oracle-fill)", opts: ORACLE_OPTS, pSize: "9.8", sSize: "8.4", badge: "Ceiling · 87.17%", note: "<strong>Bare Oracle (Ceiling):</strong> <code>87.17%</code> (265/304) — theoretical untruncated full-transcript upper ceiling, only 1.31%p above AME (DeepSeek v4.1 Flash)" }
       ];
 
       const C1_CAT_GROUPS = [
@@ -3273,7 +3380,7 @@ npm run bench:scorecard -- \
             { color: "#64748b", opts: null },
             C1_GM,
             C1_DS,
-            { color: "#6e6a86", opts: ORACLE_OPTS }
+            { color: "var(--oracle-fill)", opts: ORACLE_OPTS }
           ];
           const names = ["Mind OFF (ov_off)", "AME (Gemma 4 26B)", "AME (DeepSeek v4.1 Flash)", "Bare Oracle"];
 
@@ -3319,8 +3426,8 @@ npm run bench:scorecard -- \
         { label: "Claude Sonnet 4.5", sub: "(Frontier LLM)", val: 62.2, txt: "62.2", color: "#738298", pSize: "10.0", sSize: "9.0", badge: "62.2 · Baseline", note: "<strong>Claude Sonnet 4.5:</strong> <code>62.2</code> EQ-Bench 3 score — AME (DeepSeek v4.1 Flash) leads by <code>+15.39</code> pts" },
         { label: "OpenAI o3", sub: "(Reasoning LLM)", val: 63.2, txt: "63.2", color: "#738298", pSize: "10.4", sSize: "9.0", badge: "63.2 · Baseline", note: "<strong>OpenAI o3:</strong> <code>63.2</code> EQ-Bench 3 score — AME (DeepSeek v4.1 Flash) leads by <code>+14.39</code> pts" },
         { label: "GPT-5.2", sub: "(Frontier Baseline)", val: 72.2, txt: "72.2", color: "#8492a6", pSize: "10.6", sSize: "9.0", badge: "72.2 · Prior #1", note: "<strong>GPT-5.2:</strong> <code>72.2</code> EQ-Bench 3 frontier baseline — surpassed by both <code>AME (DeepSeek v4.1 Flash)</code> (<code>+5.39</code>) and <code>AME (Gemma 4 26B)</code> (<code>+5.57</code>)" },
-        { label: "AME", sub: "(DeepSeek v4.1 Flash)", val: 77.59, txt: "77.59", color: C2_DS.color, opts: C2_DS.opts, pSize: "11.0", sSize: "8.4", pill: "+5.39 vs GPT-5.2", pillColor: "#5eead4", pillBg: "rgba(0, 245, 160, 0.14)", badge: "77.59 · Default", note: "<strong>AME (DeepSeek v4.1 Flash, Default, n=46):</strong> <code>77.59</code> (<code>+5.39</code> vs GPT-5.2, <code>+14.39</code> vs o3) · Plus <code>EQ-Bench v2 EN: 78.69</code>" },
-        { label: "AME", sub: "(Gemma 4 26B)", val: 77.77, txt: "77.77", color: C2_GM.color, opts: C2_GM.opts, pSize: "11.0", sSize: "9.0", pill: "+5.57 vs GPT-5.2", pillColor: "#fda4af", pillBg: "rgba(255, 94, 126, 0.14)", badge: "77.77 · Gemma 4 26B", note: "<strong>AME (Gemma 4 26B, n=46, 0% Escalation):</strong> <code>77.77</code> (<code>+5.57</code> vs GPT-5.2) — proves cognitive OS gains transfer across open-weight 26B backbones" }
+        { label: "AME", sub: "(DeepSeek v4.1 Flash)", val: 77.59, txt: "77.59", color: C2_DS.color, opts: C2_DS.opts, pSize: "11.0", sSize: "8.4", pill: "+5.39 vs GPT-5.2", pillColor: "var(--ds-pill-text)", pillStroke: "var(--ds-pill-stroke)", pillBg: "var(--ds-pill-bg)", badge: "77.59 · Default", note: "<strong>AME (DeepSeek v4.1 Flash, Default, n=46):</strong> <code>77.59</code> (<code>+5.39</code> vs GPT-5.2, <code>+14.39</code> vs o3) · Plus <code>EQ-Bench v2 EN: 78.69</code>" },
+        { label: "AME", sub: "(Gemma 4 26B)", val: 77.77, txt: "77.77", color: C2_GM.color, opts: C2_GM.opts, pSize: "11.0", sSize: "9.0", pill: "+5.57 vs GPT-5.2", pillColor: "var(--gm-pill-text)", pillStroke: "var(--gm-pill-stroke)", pillBg: "var(--gm-pill-bg)", badge: "77.77 · Gemma 4 26B", note: "<strong>AME (Gemma 4 26B, n=46, 0% Escalation):</strong> <code>77.77</code> (<code>+5.57</code> vs GPT-5.2) — proves cognitive OS gains transfer across open-weight 26B backbones" }
       ];
 
       const C2_TRAIT_GROUPS = [
@@ -3361,7 +3468,7 @@ npm run bench:scorecard -- \
             if (b.pill) {
               g.appendChild(svgEl("rect", {
                 x: (cx - 58).toFixed(1), y: "70", width: "116", height: "19", rx: "9.5",
-                fill: b.pillBg, stroke: b.pillColor, "stroke-width": "1.2"
+                fill: b.pillBg, stroke: b.pillStroke || b.pillColor, "stroke-width": "1.2"
               }));
               g.appendChild(svgEl("text", {
                 x: cx.toFixed(1), y: "83", "text-anchor": "middle",
@@ -3559,7 +3666,7 @@ npm run bench:scorecard -- \
               if (grp.collapseIdx === si) {
                 g.appendChild(svgEl("text", {
                   x: (bx + barW / 2).toFixed(1), y: "266", "text-anchor": "middle",
-                  "font-size": "8.4", "font-weight": "800", fill: "#94a3b8"
+                  "font-size": "8.4", "font-weight": "800", fill: "var(--svg-sub)"
                 }, "COLLAPSE"));
               }
             });
@@ -3620,7 +3727,7 @@ npm run bench:scorecard -- \
           axes.appendChild(rLbl);
           axes.appendChild(svgEl("line", { x1: "542", y1: PLOT_TOP, x2: "542", y2: PLOT_BOTTOM, stroke: "var(--svg-sub)", "stroke-width": "1.4" }));
           axes.appendChild(svgEl("line", { x1: "542", y1: PLOT_BOTTOM, x2: "925", y2: PLOT_BOTTOM, stroke: "var(--svg-sub)", "stroke-width": "1.4" }));
-          axes.appendChild(svgEl("text", { x: "915", y: "78", "text-anchor": "end", "font-size": "9.6", "font-weight": "800", fill: "#5eead4" }, "Restless Bandit ECE (Lower Better)"));
+          axes.appendChild(svgEl("text", { x: "915", y: "78", "text-anchor": "end", "font-size": "9.6", "font-weight": "800", fill: "var(--ds-pill-text)" }, "Restless Bandit ECE (Lower Better)"));
 
           const sc1Left = [
             { label: "Bare", sub: "(Baseline)", val: -0.064, txt: "-0.064", color: "#64748b", badge: "beta_MB -0.064", note: "<strong>Two-Step Bare LLM:</strong> <code>beta_MB = -0.064</code> — lacks model-based transition planning" },
@@ -3648,11 +3755,11 @@ npm run bench:scorecard -- \
             if (b.label === "AME") {
               g.appendChild(svgEl("rect", {
                 x: (x + 29 - 52).toFixed(1), y: "162", width: "104", height: "19", rx: "9.5",
-                fill: "rgba(0, 245, 160, 0.14)", stroke: "#5eead4", "stroke-width": "1.2"
+                fill: "var(--ds-pill-bg)", stroke: "var(--ds-pill-stroke)", "stroke-width": "1.2"
               }));
               g.appendChild(svgEl("text", {
                 x: (x + 29).toFixed(1), y: "175", "text-anchor": "middle",
-                "font-size": "9", "font-weight": "800", fill: "#5eead4"
+                "font-size": "9", "font-weight": "800", fill: "var(--ds-pill-text)"
               }, "-50.6% vs Bare"));
             }
             addXLabels(g, x + 29, b.label, b.sub, "10.8", "9.2");
@@ -3722,17 +3829,17 @@ npm run bench:scorecard -- \
         const y50 = PLOT_BOTTOM - 0.50 * PLOT_H;
         layer.appendChild(svgEl("line", {
           x1: "72", y1: y50.toFixed(1), x2: "925", y2: y50.toFixed(1),
-          stroke: "#8492a6", "stroke-width": "2.2", "stroke-dasharray": "7 4"
+          stroke: "var(--svg-sub)", "stroke-width": "2.2", "stroke-dasharray": "7 4"
         }));
         layer.appendChild(svgEl("text", {
           x: "920", y: (y50 - 6).toFixed(1), "text-anchor": "end",
-          "font-size": "9.5", "font-weight": "800", fill: "#8492a6"
+          "font-size": "9.5", "font-weight": "800", fill: "var(--svg-sub)"
         }, "50% Parity"));
 
         renderLegend("c5-legend", [
           { cls: "ec-swatch", label: "AME (Gemma 4 26B) Safety 100.0% (pHolm = 0.0176)" },
           { cls: "ds-swatch", label: "AME Cross-Backbone Win Rates (Safety · Awareness · Humanness, Holm p < 0.05)" },
-          { line: true, color: "#8492a6", label: "50% Stateless / OFF Parity Baseline (4,460 Turns · 5,624 Votes)" }
+          { line: true, color: "var(--svg-sub)", label: "50% Stateless / OFF Parity Baseline (4,460 Turns · 5,624 Votes)" }
         ]);
         setInspect("c5-inspect",
           "<strong>5-LLM &times; 300-Turn Live:</strong> <span class='mono'>AME (Gemma 4 26B) Safety 100.0%</span> (<span class='mono'>pHolm=0.0176</span>) leads <span class='mono'>4,460</span> valid turns &amp; <span class='mono'>5,624</span> blind votes across heterogeneous backbones.",

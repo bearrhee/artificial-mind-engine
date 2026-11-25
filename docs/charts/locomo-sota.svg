@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 445" width="980" height="445" role="img" aria-label="LoCoMo SOTA &amp; Confirm-304 (n=304): Competitors vs. AME">
+  <defs>
+    <linearGradient id="grad-emerald" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#0891b2" />
+    </linearGradient>
+    <linearGradient id="grad-coral" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f43f5e" />
+      <stop offset="100%" stop-color="#f97316" />
+    </linearGradient>
+    <filter id="shadow-ame" x="-18%" y="-12%" width="136%" height="132%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.18" />
+    </filter>
+  </defs>
+  <style>
+    text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    .tabular { font-variant-numeric: tabular-nums; }
+  </style>
+  <rect x="1" y="1" width="978" height="443" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.4" />
+  <text x="32" y="34" font-size="18.5" font-weight="750" fill="#0f172a" letter-spacing="-0.2">LoCoMo SOTA &amp; Confirm-304 (n=304): Competitors vs. AME</text>
+  <text x="32" y="55" font-size="12" font-weight="450" fill="#475569">AME (DeepSeek v4.1 Flash) 85.86% &amp; AME (Gemma 4 26B) 75.66% surpass all external memory competitors (Zep 75.1%)</text>
+  <line x1="66" y1="336.00" x2="948" y2="336.00" stroke="#94a3b8" stroke-width="1.3" />
+      <text x="56" y="340.00" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">40%</text>
+  <line x1="66" y1="294.95" x2="948" y2="294.95" stroke="#e2e8f0" stroke-width="1" />
+      <text x="56" y="298.95" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">50%</text>
+  <line x1="66" y1="253.89" x2="948" y2="253.89" stroke="#e2e8f0" stroke-width="1" />
+      <text x="56" y="257.89" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">60%</text>
+  <line x1="66" y1="212.84" x2="948" y2="212.84" stroke="#e2e8f0" stroke-width="1" />
+      <text x="56" y="216.84" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">70%</text>
+  <line x1="66" y1="171.79" x2="948" y2="171.79" stroke="#e2e8f0" stroke-width="1" />
+      <text x="56" y="175.79" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">80%</text>
+  <line x1="66" y1="130.74" x2="948" y2="130.74" stroke="#e2e8f0" stroke-width="1" />
+      <text x="56" y="134.74" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">90%</text>
+  <line x1="66" y1="110.21" x2="948" y2="110.21" stroke="#e2e8f0" stroke-width="1" />
+      <text x="56" y="114.21" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">95%</text>
+  <g>
+        <path d="M 107.11 336.00 L 107.11 289.04 Q 107.11 283.04 113.11 283.04 L 165.11 283.04 Q 171.11 283.04 171.11 289.04 L 171.11 336.00 Z" fill="#94a3b8" />
+        <text x="139.1" y="276.0" text-anchor="middle" font-size="11.5" font-weight="650" fill="#334155" class="tabular">52.9%</text>
+        
+        <text x="139.1" y="354" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155">OpenAI</text>
+        <text x="139.1" y="369" text-anchor="middle" font-size="10" font-weight="450" fill="#64748b">(Competitor)</text>
+      </g>
+  <g>
+        <path d="M 212.22 336.00 L 212.22 267.69 Q 212.22 261.69 218.22 261.69 L 270.22 261.69 Q 276.22 261.69 276.22 267.69 L 276.22 336.00 Z" fill="#94a3b8" />
+        <text x="244.2" y="254.7" text-anchor="middle" font-size="11.5" font-weight="650" fill="#334155" class="tabular">58.1%</text>
+        
+        <text x="244.2" y="354" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155">LangMem</text>
+        <text x="244.2" y="369" text-anchor="middle" font-size="10" font-weight="450" fill="#64748b">(Competitor)</text>
+      </g>
+  <g>
+        <path d="M 317.33 336.00 L 317.33 225.41 Q 317.33 219.41 323.33 219.41 L 375.33 219.41 Q 381.33 219.41 381.33 225.41 L 381.33 336.00 Z" fill="#94a3b8" />
+        <text x="349.3" y="212.4" text-anchor="middle" font-size="11.5" font-weight="650" fill="#334155" class="tabular">68.4%</text>
+        
+        <text x="349.3" y="354" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155">Mem0 / Mem0^g</text>
+        <text x="349.3" y="369" text-anchor="middle" font-size="10" font-weight="450" fill="#64748b">(Commercial)</text>
+      </g>
+  <g>
+        <path d="M 422.44 336.00 L 422.44 202.42 Q 422.44 196.42 428.44 196.42 L 480.44 196.42 Q 486.44 196.42 486.44 202.42 L 486.44 336.00 Z" fill="#94a3b8" />
+        <text x="454.4" y="189.4" text-anchor="middle" font-size="11.5" font-weight="650" fill="#334155" class="tabular">74.0%</text>
+        
+        <text x="454.4" y="354" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155">Letta (MemGPT)</text>
+        <text x="454.4" y="369" text-anchor="middle" font-size="10" font-weight="450" fill="#64748b">(Commercial)</text>
+      </g>
+  <g>
+        <path d="M 527.56 336.00 L 527.56 197.91 Q 527.56 191.91 533.56 191.91 L 585.56 191.91 Q 591.56 191.91 591.56 197.91 L 591.56 336.00 Z" fill="#7c8ba1" />
+        <text x="559.6" y="184.9" text-anchor="middle" font-size="11.5" font-weight="650" fill="#334155" class="tabular">75.1%</text>
+        
+        <text x="559.6" y="354" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155">Zep / Graphiti</text>
+        <text x="559.6" y="369" text-anchor="middle" font-size="10" font-weight="450" fill="#64748b">(Prior SOTA)</text>
+      </g>
+  <g>
+        <path d="M 632.67 336.00 L 632.67 195.61 Q 632.67 189.61 638.67 189.61 L 690.67 189.61 Q 696.67 189.61 696.67 195.61 L 696.67 336.00 Z" fill="url(#grad-coral)" stroke="#be123c" stroke-width="2" filter="url(#shadow-ame)" />
+        <text x="664.7" y="182.6" text-anchor="middle" font-size="11.5" font-weight="750" fill="#be123c" class="tabular">75.66%</text>
+        <g>
+    <rect x="623.2" y="150.6" width="83.0" height="18" rx="9.0" fill="#fff1f2" stroke="#f43f5e" stroke-width="1.2" />
+    <text x="664.7" y="162.9" text-anchor="middle" font-size="9.5" font-weight="700" fill="#be123c" class="tabular">★ OURS · 26B</text>
+  </g>
+        <text x="664.7" y="354" text-anchor="middle" font-size="11.5" font-weight="750" fill="#0f172a">AME</text>
+        <text x="664.7" y="369" text-anchor="middle" font-size="10" font-weight="600" fill="#be123c">(Gemma 4 26B)</text>
+      </g>
+  <g>
+        <path d="M 737.78 336.00 L 737.78 153.73 Q 737.78 147.73 743.78 147.73 L 795.78 147.73 Q 801.78 147.73 801.78 153.73 L 801.78 336.00 Z" fill="url(#grad-emerald)" stroke="#047857" stroke-width="2" filter="url(#shadow-ame)" />
+        <text x="769.8" y="140.7" text-anchor="middle" font-size="11.5" font-weight="750" fill="#065f46" class="tabular">85.86%</text>
+        <g>
+    <rect x="700.3" y="100.7" width="139.0" height="18" rx="9.0" fill="#ecfdf5" stroke="#10b981" stroke-width="1.2" />
+    <text x="769.8" y="113.1" text-anchor="middle" font-size="9.5" font-weight="700" fill="#065f46" class="tabular">★ OURS · +10.8%p vs Zep</text>
+  </g>
+        <text x="769.8" y="354" text-anchor="middle" font-size="11.5" font-weight="750" fill="#0f172a">AME</text>
+        <text x="769.8" y="369" text-anchor="middle" font-size="10" font-weight="600" fill="#065f46">(DeepSeek v4.1 Flash)</text>
+      </g>
+  <g>
+        <path d="M 842.89 336.00 L 842.89 148.35 Q 842.89 142.35 848.89 142.35 L 900.89 142.35 Q 906.89 142.35 906.89 148.35 L 906.89 336.00 Z" fill="#cbd5e1" stroke="#64748b" stroke-width="1.6" stroke-dasharray="5 3" />
+        <text x="874.9" y="135.4" text-anchor="middle" font-size="11.5" font-weight="650" fill="#334155" class="tabular">87.17%</text>
+        
+        <text x="874.9" y="354" text-anchor="middle" font-size="11.5" font-weight="600" fill="#334155">Bare Oracle</text>
+        <text x="874.9" y="369" text-anchor="middle" font-size="10" font-weight="450" fill="#64748b">(Full Transcript)</text>
+      </g>
+  <g>
+    <rect x="32" y="392" width="916" height="34" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" />
+    <rect x="41.5" y="403.5" width="14" height="11" rx="3" fill="#94a3b8" /><text x="61.5" y="413.0" font-size="11" font-weight="500" fill="#334155">External Memory Competitors</text>
+    <rect x="246.5" y="403.5" width="14" height="11" rx="3" fill="#7c8ba1" /><text x="266.5" y="413.0" font-size="11" font-weight="500" fill="#334155">Prior SOTA (Zep)</text>
+    <rect x="387.2" y="403.5" width="14" height="11" rx="3" fill="url(#grad-coral)" stroke="#be123c" stroke-width="1.4" /><text x="407.2" y="413.0" font-size="11" font-weight="700" fill="#be123c">AME (Gemma 4 26B)</text>
+    <rect x="553.3" y="403.5" width="14" height="11" rx="3" fill="url(#grad-emerald)" stroke="#047857" stroke-width="1.4" /><text x="573.3" y="413.0" font-size="11" font-weight="700" fill="#065f46">AME (DeepSeek v4.1 Flash)</text>
+    <rect x="756.0" y="403.5" width="14" height="11" rx="3" fill="#cbd5e1" stroke="#64748b" stroke-width="1.4" stroke-dasharray="3 2" /><text x="776.0" y="413.0" font-size="11" font-weight="500" fill="#334155">Bare Oracle (Full Transcript)</text>
+  </g>
+</svg>

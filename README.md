@@ -18,6 +18,14 @@
 
 **Quick Navigation:** [Website (artificialmind.me)](https://artificialmind.me) · [Live Hosted Interactive Demo](https://thesoulthread.com/ame-demo/) · [GitHub Pages Showcase](https://bearrhee.github.io/artificial-mind-engine/) · [Interactive Web Showcase (HTML)](./docs/index.html) · [OpenAPI 3.1 Contract](./spec/openapi.yaml) · [1-Page Executive VC Brief](./docs/VC_BRIEF_EN.md) · [5-Layer Architecture](./docs/architecture.md) · [Full Benchmarks](./docs/benchmarks.md)
 
+## At a Glance — Why AME Exists, Why It Wins & Proven Impact
+
+| Axis | Executive Summary |
+| :--- | :--- |
+| **What It's For** | Stateful 5-layer Cognitive OS Kernel (`Open Interface MIT` + `Sealed Kernel`) sitting above any swappable LLM (`OpenAI`, `Anthropic`, `Gemini`, `DeepSeek`, `vLLM/Ollama`) for **AI Companions, Game NPCs, Digital Health/Counseling, Enterprise VIP Agents, and Voice-Enabled Robotics (`+ TTS/ASR`)**—with 1-to-3 line SDK hot-swapping (`Mode A` / `Mode B Zero-Key`). |
+| **Why It's Better** | Memory-only stores (`Mem0`, `Letta`, `Zep`) lack causal affect, offline aging, selective attention, and leak-proof forgetting, while stateless full-context prompts blow up token costs at $\Theta(T^2)$ (`6.98x` persona overhead) and fail `D1–D4` governance. AME enforces **bounded $O(1)$ windows (`47.03%` KV prefix cache)**, **causal emotion & somatics**, **strict `0.00%` GDPR triple erasure**, and **`Zero-Key` portability**. |
+| **Proven Impact** | **Memory (`LoCoMo`)**: **`85.86%`** `Confirm-304` (`AME DeepSeek v4.1 Flash`, tying `Bare Oracle` on `Cat 1–4 85.84%` & `+15.39%p` on `Cat 3 92.31%`), **`77.24%`** Full `n=1,986`, and **`75.66%` standalone** on **`AME Gemma 4 26B` (`0%` escalation)**—beating `Zep 75.1%`, `Letta 74.0%`, `Mem0 68.4%`.<br>**EQ & Cognition**: **`EQ-Bench 3 77.77` (`Gemma 4 26B`) / `77.59` (`DeepSeek v4.1 Flash`)** > `GPT-5.2 (72.2)` & `o3 (63.2)`; **`D1 Causal 97.9%`**, **`FEP Lock 100%/0%`**, **`HOT Abstention 95.83% (FAR 0%)`**, **`D3 0.00%` leak**, **`D4 0/35,723` leaks**, **`1M`-Turn `1.0000` safety**. |
+
 ---
 
 ## 1. Why Artificial Mind Engine? — Problem, Differentiation & Real-World Applications
@@ -299,52 +307,25 @@ All figures below are empirical measurements from isolated verification environm
 
 **Chart A — Long-Term Memory (`LoCoMo SOTA` & `Confirm-304`, `n=304`): Competitors vs. `AME`**
 
-```mermaid
-xychart-beta
-  title "LoCoMo SOTA & Confirm-304 (n=304): Competitors vs. AME"
-  x-axis ["OpenAI", "LangMem", "Mem0", "Letta", "Zep", "AME (Gemma)", "AME (DS)", "Oracle"]
-  y-axis "Accuracy (%)" 40 --> 95
-  bar [52.9, 58.1, 68.4, 74.0, 75.1, 75.66, 85.86, 87.17]
-```
+![Chart A — LoCoMo SOTA & Confirm-304 (n=304): Competitors vs. AME](./docs/charts/locomo-sota.svg)
 
 > **Legend:** External Competitors (`OpenAI Memory` `52.9%`, `LangMem` `58.1%`, `Mem0 / Mem0^g` `68.4%`, `Letta (MemGPT)` `74.0%`, `Zep / Graphiti` `75.1%`) vs. **`AME (Gemma)` (`Gemma 4 26B` standalone, `0%` escalation)** **`75.66%`** (`230/304`: `Cat 1–4 76.39%` `178/233` [`Cat 1 55.81%`, `Cat 2 74.60%`, `Cat 3 61.54%`, `Cat 4 86.84%`], `Cat 5 73.24%` `52/71` — beats all external competitors standalone on 26B open weights) & **`AME (DS)` (`DeepSeek v4.1 Flash` default; `71.7%` Flash + `28.3%` Sonnet-5)** **`85.86%`** (`261/304`: `Cat 1–4 85.84%` [`200/233`], `Cat 1 62.79%`, `Cat 2 90.48%`, `Cat 3 92.31%`, `Cat 4 91.23%`, `Cat 5 85.92%`) vs. **`Bare Oracle`** (`87.17%`, untruncated full transcript); `ov_off` ablation baseline: `39.80%`. *(Full 10-conv `LoCoMo n=1,986` cohort: `77.24%` [`1,534/1,986`], reported in the summary table below.)*
 
 **Chart B — Emotional Intelligence (`EQ-Bench 3 Core`, `n=46 × 4T`): Frontier LLMs vs. `AME`**
 
-```mermaid
-xychart-beta
-  title "EQ-Bench 3 Core (n=46 x 4T): Frontier LLMs vs. AME"
-  x-axis ["Sonnet 3.5", "Sonnet 4.5", "OpenAI o3", "GPT-5.2", "AME (DS)", "AME (Gemma)"]
-  y-axis "EQ-Bench 3 Score" 40 --> 85
-  bar [50.9, 62.2, 63.2, 72.2, 77.59, 77.77]
-```
+![Chart B — EQ-Bench 3 Core (n=46 × 4T): Frontier LLMs vs. AME](./docs/charts/eqbench3-core.svg)
 
 > **Legend:** Public frontier LLM anchors (`Sonnet 3.5` `50.9`, `Sonnet 4.5` `62.2`, `o3` `63.2`, `GPT-5.2` `72.2`) vs. **`AME (DS)` (`DeepSeek v4.1 Flash`)** **`77.59`** (`analytical 16.91`, `depth_of_insight 16.83`, `demonstrated_empathy 16.24`, `humanlike 15.98`, low `sycophantic 4.46`) and **`AME (Gemma)` (`Gemma 4 26B` standalone)** **`77.77`** (`demonstrated_empathy 17.09`, `emotional_reasoning 16.26`, `warmth 16.22`, `pragmatic_ei 15.93`, `safety_conscious 15.89`, `analytical 15.76`, `humanlike 15.50`, `depth_of_insight 14.80`, `boundary_setting 13.50`, `moralising 7.54`, `sycophantic 5.28` *(lower is better for moralising/sycophantic)*; `2` scenarios had an initial-turn empty reply before normal recovery, all `46` scored).
 
 **Chart C — Cognitive Governance & Control (`CogEval-v1`): Baseline vs. `AME (DeepSeek v4.1 Flash)` vs. `AME (Gemma 4 26B)`**
 
-```mermaid
-xychart-beta
-  title "CogEval-v1: Baseline vs. AME (DS) vs. AME (Gemma)"
-  x-axis ["D1 Causal", "HOT Abs.", "FANToM", "FEP Lock", "IGT Safe"]
-  y-axis "Score (%)" 0 --> 100
-  bar [50.7, 83.1, 91.7, 0.0, 70.7]
-  bar [97.9, 95.83, 100.0, 100.0, 76.25]
-  bar [95.8, 88.89, 91.7, 100.0, 43.8]
-```
+![Chart C — CogEval-v1: Baseline vs. AME (DeepSeek v4.1 Flash) vs. AME (Gemma 4 26B)](./docs/charts/cogeval-governance.svg)
 
 > **Series Legend:** **Bar 1 (Baseline `Bare` / `ov_off`)** = `Bare D1 50.7%`, `ov_off HOT 83.1%` (`FAR 7.5%`), `ov_off FANToM 91.7%`, `0.0%` unsupported `FEP Lock`, `ov_off IGT 70.7%`; **Bar 2 (`AME (DeepSeek v4.1 Flash)`)** = `97.9%` (`D1` `141/144`), `95.83%` (`HOT` `FAR 0%`), `100.0%` (`FANToM` `36/36`), `100.0%` (`FEP Lock` `35/35 vs 0/25`), `76.25%` (`IGT-Conv` `r = -0.7832`); **Bar 3 (`AME (Gemma 4 26B)` Smoke)** = `95.8%` (`D1` `23/24`, `deltaCf +0.4583`), `88.89%` (`HOT` `FAR 0%`, Precision `100%`, Recall `80.0%`), `91.7%` (`FANToM` `11/12` eps; `97.2%` sub-Q), `100.0%` (`FEP Lock` `7/7` conflict vs `0/5` calm, `deltaDistract=0`, `deltaStroop=0`), `43.8%` (`IGT-Conv` `20T` smoke; honest scaling note: multi-turn somatic loss-avoidance over a 20-turn horizon scales lower on standalone 26B open weights than on `DeepSeek v4.1 Flash`, while `Two-Step β_MB` reaches `+0.5955` and `Restless Bandit` reaches `66.7%`).
 
 **Chart D — Multi-LLM 300-Turn Live Generalization (`pHolm < 0.05` vs. `50%` Baseline Parity)**
 
-```mermaid
-xychart-beta
-  title "Multi-LLM 300-Turn Live Generalization (pHolm < 0.05)"
-  x-axis ["Gemma Safe", "Carb. Safe", "Neon Safe", "Neon Awr.", "Carb. Hum.", "Neon Hum."]
-  y-axis "Decisive Win Rate (%)" 40 --> 100
-  bar [100.0, 85.7, 73.7, 60.2, 60.1, 59.2]
-  line [50.0, 50.0, 50.0, 50.0, 50.0, 50.0]
-```
+![Chart D — Multi-LLM 300-Turn Live Generalization (pHolm < 0.05)](./docs/charts/multi-llm-300t.svg)
 
 > **Series Legend:** **Bars** = Holm-corrected blind win rates (`4,460` valid turns, `5,624` pairwise votes: **`Gemma 4 26B` Safety `100.0%` (`pHolm=0.0176`)**, `Gemini 4 Carbon` Safety `85.7%` / Humanness `60.1%`, `Gemini 4 Neon` Safety `73.7%` / Awareness `60.2%` / Humanness `59.2%`); **Line** = `50%` baseline parity.
 

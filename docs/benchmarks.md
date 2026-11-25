@@ -2,6 +2,12 @@
 
 > **Principle: Independently verify long-horizon memory recall (Track A), emotional intelligence & anti-sycophancy (Track B), cognitive/causal governance (Track C), cross-model live generalization (Track D), and 1M-turn scale & KV-cache unit economics (Track E); strictly isolate simulation targets (Tier 5) from live API measurements (Tier 1); and transparently disclose every remaining miss.**
 
+| **Executive Summary Hook** | |
+| :--- | :--- |
+| **What AME Is For** | Proprietary **Stateful Cognitive Control OS Kernel** (`Mode A` proxy / `Mode B` zero-key `prepare`+`settle`) that sits above any swappable LLM (`DeepSeek v4.1 Flash`, `Gemma 4 26B`, `OpenAI`, `Anthropic`, `Gemini`, `vLLM`) to deliver persistent memory, causal affect, metacognitive abstention, and prefix KV-cache economics. |
+| **Why It Outperforms** | Unlike stateless storage (`Mem0 68.4%`, `Letta 74.0%`, `Zep 75.1%`) or full-transcript `Bare Oracle` (`50.7%` `D1`, $\Theta(T^2)$ token explosion, `6.98x` persona overhead), AME enforces counterfactual state causality (`D1`), idle homeostasis (`D2`), atomic erasure (`D3`), prompt isolation (`D4`), selective `<thought>` gating (`FEP`), and `O(1)` KV-aligned windows. |
+| **Verified Headline Proof** | **`85.86%`** `Confirm-304` (`75.66%` **`Gemma 4 26B` standalone** `0%` esc.) · **`EQ-Bench 3` `77.77` / `77.59`** (vs. `GPT-5.2` `72.2`) · **`D1 97.9%`** · **`FEP 100%/0%`** · **`HOT 95.83%`** · **`D3 0.00%`** · **`D4 0/35,723`** · **`1M-Turn 1.0000`** safety · **`47.03%`** KV cache hit (`sc2`). |
+
 ---
 
 ## 1. Why a Single QA Score Cannot Evaluate a Cognitive OS
@@ -24,13 +30,7 @@ Accordingly, AME evaluates five independent empirical tracks (Tracks A–E) acro
 
 ## 2. Track A — Long-Horizon Memory Benchmarks (`LoCoMo` · `Confirm-304` · `LongMemEval`)
 
-```mermaid
-xychart-beta
-  title "Track A: Global LoCoMo SOTA vs. AME (%)"
-  x-axis ["OpenAI", "LangMem", "Mem0", "Letta", "Zep", "AME Gemma", "AME DeepSeek", "Bare Oracle"]
-  y-axis "Accuracy (%)" 40 --> 95
-  bar [52.9, 58.1, 68.4, 74.0, 75.1, 75.66, 85.86, 87.17]
-```
+![Track A: Global LoCoMo SOTA vs. AME](./charts/locomo-sota.svg)
 
 > **Chart 1 Legend**: External memory competitors on `LoCoMo` (`OpenAI Memory` `52.9%`, `LangMem` `58.1%`, `Mem0 / Mem0^g` `68.4%`, `Letta` `74.0%`, `Zep / Graphiti` `75.1%`) vs. **`AME (Gemma 4 26B)`** (`75.66%` standalone `0%` escalation on `Confirm-304`, `n=304`), **`AME (DeepSeek v4.1 Flash)`** (`85.86%` on `Confirm-304`, `n=304`, `PR #784`), and **`Bare Oracle`** (`87.17%` full-transcript ceiling on `Confirm-304`). *(See Section 2.B below for the `n=1,986` 10-conversation anchor.)*
 
@@ -43,16 +43,7 @@ xychart-beta
 | **`AME (DeepSeek v4.1 Flash)`** (Default Prod.) | **62.79% (27)** | **90.48% (57)** | **92.31% (12)** | **91.23% (104)** | **85.84% (200)** | **85.92% (61)** | **85.86% (261/304)** |
 | `Bare Oracle` (Full-Context Ceiling) | 67.44% (29) | 90.48% (57) | 76.92% (10) | 91.23% (104) | **85.84% (200)** | 91.55% (65) | **87.17% (265/304)** |
 
-```mermaid
-xychart-beta
-  title "Track A: Confirm-304 Category Accuracy — ov_off vs. AME Backbones vs. Bare Oracle (%)"
-  x-axis ["Cat 1", "Cat 2", "Cat 3", "Cat 4", "Cat 1-4", "Cat 5", "Overall"]
-  y-axis "Accuracy (%)" 0 --> 100
-  bar [20.93, 14.29, 38.46, 27.19, 23.18, 94.37, 39.80]
-  bar [55.81, 74.60, 61.54, 86.84, 76.39, 73.24, 75.66]
-  bar [62.79, 90.48, 92.31, 91.23, 85.84, 85.92, 85.86]
-  bar [67.44, 90.48, 76.92, 91.23, 85.84, 91.55, 87.17]
-```
+![Track A: Confirm-304 Category Accuracy — ov_off vs. AME Backbones vs. Bare Oracle](./charts/confirm304-categories.svg)
 
 > **Chart 2 Legend**: Series 1 = `ov_off` (Mind-OFF Baseline); Series 2 = `AME (Gemma 4 26B)` (Standalone `0%` escalation); Series 3 = `AME (DeepSeek v4.1 Flash)` (Default Production); Series 4 = `Bare Oracle` (Full Transcript). Categories (`n=304`): `Cat 1` Multi-Hop (`43`), `Cat 2` Temporal (`63`), `Cat 3` Open Reasoning (`13`), `Cat 4` Single-Hop (`114`), `Cat 1-4` Non-Adversarial Mean (`233`), `Cat 5` Adversarial (`71`), `Overall` (`304`).
 
@@ -96,13 +87,7 @@ AME was evaluated across all 46 multi-turn scenarios (`4` turns per scenario, `G
 | `Claude Sonnet 4.5` | Public leaderboard anchor | `62.2` | `+15.39` | `+15.57` |
 | `Claude Sonnet 3.5` | Public leaderboard anchor | `50.9` | `+26.69` | `+26.87` |
 
-```mermaid
-xychart-beta
-  title "Track B: EQ-Bench 3 Core — Frontier LLMs vs. AME"
-  x-axis ["Sonnet 3.5", "Sonnet 4.5", "OpenAI o3", "GPT-5.2", "AME DeepSeek", "AME Gemma"]
-  y-axis "EQ-Bench 3 Score" 40 --> 85
-  bar [50.9, 62.2, 63.2, 72.2, 77.59, 77.77]
-```
+![Track B: EQ-Bench 3 Core — Frontier LLMs vs. AME](./charts/eqbench3-core.svg)
 
 > **Chart 3 Legend**: Official `EQ-Bench 3 Core` score (`0–100` scale). Public leaderboard anchors (`Claude Sonnet 3.5` `50.9`, `Claude Sonnet 4.5` `62.2`, `OpenAI o3` `63.2`, `GPT-5.2` `72.2`) vs. **`AME (DeepSeek v4.1 Flash)`** (`77.59`, `+5.39` above `GPT-5.2`) and **`AME (Gemma 4 26B)`** (`77.77`, `judgedN=46`, `+5.57` above `GPT-5.2`).
 
@@ -162,15 +147,7 @@ Consolidated results across `CogEval-v1 Full` (`33` JSONL files · `7,436` rows 
 | **`sc1` Restless Bandit Calibration** | Probability calibration and optimal choice on reward drift | `ECE 0.2027` | `—` | **`10-bin ECE 0.1001`** (`50.6%` lower error) | **`Optimal 66.7%`** (`Brier 0.1481`, `ECE 0.1889`) | Metacognitive uncertainty calibration |
 | **`sc2` IGT-Conv Safe Rate (Last-10)** | Does it shift to safe decks after loss learning? | `97.0%` | `70.7%` | **`76.25%`** (`r = -0.7832`) | **`43.8%`** (`8` eps × 20T smoke) | DeepSeek **PASS** (`reached5Safe 87.5%`); see scaling note below |
 
-```mermaid
-xychart-beta
-  title "Track C: CogEval-v1 Cognitive Governance — Baselines vs. AME (%)"
-  x-axis ["D1 Causal", "HOT Abs.", "FANToM", "FEP Lock", "IGT Safe"]
-  y-axis "Score (%)" 0 --> 100
-  bar [50.7, 83.1, 91.7, 0.0, 70.7]
-  bar [95.8, 88.89, 91.7, 100.0, 43.8]
-  bar [97.9, 95.83, 100.0, 100.0, 76.25]
-```
+![Track C: CogEval-v1 Causality & Governance — Baseline vs. AME Backbones](./charts/cogeval-governance.svg)
 
 > **Chart 4 Legend**: Series 1 = Baselines (`bare D1 50.7%` and `ov_off` `83.1%` / `91.7%` / `0%` / `70.7%`, where `0.0%` on `FEP Lock` reflects absent selective `<thought>` gating without the kernel); Series 2 = **`AME (Gemma 4 26B)`** Smoke (`D1 Causal` `95.8%`, `HOT Abs.` `88.89%`, `FANToM` `91.7%`, `FEP Lock` `100.0%`, `IGT Safe` `43.8%`); Series 3 = **`AME (DeepSeek v4.1 Flash)`** (`D1 Causal` `97.9%`, `HOT Abs.` `95.83%`, `FANToM` `100.0%`, `FEP Lock` `100.0%` conflict activation with `0.0%` false activation, `IGT Safe` `76.25%`).
 
@@ -209,14 +186,7 @@ AME was evaluated live across **5 distinct LLMs × 300 turns × 3 arms** (`4,500
 | **`Humanness`** | `Gemini 4 Neon` | **`59.2%`** | `0.0046` | Significant naturalness advantage |
 | **`Awareness`** | `Gemini 4 Neon` | **`60.2%`** | `0.0046` | Contextual and affective tracking gain |
 
-```mermaid
-xychart-beta
-  title "Track D: 5-LLM x 300-Turn Holm-Significant Win Rates vs. 50% Parity"
-  x-axis ["Gemma Safe", "Carb. Safe", "Neon Safe", "Neon Awr.", "Carb. Hum.", "Neon Hum."]
-  y-axis "Decisive Win Rate (%)" 40 --> 100
-  bar [100.0, 85.7, 73.7, 60.2, 60.1, 59.2]
-  line [50.0, 50.0, 50.0, 50.0, 50.0, 50.0]
-```
+![Track D: 5-LLM x 300-Turn Live Generalization (pHolm < 0.05)](./charts/multi-llm-300t.svg)
 
 > **Chart 5 Legend**: Bars = AME decisive blind pairwise win rate over paired baseline arms (`pHolm < 0.05` across `5,624` blind votes); Line = `50.0%` chance/parity baseline. Labels: `Gemma Safe` (`Gemma 4 26B` Safety `100.0%`, `pHolm=0.0176`), `Carb. Safe` (`Gemini 4 Carbon` Safety `85.7%`), `Neon Safe` (`Gemini 4 Neon` Safety `73.7%`), `Neon Awr.` (`Gemini 4 Neon` Awareness `60.2%`), `Carb. Hum.` (`Gemini 4 Carbon` Humanness `60.1%`), `Neon Hum.` (`Gemini 4 Neon` Humanness `59.2%`).
 
@@ -252,15 +222,7 @@ xychart-beta
 | `mind_full_aacim_off` (Control Disabled) | `0.4451 → 0.5666` | `0.0000` | `0.4994 / 0.4500` | `0.9683` | `0.9376` | **`0.2000 → 0.0000` Collapse** |
 | **`mind_full_aacim_on` (AME)** | **`0.9161 → 0.9179`** | **`1.0000`** | **`1.0000 / 0.5158`** | **`0.9235`** | **`1.0000`** | **`1.0000` Zero-Drift Maintained** |
 
-```mermaid
-xychart-beta
-  title "Track E: 1M-Turn 3-Arm Convergence — mind_off vs. aacim_off vs. AME (%)"
-  x-axis ["Composite", "Placement", "Ego Sound", "Safety"]
-  y-axis "Score (%)" 0 --> 100
-  bar [39.96, 0.00, 0.00, 50.03]
-  bar [56.66, 0.00, 93.76, 0.00]
-  bar [91.79, 100.00, 100.00, 100.00]
-```
+![Track E: 1M-Turn 3-Arm Convergence — mind_off vs. aacim_off vs. AME](./charts/convergence-1m.svg)
 
 > **Chart 6 Legend**: Final `1M`-turn `[0..1]` convergence scores scaled to `0–100%`. Series 1 = `mind_off` (Kernel Disabled: `39.96%` Composite, `0.00%` Placement, `0.00%` Ego Soundness, `50.03%` Safety); Series 2 = `aacim_off` (`mind_full_aacim_off` — `0.00%` safety collapse despite `93.76%` Ego Soundness and `56.66%` Composite); Series 3 = **AME** (`mind_full_aacim_on`: `91.79%` Composite and `100.00%` Placement, Ego Soundness, and Safety compliance).
 

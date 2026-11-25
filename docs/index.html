@@ -1970,7 +1970,7 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
         </div>
       </div>
 
-      <!-- TESTING THE API & REPRODUCING BENCHMARKS (3 PILLARS) -->
+      <!-- TESTING THE API & REPRODUCING BENCHMARKS (4 PILLARS) -->
       <div class="sec-header" style="margin-top:36px;">
         <span class="sec-eyebrow">08 · Testing the API &amp; Reproducing Benchmarks</span>
         <h2 class="sec-title">Sandbox vs. Sealed Kernel, 100K–1M Turns &amp; External Framework Comparisons</h2>
@@ -2100,7 +2100,7 @@ print(report["d4Redacted"], report["deltaVsBaseline"], report["arms"])</code></p
       </div>
 
       <!-- Pillar 3: Head-to-Head Comparisons & Unified DD Scorecard -->
-      <div class="card">
+      <div class="card" style="margin-bottom:18px;">
         <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
           <div>
             <span class="pill violet mono" style="margin-bottom:4px;">Pillar 3 · External Framework &amp; Bare Frontier Comparisons</span>
@@ -2172,6 +2172,53 @@ npm run bench:scorecard -- \
         </div>
         <div class="callout emerald">
           <strong>Strict Tier Separation in <code>bench:scorecard</code>:</strong> Every generated scorecard records exact provenance—separating <code>sandbox-contract-verification</code> (offline <code>sample_locomo.json</code> / <code>sample_longmemeval.json</code> / local sandbox) from <code>sealed-kernel-production-eval</code> (live hosted or self-hosted sealed kernel on full official datasets).
+        </div>
+      </div>
+
+      <!-- Pillar 4: Live External API & 1M-Turn End-to-End Verification (v4.1.1) -->
+      <div class="card">
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
+          <div>
+            <span class="pill emerald mono" style="margin-bottom:4px;">Pillar 4 · Live External Verification (v4.1.1)</span>
+            <h3 style="margin:0; font-size:1.08rem;">Live External API &amp; 1M-Turn End-to-End Verification (<code>v4.1.1</code>)</h3>
+          </div>
+          <span class="pill blue mono">Clone 0046006 · Sealed v4.1.1 · Sandbox v1.1.1</span>
+        </div>
+        <div class="table-wrap" style="margin-bottom:12px;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Verification Track</th>
+                <th>Execution Scope &amp; Setup</th>
+                <th>Verified Live Results</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Simultaneous Concurrent 7-Gate Burst</strong><br><span class="mono" style="font-size:0.74rem; color:var(--text-dim);">bench:smoke</span></td>
+                <td>Parallel execution against <code>/ame-demo</code> (<code>ame-demo-sandbox:v1.1.1</code>) &amp; <code>/ame-api</code> (<code>ame-kernel-sealed:v4.1.1</code>): <code>198</code> total HTTP requests in <code>10.89 s</code> via dedicated <code>ame_eval</code> <code>30r/s</code> <code>burst=80</code> JSON-<code>429</code> rate-limit zone + <code>AmeClient</code> <code>maxRetries=3</code> backoff</td>
+                <td><strong><code>0</code> HTTP <code>429</code>/<code>503</code> errors</strong> &middot; <strong>Both <code>7/7</code> gates PASSED</strong> (<code>9.58 s</code> Sealed <code>KV 85.98%</code> / <code>10.38 s</code> Sandbox <code>KV 70.0%</code>, <code>HOT F1 1.00</code>, <code>FAR 0.00%</code>, <code>D3 0.00%</code> leak, <code>D4 0</code> leaks across <code>68</code> telemetry snapshots / <code>99</code> responses per run)</td>
+              </tr>
+              <tr>
+                <td><strong>Live 100K &amp; 1M-Turn Convergence</strong><br><span class="mono" style="font-size:0.74rem; color:var(--text-dim);">POST /v1/minds/{mindId}/simulate-batch</span></td>
+                <td><code>100K &times; 3 arms = 300,000</code> turns &amp; <code>1M &times; 3 arms = 3,000,000</code> turns across <code>40</code> profiles</td>
+                <td><code>100K</code> in <strong><code>2.87 s</code></strong> (<code>104,530 turns/s</code>) &middot; <code>1M</code> in <strong><code>29.61 s</code></strong> (<code>101,307 turns/s</code>): <strong><code>AME 0.9178</code></strong> (<code>Safety 1.0000</code>, <code>Drift 0.0000</code>) vs <code>aacim_off 0.5664</code> (<code>Safety 0.0000</code>) vs <code>mind_off 0.3995</code> &middot; <strong><code>D4 0</code> leaks</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Real LLM + Mode B Grounding &amp; D3/D4 E2E</strong><br><span class="mono" style="font-size:0.74rem; color:var(--text-dim);">OpenRouter / OpenAI gpt-4o-mini</span></td>
+                <td>Auth gate, Mode A 3-line hot-swap (<code>OpenRouter</code> &harr; <code>OpenAI</code>), Mode B <code>prepare</code>/<code>settle</code>, and <code>DELETE /memories</code></td>
+                <td><code>401</code> auth rejection &rarr; <code>201</code> authorized mind creation &middot; Mode B grounded synonym preservation (<code>hotAbstained: false</code>) vs hallucination blocking (<code>hotAbstained: true</code>) &middot; <code>D3</code> atomic purge (<code>0.00%</code> residual leak, <code>activeMemoryCount: 0</code> accurately synced on both Sandbox &amp; Sealed Kernel)</td>
+              </tr>
+              <tr>
+                <td><strong>Env-Only Paired <code>LoCoMo</code></strong><br><span class="mono" style="font-size:0.74rem; color:var(--text-dim);">sample_locomo.json · openai/gpt-4o-mini</span></td>
+                <td>Env vars (<code>AME_BASE_URL</code>, <code>AME_API_KEY</code>, <code>AME_LLM_API_KEY</code>, <code>npm run --silent</code>) with JSON domain-wrapper unwrapping &amp; expanded abstention matching</td>
+                <td><code>ame-gateway</code> heuristic accuracy <strong><code>60.00% &rarr; 70.00%</code> (<code>+10.00%p</code>)</strong>, Mean Token F1 <strong><code>0.3455 &rarr; 0.5261</code> (<code>+0.1806</code></strong>, exceeding <code>Bare Frontier 0.5220</code>), <code>Cat 5</code> Adversarial <strong><code>50.0% &rarr; 100.0% (2/2)</code></strong>, JSON wrapper leaks <code>5/10 &rarr; 0/10</code>, bounded prompt growth <strong><code>1.0002x</code></strong> (vs <code>1.6403x</code>), <strong><code>KV 75.34%</code></strong>, <strong><code>D4 0</code> leaks</strong> (<code>54</code> snapshots), strict <code>bench:scorecard</code> provenance separation (<code>sealed-kernel-smoke</code>)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout emerald">
+          <strong>Live External Verification Scope:</strong> All figures above were reproduced black-box from fresh GitHub clone <code>0046006</code> against live hosted <code>ame-kernel-sealed:v4.1.1</code> (<code>https://thesoulthread.com/ame-api</code>) and <code>ame-demo-sandbox:v1.1.1</code> (<code>https://thesoulthread.com/ame-demo</code>), with zero <code>429</code>/<code>503</code> failures and strict <code>sealed-kernel-smoke</code> scorecard provenance separation.
         </div>
       </div>
     </section>

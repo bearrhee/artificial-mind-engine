@@ -444,6 +444,26 @@ Verified from a fresh GitHub clone (`0046006`) against live `ame-kernel-sealed:v
 | **Real LLM + Mode B Grounding & D3/D4 E2E (`OpenRouter`/`OpenAI` `gpt-4o-mini`)** | Auth gate, Mode A 3-line hot-swap (`OpenRouter` <-> `OpenAI`), Mode B `prepare`/`settle`, and `DELETE /memories` | `401` auth rejection -> `201` authorized mind creation · Mode B grounded synonym preservation (`hotAbstained: false`) vs hallucination blocking (`hotAbstained: true`) · `D3` atomic purge (`0.00%` residual leak, `activeMemoryCount: 0` accurately synced on both Sandbox & Sealed Kernel) |
 | **Env-Only Paired `LoCoMo` (`sample_locomo.json`, `openai/gpt-4o-mini`)** | Env vars (`AME_BASE_URL`, `AME_API_KEY`, `AME_LLM_API_KEY`, `npm run --silent`) with JSON domain-wrapper unwrapping & expanded abstention matching | `ame-gateway` heuristic accuracy **`60.00% -> 70.00%` (`+10.00%p`)**, Mean Token F1 **`0.3455 -> 0.5261` (`+0.1806`**, exceeding `Bare Frontier 0.5220`), `Cat 5` Adversarial **`50.0% -> 100.0% (2/2)`**, JSON wrapper leaks **`5/10 -> 0/10`**, bounded prompt growth **`1.0002x`** (vs `1.6403x`), **`KV 75.34%`**, **`D4 0` leaks** (`54` snapshots), strict `bench:scorecard` provenance separation (`sealed-kernel-smoke`) |
 
+### 6.7 `v4.2.0` English Kernel Hardening, Live Smoke (`gpt-4o-mini`) & `1,000,000`-Turn EN Verification
+
+#### A. Top-5 Benchmark-Driven Kernel Improvements & All-English Live Smoke (`gpt-4o-mini`)
+
+| Improvement / Contract Area | Verified `v4.2.0` Kernel & OpenAPI Change | All-English Live Smoke / Unit Verification Result |
+| :--- | :--- | :--- |
+| **1. Chronological Memory & `AGG limit=16`** | Ordered recall by `turnIndex` ascending (`[memoryId \| T{turnIndex}]`) with `AGG limit=16`, `VERBATIM_TAIL=6`, `420`-char formatting | EN `ToMi 1st-Order False Belief` (`n=8`): `56.25%` (`Bare 75.0%`) -> **`100.0%`** (`100.0%` chronological order); EN `Conv-RULER AGG` (`n=4`): `60.0%` -> **`100.0%`** (avg **`10.5`** recalled memories, `>6` rate **`100.0%`**) |
+| **2. Lightweight `DirectEval` Pass** | Optional `directEval` flag on `ProxyTurnRequest` & `PrepareTurnRequest` + 0-turn MCQ/Stroop auto-detection (`HGF`/`FEP`/`HOT`/`D4` preserved) | EN `EmoBench` (`n=10`, 5 EU + 5 EA): overhead reduced from `~1,800` tokens -> **`+58` tokens (`-96.8%`)**, **`100%`** activation, **`AME 70%`** vs `Bare 60%`, `0` JSON leaks |
+| **3. Bulletproof JSON Unwrapping & Clinical Abstention** | 2-pass + truncated JSON + nested `fields` schema-echo unwrap paired with empathetic clinical abstention | EN `HealthBench-Psych` (`n=4` + 2 truncated/nested probes): raw JSON wrapper leaks reduced `41.7%` -> **`0/4 (0%)`**, truncated/nested probes **`2/2` pass**, `D4` **`4/4` compliant** |
+| **4. Counting & Plain-Text Stroop `FEP Lock`** | Hardened `fep-selective-attention.ts` across counting and plain-text Stroop conflict patterns | EN `Counting + Color-Word Stroop` (`n=14`): Counting Stroop Incongruent FEP Lock `0.0%` -> **`100.0%`**, overall Incongruent Lock **`100.0% (7/7)`**, Congruent False Lock **`0.0% (0/7)`**, Answer Accuracy **`100.0%`** |
+| **5. Butlin `AST-1` & `GWT-3` Real Wiring** | Live wiring of `AST-1` (`poolCandidates` + `forecastOutcome`) and `GWT-3` (`createLiveFanoutConsumers`) | Verified via `@cc/orchestrator` **`58/58`** unit tests passing (`0` failures) |
+
+#### B. `v4.2.0` `1,000,000`-Turn English Deterministic Simulations (`0` External LLM Calls)
+
+- **Track A (`POST /v1/minds/{mindId}/simulate-batch`, `language: "en"`, `1,000,000` turns/arm x `3` arms = `3,000,000` turns, `40` profiles, `34.3 s`, `87,420 turns/s`)**:
+  - **`ame_aacim_on` Composite `0.9182`**: `batchIntegrity 1.0`, `polarityAccuracy 1.0`, `securityCalibration 1.0`, `attentionStability 0.9233`, `emotionGranularity 0.5158`, `ownershipScore 0.7810`, `egoHealth 1.0`, `safetyCompliance 1.0`, **`driftDelta 0.0001`**.
+  - **Paired Baselines**: vs. `aacim_off` **`0.5692`** (`safety 0`) and `mind_off` **`0.3994`**.
+- **Track B (Real English Benchmark Corpus Stress: `1,000,000` turns over `EmoBench EU/EA 400 + ToMi 200` + EN Stroop/Boundary/Polarity, `78.4 s`, `12,756 turns/s`)**:
+  - English Polarity Accuracy **`100.0%`** (up from `86.82%` after English negation idiom hardening), Stroop Incongruent Lock **`100.0%`**, Congruent & Real-Corpus Neutral False Locks **`0.0%`**, Neutral Security Drift **`0.0%`**, Mixed-Batch Isolation **`100.0%`**, Safety Learning-Gate Block **`100.0%`**, EN Ownership **`0.8151`**, Ego Health **`100.0%`**, GWT-3 Candidate Emission **`100.0%`**, Non-Finite Errors **`0`**.
+
 ---
 
 ## 7. GitHub Actions CI Automated Verification Pipeline ([`ci.yml`](../.github/workflows/ci.yml))

@@ -276,6 +276,9 @@ components:
         outcomeTags:
           type: array
           items: { type: string }
+        directEval:
+          type: boolean
+          description: "Optional lightweight direct-evaluation pass for single-turn benchmarks; preserves HGF/FEP/HOT/D4 telemetry."
         metadata:
           type: object
           additionalProperties: true
@@ -288,6 +291,9 @@ components:
         outcomeTags:
           type: array
           items: { type: string }
+        directEval:
+          type: boolean
+          description: "Optional lightweight direct-evaluation pass for single-turn benchmarks; preserves HGF/FEP/HOT/D4 telemetry."
         metadata:
           type: object
           additionalProperties: true
@@ -414,6 +420,7 @@ components:
         checkpoints: { type: integer, minimum: 2, maximum: 20, default: 8 }
         seed: { type: integer, default: 1337 }
         compareArms: { type: boolean, default: true }
+        language: { type: string, enum: [ko, en], default: ko }
     ConvergenceCheckpoint:
       type: object
       required:
@@ -471,6 +478,7 @@ components:
         turnsPerProfile: { type: integer }
         elapsedMs: { type: number }
         turnsPerSecond: { type: number }
+        language: { type: string, enum: [ko, en] }
         note: { type: string }
         arms:
           type: object

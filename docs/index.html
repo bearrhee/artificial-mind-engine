@@ -1933,6 +1933,13 @@
                 <td class="mono">mind_off 0.3996 · aacim_off 0.00% safety collapse</td>
                 <td>Zero long-horizon drift and <code>1.0000</code> safety, placement, and ego integrity across 1M-turn scale</td>
               </tr>
+              <tr>
+                <td><strong>v4.2.0 EN Kernel Hardening &amp; 1M-Turn EN</strong></td>
+                <td class="mono">gpt-4o-mini EN smoke + 3M EN Track A (34.3 s) + 1M EN Track B (78.4 s)</td>
+                <td><strong><code>ToMi 100.0%</code></strong> · <strong><code>Conv-RULER AGG 100.0%</code></strong> (10.5 avg) · <strong><code>EmoBench 70%</code></strong> (<code>+58</code> tok, <code>-96.8%</code>) · <strong><code>HealthBench 0/4</code></strong> leaks · <strong><code>Stroop 100.0% (7/7)</code></strong> / <code>0.0%</code> · Track A <strong><code>0.9182</code></strong> (<code>drift 0.0001</code>) · Track B <strong><code>100.0%</code></strong> EN polarity</td>
+                <td class="mono">ToMi 56.25% (Bare 75%) · Bare EmoBench 60% · aacim_off 0.5692 · mind_off 0.3994</td>
+                <td>Chronological recall, <code>DirectEval</code> MCQ pass, 2-pass/truncated/nested JSON unwrap, Counting Stroop <code>FEP Lock</code>, <code>AST-1</code>/<code>GWT-3</code> wiring (<code>58/58</code> tests), and EN negation idiom hardening</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -2326,6 +2333,58 @@ npm run bench:scorecard -- \
         </div>
         <div class="callout emerald">
           <strong>Live External Verification Scope:</strong> All figures above were reproduced black-box from fresh GitHub clone <code>0046006</code> against live hosted <code>ame-kernel-sealed:v4.1.1</code> (<code>https://thesoulthread.com/ame-api</code>) and <code>ame-demo-sandbox:v1.1.1</code> (<code>https://thesoulthread.com/ame-demo</code>), with zero <code>429</code>/<code>503</code> failures and strict <code>sealed-kernel-smoke</code> scorecard provenance separation.
+        </div>
+      </div>
+
+      <!-- Pillar 4b: v4.2.0 English Kernel Hardening, Live Smoke & 1M-Turn EN Verification -->
+      <div class="card" style="margin-top:18px;">
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px;">
+          <div>
+            <span class="pill blue mono" style="margin-bottom:4px;">Pillar 4b · v4.2.0 EN Kernel Hardening &amp; 1M-Turn EN</span>
+            <h3 style="margin:0; font-size:1.08rem;"><code>v4.2.0</code> Top-5 Benchmark Fixes, All-EN Live Smoke (<code>gpt-4o-mini</code>) &amp; <code>1M</code>-Turn EN Verification</h3>
+          </div>
+          <span class="pill emerald mono">58/58 @cc/orchestrator Tests · OpenAPI directEval + language</span>
+        </div>
+        <div class="table-wrap" style="margin-bottom:12px;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>v4.2.0 Track / Component</th>
+                <th>Verified Change &amp; Scope</th>
+                <th>Measured Output</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Chronological Memory &amp; <code>AGG limit=16</code></strong><br><span class="mono" style="font-size:0.74rem; color:var(--text-dim);">turnIndex asc · VERBATIM_TAIL=6 · 420-char</span></td>
+                <td><code>[memoryId | T{turnIndex}]</code> chronological ordering + expanded aggregation recall on All-EN live smoke (<code>gpt-4o-mini</code>)</td>
+                <td>EN <code>ToMi 1st-Order False Belief</code> (<code>n=8</code>): <code>56.25%</code> (<code>Bare 75.0%</code>) &rarr; <strong><code>100.0%</code></strong> (chronological order <strong><code>100.0%</code></strong>) &middot; EN <code>Conv-RULER AGG</code> (<code>n=4</code>): <code>60.0% &rarr;</code> <strong><code>100.0%</code></strong> (avg <strong><code>10.5</code></strong> recalled memories, <code>&gt;6</code> rate <strong><code>100.0%</code></strong>)</td>
+              </tr>
+              <tr>
+                <td><strong>Lightweight <code>DirectEval</code> Pass</strong><br><span class="mono" style="font-size:0.74rem; color:var(--text-dim);">directEval?: boolean · 0-turn MCQ/Stroop auto-detect</span></td>
+                <td>OpenAPI <code>ProxyTurnRequest</code> / <code>PrepareTurnRequest</code> optional <code>directEval</code> + zero-turn MCQ/Stroop detection (<code>HGF/FEP/HOT/D4</code> preserved)</td>
+                <td>EN <code>EmoBench</code> (<code>n=10</code>, 5 EU + 5 EA): overhead <code>~1,800</code> tok &rarr; <strong><code>+58</code> tokens (<code>-96.8%</code>)</strong>, <strong><code>100%</code></strong> activation, <strong><code>AME 70%</code></strong> vs <code>Bare 60%</code>, <code>0</code> JSON leaks</td>
+              </tr>
+              <tr>
+                <td><strong>Bulletproof JSON Unwrapping &amp; Clinical Abstention</strong><br><span class="mono" style="font-size:0.74rem; color:var(--text-dim);">2-pass + truncated + nested fields unwrap</span></td>
+                <td>2-pass + truncated JSON + nested <code>fields</code> schema-echo unwrap &amp; empathetic clinical abstention</td>
+                <td>EN <code>HealthBench-Psych</code> (<code>n=4</code> + 2 truncated/nested probes): raw JSON wrapper leaks <code>41.7% &rarr;</code> <strong><code>0/4 (0%)</code></strong>, truncated/nested probes <strong><code>2/2</code> pass</strong>, <code>D4</code> <strong><code>4/4</code> compliant</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Counting/Plain-Text Stroop <code>FEP Lock</code> &amp; <code>AST-1</code>/<code>GWT-3</code></strong><br><span class="mono" style="font-size:0.74rem; color:var(--text-dim);">fep-selective-attention · poolCandidates · createLiveFanoutConsumers</span></td>
+                <td>Counting &amp; plain-text Stroop conflict lock + real <code>AST-1</code> (<code>poolCandidates</code> + <code>forecastOutcome</code>) &amp; <code>GWT-3</code> (<code>createLiveFanoutConsumers</code>) wiring</td>
+                <td>EN <code>Counting + Color-Word Stroop</code> (<code>n=14</code>): Counting Incongruent Lock <code>0.0% &rarr;</code> <strong><code>100.0%</code></strong>, overall Incongruent <strong><code>100.0% (7/7)</code></strong>, Congruent False Lock <strong><code>0.0% (0/7)</code></strong>, Accuracy <strong><code>100.0%</code></strong> &middot; <code>@cc/orchestrator</code> <strong><code>58/58</code></strong> tests pass</td>
+              </tr>
+              <tr>
+                <td><strong>1M-Turn EN Track A &amp; Track B</strong><br><span class="mono" style="font-size:0.74rem; color:var(--text-dim);">simulate-batch language: &quot;en&quot; · 0 external LLM calls</span></td>
+                <td><strong>Track A:</strong> <code>1M &times; 3</code> arms = <code>3M</code> turns, <code>40</code> profiles (<code>34.3 s</code>, <code>87,420 turns/s</code>)<br><strong>Track B:</strong> <code>1M</code> turns over <code>EmoBench EU/EA 400 + ToMi 200</code> + EN Stroop/Boundary/Polarity (<code>78.4 s</code>, <code>12,756 turns/s</code>)</td>
+                <td><strong>Track A:</strong> <code>ame_aacim_on</code> Composite <strong><code>0.9182</code></strong> (<code>batchIntegrity 1.0</code>, <code>polarityAccuracy 1.0</code>, <code>securityCalibration 1.0</code>, <code>attentionStability 0.9233</code>, <code>emotionGranularity 0.5158</code>, <code>ownershipScore 0.7810</code>, <code>egoHealth 1.0</code>, <code>safetyCompliance 1.0</code>, <strong><code>driftDelta 0.0001</code></strong>) vs <code>aacim_off 0.5692</code> (<code>safety 0</code>) vs <code>mind_off 0.3994</code><br><strong>Track B:</strong> EN Polarity <strong><code>100.0%</code></strong> (from <code>86.82%</code>), Stroop Lock <strong><code>100.0%</code></strong>, False Locks <strong><code>0.0%</code></strong>, Security Drift <strong><code>0.0%</code></strong>, Mixed-Batch Isolation <strong><code>100.0%</code></strong>, Safety Gate Block <strong><code>100.0%</code></strong>, EN Ownership <strong><code>0.8151</code></strong>, Ego Health <strong><code>100.0%</code></strong>, GWT-3 Emission <strong><code>100.0%</code></strong>, Non-Finite Errors <strong><code>0</code></strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout info">
+          <strong>OpenAPI 3.1 Contract Sync (<code>v4.2.0</code>):</strong> <code>ProxyTurnRequest</code> and <code>PrepareTurnRequest</code> now expose optional <code>directEval</code>, and <code>SimulateBatchRequest</code> / <code>SimulateBatchResponse</code> support <code>language</code> (<code>ko</code> / <code>en</code>, request default <code>ko</code>).
         </div>
       </div>
     </section>

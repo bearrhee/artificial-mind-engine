@@ -278,11 +278,15 @@ export interface AmeClientOptions {
   baseUrl?: string;
   apiKey?: string;
   fetchImpl?: typeof fetch;
+  maxRetries?: number;
+  retryBaseDelayMs?: number;
 }
 
 export declare class AmeClient {
   readonly baseUrl: string;
   readonly apiKey?: string;
+  readonly maxRetries: number;
+  readonly retryBaseDelayMs: number;
   constructor(options?: AmeClientOptions);
   health(): Promise<HealthResponse>;
   createMind(body: CreateMindRequest): Promise<MindSummary>;

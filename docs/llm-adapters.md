@@ -108,6 +108,22 @@ adapter = create_llm_adapter(provider="openai-compat", model="qwen2.5:14b", base
 turn_3 = run_turn_with_local_llm(client, mind["mindId"], user_input="I feel much calmer now.", adapter=adapter, reward_signal=30)
 ```
 
+### Adapter Return Shapes & Automatic SDK Retry
+
+- **Direct `generate(prep)` Return Shape (`@ame/sdk` vs. `ame_sdk`)**: Calling `createLlmAdapter(...).generate(prep)` directly returns an object `{ text, providerUsed, modelUsed, raw }` in TypeScript (`@ame/sdk`), whereas `create_llm_adapter(...).generate(prepared)` returns a plain `str` in Python (`ame_sdk`). Use `runTurnWithLocalLlm` / `run_turn_with_local_llm` to handle either return shape transparently across `prepare` → `generate` → `settle`:
+
+```ts
+// TypeScript (@ame/sdk): generate() returns { text, providerUsed, modelUsed, raw }
+const { text, providerUsed, modelUsed, raw } = await localAdapter.generate(prep);
+```
+
+```python
+# Python (ame_sdk): generate() returns str
+raw_reply: str = adapter.generate(prep)
+```
+
+- **Automatic Transient Error Retries (`AmeClient`)**: Both TypeScript (`@ame/sdk`) and Python (`ame_sdk`) `AmeClient` instances automatically retry transient HTTP `429`, `502`, `503`, and `504` responses using exponential backoff (`maxRetries=3` in TS, `max_retries=3` in Python).
+
 ---
 
 ## 4. Benchmark Backbone Disclosure & Model Routing ROI Strategy

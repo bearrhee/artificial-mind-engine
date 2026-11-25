@@ -531,3 +531,205 @@ test('AmeClient.simulateBatch sends POST /v1/minds/{mindId}/simulate-batch with 
     (err) => err instanceof AmeApiError && err.status === 404 && err.code === 'NOT_FOUND'
   );
 });
+
+function makeMockTextOrJsonFetch(responder) {
+  const calls = [];
+  const fetchImpl = async (url, init = {}) => {
+    calls.push({ url, method: init.method || 'GET', headers: init.headers || {}, body: init.body });
+    const out = await responder(url, init, calls.length);
+    if (out.throwError) {
+      throw out.throwError;
+    }
+    const status = out.status ?? 200;
+    const responseHeaders = new Map(
+      Object.entries({
+        'content-type': out.contentType ?? (out.json !== undefined ? 'application/json; charset=utf-8' : 'text/html; charset=utf-8'),
+        ...(out.headers || {}),
+      }).map(([k, v]) => [k.toLowerCase(), String(v)])
+    );
+    return {
+      ok: status >= 200 && status < 300,
+      status,
+      headers: {
+        get: (name) => responseHeaders.get(String(name).toLowerCase()) ?? null,
+      },
+      json: async () => (out.json !== undefined ? out.json : JSON.parse(out.text || '{}')),
+      text: async () => (out.text !== undefined ? out.text : JSON.stringify(out.json ?? {})),
+    };
+  };
+  return { fetchImpl, calls };
+}
+
+test('AmeClient constructor validates maxRetries and retryBaseDelayMs with defaults', () => {
+  const { fetchImpl } = makeMockJsonFetch(() => ({ json: { ok: true } }));
+  const defaults = new AmeClient({ fetchImpl });
+  assert.equal(defaults.maxRetries, 3);
+  assert.equal(defaults.retryBaseDelayMs, 150);
+
+  const customZero = new AmeClient({ fetchImpl, maxRetries: 0, retryBaseDelayMs: 0 });
+  assert.equal(customZero.maxRetries, 0);
+  assert.equal(customZero.retryBaseDelayMs, 0);
+
+  assert.throws(() => new AmeClient({ fetchImpl, maxRetries: -1 }), RangeError);
+  assert.throws(() => new AmeClient({ fetchImpl, maxRetries: 1.5 }), RangeError);
+  assert.throws(() => new AmeClient({ fetchImpl, retryBaseDelayMs: -10 }), RangeError);
+  assert.throws(() => new AmeClient({ fetchImpl, retryBaseDelayMs: Number.NaN }), RangeError);
+});
+
+test('AmeClient retries transient HTML 429 and 503 responses and recovers on 200', async () => {
+  const { fetchImpl, calls } = makeMockTextOrJsonFetch((_url, _init, attempt) => {
+    if (attempt === 1) {
+      return {
+        status: 429,
+        contentType: 'text/html; charset=utf-8',
+        text: '<!DOCTYPE html><html><body><h1>429 Too Many Requests</h1></body></html>',
+      };
+    }
+    if (attempt === 2) {
+      return {
+        status: 503,
+        contentType: 'text/html; charset=utf-8',
+        text: '<html><body><h1>503 Service Unavailable</h1></body></html>',
+      };
+    }
+    return {
+      status: 200,
+      json: { ok: true, service: 'ame', version: '1.0.0', mode: 'sandbox-contract', domains: ['game_npc'] },
+    };
+  });
+
+  const client = new AmeClient({
+    baseUrl: 'http://127.0.0.1:8090',
+    fetchImpl,
+    maxRetries: 3,
+    retryBaseDelayMs: 5,
+  });
+
+  const health = await client.health();
+  assert.equal(health.ok, true);
+  assert.equal(calls.length, 3);
+});
+
+test('AmeClient retries transient 502/504 and TypeError network errors up to maxRetries', async () => {
+  const { fetchImpl, calls } = makeMockTextOrJsonFetch((_url, _init, attempt) => {
+    if (attempt === 1) {
+      return { throwError: new TypeError('fetch failed: socket hang up') };
+    }
+    if (attempt === 2) {
+      return { status: 502, text: '<html><body>Bad Gateway</body></html>' };
+    }
+    if (attempt === 3) {
+      return { status: 504, text: 'Gateway Timeout' };
+    }
+    return { status: 200, json: { affectiveBand: 'steady', d4Redacted: true } };
+  });
+
+  const client = new AmeClient({
+    baseUrl: 'http://127.0.0.1:8090',
+    fetchImpl,
+    maxRetries: 3,
+    retryBaseDelayMs: 5,
+  });
+
+  const tel = await client.getTelemetry('mind_recover');
+  assert.equal(tel.affectiveBand, 'steady');
+  assert.equal(calls.length, 4);
+
+  const { fetchImpl: alwaysFailNet, calls: netCalls } = makeMockTextOrJsonFetch(() => ({
+    throwError: new TypeError('ECONNRESET'),
+  }));
+  const netFailClient = new AmeClient({
+    baseUrl: 'http://127.0.0.1:8090',
+    fetchImpl: alwaysFailNet,
+    maxRetries: 2,
+    retryBaseDelayMs: 2,
+  });
+  await assert.rejects(() => netFailClient.health(), TypeError);
+  assert.equal(netCalls.length, 3);
+});
+
+test('AmeClient honors numeric Retry-After seconds header and caps delay at 5000ms', async () => {
+  const { fetchImpl, calls } = makeMockTextOrJsonFetch((_url, _init, attempt) => {
+    if (attempt === 1) {
+      return {
+        status: 429,
+        headers: { 'Retry-After': '0.06' },
+        json: { error: 'RATE_LIMITED', message: 'Slow down' },
+      };
+    }
+    return { status: 200, json: { ok: true } };
+  });
+
+  const client = new AmeClient({
+    baseUrl: 'http://127.0.0.1:8090',
+    fetchImpl,
+    maxRetries: 2,
+    retryBaseDelayMs: 5,
+  });
+
+  const startedAt = Date.now();
+  const res = await client.health();
+  const elapsedMs = Date.now() - startedAt;
+
+  assert.equal(res.ok, true);
+  assert.equal(calls.length, 2);
+  assert.ok(elapsedMs >= 45, `Expected Retry-After (~60ms) wait, got ${elapsedMs}ms`);
+  assert.equal(client._computeRetryDelayMs(0, '999'), 5000);
+  assert.equal(client._computeRetryDelayMs(0, '1.25'), 1250);
+});
+
+test('AmeClient sanitizes HTML error messages while preserving raw details when retries exhaust', async () => {
+  const htmlBodies = [
+    '<!DOCTYPE html><html><head><title>503</title></head><body>Service Unavailable</body></html>',
+    '  <HTML lang="en"><body>502 Bad Gateway</body></HTML>',
+  ];
+
+  for (const [idx, htmlBody] of htmlBodies.entries()) {
+    const status = idx === 0 ? 503 : 502;
+    const { fetchImpl, calls } = makeMockTextOrJsonFetch(() => ({
+      status,
+      contentType: 'text/html; charset=utf-8',
+      text: htmlBody,
+    }));
+
+    const client = new AmeClient({
+      baseUrl: 'http://127.0.0.1:8090',
+      fetchImpl,
+      maxRetries: 2,
+      retryBaseDelayMs: 2,
+    });
+
+    await assert.rejects(
+      () => client.getMind('mind_html'),
+      (err) =>
+        err instanceof AmeApiError &&
+        err.status === status &&
+        err.code === `HTTP_${status}` &&
+        err.message === `AME API request failed: GET /v1/minds/mind_html (${status})` &&
+        err.details === htmlBody
+    );
+    assert.equal(calls.length, 3);
+  }
+});
+
+test('AmeClient performs zero retries on 401 and other non-transient HTTP statuses', async () => {
+  for (const status of [400, 401, 403, 404, 409, 422, 500]) {
+    const { fetchImpl, calls } = makeMockTextOrJsonFetch(() => ({
+      status,
+      json: { error: `ERR_${status}`, code: `ERR_${status}`, message: `Status ${status}` },
+    }));
+
+    const client = new AmeClient({
+      baseUrl: 'http://127.0.0.1:8090',
+      fetchImpl,
+      maxRetries: 3,
+      retryBaseDelayMs: 5,
+    });
+
+    await assert.rejects(
+      () => client.getMind('mind_non_retry'),
+      (err) => err instanceof AmeApiError && err.status === status && err.code === `ERR_${status}`
+    );
+    assert.equal(calls.length, 1, `Expected zero retries for HTTP ${status}`);
+  }
+});

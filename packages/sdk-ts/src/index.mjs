@@ -31,6 +31,42 @@ function stripTrailingSlash(url) {
   return String(url).replace(/\/+$/, '');
 }
 
+const RETRYABLE_HTTP_STATUSES = new Set([429, 502, 503, 504]);
+const MAX_RETRY_DELAY_MS = 5000;
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getResponseHeader(res, name) {
+  if (!res?.headers) return null;
+  if (typeof res.headers.get === 'function') {
+    return res.headers.get(name) ?? res.headers.get(name.toLowerCase()) ?? null;
+  }
+  const target = name.toLowerCase();
+  for (const [key, value] of Object.entries(res.headers)) {
+    if (key.toLowerCase() === target) {
+      return value ?? null;
+    }
+  }
+  return null;
+}
+
+function parseRetryAfterMs(headerValue) {
+  if (headerValue === null || headerValue === undefined) return null;
+  const trimmed = String(headerValue).trim();
+  if (!trimmed || !/^(?:\d+(?:\.\d+)?|\.\d+)$/.test(trimmed)) return null;
+  const seconds = Number(trimmed);
+  if (!Number.isFinite(seconds) || seconds < 0) return null;
+  return Math.min(MAX_RETRY_DELAY_MS, Math.round(seconds * 1000));
+}
+
+function isHtmlBody(value) {
+  if (typeof value !== 'string') return false;
+  const trimmed = value.trimStart().toLowerCase();
+  return trimmed.startsWith('<!doctype') || trimmed.startsWith('<html');
+}
+
 /**
  * Typed API error thrown for non-2xx AME Gateway or upstream LLM failures.
  */
@@ -55,19 +91,45 @@ export class AmeApiError extends Error {
  */
 export class AmeClient {
   /**
-   * @param {{ baseUrl?: string, apiKey?: string, fetchImpl?: typeof fetch }} [options]
+   * @param {{ baseUrl?: string, apiKey?: string, fetchImpl?: typeof fetch, maxRetries?: number, retryBaseDelayMs?: number }} [options]
    */
   constructor({
     baseUrl = getEnv('AME_BASE_URL') || 'http://127.0.0.1:8090',
     apiKey = getEnv('AME_API_KEY'),
     fetchImpl = globalThis.fetch,
+    maxRetries = 3,
+    retryBaseDelayMs = 150,
   } = {}) {
     if (typeof fetchImpl !== 'function') {
       throw new TypeError('AmeClient requires a valid fetch implementation');
     }
+    if (typeof maxRetries !== 'number' || !Number.isInteger(maxRetries) || maxRetries < 0) {
+      throw new RangeError('AmeClient maxRetries must be a non-negative integer');
+    }
+    if (typeof retryBaseDelayMs !== 'number' || !Number.isFinite(retryBaseDelayMs) || retryBaseDelayMs < 0) {
+      throw new RangeError('AmeClient retryBaseDelayMs must be a non-negative finite number');
+    }
     this.baseUrl = stripTrailingSlash(baseUrl);
     this.apiKey = apiKey || undefined;
     this.fetchImpl = fetchImpl;
+    this.maxRetries = maxRetries;
+    this.retryBaseDelayMs = retryBaseDelayMs;
+  }
+
+  /**
+   * @private
+   * @param {number} attempt
+   * @param {string | null} [retryAfterHeader]
+   * @returns {number}
+   */
+  _computeRetryDelayMs(attempt, retryAfterHeader = null) {
+    const retryAfterMs = parseRetryAfterMs(retryAfterHeader);
+    if (retryAfterMs !== null) {
+      return retryAfterMs;
+    }
+    const expDelay = this.retryBaseDelayMs * (2 ** attempt);
+    const jitter = Math.random() * expDelay * 0.25;
+    return Math.min(MAX_RETRY_DELAY_MS, expDelay + jitter);
   }
 
   /**
@@ -86,51 +148,77 @@ export class AmeClient {
       headers['X-AME-API-Key'] = this.apiKey;
     }
 
-    /** @type {RequestInit} */
-    const init = { method, headers };
+    let serializedBody;
     if (body !== undefined) {
       headers['Content-Type'] = 'application/json';
-      init.body = JSON.stringify(body);
+      serializedBody = JSON.stringify(body);
     }
 
-    const res = await this.fetchImpl(url, init);
-    const contentType = res.headers?.get?.('content-type') || '';
-    let parsedBody = null;
-    if (contentType.includes('application/json')) {
-      try {
-        parsedBody = await res.json();
-      } catch {
-        parsedBody = null;
+    for (let attempt = 0; attempt <= this.maxRetries; attempt += 1) {
+      /** @type {RequestInit} */
+      const init = {
+        method,
+        headers: { ...headers },
+      };
+      if (serializedBody !== undefined) {
+        init.body = serializedBody;
       }
-    } else {
-      const text = await res.text();
-      if (text) {
+
+      let res;
+      try {
+        res = await this.fetchImpl(url, init);
+      } catch (err) {
+        if (err?.name === 'AbortError' || attempt >= this.maxRetries) {
+          throw err;
+        }
+        await sleep(this._computeRetryDelayMs(attempt));
+        continue;
+      }
+
+      const contentType = String(getResponseHeader(res, 'content-type') || '');
+      let parsedBody = null;
+      if (contentType.includes('application/json')) {
         try {
-          parsedBody = JSON.parse(text);
+          parsedBody = await res.json();
         } catch {
-          parsedBody = text;
+          parsedBody = null;
+        }
+      } else {
+        const text = typeof res.text === 'function' ? await res.text() : '';
+        if (text) {
+          try {
+            parsedBody = JSON.parse(text);
+          } catch {
+            parsedBody = text;
+          }
         }
       }
-    }
 
-    if (!res.ok) {
-      const errObj = typeof parsedBody === 'object' && parsedBody !== null ? parsedBody : null;
-      const message =
-        errObj?.message ||
-        errObj?.error ||
-        (typeof parsedBody === 'string' && parsedBody) ||
-        `AME API request failed: ${method} ${path} (${res.status})`;
-      const code = errObj?.code || errObj?.error || `HTTP_${res.status}`;
-      throw new AmeApiError(message, {
-        status: res.status,
-        code,
-        details: parsedBody,
-        method,
-        path,
-      });
-    }
+      if (!res.ok) {
+        if (RETRYABLE_HTTP_STATUSES.has(res.status) && attempt < this.maxRetries) {
+          const retryAfter = getResponseHeader(res, 'retry-after');
+          await sleep(this._computeRetryDelayMs(attempt, retryAfter));
+          continue;
+        }
+        const errObj = typeof parsedBody === 'object' && parsedBody !== null ? parsedBody : null;
+        const htmlBody = isHtmlBody(parsedBody);
+        const message =
+          errObj?.message ||
+          errObj?.error ||
+          (!htmlBody && typeof parsedBody === 'string' && parsedBody) ||
+          `AME API request failed: ${method} ${path} (${res.status})`;
+        const code = errObj?.code || errObj?.error || `HTTP_${res.status}`;
+        throw new AmeApiError(message, {
+          status: res.status,
+          code,
+          details: parsedBody,
+          method,
+          path,
+        });
+      }
 
-    return parsedBody;
+      return parsedBody;
+    }
   }
 
   health() {

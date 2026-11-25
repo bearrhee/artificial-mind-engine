@@ -1019,3 +1019,71 @@ test('AME_SANDBOX_MAX_MEMORIES_PER_MIND caps memory retention while preserving h
   }
 });
 
+test('GET /v1/minds/:id/telemetry activeMemoryCount accurately excludes revoked and excludedDerivativeIds memories after D3 revocation', async () => {
+  const server = createSandboxApp();
+  const baseUrl = await startServer(server);
+  try {
+    const client = new AmeClient({ baseUrl });
+    const mind = await client.createMind({
+      domain: 'companion_chat',
+      persona: { name: '미르', role: '비서', language: 'ko' },
+    });
+
+    // Turn 1: store secret memory (mem_1)
+    const secretToken = 'NOVA-314';
+    const t1 = await client.turn(mind.mindId, {
+      userInput: `내 비밀 코드는 ${secretToken}이야 꼭 기억해둬.`,
+      llm: { provider: 'mock', model: 'ame-mock-v1' },
+    });
+    const secretMemoryId = t1.memoryRefs[0].memoryId;
+
+    // Turn 2: recall secret -> creates derivative memory (mem_2) with derivedFromMemoryIds=[mem_1]
+    const t2 = await client.turn(mind.mindId, {
+      userInput: '내가 아까 말한 비밀 코드가 뭐였지?',
+      llm: { provider: 'mock', model: 'ame-mock-v1' },
+    });
+    const derivativeMemoryId = t2.memoryRefs[0].memoryId;
+    assert.ok(t2.reply.includes(secretToken));
+
+    // Turn 3: unrelated non-derivative turn (mem_3)
+    const t3 = await client.turn(mind.mindId, {
+      userInput: '오늘 산책을 20분 했어요.',
+      llm: { provider: 'mock', model: 'ame-mock-v1' },
+    });
+    const unrelatedMemoryId = t3.memoryRefs[0].memoryId;
+
+    const telBefore = await fetch(`${baseUrl}/v1/minds/${encodeURIComponent(mind.mindId)}/telemetry`).then((r) =>
+      r.json()
+    );
+    const memListBefore = await fetch(`${baseUrl}/v1/minds/${encodeURIComponent(mind.mindId)}/memories`).then((r) =>
+      r.json()
+    );
+    assert.equal(memListBefore.memories.length, 3);
+    assert.equal(telBefore.activeMemoryCount, 3);
+
+    // D3 atomic revocation removes mem_1 AND excludes derivative mem_2 via excludedDerivativeIds
+    const receipt = await client.revokeMemory(mind.mindId, secretMemoryId);
+    assert.equal(receipt.revoked, true);
+    assert.equal(receipt.residualLeakCheck, '0.00%');
+
+    const memListAfter = await fetch(`${baseUrl}/v1/minds/${encodeURIComponent(mind.mindId)}/memories`).then((r) =>
+      r.json()
+    );
+    const telAfter = await fetch(`${baseUrl}/v1/minds/${encodeURIComponent(mind.mindId)}/telemetry`).then((r) =>
+      r.json()
+    );
+    const mindSummaryAfter = await client.getMind(mind.mindId);
+
+    assert.equal(memListAfter.memories.length, 1);
+    assert.equal(memListAfter.memories[0].memoryId, unrelatedMemoryId);
+    assert.equal(memListAfter.memories.some((m) => m.memoryId === secretMemoryId), false);
+    assert.equal(memListAfter.memories.some((m) => m.memoryId === derivativeMemoryId), false);
+
+    assert.equal(telAfter.activeMemoryCount, memListAfter.memories.length);
+    assert.equal(telAfter.activeMemoryCount, 1);
+    assert.equal(mindSummaryAfter.telemetry.activeMemoryCount, 1);
+  } finally {
+    await stopServer(server);
+  }
+});
+

@@ -243,6 +243,8 @@ docker compose -f deploy/docker-compose.demo.yml up --build
 
 ### Structured Domain Output Previews (`TurnResult.domainOutput`)
 
+> **Sandbox vs. Sealed Kernel (`companion_chat`):** The MIT Contract Sandbox preview below uses illustrative schema fields (`{ "reply", "warmth", "empathyCue", "memoryTopic", "followUpSuggestion" }`), whereas `companion_chat` on the Hosted/Self-Hosted Sealed Kernel returns `{ "reply", "mood", "followUpIntent", "closenessSignal" }`.
+
 <details>
 <summary><b>1) Game NPC (<code>game_npc</code>) — Betrayal/Reward Memory, Information Asymmetry, Offline Idle Response</b></summary>
 
@@ -391,8 +393,10 @@ Calling live HTTP LLMs `1,000,000` times turn-by-turn sequentially takes roughly
 
 ```bash
 # CLI: Run 1,000,000-turn deterministic convergence against the Hosted Evaluation Gateway (or local :8090)
-npm run bench:convergence -- --base-url https://thesoulthread.com/ame-api --api-key "$AME_API_KEY" --turns 1000000
+AME_BASE_URL=https://thesoulthread.com/ame-api AME_API_KEY="$AME_API_KEY" npm run --silent bench:convergence -- --turns 1000000
 ```
+
+> **CLI Secret Safety:** Always pass API keys via environment variables (`AME_API_KEY`, `AME_LLM_API_KEY`, `AME_JUDGE_API_KEY`) and `npm run --silent` rather than raw CLI flags after `npm run` so `npm` never echoes secrets to stdout or CI logs.
 
 <details>
 <summary><b>SDK Snippets: TypeScript (<code>client.simulateBatch</code>) &amp; Python (<code>client.simulate_batch</code>)</b></summary>
@@ -452,34 +456,30 @@ Run paired black-box comparisons between stateful `ame-gateway` (`O(1)` prompt t
 #    Offline smoke on bundled sample_locomo.json:
 npm run bench:locomo -- --dataset benchmarks/cogeval-locomo-harness/sample_locomo.json --arm both --provider mock --json-out ./artifacts/locomo-smoke.json
 
-#    Confirm-304 (--conversations conv-26,conv-30) or full official locomo10.json (Cat 1..5, optional --judge-provider):
-npm run bench:locomo -- \
+#    Confirm-304 (--conversations conv-26,conv-30) or full official locomo10.json (Cat 1..5, optional --judge-provider; pass AME_JUDGE_API_KEY if judge differs from provider):
+AME_BASE_URL=https://thesoulthread.com/ame-api AME_API_KEY="$AME_API_KEY" AME_LLM_API_KEY="$DEEPSEEK_API_KEY" AME_JUDGE_API_KEY="$OPENAI_API_KEY" \
+  npm run --silent bench:locomo -- \
   --dataset /path/to/locomo10.json \
   --conversations conv-26,conv-30 \
   --arm both \
   --provider deepseek \
   --model deepseek-v4.1-flash \
-  --api-key "$DEEPSEEK_API_KEY" \
-  --ame-base-url https://thesoulthread.com/ame-api \
-  --ame-api-key "$AME_API_KEY" \
   --judge-provider openai \
   --json-out ./artifacts/locomo-confirm-304.json
 
 # 2. LongMemEval-S 500-QA Paired Comparator (longmemeval_s_cleaned.json)
 npm run bench:longmemeval -- --arm both --provider mock --json-only
-npm run bench:longmemeval -- \
+AME_BASE_URL=https://thesoulthread.com/ame-api AME_API_KEY="$AME_API_KEY" AME_LLM_API_KEY="$OPENAI_API_KEY" \
+  npm run --silent bench:longmemeval -- \
   --dataset /path/to/longmemeval_s_cleaned.json \
   --arm both \
   --provider openai \
   --model gpt-4o-mini \
-  --api-key "$OPENAI_API_KEY" \
-  --ame-base-url https://thesoulthread.com/ame-api \
-  --ame-api-key "$AME_API_KEY" \
   --json-out ./artifacts/lme-500-dd.json
 
 # 3. 7-Gate CogEval Black-Box Suite
 AME_BASE_URL=https://thesoulthread.com/ame-api AME_API_KEY="$AME_API_KEY" \
-  npm run bench:smoke -- --json-out ./artifacts/harness.json
+  npm run --silent bench:smoke -- --json-out ./artifacts/harness.json
 
 # 4. Unified Institutional DD Scorecard (strict sandbox-contract-verification vs sealed-kernel-production-eval separation)
 npm run bench:scorecard -- \

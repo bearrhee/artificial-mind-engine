@@ -3,13 +3,21 @@
 from __future__ import annotations
 
 import json
+import math
 import os
+import random
+import re
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
 from typing import Any, Mapping, Sequence
 
 from .domains import normalize_custom_schema, normalize_safety_policy
+
+_RETRYABLE_HTTP_STATUSES = frozenset({429, 502, 503, 504})
+_MAX_RETRY_DELAY_SECONDS = 5.0
+_NUMERIC_RETRY_AFTER_RE = re.compile(r"^(?:\d+(?:\.\d+)?|\.\d+)$")
 
 _LLM_KEY_MAP: dict[str, str] = {
     "provider": "provider",
@@ -166,6 +174,44 @@ def _validate_int_param(
     return value
 
 
+def _get_header(headers: Any, name: str) -> str | None:
+    """Return a header value case-insensitively from an HTTPMessage or mapping."""
+    if headers is None:
+        return None
+    if hasattr(headers, "get"):
+        val = headers.get(name)
+        if val is not None:
+            return str(val)
+        lower_name = name.lower()
+        if hasattr(headers, "items"):
+            for k, v in headers.items():
+                if str(k).lower() == lower_name:
+                    return str(v) if v is not None else None
+    return None
+
+
+def _parse_retry_after_seconds(header_value: str | None) -> float | None:
+    """Parse a numeric Retry-After seconds header, capped at _MAX_RETRY_DELAY_SECONDS."""
+    if header_value is None:
+        return None
+    cleaned = str(header_value).strip()
+    if not cleaned or not _NUMERIC_RETRY_AFTER_RE.match(cleaned):
+        return None
+    try:
+        seconds = float(cleaned)
+    except ValueError:
+        return None
+    if not math.isfinite(seconds) or seconds < 0.0:
+        return None
+    return min(_MAX_RETRY_DELAY_SECONDS, seconds)
+
+
+def _is_html_body(raw_text: str) -> bool:
+    """Return True if raw_text looks like an HTML document (<!doctype / <html)."""
+    trimmed = raw_text.lstrip().lower()
+    return trimmed.startswith("<!doctype") or trimmed.startswith("<html")
+
+
 class AmeClient:
     """Synchronous stdlib-only client covering all 10 endpoints of the AME Gateway API."""
 
@@ -174,11 +220,22 @@ class AmeClient:
         base_url: str | None = None,
         api_key: str | None = None,
         timeout: float = 30.0,
+        max_retries: int = 3,
+        retry_base_delay: float = 0.15,
     ) -> None:
+        validated_max_retries = _validate_int_param(max_retries, "max_retries", minimum=0)
+        if isinstance(retry_base_delay, bool) or not isinstance(retry_base_delay, (int, float)):
+            raise ValueError("retry_base_delay must be a non-negative number.")
+        resolved_retry_base_delay = float(retry_base_delay)
+        if not math.isfinite(resolved_retry_base_delay) or resolved_retry_base_delay < 0.0:
+            raise ValueError("retry_base_delay must be a non-negative finite number.")
+
         resolved_base = base_url or os.environ.get("AME_BASE_URL") or "http://127.0.0.1:8090"
         self.base_url = str(resolved_base).rstrip("/")
         self.api_key = api_key if api_key is not None else os.environ.get("AME_API_KEY")
         self.timeout = float(timeout)
+        self.max_retries = validated_max_retries
+        self.retry_base_delay = resolved_retry_base_delay
 
     def __enter__(self) -> AmeClient:
         return self
@@ -188,6 +245,14 @@ class AmeClient:
 
     def close(self) -> None:
         """Close hook for context-manager symmetry; urllib closes per request."""
+
+    def _compute_retry_delay(self, attempt: int, retry_after_header: str | None = None) -> float:
+        retry_after = _parse_retry_after_seconds(retry_after_header)
+        if retry_after is not None:
+            return retry_after
+        exp_delay = self.retry_base_delay * (2**attempt)
+        jitter = random.uniform(0.0, exp_delay * 0.25)
+        return min(_MAX_RETRY_DELAY_SECONDS, exp_delay + jitter)
 
     def _request(
         self,
@@ -208,45 +273,68 @@ class AmeClient:
         if auth and self.api_key:
             headers["X-AME-API-Key"] = self.api_key
 
-        req = urllib.request.Request(url, data=data, headers=headers, method=method.upper())
+        for attempt in range(self.max_retries + 1):
+            req = urllib.request.Request(
+                url,
+                data=data,
+                headers=dict(headers),
+                method=method.upper(),
+            )
+            try:
+                with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+                    raw_text = resp.read().decode("utf-8", errors="replace").strip()
+                    if not raw_text:
+                        return {}
+                    try:
+                        parsed = json.loads(raw_text)
+                    except json.JSONDecodeError as exc:
+                        raise AmeApiError(
+                            resp.status,
+                            "Invalid JSON response from AME Gateway.",
+                            body=raw_text,
+                            endpoint=path,
+                        ) from exc
+                    if not isinstance(parsed, dict):
+                        return {"data": parsed}
+                    return parsed
+            except urllib.error.HTTPError as exc:
+                retry_after_header = _get_header(exc.headers, "Retry-After")
+                try:
+                    raw_error = exc.read().decode("utf-8", errors="replace").strip()
+                finally:
+                    exc.close()
 
-        try:
-            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
-                raw_text = resp.read().decode("utf-8", errors="replace").strip()
-                if not raw_text:
-                    return {}
-                try:
-                    parsed = json.loads(raw_text)
-                except json.JSONDecodeError as exc:
-                    raise AmeApiError(
-                        resp.status,
-                        "Invalid JSON response from AME Gateway.",
-                        body=raw_text,
-                        endpoint=path,
-                    ) from exc
-                if not isinstance(parsed, dict):
-                    return {"data": parsed}
-                return parsed
-        except urllib.error.HTTPError as exc:
-            raw_error = exc.read().decode("utf-8", errors="replace").strip()
-            parsed_body: Any = raw_error if raw_error else None
-            error_message = str(exc.reason or f"HTTP {exc.code}")
-            if raw_error:
-                try:
-                    decoded = json.loads(raw_error)
-                    parsed_body = decoded
-                    if isinstance(decoded, dict):
-                        error_message = str(
-                            decoded.get("message")
-                            or decoded.get("error")
-                            or decoded.get("detail")
-                            or error_message
-                        )
-                except json.JSONDecodeError:
-                    error_message = raw_error
-            raise AmeApiError(exc.code, error_message, body=parsed_body, endpoint=path) from exc
-        except urllib.error.URLError as exc:
-            raise AmeApiError(0, f"Transport error: {exc.reason}", body=None, endpoint=path) from exc
+                if exc.code in _RETRYABLE_HTTP_STATUSES and attempt < self.max_retries:
+                    time.sleep(self._compute_retry_delay(attempt, retry_after_header))
+                    continue
+
+                parsed_body: Any = raw_error if raw_error else None
+                error_message = str(exc.reason or f"HTTP {exc.code}")
+                if raw_error:
+                    try:
+                        decoded = json.loads(raw_error)
+                        parsed_body = decoded
+                        if isinstance(decoded, dict):
+                            error_message = str(
+                                decoded.get("message")
+                                or decoded.get("error")
+                                or decoded.get("detail")
+                                or error_message
+                            )
+                    except json.JSONDecodeError:
+                        if _is_html_body(raw_error):
+                            reason = str(exc.reason).strip() if exc.reason else "Gateway Error"
+                            error_message = f"HTTP {exc.code} response from AME Gateway ({reason})"
+                        else:
+                            error_message = raw_error
+                raise AmeApiError(exc.code, error_message, body=parsed_body, endpoint=path) from exc
+            except urllib.error.URLError as exc:
+                if attempt < self.max_retries:
+                    time.sleep(self._compute_retry_delay(attempt))
+                    continue
+                raise AmeApiError(0, f"Transport error: {exc.reason}", body=None, endpoint=path) from exc
+
+        raise AmeApiError(0, "Request failed after retries", body=None, endpoint=path)
 
     def health(self) -> dict[str, Any]:
         """GET /v1/health — Gateway and sealed kernel health check (no API key required)."""

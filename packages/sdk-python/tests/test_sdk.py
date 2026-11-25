@@ -9,7 +9,10 @@ import os
 from pathlib import Path
 import sys
 import threading
+import time
 import unittest
+from unittest import mock
+import urllib.error
 from typing import Any
 from urllib.parse import unquote, urlparse
 
@@ -71,6 +74,7 @@ class _EmbeddedContractState:
         self._mind_seq = 0
         self._ticket_seq = 0
         self._mem_seq = 0
+        self.scripted_responses: list[dict[str, Any]] = []
 
     def reset(self) -> None:
         with self.lock:
@@ -82,6 +86,7 @@ class _EmbeddedContractState:
             self._mind_seq = 0
             self._ticket_seq = 0
             self._mem_seq = 0
+            self.scripted_responses.clear()
 
     def safe_telemetry(self, mind: dict[str, Any]) -> dict[str, Any]:
         return {
@@ -122,13 +127,32 @@ def _make_handler(state: _EmbeddedContractState) -> type[BaseHTTPRequestHandler]
             raw = self.rfile.read(length).decode("utf-8")
             return json.loads(raw) if raw else {}
 
-        def _send_json(self, status: int, payload: dict[str, Any]) -> None:
-            encoded = json.dumps(payload).encode("utf-8")
+        def _send_raw(
+            self,
+            status: int,
+            body_bytes: bytes,
+            content_type: str,
+            *,
+            extra_headers: dict[str, str] | None = None,
+        ) -> None:
             self.send_response(status)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Content-Length", str(len(encoded)))
+            self.send_header("Content-Type", content_type)
+            self.send_header("Content-Length", str(len(body_bytes)))
+            if extra_headers:
+                for k, v in extra_headers.items():
+                    self.send_header(k, v)
             self.end_headers()
-            self.wfile.write(encoded)
+            self.wfile.write(body_bytes)
+
+        def _send_json(
+            self,
+            status: int,
+            payload: dict[str, Any],
+            *,
+            extra_headers: dict[str, str] | None = None,
+        ) -> None:
+            encoded = json.dumps(payload).encode("utf-8")
+            self._send_raw(status, encoded, "application/json", extra_headers=extra_headers)
 
         def _capture_headers(self) -> dict[str, str]:
             return {k.lower(): v for k, v in self.headers.items()}
@@ -146,6 +170,29 @@ def _make_handler(state: _EmbeddedContractState) -> type[BaseHTTPRequestHandler]
         def do_GET(self) -> None:
             path = urlparse(self.path).path
             headers = self._capture_headers()
+
+            if path == "/v1/minds/retry_probe":
+                with state.lock:
+                    state.requests_log.append({"method": "GET", "path": path, "headers": headers})
+                    spec = (
+                        state.scripted_responses.pop(0)
+                        if state.scripted_responses
+                        else {"status": 200, "json": {"mindId": "retry_probe", "ok": True}}
+                    )
+                if "json" in spec:
+                    self._send_json(
+                        int(spec.get("status", 200)),
+                        spec["json"],
+                        extra_headers=spec.get("headers"),
+                    )
+                else:
+                    self._send_raw(
+                        int(spec.get("status", 200)),
+                        str(spec.get("text", "")).encode("utf-8"),
+                        str(spec.get("content_type", "text/html; charset=utf-8")),
+                        extra_headers=spec.get("headers"),
+                    )
+                return
 
             if path == "/v1/health":
                 with state.lock:
@@ -1279,6 +1326,201 @@ class AmePythonSdkTestCase(unittest.TestCase):
         with self.assertRaises(AmeApiError) as ctx_401:
             unauth_client.simulate_batch(mind_id)
         self.assertEqual(ctx_401.exception.status_code, 401)
+
+    def test_retry_init_validation_and_defaults(self) -> None:
+        self.assertEqual(self.client.max_retries, 3)
+        self.assertAlmostEqual(self.client.retry_base_delay, 0.15)
+
+        zero_client = AmeClient(base_url=self.base_url, max_retries=0, retry_base_delay=0.0)
+        self.assertEqual(zero_client.max_retries, 0)
+        self.assertEqual(zero_client.retry_base_delay, 0.0)
+
+        for bad_kwargs in (
+            {"max_retries": -1},
+            {"max_retries": True},
+            {"max_retries": 1.5},
+            {"retry_base_delay": -0.01},
+            {"retry_base_delay": True},
+            {"retry_base_delay": float("nan")},
+            {"retry_base_delay": float("inf")},
+        ):
+            with self.assertRaises(ValueError):
+                AmeClient(base_url=self.base_url, **bad_kwargs)
+
+    def test_retry_transient_429_and_503_html_recovery_to_200(self) -> None:
+        with self.state.lock:
+            self.state.scripted_responses.extend(
+                [
+                    {
+                        "status": 429,
+                        "content_type": "text/html; charset=utf-8",
+                        "text": "<!DOCTYPE html><html><body>429 Too Many Requests</body></html>",
+                    },
+                    {
+                        "status": 503,
+                        "content_type": "text/html; charset=utf-8",
+                        "text": "<html><body>503 Service Unavailable</body></html>",
+                    },
+                    {
+                        "status": 200,
+                        "json": {"mindId": "retry_probe", "recovered": True},
+                    },
+                ]
+            )
+
+        fast_client = AmeClient(
+            base_url=self.base_url,
+            api_key=EXPECTED_AME_API_KEY,
+            max_retries=3,
+            retry_base_delay=0.01,
+        )
+        res = fast_client.get_mind("retry_probe")
+        self.assertTrue(res["recovered"])
+        probe_reqs = [r for r in self.state.requests_log if r["path"] == "/v1/minds/retry_probe"]
+        self.assertEqual(len(probe_reqs), 3)
+
+    def test_retry_502_504_and_urlerror_recovery_and_exhaustion(self) -> None:
+        with self.state.lock:
+            self.state.scripted_responses.extend(
+                [
+                    {"status": 502, "text": "<html><body>Bad Gateway</body></html>"},
+                    {"status": 504, "text": "Gateway Timeout"},
+                    {"status": 200, "json": {"mindId": "retry_probe", "recovered": "502_504"}},
+                ]
+            )
+
+        fast_client = AmeClient(
+            base_url=self.base_url,
+            api_key=EXPECTED_AME_API_KEY,
+            max_retries=3,
+            retry_base_delay=0.01,
+        )
+        res = fast_client.get_mind("retry_probe")
+        self.assertEqual(res["recovered"], "502_504")
+
+        # URLError transient recovery -> 200
+        attempts = {"count": 0}
+
+        class _FakeResp:
+            status = 200
+
+            def __enter__(self) -> _FakeResp:
+                return self
+
+            def __exit__(self, exc_type: Any, exc: Any, tb: Any) -> None:
+                return None
+
+            def read(self) -> bytes:
+                return b'{"ok": true}'
+
+        def _flaky_urlopen(req: Any, timeout: float = 30.0) -> Any:
+            attempts["count"] += 1
+            if attempts["count"] <= 2:
+                raise urllib.error.URLError("temporary dns glitch")
+            return _FakeResp()
+
+        with mock.patch("urllib.request.urlopen", side_effect=_flaky_urlopen):
+            ok_res = fast_client.health()
+        self.assertTrue(ok_res["ok"])
+        self.assertEqual(attempts["count"], 3)
+
+        # URLError exhaustion
+        exhaust_attempts = {"count": 0}
+
+        def _always_fail_urlopen(req: Any, timeout: float = 30.0) -> Any:
+            exhaust_attempts["count"] += 1
+            raise urllib.error.URLError("connection refused")
+
+        with mock.patch("urllib.request.urlopen", side_effect=_always_fail_urlopen):
+            with self.assertRaises(AmeApiError) as ctx_url:
+                fast_client.health()
+        self.assertEqual(ctx_url.exception.status_code, 0)
+        self.assertIn("Transport error:", ctx_url.exception.message)
+        self.assertEqual(exhaust_attempts["count"], 4)
+
+    def test_html_error_body_sanitization_preserves_raw_body(self) -> None:
+        html_503 = "<!DOCTYPE html><html><body><h1>503 Upstream Down</h1></body></html>"
+        html_502 = "  <HTML><BODY>502 Proxy Error</BODY></HTML>"
+        for status, raw_html, expected_reason in (
+            (503, html_503, "Service Unavailable"),
+            (502, html_502, "Bad Gateway"),
+        ):
+            self.state.reset()
+            with self.state.lock:
+                self.state.scripted_responses.extend(
+                    [
+                        {"status": status, "text": raw_html},
+                        {"status": status, "text": raw_html},
+                        {"status": status, "text": raw_html},
+                    ]
+                )
+            fast_client = AmeClient(
+                base_url=self.base_url,
+                api_key=EXPECTED_AME_API_KEY,
+                max_retries=2,
+                retry_base_delay=0.01,
+            )
+            with self.assertRaises(AmeApiError) as ctx:
+                fast_client.get_mind("retry_probe")
+
+            self.assertEqual(ctx.exception.status_code, status)
+            self.assertEqual(
+                ctx.exception.message,
+                f"HTTP {status} response from AME Gateway ({expected_reason})",
+            )
+            self.assertEqual(ctx.exception.body, raw_html.strip())
+            probe_reqs = [r for r in self.state.requests_log if r["path"] == "/v1/minds/retry_probe"]
+            self.assertEqual(len(probe_reqs), 3)
+
+    def test_retry_after_header_honored_and_capped(self) -> None:
+        with self.state.lock:
+            self.state.scripted_responses.extend(
+                [
+                    {
+                        "status": 429,
+                        "headers": {"Retry-After": "0.06"},
+                        "json": {"error": "rate_limited", "message": "Slow down"},
+                    },
+                    {"status": 200, "json": {"mindId": "retry_probe", "ok": True}},
+                ]
+            )
+
+        fast_client = AmeClient(
+            base_url=self.base_url,
+            api_key=EXPECTED_AME_API_KEY,
+            max_retries=2,
+            retry_base_delay=0.01,
+        )
+        t0 = time.monotonic()
+        res = fast_client.get_mind("retry_probe")
+        elapsed = time.monotonic() - t0
+
+        self.assertTrue(res["ok"])
+        self.assertGreaterEqual(elapsed, 0.045)
+        self.assertEqual(fast_client._compute_retry_delay(0, "999"), 5.0)
+        self.assertAlmostEqual(fast_client._compute_retry_delay(0, "1.25"), 1.25)
+
+    def test_zero_retries_on_401_and_non_transient_statuses(self) -> None:
+        fast_client = AmeClient(
+            base_url=self.base_url,
+            api_key=EXPECTED_AME_API_KEY,
+            max_retries=3,
+            retry_base_delay=0.01,
+        )
+        for status in (400, 401, 403, 404, 409, 422, 500):
+            self.state.reset()
+            with self.state.lock:
+                self.state.scripted_responses.append(
+                    {
+                        "status": status,
+                        "json": {"error": f"err_{status}", "message": f"Non-retryable {status}"},
+                    }
+                )
+            with self.assertRaises(AmeApiError) as ctx:
+                fast_client.get_mind("retry_probe")
+            self.assertEqual(ctx.exception.status_code, status)
+            probe_reqs = [r for r in self.state.requests_log if r["path"] == "/v1/minds/retry_probe"]
+            self.assertEqual(len(probe_reqs), 1, f"Expected 1 attempt (0 retries) for HTTP {status}")
 
 
 if __name__ == "__main__":

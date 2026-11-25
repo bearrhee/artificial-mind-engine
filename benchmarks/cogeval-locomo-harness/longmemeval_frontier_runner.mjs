@@ -42,6 +42,9 @@ const ABSTENTION_REPLY_PATTERNS = [
   /\b(not mentioned|no mention|not specified|not provided|not enough information|insufficient information|information provided is not enough|cannot verify|unable to verify|cannot find|could not find|don't have that information|do not have that information|no record|cannot answer from)\b/i,
   /\bnot in (?:the |my |our )?(?:memory|memories|history|sessions|context|conversation)\b/i,
   /언급하지|언급되지|기억 저장소에서.*찾을 수 없|확인할 수 없|단정하여 말씀드릴 수 없|답변을 보류|정보가 충분하지 않/,
+  /\b(?:that|this)\s+(?:detail|information|fact|record|answer)\s+is\s+(?:unknown|unavailable|unverified|not\s+known)\b/i,
+  /\b(?:cannot|can't|unable\s+to)\s+(?:confirm|diagnose|predict)\b/i,
+  /^\s*(?:that\s+detail\s+is\s+unknown|unknown|i\s+don'?t\s+know|i\s+do\s+not\s+know)\.?\s*$/i,
 ];
 
 function round2(value) {
@@ -233,6 +236,39 @@ function shortDateLabel(dateStr) {
 function extractGeneratedText(generated) {
   if (typeof generated === 'string') return generated;
   return generated?.text ?? generated?.rawReply ?? generated?.content ?? '';
+}
+
+export function unwrapDomainReplyText(rawText) {
+  let text = String(rawText ?? '').replace(/<thought>[\s\S]*?<\/thought>/gi, '').trim();
+  const fenceMatch = text.match(/^```(?:json\b)?\s*([\s\S]*?)\s*```$/i);
+  if (fenceMatch) {
+    const inner = fenceMatch[1].trim();
+    if (!inner.includes('```')) {
+      text = inner;
+    } else if (inner.startsWith('{') && inner.endsWith('}')) {
+      try {
+        JSON.parse(inner);
+        text = inner;
+      } catch {
+        // Not a single fenced JSON object; preserve text as-is.
+      }
+    }
+  }
+  if (text.startsWith('{') && text.endsWith('}')) {
+    try {
+      const parsed = JSON.parse(text);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        for (const field of ['reply', 'dialogue', 'response', 'answer']) {
+          if (typeof parsed[field] === 'string' && parsed[field].trim()) {
+            return parsed[field].trim();
+          }
+        }
+      }
+    } catch {
+      // Not valid JSON; return plain text unchanged.
+    }
+  }
+  return text;
 }
 
 function splitChunkText(text, maxChars) {
@@ -893,6 +929,7 @@ async function runAmeGatewayArm({
 
     let prep = null;
     let queryResult = null;
+    let generated = null;
     let queryPromptTokens = null;
     let reportedPromptTokens = null;
     let queryMessagesCount = null;
@@ -919,7 +956,7 @@ async function runAmeGatewayArm({
       queryPromptTokens = estimatePrepTokens(prep);
       queryMessagesCount = Array.isArray(prep.messages) ? prep.messages.length : 0;
 
-      const generated = await adapter.generate(prep);
+      generated = await adapter.generate(prep);
       reportedPromptTokens = extractUsagePromptTokens(generated?.raw);
       queryResult = await client.settle(mind.mindId, {
         turnTicketId: prep.turnTicketId,
@@ -950,7 +987,9 @@ async function runAmeGatewayArm({
     const hotAbstained = Boolean(
       prep?.hotAbstention?.shouldAbstain || queryResult?.telemetry?.hotAbstained
     );
-    const scored = scoreAnswer(item, queryResult?.reply || '', hotAbstained);
+    const rawFallback = generated ? extractGeneratedText(generated) : '';
+    const reply = unwrapDomainReplyText(queryResult?.reply || rawFallback);
+    const scored = scoreAnswer(item, reply, hotAbstained);
 
     itemResults.push({
       questionId: item.question_id,
@@ -970,7 +1009,7 @@ async function runAmeGatewayArm({
       cachedRatioPct: queryCachedRatioPct,
       d4Redacted: queryResult?.telemetry?.d4Redacted === true && mindSnap?.telemetry?.d4Redacted === true,
       queryLatencyMs,
-      reply: queryResult?.reply || '',
+      reply,
       expectedAnswer: item.answer,
       ...scored,
     });
@@ -1188,8 +1227,8 @@ export async function runLongMemEvalComparison(options = {}) {
   const ameApiKey = options.ameApiKey || process.env.AME_API_KEY || 'dev-sandbox-key';
   const provider = options.provider || process.env.AME_LLM_PROVIDER || 'mock';
   const model = options.model || process.env.AME_LLM_MODEL || 'mock-eval-v1';
-  const apiKey = options.apiKey !== undefined ? options.apiKey : process.env.AME_LLM_API_KEY;
-  const baseUrl = options.baseUrl !== undefined ? options.baseUrl : process.env.AME_LLM_BASE_URL;
+  const apiKey = options.apiKey ?? process.env.AME_LLM_API_KEY;
+  const baseUrl = options.baseUrl ?? process.env.AME_LLM_BASE_URL;
   const temperature =
     options.temperature !== undefined
       ? options.temperature

@@ -141,6 +141,9 @@ const ABSTENTION_REPLY_PATTERNS = [
   /\b(not mentioned|never mentioned|no mention|not specified|not provided|not discussed|never discussed|not stated|not enough information|insufficient information|information provided is not enough|cannot verify|unable to verify|cannot find|could not find|cannot answer|cannot determine|don't have that information|do not have that information|no record|no information|no evidence|cannot answer from|unanswerable)\b/i,
   /\bnot in (?:the |my |our )?(?:memory|memories|history|sessions|context|conversation|dialogue|transcript)\b/i,
   /언급하지|언급되지|기억 저장소에서.*찾을 수 없|확인할 수 없|단정하여 말씀드릴 수 없|답변을 보류|정보가 충분하지 않/,
+  /\b(?:that|this)\s+(?:detail|information|fact|record|answer)\s+is\s+(?:unknown|unavailable|unverified|not\s+known)\b/i,
+  /\b(?:cannot|can't|unable\s+to)\s+(?:confirm|diagnose|predict)\b/i,
+  /^\s*(?:that\s+detail\s+is\s+unknown|unknown|i\s+don'?t\s+know|i\s+do\s+not\s+know)\.?\s*$/i,
 ];
 
 const MONTHS_BY_NAME = {
@@ -385,6 +388,39 @@ function extractUsagePromptTokens(raw) {
 function extractGeneratedText(generated) {
   if (typeof generated === 'string') return generated;
   return generated?.text ?? generated?.rawReply ?? generated?.content ?? '';
+}
+
+export function unwrapDomainReplyText(rawText) {
+  let text = String(rawText ?? '').replace(/<thought>[\s\S]*?<\/thought>/gi, '').trim();
+  const fenceMatch = text.match(/^```(?:json\b)?\s*([\s\S]*?)\s*```$/i);
+  if (fenceMatch) {
+    const inner = fenceMatch[1].trim();
+    if (!inner.includes('```')) {
+      text = inner;
+    } else if (inner.startsWith('{') && inner.endsWith('}')) {
+      try {
+        JSON.parse(inner);
+        text = inner;
+      } catch {
+        // Not a single fenced JSON object; preserve text as-is.
+      }
+    }
+  }
+  if (text.startsWith('{') && text.endsWith('}')) {
+    try {
+      const parsed = JSON.parse(text);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        for (const field of ['reply', 'dialogue', 'response', 'answer']) {
+          if (typeof parsed[field] === 'string' && parsed[field].trim()) {
+            return parsed[field].trim();
+          }
+        }
+      }
+    } catch {
+      // Not valid JSON; return plain text unchanged.
+    }
+  }
+  return text;
 }
 
 export function formatLocomoDateHint(dateTimeStr) {
@@ -1324,7 +1360,7 @@ async function runAmeGatewayArm({
             category: qaItem.category,
           },
         });
-        reply = queryResult?.reply || '';
+        reply = unwrapDomainReplyText(queryResult?.reply || '');
         hotAbstained = Boolean(queryResult?.telemetry?.hotAbstained);
         if (queryResult?.kvCache?.systemPrefixHash) {
           convHashes.add(queryResult.kvCache.systemPrefixHash);
@@ -1349,7 +1385,7 @@ async function runAmeGatewayArm({
         queryMessagesCount = Array.isArray(prep.messages) ? prep.messages.length : 0;
         const generated = await adapter.generate(prep);
         reportedPromptTokens = extractUsagePromptTokens(generated?.raw);
-        reply = extractGeneratedText(generated);
+        reply = unwrapDomainReplyText(extractGeneratedText(generated));
         hotAbstained = Boolean(prep?.hotAbstention?.shouldAbstain);
         if (typeof prep?.kvCacheEpoch === 'number') {
           convEpochs.add(prep.kvCacheEpoch);
@@ -1658,8 +1694,8 @@ export async function runLocomoComparison(options = {}) {
   const ameApiKey = options.ameApiKey || process.env.AME_API_KEY || 'dev-sandbox-key';
   const provider = options.provider || process.env.AME_LLM_PROVIDER || 'mock';
   const model = options.model || process.env.AME_LLM_MODEL || 'mock-eval-v1';
-  const apiKey = options.apiKey !== undefined ? options.apiKey : process.env.AME_LLM_API_KEY;
-  const baseUrl = options.baseUrl !== undefined ? options.baseUrl : process.env.AME_LLM_BASE_URL;
+  const apiKey = options.apiKey ?? process.env.AME_LLM_API_KEY;
+  const baseUrl = options.baseUrl ?? process.env.AME_LLM_BASE_URL;
   const temperature =
     options.temperature !== undefined
       ? options.temperature
@@ -1684,10 +1720,8 @@ export async function runLocomoComparison(options = {}) {
 
   let judgeProvider = options.judgeProvider || process.env.AME_JUDGE_PROVIDER || null;
   let judgeModel = options.judgeModel || process.env.AME_JUDGE_MODEL || null;
-  const judgeApiKeyRaw =
-    options.judgeApiKey !== undefined ? options.judgeApiKey : process.env.AME_JUDGE_API_KEY;
-  const judgeBaseUrl =
-    options.judgeBaseUrl !== undefined ? options.judgeBaseUrl : process.env.AME_JUDGE_BASE_URL;
+  const judgeApiKeyRaw = options.judgeApiKey ?? process.env.AME_JUDGE_API_KEY;
+  const judgeBaseUrl = options.judgeBaseUrl ?? process.env.AME_JUDGE_BASE_URL;
 
   if (!judgeProvider && judgeModel) {
     judgeProvider = 'openai';

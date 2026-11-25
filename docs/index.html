@@ -2043,7 +2043,7 @@ curl -H "X-AME-API-Key: your-key" http://127.0.0.1:8090/v1/health</code></pre>
             <span>CLI · Run 1,000,000-Turn Convergence Benchmark</span>
             <button class="btn btn-sm copy-cmd" type="button" data-copy-target="qs-5">Copy</button>
           </div>
-          <pre id="qs-5" class="code-pre"><code>npm run bench:convergence -- --base-url https://thesoulthread.com/ame-api --api-key "$AME_API_KEY" --turns 1000000</code></pre>
+          <pre id="qs-5" class="code-pre"><code>AME_BASE_URL=https://thesoulthread.com/ame-api AME_API_KEY="$AME_API_KEY" npm run --silent bench:convergence -- --turns 1000000</code></pre>
         </div>
 
         <div class="split-equal">
@@ -2118,12 +2118,12 @@ print(report["d4Redacted"], report["deltaVsBaseline"], report["arms"])</code></p
             <pre id="qs-8" class="code-pre"><code># Offline contract smoke (sample_locomo.json)
 npm run bench:locomo -- --dataset benchmarks/cogeval-locomo-harness/sample_locomo.json --arm both --provider mock
 
-# Confirm-304 (conv-26,conv-30) or full locomo10.json vs bare-frontier (Cat 1..5, optional --judge-provider)
-npm run bench:locomo -- \
+# Confirm-304 (conv-26,conv-30) or full locomo10.json vs bare-frontier (Cat 1..5, optional --judge-provider; set AME_JUDGE_API_KEY if judge differs)
+AME_BASE_URL=https://thesoulthread.com/ame-api AME_API_KEY="$AME_API_KEY" AME_LLM_API_KEY="$DEEPSEEK_API_KEY" AME_JUDGE_API_KEY="$OPENAI_API_KEY" \
+  npm run --silent bench:locomo -- \
   --dataset /path/to/locomo10.json \
   --conversations conv-26,conv-30 \
   --arm both --provider deepseek --model deepseek-v4.1-flash \
-  --ame-base-url https://thesoulthread.com/ame-api --ame-api-key "$AME_API_KEY" \
   --judge-provider openai --json-out ./artifacts/locomo-confirm-304.json</code></pre>
           </div>
 
@@ -2133,8 +2133,9 @@ npm run bench:locomo -- \
               <button class="btn btn-sm copy-cmd" type="button" data-copy-target="qs-9">Copy</button>
             </div>
             <pre id="qs-9" class="code-pre"><code># 7-Gate CogEval black-box suite &amp; 500-QA LongMemEval-S paired comparator
-npm run bench:smoke -- --json-out ./artifacts/harness.json
-npm run bench:longmemeval -- --dataset /path/to/longmemeval_s_cleaned.json --arm both --json-out ./artifacts/lme-500-dd.json
+AME_BASE_URL=https://thesoulthread.com/ame-api AME_API_KEY="$AME_API_KEY" npm run --silent bench:smoke -- --json-out ./artifacts/harness.json
+AME_BASE_URL=https://thesoulthread.com/ame-api AME_API_KEY="$AME_API_KEY" AME_LLM_API_KEY="$OPENAI_API_KEY" \
+  npm run --silent bench:longmemeval -- --dataset /path/to/longmemeval_s_cleaned.json --arm both --provider openai --model gpt-4o-mini --json-out ./artifacts/lme-500-dd.json
 
 # Unified DD scorecard (strict sandbox-contract-verification vs sealed-kernel-production-eval separation)
 npm run bench:scorecard -- \
@@ -2144,6 +2145,9 @@ npm run bench:scorecard -- \
   --convergence-json ./artifacts/convergence-1m.json \
   --out-md ./artifacts/vc-dd-scorecard.md --out-json ./artifacts/vc-dd-scorecard.json</code></pre>
           </div>
+        </div>
+        <div class="callout info" style="margin-bottom:16px;">
+          <strong>CLI Secret Safety:</strong> Always pass API keys via environment variables (<code>AME_API_KEY</code>, <code>AME_LLM_API_KEY</code>, <code>AME_JUDGE_API_KEY</code>) and <code>npm run --silent</code> rather than raw CLI flags after <code>npm run</code> so <code>npm</code> never echoes secrets to stdout or CI logs.
         </div>
 
         <div class="table-wrap" style="margin-bottom:12px;">

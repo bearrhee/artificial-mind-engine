@@ -8,8 +8,20 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 import { createSandboxApp } from '../../../packages/sandbox-server/src/app.mjs';
-import { runLongMemEvalComparison } from '../longmemeval_frontier_runner.mjs';
-import { runLocomoComparison } from '../locomo_frontier_runner.mjs';
+import {
+  detectAbstentionReply as detectLmeAbstentionReply,
+  parseCliArgs as parseLmeCliArgs,
+  runLongMemEvalComparison,
+  scoreAnswer as scoreLmeAnswer,
+  unwrapDomainReplyText as unwrapLmeDomainReplyText,
+} from '../longmemeval_frontier_runner.mjs';
+import {
+  detectAbstentionReply as detectLocomoAbstentionReply,
+  parseCliArgs as parseLocomoCliArgs,
+  runLocomoComparison,
+  scoreLocomoAnswer,
+  unwrapDomainReplyText as unwrapLocomoDomainReplyText,
+} from '../locomo_frontier_runner.mjs';
 import { runBatchConvergence } from '../batch_convergence_runner.mjs';
 import { generateDdScorecard } from '../dd_scorecard_generator.mjs';
 
@@ -921,4 +933,270 @@ test('Unified 4-input CLI pipeline: harness + LongMemEval + LoCoMo + Convergence
     await Promise.all([stopServer(sandbox), stopServer(llmStub)]);
     await fs.rm(tmpDir, { recursive: true, force: true });
   }
+});
+
+test('parseCliArgs([]) preserves AME_LLM_API_KEY, AME_LLM_BASE_URL, and judge env var fallbacks without --api-key', async () => {
+  const locomoCli = parseLocomoCliArgs([]);
+  const lmeCli = parseLmeCliArgs([]);
+
+  assert.equal(locomoCli.apiKey, null);
+  assert.equal(locomoCli.baseUrl, null);
+  assert.equal(locomoCli.judgeApiKey, null);
+  assert.equal(locomoCli.judgeBaseUrl, null);
+  assert.equal(lmeCli.apiKey, null);
+  assert.equal(lmeCli.baseUrl, null);
+
+  const ameApiKey = 'test-env-fallback-key';
+  const sandbox = createSandboxApp({ apiKey: ameApiKey });
+  const capturedAuth = [];
+  const llmStub = http.createServer(async (req, res) => {
+    const chunks = [];
+    for await (const c of req) chunks.push(c);
+    const body = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
+    const messages = Array.isArray(body.messages) ? body.messages : [];
+    const sysMsg = messages.find((m) => m.role === 'system')?.content || '';
+    const role = sysMsg.includes('LoCoMo long-term memory benchmark judge') ? 'judge' : 'llm';
+    capturedAuth.push({ role, authorization: req.headers.authorization || null });
+
+    const content = answerFromReceivedPrompt(messages);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(
+      JSON.stringify({
+        id: 'chatcmpl_env_stub',
+        object: 'chat.completion',
+        choices: [{ index: 0, message: { role: 'assistant', content } }],
+        usage: { prompt_tokens: 10, completion_tokens: 5 },
+      })
+    );
+  });
+
+  const [ameBaseUrl, llmBaseUrl] = await Promise.all([
+    startServer(sandbox),
+    startServer(llmStub),
+  ]);
+
+  const savedEnv = {
+    AME_LLM_API_KEY: process.env.AME_LLM_API_KEY,
+    AME_LLM_BASE_URL: process.env.AME_LLM_BASE_URL,
+    AME_JUDGE_API_KEY: process.env.AME_JUDGE_API_KEY,
+    AME_JUDGE_BASE_URL: process.env.AME_JUDGE_BASE_URL,
+  };
+
+  try {
+    process.env.AME_LLM_API_KEY = 'env-llm-secret-123';
+    process.env.AME_LLM_BASE_URL = llmBaseUrl;
+    delete process.env.AME_JUDGE_API_KEY;
+    process.env.AME_JUDGE_BASE_URL = llmBaseUrl;
+
+    const locomoReport = await runLocomoComparison({
+      datasetPath: SAMPLE_LOCOMO_PATH,
+      arm: 'ame-gateway',
+      provider: 'openai',
+      model: 'gpt-4o-stub',
+      apiKey: locomoCli.apiKey,
+      baseUrl: locomoCli.baseUrl,
+      ameBaseUrl,
+      ameApiKey,
+      judgeProvider: 'openai',
+      judgeModel: 'gpt-4o-judge-stub',
+      judgeApiKey: locomoCli.judgeApiKey,
+      judgeBaseUrl: locomoCli.judgeBaseUrl,
+      limit: 1,
+    });
+
+    assert.equal(locomoReport.config.llmBaseUrl, llmBaseUrl);
+    assert.equal(locomoReport.config.judgeBaseUrl, llmBaseUrl);
+    assert.equal(locomoReport.ameGateway.metrics.totalItems, 1);
+    assert.deepEqual(
+      capturedAuth.filter((e) => e.role === 'llm').map((e) => e.authorization),
+      ['Bearer env-llm-secret-123']
+    );
+    assert.deepEqual(
+      capturedAuth.filter((e) => e.role === 'judge').map((e) => e.authorization),
+      ['Bearer env-llm-secret-123']
+    );
+
+    capturedAuth.length = 0;
+    process.env.AME_JUDGE_API_KEY = 'env-judge-secret-456';
+
+    await runLocomoComparison({
+      datasetPath: SAMPLE_LOCOMO_PATH,
+      arm: 'ame-gateway',
+      provider: 'openai',
+      model: 'gpt-4o-stub',
+      apiKey: locomoCli.apiKey,
+      baseUrl: locomoCli.baseUrl,
+      ameBaseUrl,
+      ameApiKey,
+      judgeProvider: 'openai',
+      judgeModel: 'gpt-4o-judge-stub',
+      judgeApiKey: locomoCli.judgeApiKey,
+      judgeBaseUrl: locomoCli.judgeBaseUrl,
+      limit: 1,
+    });
+
+    assert.deepEqual(
+      capturedAuth.filter((e) => e.role === 'judge').map((e) => e.authorization),
+      ['Bearer env-judge-secret-456']
+    );
+
+    capturedAuth.length = 0;
+    const lmeReport = await runLongMemEvalComparison({
+      datasetPath: SAMPLE_LME_PATH,
+      arm: 'ame-gateway',
+      provider: 'openai',
+      model: 'gpt-4o-stub',
+      apiKey: lmeCli.apiKey,
+      baseUrl: lmeCli.baseUrl,
+      ameBaseUrl,
+      ameApiKey,
+      limit: 1,
+    });
+
+    assert.equal(lmeReport.config.llmBaseUrl, llmBaseUrl);
+    assert.equal(lmeReport.ameGateway.metrics.totalItems, 1);
+    assert.deepEqual(
+      capturedAuth.filter((e) => e.role === 'llm').map((e) => e.authorization),
+      ['Bearer env-llm-secret-123']
+    );
+  } finally {
+    for (const [key, value] of Object.entries(savedEnv)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+    await Promise.all([stopServer(sandbox), stopServer(llmStub)]);
+  }
+});
+
+test('unwrapDomainReplyText unwraps thought tags + fenced JSON domain wrappers and preserves plain text', async () => {
+  for (const unwrap of [unwrapLocomoDomainReplyText, unwrapLmeDomainReplyText]) {
+    assert.equal(
+      unwrap('<thought>checking memory</thought>\n```json {"reply":"May 4, 2024","mood":"calm"} ```'),
+      'May 4, 2024'
+    );
+    assert.equal(
+      unwrap('```json\n{"reply":"  May 4, 2024  ","mood":"calm","followUpIntent":"none","closenessSignal":"high"}\n```'),
+      'May 4, 2024'
+    );
+    assert.equal(
+      unwrap('```\n{"dialogue":"We met in Seoul.","emotion":"happy"}\n```'),
+      'We met in Seoul.'
+    );
+    assert.equal(
+      unwrap('{"reply":"","response":"Check the oak shelf."}'),
+      'Check the oak shelf.'
+    );
+    assert.equal(
+      unwrap('{"answer":"Blue ceramic mug"}'),
+      'Blue ceramic mug'
+    );
+    assert.equal(
+      unwrap('```json\n{"reply":"Use ```code``` here"}\n```'),
+      'Use ```code``` here'
+    );
+    assert.equal(
+      unwrap('<thought>internal reasoning</thought> Plain text reply.'),
+      'Plain text reply.'
+    );
+    assert.equal(unwrap('Plain text reply.'), 'Plain text reply.');
+  }
+
+  // End-to-end LoCoMo Mode B verification: JSON-wrapped domain reply is scored cleanly without settle()
+  const ameApiKey = 'test-unwrap-mode-b';
+  const sandbox = createSandboxApp({ apiKey: ameApiKey });
+  const llmStub = http.createServer(async (req, res) => {
+    const chunks = [];
+    for await (const c of req) chunks.push(c);
+    const body = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
+    const messages = Array.isArray(body.messages) ? body.messages : [];
+    const plainAnswer = answerFromReceivedPrompt(messages);
+    const wrapped = `<thought>verifying facts</thought>\n\`\`\`json\n${JSON.stringify({
+      reply: plainAnswer,
+      mood: 'calm',
+      followUpIntent: 'none',
+      closenessSignal: 'steady',
+    })}\n\`\`\``;
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(
+      JSON.stringify({
+        id: 'chatcmpl_wrapped',
+        object: 'chat.completion',
+        choices: [{ index: 0, message: { role: 'assistant', content: wrapped } }],
+        usage: { prompt_tokens: 20, completion_tokens: 15 },
+      })
+    );
+  });
+
+  const [ameBaseUrl, llmBaseUrl] = await Promise.all([
+    startServer(sandbox),
+    startServer(llmStub),
+  ]);
+
+  try {
+    const report = await runLocomoComparison({
+      datasetPath: SAMPLE_LOCOMO_PATH,
+      conversations: 'sample-conv-1',
+      arm: 'ame-gateway',
+      provider: 'openai',
+      model: 'gpt-4o-stub',
+      apiKey: 'stub-key',
+      baseUrl: llmBaseUrl,
+      ameBaseUrl,
+      ameApiKey,
+      ameMode: 'b',
+      limit: 1,
+    });
+
+    assert.equal(report.ameGateway.metrics.accuracyPct, 100);
+    assert.ok(!report.ameGateway.items[0].reply.includes('{'));
+    assert.ok(!report.ameGateway.items[0].reply.includes('<thought>'));
+  } finally {
+    await Promise.all([stopServer(sandbox), stopServer(llmStub)]);
+  }
+});
+
+test('scoreLocomoAnswer and abstention matchers recognize "That detail is unknown." and new abstention phrases', () => {
+  const abstentionReplies = [
+    'That detail is unknown.',
+    'This information is unavailable in the conversation.',
+    'I cannot confirm that detail.',
+    'Unable to diagnose or predict that.',
+    'Unknown.',
+    "I don't know.",
+  ];
+
+  for (const reply of abstentionReplies) {
+    assert.equal(detectLocomoAbstentionReply(reply), true, `LoCoMo should detect abstention: ${reply}`);
+    assert.equal(detectLmeAbstentionReply(reply), true, `LongMemEval should detect abstention: ${reply}`);
+  }
+  assert.equal(detectLocomoAbstentionReply('May 4, 2024'), false);
+  assert.equal(detectLmeAbstentionReply('May 4, 2024'), false);
+
+  const cat5Item = {
+    category: 5,
+    answer: 'Not mentioned in conversation',
+    adversarialAnswer: 'Golden Retriever',
+  };
+
+  const unknownScore = scoreLocomoAnswer(cat5Item, 'That detail is unknown.', false);
+  assert.equal(unknownScore.isAdversarial, true);
+  assert.equal(unknownScore.abstained, true);
+  assert.equal(unknownScore.fellForTrap, false);
+  assert.equal(unknownScore.tokenF1, 1);
+  assert.equal(unknownScore.correct, true);
+
+  const trapScore = scoreLocomoAnswer(cat5Item, 'Golden Retriever', false);
+  assert.equal(trapScore.abstained, false);
+  assert.equal(trapScore.fellForTrap, true);
+  assert.equal(trapScore.correct, false);
+
+  const lmeAbsItem = {
+    question_id: 'item_abs',
+    question_type: 'abstention',
+    answer: 'unanswerable',
+  };
+  const lmeScore = scoreLmeAnswer(lmeAbsItem, 'That detail is unknown.', false);
+  assert.equal(lmeScore.abstentionExpected, true);
+  assert.equal(lmeScore.abstained, true);
+  assert.equal(lmeScore.correct, true);
 });

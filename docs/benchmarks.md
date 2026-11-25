@@ -302,8 +302,11 @@ Calling live HTTP LLMs `1,000,000` times turn-by-turn sequentially takes roughly
 
 ```bash
 # Run 1,000,000-turn deterministic convergence against the Hosted Evaluation Gateway (or local :8090)
-npm run bench:convergence -- --base-url https://thesoulthread.com/ame-api --api-key "$AME_API_KEY" --turns 1000000
+AME_BASE_URL=https://thesoulthread.com/ame-api AME_API_KEY="$AME_API_KEY" npm run --silent bench:convergence -- --turns 1000000
 ```
+
+> [!NOTE]
+> **CLI Secret Safety:** Always pass API keys via environment variables (`AME_API_KEY`, `AME_LLM_API_KEY`, `AME_JUDGE_API_KEY`) and `npm run --silent` rather than raw CLI flags after `npm run` so `npm` never echoes secrets to stdout or CI logs.
 
 **TypeScript SDK (`@ame/sdk` — `client.simulateBatch`):**
 
@@ -366,13 +369,13 @@ npm run test:bench
 # 4. Full suite (TypeScript SDK + Sandbox + Python SDK + Benchmark Harness)
 npm test
 ```
-- Environment variables: `AME_BASE_URL` (default `http://127.0.0.1:8090`, or `https://thesoulthread.com/ame-api` for Option A), `AME_API_KEY` (`X-AME-API-Key`).
+- Environment variables: `AME_BASE_URL` (default `http://127.0.0.1:8090`, or `https://thesoulthread.com/ame-api` for Option A), `AME_API_KEY` (`X-AME-API-Key`), `AME_LLM_API_KEY`, and `AME_JUDGE_API_KEY`.
 
 ### 6.4 Comparing AME Head-to-Head Against Other Frameworks & `Bare Frontier`
 
 #### A. `LoCoMo` Paired Frontier Comparator (`npm run bench:locomo` · `benchmarks/cogeval-locomo-harness/locomo_frontier_runner.mjs`)
 
-Compares `ame-gateway` vs. `bare-frontier` (`O(1)` vs. `O(T)` query tokens / `O(T^2)` cumulative replay), reports per-category `Cat 1..5` breakdown, and supports an optional `--judge-provider`:
+Compares `ame-gateway` vs. `bare-frontier` (`O(1)` vs. `O(T)` query tokens / `O(T^2)` cumulative replay), reports per-category `Cat 1..5` breakdown, and supports an optional `--judge-provider` (pass `AME_JUDGE_API_KEY` when the judge uses a separate provider key):
 
 ```bash
 # 1. Offline smoke run using bundled sample_locomo.json (zero API cost)
@@ -383,27 +386,23 @@ npm run bench:locomo -- \
   --json-out ./artifacts/locomo-smoke.json
 
 # 2. Confirm-304 paired benchmark (conv-26 + conv-30) against the Hosted or Self-Hosted Sealed Kernel
-npm run bench:locomo -- \
+AME_BASE_URL=https://thesoulthread.com/ame-api AME_API_KEY="$AME_API_KEY" AME_LLM_API_KEY="$DEEPSEEK_API_KEY" AME_JUDGE_API_KEY="$OPENAI_API_KEY" \
+  npm run --silent bench:locomo -- \
   --dataset /path/to/locomo10.json \
   --conversations conv-26,conv-30 \
   --arm both \
   --provider deepseek \
   --model deepseek-v4.1-flash \
-  --api-key "$DEEPSEEK_API_KEY" \
-  --ame-base-url https://thesoulthread.com/ame-api \
-  --ame-api-key "$AME_API_KEY" \
   --judge-provider openai \
   --json-out ./artifacts/locomo-confirm-304.json
 
 # 3. Full 10-conversation official locomo10.json (n=1,986)
-npm run bench:locomo -- \
+AME_BASE_URL=https://thesoulthread.com/ame-api AME_API_KEY="$AME_API_KEY" AME_LLM_API_KEY="$DEEPSEEK_API_KEY" AME_JUDGE_API_KEY="$OPENAI_API_KEY" \
+  npm run --silent bench:locomo -- \
   --dataset /path/to/locomo10.json \
   --arm both \
   --provider deepseek \
   --model deepseek-v4.1-flash \
-  --api-key "$DEEPSEEK_API_KEY" \
-  --ame-base-url https://thesoulthread.com/ame-api \
-  --ame-api-key "$AME_API_KEY" \
   --judge-provider openai \
   --json-out ./artifacts/locomo-full.json
 ```
@@ -445,14 +444,12 @@ flowchart LR
 npm run bench:longmemeval -- --arm both --provider mock --json-only
 
 # 2. Official LongMemEval-S 500-QA full-set 1:1 DD comparison (Hosted Gateway or Self-Hosted Sealed Kernel)
-npm run bench:longmemeval -- \
+AME_BASE_URL=https://thesoulthread.com/ame-api AME_API_KEY="$AME_API_KEY" AME_LLM_API_KEY="$OPENAI_API_KEY" \
+  npm run --silent bench:longmemeval -- \
   --dataset /path/to/longmemeval_s_cleaned.json \
   --arm both \
   --provider openai \
   --model gpt-4o-mini \
-  --api-key "$OPENAI_API_KEY" \
-  --ame-base-url https://thesoulthread.com/ame-api \
-  --ame-api-key "$AME_API_KEY" \
   --json-out ./artifacts/longmemeval-500-dd.json
 ```
 > [!NOTE]

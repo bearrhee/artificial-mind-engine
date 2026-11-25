@@ -113,6 +113,10 @@ npm run example:chat
   }
 }
 ```
+
+> [!NOTE]
+> **Sandbox vs. Sealed Kernel (`companion_chat`):** The excerpt above reflects the MIT Contract Sandbox's illustrative schema fields (`{ "reply", "warmth", "empathyCue", "memoryTopic", "followUpSuggestion" }`). On the Hosted/Self-Hosted Sealed Kernel, `companion_chat` returns `{ "reply", "mood", "followUpIntent", "closenessSignal" }`.
+
 - **Client Integration Pattern**:
   - Stream the UI response to the user first using `samplingHints` and `messages` from the `prepare` response, then call `settle` asynchronously as soon as the stream completes to reconcile state, memory, and `kvCache`.
   - While `kvCache.epoch` stays intact, the prompt prefix is preserved byte-for-byte, maximizing prefix-cache discounts from your LLM provider.

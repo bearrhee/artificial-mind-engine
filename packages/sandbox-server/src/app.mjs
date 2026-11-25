@@ -270,6 +270,16 @@ function buildDomainContract(mind) {
   };
 }
 
+function filterActiveMemories(mind) {
+  return (mind.memories || []).filter(
+    (mem) =>
+      mem &&
+      mem.memoryId &&
+      !mind.revokedMemoryIds?.has(mem.memoryId) &&
+      !mind.excludedDerivativeIds?.has(mem.memoryId)
+  );
+}
+
 /**
  * D4-compliant public telemetry builder.
  * Strictly strips/omits any internal unconscious/endocrine simulation variables.
@@ -300,7 +310,7 @@ function buildSafeTelemetry(mind) {
     hotAbstained: Boolean(mind.hotAbstained),
     kvPrefixEpoch: mind.kvCacheEpoch,
     estimatedPrefixCachePct: round2(mind.lastEstimatedPrefixCachePct),
-    activeMemoryCount: mind.memories.length,
+    activeMemoryCount: filterActiveMemories(mind).length,
     revocationEpoch: mind.revocationEpoch,
     somaticTrend,
     d4Redacted: true,
@@ -319,13 +329,7 @@ function buildMindSummary(mind) {
 }
 
 function retrieveActiveMemories(mind, userInput, limit = 5) {
-  const activeMemories = (mind.memories || []).filter(
-    (mem) =>
-      mem &&
-      mem.memoryId &&
-      !mind.revokedMemoryIds?.has(mem.memoryId) &&
-      !mind.excludedDerivativeIds?.has(mem.memoryId)
-  );
+  const activeMemories = filterActiveMemories(mind);
   if (activeMemories.length === 0) return [];
   const inputTokens = new Set(tokenize(userInput));
   const isRecall = RECALL_PATTERNS.some((p) => p.test(userInput));
@@ -1838,22 +1842,14 @@ export function createSandboxApp({ apiKey, storageMode, storagePath } = {}) {
 
       // GET /v1/minds/:id/memories (D3-safe active non-revoked memories for Console UI)
       if (method === 'GET' && subPath === 'memories') {
-        const activeMemories = (mind.memories || [])
-          .filter(
-            (m) =>
-              m &&
-              m.memoryId &&
-              !mind.revokedMemoryIds?.has(m.memoryId) &&
-              !mind.excludedDerivativeIds?.has(m.memoryId)
-          )
-          .map((m) => ({
-            memoryId: m.memoryId,
-            summary: m.summary,
-            salience: m.salience,
-            turnIndex: m.turnIndex,
-            tags: m.tags || [],
-            createdAt: m.createdAt,
-          }));
+        const activeMemories = filterActiveMemories(mind).map((m) => ({
+          memoryId: m.memoryId,
+          summary: m.summary,
+          salience: m.salience,
+          turnIndex: m.turnIndex,
+          tags: m.tags || [],
+          createdAt: m.createdAt,
+        }));
         sendJson(res, 200, {
           mindId: mind.mindId,
           revocationEpoch: mind.revocationEpoch,

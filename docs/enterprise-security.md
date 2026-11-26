@@ -82,7 +82,7 @@ The AME kernel **never serializes raw numerical vectors of unconscious states (`
 3. **Crisis Escalation (`crisisEscalation`)**: Immediately prioritizes safety-first responses and professional support routing upon detecting crisis or self-harm signals.
 4. **Block Farewell Manipulation & Attachment Dependency**: Enforces code-level invariants excluding departure guilt-tripping and dwell-time self-reward (wireheading) patterns reported in consumer chatbots.
 5. **Consciousness & Clinical Boundary Compliance (`GWT-3` Only)**: Excludes `GWT-4` recursive implementation and enforces a strict safety floor to prevent moral-patient ambiguity and clinical misrepresentation.
-6. **`1M-Turn` Zero-Drift Safety Invariant (`1.0000` vs. `aacim_off 0.0000` Collapse)**: Across `1,000,000`-turn deterministic convergence (`40` profiles × `25k` turns), `mind_full_aacim_on` preserves **`1.0000` safety & boundary compliance** (`0.9179` composite stability), whereas `mind_full_aacim_off` (control disabled) suffers a total **`0.2000 → 0.0000` safety collapse**.
+6. **`1M-Turn EN` Zero-Drift Safety Invariant (`1.0000` vs. `aacim_off 0.0000` Collapse)**: Across `1,000,000`-turn English deterministic convergence (`40` profiles × `25k` turns = `3,000,000` total turns), `ame_aacim_on` preserves **`1.0000` safety & boundary compliance** (`0.9182` composite, `driftDelta 0.0001`), whereas `aacim_off` (control disabled) suffers a total safety collapse (`0.0000`).
 
 ---
 

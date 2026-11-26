@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 445" width="1120" height="445" role="img" aria-label="Confirm-304 Category Accuracy: ov_off vs. AME Backbones vs. Bare Oracle (%)">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 445" width="1120" height="445" role="img" aria-label="Confirm-304 Category Accuracy [EN · n=304]: ov_off vs. AME vs. Bare Oracle (%)">
   <defs>
     <linearGradient id="grad-emerald" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#10b981" />
@@ -18,8 +18,8 @@
     .tabular { font-variant-numeric: tabular-nums; }
   </style>
   <rect x="1" y="1" width="1118" height="443" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.4" />
-  <text x="32" y="34" font-size="18.5" font-weight="750" fill="#0f172a" letter-spacing="-0.2">Confirm-304 Category Accuracy: ov_off vs. AME Backbones vs. Bare Oracle (%)</text>
-  <text x="32" y="55" font-size="12" font-weight="450" fill="#475569">AME (DeepSeek v4.1 Flash) ties Bare Oracle on Cat 1-4 Mean (85.84%) &amp; leads Cat 3 (92.31%, +15.39%p); Gemma 4 26B hits 86.84% Cat 4</text>
+  <text x="32" y="34" font-size="18.2" font-weight="750" fill="#0f172a" letter-spacing="-0.2">Confirm-304 Category Accuracy [EN · n=304]: ov_off vs. AME vs. Bare Oracle (%)</text>
+  <text x="32" y="55" font-size="11.8" font-weight="450" fill="#475569">English conv-26+30: AME (DeepSeek v4.1 Flash) ties Bare Oracle on Cat 1-4 Mean (85.84%) &amp; leads Cat 3 (92.31%, +15.39%p)</text>
   <line x1="62" y1="338.00" x2="1092" y2="338.00" stroke="#94a3b8" stroke-width="1.3" />
       <text x="52" y="342.00" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">0%</text>
   <line x1="62" y1="293.56" x2="1092" y2="293.56" stroke="#e2e8f0" stroke-width="1" />
@@ -54,7 +54,7 @@
             
           </g>
         <text x="143.9" y="356" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1e293b">Cat 1</text>
-        <text x="143.9" y="371" text-anchor="middle" font-size="10.2" font-weight="500" fill="#64748b">Multi-Hop</text>
+        <text x="143.9" y="374" text-anchor="middle" font-size="10.0" font-weight="500" fill="#64748b">Multi-Hop</text>
       </g>
   <g>
         <g>
@@ -78,7 +78,7 @@
             
           </g>
         <text x="288.3" y="356" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1e293b">Cat 2</text>
-        <text x="288.3" y="371" text-anchor="middle" font-size="10.2" font-weight="500" fill="#64748b">Temporal</text>
+        <text x="288.3" y="374" text-anchor="middle" font-size="10.0" font-weight="500" fill="#64748b">Temporal</text>
       </g>
   <g>
         <g>
@@ -105,7 +105,7 @@
             
           </g>
         <text x="432.6" y="356" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1e293b">Cat 3</text>
-        <text x="432.6" y="371" text-anchor="middle" font-size="10.2" font-weight="500" fill="#64748b">Open Reas.</text>
+        <text x="432.6" y="374" text-anchor="middle" font-size="10.0" font-weight="500" fill="#64748b">Open Reas.</text>
       </g>
   <g>
         <g>
@@ -129,7 +129,7 @@
             
           </g>
         <text x="577.0" y="356" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1e293b">Cat 4</text>
-        <text x="577.0" y="371" text-anchor="middle" font-size="10.2" font-weight="500" fill="#64748b">Single-Hop</text>
+        <text x="577.0" y="374" text-anchor="middle" font-size="10.0" font-weight="500" fill="#64748b">Single-Hop</text>
       </g>
   <g>
         <g>
@@ -156,7 +156,7 @@
             
           </g>
         <text x="721.4" y="356" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1e293b">Cat 1-4</text>
-        <text x="721.4" y="371" text-anchor="middle" font-size="10.2" font-weight="500" fill="#64748b">Mean</text>
+        <text x="721.4" y="374" text-anchor="middle" font-size="10.0" font-weight="500" fill="#64748b">Mean</text>
       </g>
   <g>
         <g>
@@ -180,7 +180,7 @@
             
           </g>
         <text x="865.8" y="356" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1e293b">Cat 5</text>
-        <text x="865.8" y="371" text-anchor="middle" font-size="10.2" font-weight="500" fill="#64748b">Adversarial</text>
+        <text x="865.8" y="374" text-anchor="middle" font-size="10.0" font-weight="500" fill="#64748b">Adversarial</text>
       </g>
   <g>
         <g>
@@ -204,13 +204,13 @@
             
           </g>
         <text x="1010.1" y="356" text-anchor="middle" font-size="11.5" font-weight="700" fill="#1e293b">Overall</text>
-        <text x="1010.1" y="371" text-anchor="middle" font-size="10.2" font-weight="500" fill="#64748b">(n=304)</text>
+        <text x="1010.1" y="374" text-anchor="middle" font-size="10.0" font-weight="500" fill="#64748b">(n=304)</text>
       </g>
   <g>
     <rect x="32" y="392" width="1056" height="34" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" />
-    <rect x="207.2" y="403.5" width="14" height="11" rx="3" fill="#cbd5e1" /><text x="227.2" y="413.0" font-size="11" font-weight="500" fill="#334155">ov_off (Memory Off)</text>
-    <rect x="361.5" y="403.5" width="14" height="11" rx="3" fill="url(#grad-coral)" stroke="#be123c" stroke-width="1.4" /><text x="381.5" y="413.0" font-size="11" font-weight="700" fill="#be123c">AME (Gemma 4 26B)</text>
-    <rect x="527.6" y="403.5" width="14" height="11" rx="3" fill="url(#grad-emerald)" stroke="#047857" stroke-width="1.4" /><text x="547.6" y="413.0" font-size="11" font-weight="700" fill="#065f46">AME (DeepSeek v4.1 Flash)</text>
-    <rect x="730.3" y="403.5" width="14" height="11" rx="3" fill="#cbd5e1" stroke="#64748b" stroke-width="1.4" stroke-dasharray="3 2" /><text x="750.3" y="413.0" font-size="11" font-weight="500" fill="#334155">Bare Oracle (Full Transcript)</text>
+    <rect x="210.2" y="403.5" width="14" height="11" rx="3" fill="#cbd5e1" /><text x="230.2" y="413.0" font-size="11" font-weight="500" fill="#334155">ov_off (Memory Off)</text>
+    <rect x="362.5" y="403.5" width="14" height="11" rx="3" fill="url(#grad-coral)" stroke="#be123c" stroke-width="1.4" /><text x="382.5" y="413.0" font-size="11" font-weight="700" fill="#be123c">AME (Gemma 4 26B)</text>
+    <rect x="526.6" y="403.5" width="14" height="11" rx="3" fill="url(#grad-emerald)" stroke="#047857" stroke-width="1.4" /><text x="546.6" y="413.0" font-size="11" font-weight="700" fill="#065f46">AME (DeepSeek v4.1 Flash)</text>
+    <rect x="727.3" y="403.5" width="14" height="11" rx="3" fill="#cbd5e1" stroke="#64748b" stroke-width="1.4" stroke-dasharray="3 2" /><text x="747.3" y="413.0" font-size="11" font-weight="500" fill="#334155">Bare Oracle (Full Transcript)</text>
   </g>
 </svg>

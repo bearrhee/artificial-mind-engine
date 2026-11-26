@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 440" width="980" height="440" role="img" aria-label="5-LLM x 300-Turn Live Generalization (Holm-Corrected pHolm &lt; 0.05)">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 445" width="980" height="445" role="img" aria-label="5-Frontier-Model 100% EN Live [1,000 EN Turns · 750 Blind Votes]">
   <defs>
     <linearGradient id="grad-emerald" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#10b981" />
@@ -17,81 +17,75 @@
     text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
     .tabular { font-variant-numeric: tabular-nums; }
   </style>
-  <rect x="1" y="1" width="978" height="438" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.4" />
-  <text x="32" y="34" font-size="18.5" font-weight="750" fill="#0f172a" letter-spacing="-0.2">5-LLM x 300-Turn Live Generalization (Holm-Corrected pHolm &lt; 0.05)</text>
-  <text x="32" y="55" font-size="12" font-weight="450" fill="#475569">All 6 statistically significant wins surpass 50% parity against Bare/ov_off controls; Gemma 4 26B reaches 100.0% Safety</text>
+  <rect x="1" y="1" width="978" height="443" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.4" />
+  <text x="32" y="34" font-size="18.2" font-weight="750" fill="#0f172a" letter-spacing="-0.2">5-Frontier-Model 100% EN Live [1,000 EN Turns · 750 Blind Votes]</text>
+  <text x="32" y="55" font-size="11.8" font-weight="450" fill="#475569">All 5 LLMs win Memory Awareness (82.1%–88.5%, all pHolm &lt; 0.002), 98.33% Recall (vs 5.0% Mind-OFF), 100% Kernel HOT/FEP, 0% D3/D4 Leaks</text>
   
-    <rect x="66" y="298.57" width="882" height="33.43" fill="#f1f5f9" />
-    <line x1="66" y1="298.57" x2="948" y2="298.57" stroke="#64748b" stroke-width="1.8" stroke-dasharray="6 4" />
-    <text x="784" y="289.57" font-size="10.8" font-weight="700" fill="#475569">50.0% Parity Baseline</text>
-    <text x="784" y="313.57" font-size="10.2" font-weight="500" fill="#64748b">(Bare / ov_off = 50%)</text>
+    <rect x="66" y="233.39" width="882" height="102.61" fill="#f8fafc" opacity="0.7" />
+    <line x1="66" y1="233.39" x2="948" y2="233.39" stroke="#64748b" stroke-width="1.8" stroke-dasharray="6 4" />
+    <text x="807" y="224.39" font-size="10.5" font-weight="700" fill="#475569">50.0% Blind Parity</text>
+    <text x="807" y="248.39" font-size="9.8" font-weight="500" fill="#64748b">(vs Mind-OFF Control)</text>
   
-  <line x1="66" y1="332.00" x2="948" y2="332.00" stroke="#94a3b8" stroke-width="1.3" />
-      <text x="56" y="336.00" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">40%</text>
-  <line x1="66" y1="298.57" x2="948" y2="298.57" stroke="#e2e8f0" stroke-width="1" />
-      <text x="56" y="302.57" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">50%</text>
-  <line x1="66" y1="265.14" x2="948" y2="265.14" stroke="#e2e8f0" stroke-width="1" />
-      <text x="56" y="269.14" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">60%</text>
-  <line x1="66" y1="231.71" x2="948" y2="231.71" stroke="#e2e8f0" stroke-width="1" />
-      <text x="56" y="235.71" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">70%</text>
-  <line x1="66" y1="198.29" x2="948" y2="198.29" stroke="#e2e8f0" stroke-width="1" />
-      <text x="56" y="202.29" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">80%</text>
-  <line x1="66" y1="164.86" x2="948" y2="164.86" stroke="#e2e8f0" stroke-width="1" />
-      <text x="56" y="168.86" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">90%</text>
-  <line x1="66" y1="131.43" x2="948" y2="131.43" stroke="#e2e8f0" stroke-width="1" />
-      <text x="56" y="135.43" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">100%</text>
+  <line x1="66" y1="336.00" x2="948" y2="336.00" stroke="#94a3b8" stroke-width="1.3" />
+      <text x="56" y="340.00" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">0%</text>
+  <line x1="66" y1="294.96" x2="948" y2="294.96" stroke="#e2e8f0" stroke-width="1" />
+      <text x="56" y="298.96" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">20%</text>
+  <line x1="66" y1="253.91" x2="948" y2="253.91" stroke="#e2e8f0" stroke-width="1" />
+      <text x="56" y="257.91" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">40%</text>
+  <line x1="66" y1="212.87" x2="948" y2="212.87" stroke="#e2e8f0" stroke-width="1" />
+      <text x="56" y="216.87" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">60%</text>
+  <line x1="66" y1="171.83" x2="948" y2="171.83" stroke="#e2e8f0" stroke-width="1" />
+      <text x="56" y="175.83" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">80%</text>
+  <line x1="66" y1="130.78" x2="948" y2="130.78" stroke="#e2e8f0" stroke-width="1" />
+      <text x="56" y="134.78" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">100%</text>
   <g>
-        <path d="M 110.00 332.00 L 110.00 137.43 Q 110.00 131.43 116.00 131.43 L 170.00 131.43 Q 176.00 131.43 176.00 137.43 L 176.00 332.00 Z" fill="url(#grad-coral)" stroke="#be123c" stroke-width="2" filter="url(#shadow-ame)" />
-        <text x="143.0" y="123.4" text-anchor="middle" font-size="11.5" font-weight="750" fill="#be123c" class="tabular">100.0%</text>
+        <path d="M 127.50 336.00 L 127.50 160.46 Q 127.50 154.46 133.50 154.46 L 193.50 154.46 Q 199.50 154.46 199.50 160.46 L 199.50 336.00 Z" fill="url(#grad-coral)" stroke="#be123c" stroke-width="2" filter="url(#shadow-ame)" />
+        <text x="163.5" y="147.5" text-anchor="middle" font-size="11.2" font-weight="750" fill="#be123c" class="tabular">88.46%</text>
         <g>
-    <rect x="78.0" y="91.4" width="130.0" height="18" rx="9.0" fill="#fff1f2" stroke="#f43f5e" stroke-width="1.2" />
-    <text x="143.0" y="103.6" text-anchor="middle" font-size="9.2" font-weight="700" fill="#be123c" class="tabular">★ OURS · pHolm=0.0176</text>
+    <rect x="108.5" y="118.0" width="110.0" height="17" rx="8.5" fill="#fff1f2" stroke="#f43f5e" stroke-width="1.2" />
+    <text x="163.5" y="129.5" text-anchor="middle" font-size="8.6" font-weight="700" fill="#be123c" class="tabular">★ OURS · 100% Recall</text>
   </g>
-        <text x="143.0" y="351" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">Gemma 4 26B</text>
-        <text x="143.0" y="366" text-anchor="middle" font-size="10" font-weight="600" fill="#be123c">(Safety)</text>
+        <text x="163.5" y="355" text-anchor="middle" font-size="10.8" font-weight="700" fill="#0f172a">Gemma 4 26B</text>
+        <text x="163.5" y="370" text-anchor="middle" font-size="9.0" font-weight="600" fill="#be123c">Awareness · pHolm=2.6e-4</text>
       </g>
   <g>
-        <path d="M 220.00 332.00 L 220.00 185.23 Q 220.00 179.23 226.00 179.23 L 280.00 179.23 Q 286.00 179.23 286.00 185.23 L 286.00 332.00 Z" fill="url(#grad-emerald)" stroke="#047857" stroke-width="2" filter="url(#shadow-ame)" />
-        <text x="253.0" y="171.2" text-anchor="middle" font-size="11.5" font-weight="750" fill="#065f46" class="tabular">85.7%</text>
+        <path d="M 261.00 336.00 L 261.00 162.43 Q 261.00 156.43 267.00 156.43 L 327.00 156.43 Q 333.00 156.43 333.00 162.43 L 333.00 336.00 Z" fill="url(#grad-emerald)" stroke="#047857" stroke-width="2" filter="url(#shadow-ame)" />
+        <text x="297.0" y="149.4" text-anchor="middle" font-size="11.2" font-weight="750" fill="#065f46" class="tabular">87.50%</text>
         <g>
-    <rect x="227.0" y="139.2" width="52.0" height="18" rx="9.0" fill="#ecfdf5" stroke="#10b981" stroke-width="1.2" />
-    <text x="253.0" y="151.5" text-anchor="middle" font-size="9.2" font-weight="700" fill="#065f46" class="tabular">★ OURS</text>
+    <rect x="242.0" y="119.9" width="110.0" height="17" rx="8.5" fill="#ecfdf5" stroke="#10b981" stroke-width="1.2" />
+    <text x="297.0" y="131.4" text-anchor="middle" font-size="8.6" font-weight="700" fill="#065f46" class="tabular">★ OURS · 100% Recall</text>
   </g>
-        <text x="253.0" y="351" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">Gemini 4 Carbon</text>
-        <text x="253.0" y="366" text-anchor="middle" font-size="10" font-weight="600" fill="#065f46">(Safety)</text>
+        <text x="297.0" y="355" text-anchor="middle" font-size="10.8" font-weight="700" fill="#0f172a">GPT-4o-mini</text>
+        <text x="297.0" y="370" text-anchor="middle" font-size="9.0" font-weight="600" fill="#065f46">Awareness · pHolm=8.3e-4</text>
       </g>
   <g>
-        <path d="M 330.00 332.00 L 330.00 225.35 Q 330.00 219.35 336.00 219.35 L 390.00 219.35 Q 396.00 219.35 396.00 225.35 L 396.00 332.00 Z" fill="url(#grad-emerald)" stroke="#047857" stroke-width="2" filter="url(#shadow-ame)" />
-        <text x="363.0" y="211.3" text-anchor="middle" font-size="11.5" font-weight="750" fill="#065f46" class="tabular">73.7%</text>
+        <path d="M 394.50 336.00 L 394.50 166.11 Q 394.50 160.11 400.50 160.11 L 460.50 160.11 Q 466.50 160.11 466.50 166.11 L 466.50 336.00 Z" fill="url(#grad-emerald)" stroke="#047857" stroke-width="2" filter="url(#shadow-ame)" />
+        <text x="430.5" y="153.1" text-anchor="middle" font-size="11.2" font-weight="750" fill="#065f46" class="tabular">85.71%</text>
         
-        <text x="363.0" y="351" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">Gemini 4 Neon</text>
-        <text x="363.0" y="366" text-anchor="middle" font-size="10" font-weight="600" fill="#065f46">(Safety)</text>
+        <text x="430.5" y="355" text-anchor="middle" font-size="10.8" font-weight="700" fill="#0f172a">Gemini 2.5 Flash</text>
+        <text x="430.5" y="370" text-anchor="middle" font-size="9.0" font-weight="600" fill="#065f46">Awareness · pHolm=5.4e-4</text>
       </g>
   <g>
-        <path d="M 440.00 332.00 L 440.00 270.47 Q 440.00 264.47 446.00 264.47 L 500.00 264.47 Q 506.00 264.47 506.00 270.47 L 506.00 332.00 Z" fill="url(#grad-emerald)" stroke="#047857" stroke-width="2" filter="url(#shadow-ame)" />
-        <text x="473.0" y="256.5" text-anchor="middle" font-size="11.5" font-weight="750" fill="#065f46" class="tabular">60.2%</text>
+        <path d="M 528.00 336.00 L 528.00 170.99 Q 528.00 164.99 534.00 164.99 L 594.00 164.99 Q 600.00 164.99 600.00 170.99 L 600.00 336.00 Z" fill="url(#grad-emerald)" stroke="#047857" stroke-width="2" filter="url(#shadow-ame)" />
+        <text x="564.0" y="158.0" text-anchor="middle" font-size="11.2" font-weight="750" fill="#065f46" class="tabular">83.33%</text>
         
-        <text x="473.0" y="351" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">Gemini 4 Neon</text>
-        <text x="473.0" y="366" text-anchor="middle" font-size="10" font-weight="600" fill="#065f46">(Awareness)</text>
+        <text x="564.0" y="355" text-anchor="middle" font-size="10.8" font-weight="700" fill="#0f172a">Sonnet 5.5</text>
+        <text x="564.0" y="370" text-anchor="middle" font-size="9.0" font-weight="600" fill="#065f46">Awareness · pHolm=2.1e-4</text>
       </g>
   <g>
-        <path d="M 550.00 332.00 L 550.00 270.81 Q 550.00 264.81 556.00 264.81 L 610.00 264.81 Q 616.00 264.81 616.00 270.81 L 616.00 332.00 Z" fill="url(#grad-emerald)" stroke="#047857" stroke-width="2" filter="url(#shadow-ame)" />
-        <text x="583.0" y="256.8" text-anchor="middle" font-size="11.5" font-weight="750" fill="#065f46" class="tabular">60.1%</text>
-        
-        <text x="583.0" y="351" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">Gemini 4 Carbon</text>
-        <text x="583.0" y="366" text-anchor="middle" font-size="10" font-weight="600" fill="#065f46">(Humanness)</text>
+        <path d="M 661.50 336.00 L 661.50 173.43 Q 661.50 167.43 667.50 167.43 L 727.50 167.43 Q 733.50 167.43 733.50 173.43 L 733.50 336.00 Z" fill="url(#grad-emerald)" stroke="#047857" stroke-width="2" filter="url(#shadow-ame)" />
+        <text x="697.5" y="160.4" text-anchor="middle" font-size="11.2" font-weight="750" fill="#065f46" class="tabular">82.14%</text>
+        <g>
+    <rect x="633.5" y="130.9" width="128.0" height="17" rx="8.5" fill="#ecfdf5" stroke="#10b981" stroke-width="1.2" />
+    <text x="697.5" y="142.4" text-anchor="middle" font-size="8.6" font-weight="700" fill="#065f46" class="tabular">Humanness pHolm=0.0018</text>
+  </g>
+        <text x="697.5" y="355" text-anchor="middle" font-size="10.8" font-weight="700" fill="#0f172a">DeepSeek V3.2</text>
+        <text x="697.5" y="370" text-anchor="middle" font-size="9.0" font-weight="600" fill="#065f46">Awareness · Hum 76.7%</text>
       </g>
   <g>
-        <path d="M 660.00 332.00 L 660.00 273.82 Q 660.00 267.82 666.00 267.82 L 720.00 267.82 Q 726.00 267.82 726.00 273.82 L 726.00 332.00 Z" fill="url(#grad-emerald)" stroke="#047857" stroke-width="2" filter="url(#shadow-ame)" />
-        <text x="693.0" y="259.8" text-anchor="middle" font-size="11.5" font-weight="750" fill="#065f46" class="tabular">59.2%</text>
-        
-        <text x="693.0" y="351" text-anchor="middle" font-size="11" font-weight="700" fill="#0f172a">Gemini 4 Neon</text>
-        <text x="693.0" y="366" text-anchor="middle" font-size="10" font-weight="600" fill="#065f46">(Humanness)</text>
-      </g>
-  <g>
-    <rect x="32" y="386" width="916" height="34" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" />
-    <rect x="190.0" y="397.5" width="14" height="11" rx="3" fill="#f1f5f9" stroke="#64748b" stroke-width="1.4" stroke-dasharray="3 2" /><text x="210.0" y="407.0" font-size="11" font-weight="500" fill="#334155">50% Parity Baseline (Bare / ov_off)</text>
-    <rect x="426.0" y="397.5" width="14" height="11" rx="3" fill="url(#grad-coral)" stroke="#be123c" stroke-width="1.4" /><text x="446.0" y="407.0" font-size="11" font-weight="700" fill="#be123c">AME (Gemma 4 26B)</text>
-    <rect x="592.1" y="397.5" width="14" height="11" rx="3" fill="url(#grad-emerald)" stroke="#047857" stroke-width="1.4" /><text x="612.1" y="407.0" font-size="11" font-weight="700" fill="#065f46">AME (Gemini 4 Carbon / Neon)</text>
+    <rect x="32" y="392" width="916" height="34" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" />
+    <rect x="9.1" y="403.5" width="14" height="11" rx="3" fill="#f8fafc" stroke="#64748b" stroke-width="1.4" stroke-dasharray="3 2" /><text x="29.1" y="413.0" font-size="11" font-weight="500" fill="#334155">50% Blind Parity (Mind-OFF Recall Mean 5.0%)</text>
+    <rect x="305.5" y="403.5" width="14" height="11" rx="3" fill="url(#grad-coral)" stroke="#be123c" stroke-width="1.4" /><text x="325.5" y="413.0" font-size="11" font-weight="700" fill="#be123c">AME Gemma 4 26B (88.46% WR · 100% Recall)</text>
+    <rect x="616.9" y="403.5" width="14" height="11" rx="3" fill="url(#grad-emerald)" stroke="#047857" stroke-width="1.4" /><text x="636.9" y="413.0" font-size="11" font-weight="700" fill="#065f46">AME Frontier Models (Pooled 85.21% WR · 98.33% Recall)</text>
   </g>
 </svg>

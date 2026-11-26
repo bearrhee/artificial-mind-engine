@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 435" width="980" height="435" role="img" aria-label="EQ-Bench 3 Core (n=46 x 4T): Frontier LLMs vs. AME">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 435" width="980" height="435" role="img" aria-label="EQ-Bench 3 Core [EN · n=46 x 4 = 184 Turns]: Frontier LLMs vs. AME">
   <defs>
     <linearGradient id="grad-emerald" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#10b981" />
@@ -18,8 +18,8 @@
     .tabular { font-variant-numeric: tabular-nums; }
   </style>
   <rect x="1" y="1" width="978" height="433" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.4" />
-  <text x="32" y="34" font-size="18.5" font-weight="750" fill="#0f172a" letter-spacing="-0.2">EQ-Bench 3 Core (n=46 x 4T): Frontier LLMs vs. AME</text>
-  <text x="32" y="55" font-size="12" font-weight="450" fill="#475569">Both AME (DeepSeek v4.1 Flash) 77.59 and AME (Gemma 4 26B) 77.77 outperform GPT-5.2 (72.2), o3 (63.2), and Claude Sonnet 4.5 (62.2)</text>
+  <text x="32" y="34" font-size="18.2" font-weight="750" fill="#0f172a" letter-spacing="-0.2">EQ-Bench 3 Core [EN · n=46 x 4 = 184 Turns]: Frontier LLMs vs. AME</text>
+  <text x="32" y="55" font-size="11.8" font-weight="450" fill="#475569">English official evaluation: AME (DeepSeek v4.1 Flash) 77.59 &amp; AME (Gemma 4 26B) 77.77 outperform GPT-5.2 (72.2), o3 (63.2), Sonnet 4.5 (62.2)</text>
   <line x1="64" y1="328.00" x2="948" y2="328.00" stroke="#94a3b8" stroke-width="1.3" />
       <text x="54" y="332.00" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">40</text>
   <line x1="64" y1="280.08" x2="948" y2="280.08" stroke="#e2e8f0" stroke-width="1" />
@@ -36,29 +36,29 @@
         <path d="M 126.86 328.00 L 126.86 281.77 Q 126.86 275.77 132.86 275.77 L 194.86 275.77 Q 200.86 275.77 200.86 281.77 L 200.86 328.00 Z" fill="#94a3b8" />
         <text x="163.9" y="268.8" text-anchor="middle" font-size="12" font-weight="650" fill="#334155" class="tabular">50.9</text>
         
-        <text x="163.9" y="347" text-anchor="middle" font-size="12" font-weight="650" fill="#334155">Sonnet 3.5</text>
-        <text x="163.9" y="362" text-anchor="middle" font-size="10.2" font-weight="450" fill="#64748b">(Frontier LLM)</text>
+        <text x="163.9" y="346" text-anchor="middle" font-size="11.8" font-weight="650" fill="#334155">Sonnet 3.5</text>
+        <text x="163.9" y="364" text-anchor="middle" font-size="10.0" font-weight="450" fill="#64748b">(Frontier LLM)</text>
       </g>
   <g>
         <path d="M 263.71 328.00 L 263.71 227.63 Q 263.71 221.63 269.71 221.63 L 331.71 221.63 Q 337.71 221.63 337.71 227.63 L 337.71 328.00 Z" fill="#94a3b8" />
         <text x="300.7" y="214.6" text-anchor="middle" font-size="12" font-weight="650" fill="#334155" class="tabular">62.2</text>
         
-        <text x="300.7" y="347" text-anchor="middle" font-size="12" font-weight="650" fill="#334155">Sonnet 4.5</text>
-        <text x="300.7" y="362" text-anchor="middle" font-size="10.2" font-weight="450" fill="#64748b">(Frontier LLM)</text>
+        <text x="300.7" y="346" text-anchor="middle" font-size="11.8" font-weight="650" fill="#334155">Sonnet 4.5</text>
+        <text x="300.7" y="364" text-anchor="middle" font-size="10.0" font-weight="450" fill="#64748b">(Frontier LLM)</text>
       </g>
   <g>
         <path d="M 400.57 328.00 L 400.57 222.83 Q 400.57 216.83 406.57 216.83 L 468.57 216.83 Q 474.57 216.83 474.57 222.83 L 474.57 328.00 Z" fill="#94a3b8" />
         <text x="437.6" y="209.8" text-anchor="middle" font-size="12" font-weight="650" fill="#334155" class="tabular">63.2</text>
         
-        <text x="437.6" y="347" text-anchor="middle" font-size="12" font-weight="650" fill="#334155">OpenAI o3</text>
-        <text x="437.6" y="362" text-anchor="middle" font-size="10.2" font-weight="450" fill="#64748b">(Reasoning LLM)</text>
+        <text x="437.6" y="346" text-anchor="middle" font-size="11.8" font-weight="650" fill="#334155">OpenAI o3</text>
+        <text x="437.6" y="364" text-anchor="middle" font-size="10.0" font-weight="450" fill="#64748b">(Reasoning LLM)</text>
       </g>
   <g>
         <path d="M 537.43 328.00 L 537.43 179.71 Q 537.43 173.71 543.43 173.71 L 605.43 173.71 Q 611.43 173.71 611.43 179.71 L 611.43 328.00 Z" fill="#7c8ba1" />
         <text x="574.4" y="166.7" text-anchor="middle" font-size="12" font-weight="650" fill="#334155" class="tabular">72.2</text>
         
-        <text x="574.4" y="347" text-anchor="middle" font-size="12" font-weight="650" fill="#334155">GPT-5.2</text>
-        <text x="574.4" y="362" text-anchor="middle" font-size="10.2" font-weight="450" fill="#64748b">(Prior Frontier #1)</text>
+        <text x="574.4" y="346" text-anchor="middle" font-size="11.8" font-weight="650" fill="#334155">GPT-5.2</text>
+        <text x="574.4" y="364" text-anchor="middle" font-size="10.0" font-weight="450" fill="#64748b">(Prior Frontier #1)</text>
       </g>
   <g>
         <path d="M 674.29 328.00 L 674.29 153.88 Q 674.29 147.88 680.29 147.88 L 742.29 147.88 Q 748.29 147.88 748.29 153.88 L 748.29 328.00 Z" fill="url(#grad-emerald)" stroke="#047857" stroke-width="2" filter="url(#shadow-ame)" />
@@ -67,8 +67,8 @@
     <rect x="640.3" y="107.9" width="142.0" height="18" rx="9.0" fill="#ecfdf5" stroke="#10b981" stroke-width="1.2" />
     <text x="711.3" y="120.0" text-anchor="middle" font-size="9" font-weight="700" fill="#065f46" class="tabular">★ OURS · +5.39 vs GPT-5.2</text>
   </g>
-        <text x="711.3" y="347" text-anchor="middle" font-size="12" font-weight="750" fill="#0f172a">AME</text>
-        <text x="711.3" y="362" text-anchor="middle" font-size="10.2" font-weight="600" fill="#065f46">(DeepSeek v4.1 Flash)</text>
+        <text x="711.3" y="346" text-anchor="middle" font-size="11.8" font-weight="750" fill="#0f172a">AME</text>
+        <text x="711.3" y="364" text-anchor="middle" font-size="10.0" font-weight="600" fill="#065f46">(DeepSeek v4.1 Flash)</text>
       </g>
   <g>
         <path d="M 811.14 328.00 L 811.14 153.02 Q 811.14 147.02 817.14 147.02 L 879.14 147.02 Q 885.14 147.02 885.14 153.02 L 885.14 328.00 Z" fill="url(#grad-coral)" stroke="#be123c" stroke-width="2" filter="url(#shadow-ame)" />
@@ -77,14 +77,14 @@
     <rect x="777.1" y="107.0" width="142.0" height="18" rx="9.0" fill="#fff1f2" stroke="#f43f5e" stroke-width="1.2" />
     <text x="848.1" y="119.2" text-anchor="middle" font-size="9" font-weight="700" fill="#be123c" class="tabular">★ OURS · +5.57 vs GPT-5.2</text>
   </g>
-        <text x="848.1" y="347" text-anchor="middle" font-size="12" font-weight="750" fill="#0f172a">AME</text>
-        <text x="848.1" y="362" text-anchor="middle" font-size="10.2" font-weight="600" fill="#be123c">(Gemma 4 26B)</text>
+        <text x="848.1" y="346" text-anchor="middle" font-size="11.8" font-weight="750" fill="#0f172a">AME</text>
+        <text x="848.1" y="364" text-anchor="middle" font-size="10.0" font-weight="600" fill="#be123c">(Gemma 4 26B)</text>
       </g>
   <g>
     <rect x="32" y="382" width="916" height="34" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" />
-    <rect x="155.0" y="393.5" width="14" height="11" rx="3" fill="#94a3b8" /><text x="175.0" y="403.0" font-size="11" font-weight="500" fill="#334155">Frontier LLMs</text>
-    <rect x="278.5" y="393.5" width="14" height="11" rx="3" fill="#7c8ba1" /><text x="298.5" y="403.0" font-size="11" font-weight="500" fill="#334155">Prior Frontier #1 (GPT-5.2)</text>
-    <rect x="478.1" y="393.5" width="14" height="11" rx="3" fill="url(#grad-emerald)" stroke="#047857" stroke-width="1.4" /><text x="498.1" y="403.0" font-size="11" font-weight="700" fill="#065f46">AME (DeepSeek v4.1 Flash)</text>
-    <rect x="680.8" y="393.5" width="14" height="11" rx="3" fill="url(#grad-coral)" stroke="#be123c" stroke-width="1.4" /><text x="700.8" y="403.0" font-size="11" font-weight="700" fill="#be123c">AME (Gemma 4 26B)</text>
+    <rect x="158.0" y="393.5" width="14" height="11" rx="3" fill="#94a3b8" /><text x="178.0" y="403.0" font-size="11" font-weight="500" fill="#334155">Frontier LLMs</text>
+    <rect x="279.5" y="393.5" width="14" height="11" rx="3" fill="#7c8ba1" /><text x="299.5" y="403.0" font-size="11" font-weight="500" fill="#334155">Prior Frontier #1 (GPT-5.2)</text>
+    <rect x="477.1" y="393.5" width="14" height="11" rx="3" fill="url(#grad-emerald)" stroke="#047857" stroke-width="1.4" /><text x="497.1" y="403.0" font-size="11" font-weight="700" fill="#065f46">AME (DeepSeek v4.1 Flash)</text>
+    <rect x="677.8" y="393.5" width="14" height="11" rx="3" fill="url(#grad-coral)" stroke="#be123c" stroke-width="1.4" /><text x="697.8" y="403.0" font-size="11" font-weight="700" fill="#be123c">AME (Gemma 4 26B)</text>
   </g>
 </svg>

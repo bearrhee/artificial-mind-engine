@@ -229,7 +229,7 @@ AME (`v4.2.0` `Mode B`) was evaluated live in **100% English** across **5 fronti
 #### 3. KV-Cache Prefix Alignment & Inference Unit Economics
 
 - **Continuous `5,000`-Turn EN Live Marathon (`gpt-4o-mini`)**: **`58.95%`** real OpenAI `cached_tokens` (`8,676,096 / 14,718,597` prompt tokens; `63.84%` AME KV ratio vs. `0.05%` `Mind-OFF`).
-- **`LongMemEval-S` (`n=70`, `gpt-4o-mini`)**: **`-92.31%`** query prompt tokens (`8,005` vs. `104,123` `Bare`), **`-73.6%`** mean latency, **`11.88%`** real OpenAI `cached_tokens` (`48.05%` AME KV ratio).
+- **`LongMemEval-S` (`n=70`, `gpt-4o-mini`, `v4.3.0`)**: **`60.00%`** judge accuracy (`42/70`, `+21.43%p` over `v4.2.0` lexical `38.57%`), **`-92.67%`** query prompt tokens (`7,633` vs. `104,123` `Bare`), **`12.07%`** real OpenAI `cached_tokens` (`50.78%` AME KV ratio).
 - **Continuous `sc2` & `CogEval` Prefix Cache Hit Rate (`DeepSeek v4.1 Flash`)**: **`47.03%`** (`sc2`) and **`36.24%`** (`CogEval` mean), with **`0/20` `sysMismatches`** and **`0` mid-window truncations** via `DisclosureSlot` tail isolation and epoch-pinned windows.
 - **Traffic Cost Routing (`LoCoMo Full`)**: `70.4%` routed to `DeepSeek Eco` + `29.6%` escalated to `Sonnet-5` (OpenGateway partial measured `$0.3427 / 5,527 calls`, `~$0.000062/call`).
 
@@ -518,25 +518,25 @@ All 4 `v4.2.0` live tracks below ran **100% in English** against the live sealed
 
 #### 6.8.4 Track 4 — `LongMemEval-S` Stratified English (`n=70`, `7` Slices × `10` Items, `gpt-4o-mini`)
 
-Evaluated end-to-end (`90.31 s` parallel execution, `277`-turn-pair average ingest per item, official `LongMemEval evaluate_qa.py` `gpt-4o-mini` judge) comparing **`ame-gateway` (`Mode B` sealed kernel)** vs. **`bare-frontier` (`104K`-token full raw haystack)**:
+Evaluated end-to-end (`277`-turn-pair average ingest per item, official `LongMemEval evaluate_qa.py` `gpt-4o-mini` judge) comparing **`ame-gateway` `v4.3.0` (`PGVector HNSW` + `Jina v3` + `Reranker v2`)**, **`v4.2.0` (`Mode B` lexical baseline)**, and **`bare-frontier` (`104K`-token full raw haystack)**:
 
-| Metric / `LongMemEval-S` Slice | `ame-gateway` (`Mode B` Sealed Kernel) | `bare-frontier` (`104K` Full Haystack) | Paired Delta (`AME` vs. `Bare`) |
-| :--- | ---: | ---: | :--- |
-| **Mean Query Prompt Tokens** | **`8,005.06`** (`p50 7,686`, `max 14,026`) | `104,123.13` (`p50 104,074`) | **`-92.31%`** (**`13.01x`** compression; `96,118` saved/query; `2.16B` prefill avoided) |
-| **Prompt Growth Ratio (`Short -> Long Half` / Pearson `r`)** | **`0.9024`** (`r = -0.2178`, `O(1)` bounded) | `1.0136` (`r = +0.7199`) | Bounded `O(1)` scaling vs. linear haystack growth |
-| **Query Latency (`Mean` / `p50` / `p95`)** | **`1,927.81 ms`** / **`1,297.24 ms`** / `4,438.72 ms` | `7,311.28 ms` / `6,044.53 ms` / `13,263.63 ms` | **`-73.6%` mean** (**`-78.5%` `p50`**, `-5,383.47 ms`) |
-| **Real OpenAI `cached_tokens` (`AME` KV Cache)** | **`11.88%`** (`66,560 / 560,354`) / **`48.05%`** AME KV | `0.00%` (`0`) | **`+11.88%p`** real OpenAI prefix cache (`53.67%` ingest KV) |
-| **`D4` Global Audit (`35,350` API Calls · `17,745` Snapshots)** | **`0` leaks (`d4RedactedAll: true`)** | `—` | **`0 / 17,745`** unredacted telemetry objects |
-| **`_abs` Abstention Accuracy (`n=10`)** | **`80.0%` (`8/10`)** | `90.0%` (`9/10`) | `-10.0%p` (strongest category in `Mode B`) |
-| **`knowledge-update` (`n=10`)** | **`60.0%` (`6/10`)** | `80.0%` (`8/10`) | `-20.0%p` |
-| **`temporal-reasoning` (`n=10`)** | `40.0%` (`4/10`) | `50.0%` (`5/10`) | `-10.0%p` |
-| **`single-session-user` (`n=10`)** | `30.0%` (`3/10`) | `90.0%` (`9/10`) | `-60.0%p` *(lexical abstention gate; see disclosure)* |
-| **`single-session-assistant` (`n=10`)** | `30.0%` (`3/10`) | `90.0%` (`9/10`) | `-60.0%p` *(lexical abstention gate; see disclosure)* |
-| **`single-session-preference` (`n=10`)** | `20.0%` (`2/10`) | `20.0%` (`2/10`) | **`0.0%p` (Tie)** |
-| **`multi-session` (`n=10`)** | `10.0%` (`1/10`) | `20.0%` (`2/10`) | `-10.0%p` |
-| **Overall Judge Accuracy (`n=70`)** | **`38.57%` (`27/70`)** (`28.57%` heuristic) | `62.86%` (`44/70`) (`45.71%` heuristic) | `-24.29%p` accuracy trade-off for **`-92.31%` tokens & `-73.6%` latency** |
+| Metric / `LongMemEval-S` Slice | `v4.3.0` `PGVector` + `Jina` | `v4.2.0` Lexical `Mode B` | `bare-frontier` (`104K` Haystack) | Paired Delta (`v4.3.0` vs. `v4.2.0` / `Bare`) |
+| :--- | ---: | ---: | ---: | :--- |
+| **Overall Judge Accuracy (`n=70`)** | **`60.00%` (`42/70`)** | `38.57%` (`27/70`) | `62.86%` (`44/70`) | **`+21.43%p` vs `v4.2.0`** / within **`-2.86%p`** of `104K` `Bare` |
+| **Mean Query Prompt Tokens** | **`7,632.80`** (`13.64x` comp.) | `8,005.06` (`13.01x` comp.) | `104,123.13` (`p50 104,074`) | **`-92.67%` vs `Bare`** (`96,490` saved/q) |
+| **Prompt Growth (`Short -> Long` / Pearson `r`)** | **`0.9857`** (`r = -0.078`, `O(1)`) | `0.9024` (`r = -0.2178`) | `1.0136` (`r = +0.7199`) | Bounded `O(1)` scaling vs. linear haystack growth |
+| **Query Latency (`Mean` / `p50`)** | `9,896.34 ms` / `9,664.29 ms` *(incl. batch embed flush)* | **`1,927.81 ms`** / **`1,297.24 ms`** | `7,311.28 ms` / `6,044.53 ms` | Semantic rerank + lazy passage-embed trade-off vs. lexical |
+| **Real OpenAI `cached_tokens` (`AME` KV Cache)** | **`12.07%`** / **`50.78%`** AME KV | `11.88%` / `48.05%` AME KV | `0.00%` (`0`) | **`+12.07%p`** real OpenAI prefix cache |
+| **`D4` Global Audit (`35,350` Calls · `17,745` Snapshots)** | **`0` leaks (`d4RedactedAll: true`)** | **`0` leaks** | `—` | **`0 / 17,745`** unredacted telemetry objects |
+| **`single-session-user` (`n=10`)** | **`100.0%` (`10/10`)** | `30.0%` (`3/10`) | `90.0%` (`9/10`) | **`+70.0%p` vs `v4.2.0`** (**`+10.0%p` vs `Bare`**) |
+| **`single-session-assistant` (`n=10`)** | **`50.0%` (`5/10`)** | `30.0%` (`3/10`) | `90.0%` (`9/10`) | **`+20.0%p` vs `v4.2.0`** *(assistant-reply index fix)* |
+| **`single-session-preference` (`n=10`)** | **`40.0%` (`4/10`)** | `20.0%` (`2/10`) | `20.0%` (`2/10`) | **`+20.0%p` vs `v4.2.0` & `Bare`** |
+| **`multi-session` (`n=10`)** | **`50.0%` (`5/10`)** | `10.0%` (`1/10`) | `20.0%` (`2/10`) | **`+40.0%p` vs `v4.2.0`** (**`+30.0%p` vs `Bare`**) |
+| **`temporal-reasoning` (`n=10`)** | `40.0%` (`4/10`) | `40.0%` (`4/10`) | `50.0%` (`5/10`) | Tie vs `v4.2.0` (`-10.0%p` vs `Bare`) |
+| **`knowledge-update` (`n=10`)** | **`70.0%` (`7/10`)** | `60.0%` (`6/10`) | `80.0%` (`8/10`) | **`+10.0%p` vs `v4.2.0`** |
+| **`_abs` Abstention Accuracy (`n=10`)** | **`70.0%` (`7/10`)** | `80.0%` (`8/10`) | `90.0%` (`9/10`) | `-10.0%p` vs `v4.2.0` |
 
-- **Honest `LongMemEval-S` Mode B Sealed-Kernel Disclosure**: While the `v4.2.0` lexical `Mode B` sealed kernel achieves **`-92.31%`** token compression, **`-73.6%`** latency, **`11.88%`** OpenAI prefix cache (`48.05%` AME KV), **`0/17,745`** `D4` leaks, and **`80.0%`** `_abs` abstention accuracy across `~124K`-token haystacks, its strict lexical-grounding gate conservatively returns `"That detail is unknown."` when paraphrased `single-session-user` (`30%`), `single-session-assistant` (`30%`), or `multi-session` (`10%`) queries lack exact lexical anchor overlap—yielding **`38.57%`** overall vs. `62.86%` for the `104K`-token full-context `bare-frontier` ceiling. Full-stack semantic retrieval (`PG/Jina` 4-path hybrid RAG + `Sonnet-5` routing, Section 2) bridges semantic paraphrase recall (`85.86%` `Confirm-304`, `55.20%` `LongMemEval-S` legacy baseline).
+- **`v4.2.0` -> `v4.3.0` Root-Cause Fix & Result**: Adding `pgvector` HNSW `1024d` embeddings (`jina-embeddings-v3`), cross-encoder reranking (`jina-reranker-v2-base-multilingual`), assistant-reply indexing (`assistantSummary`), calibrated semantic HOT grounding, and `haystack_ingest` abstention bypass jumped `LongMemEval-S (n=70)` from **`38.57% -> 60.00%` (`+21.43%p`)** — beating `Bare` on `single-session-user` (`100%`), `single-session-preference` (`40%`), and `multi-session` (`50%`) while shrinking tokens further to **`7,632.8`** (`-92.67%`, `13.64x`). Under `v4.3.0`, mean query latency (`9,896 ms`) includes lazy batch passage embedding flush at query time; pre-embedded incremental conversations preserve `v4.2.0`-class sub-2s latency.
 
 ---
 

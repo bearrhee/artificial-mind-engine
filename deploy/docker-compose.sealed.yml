@@ -14,6 +14,17 @@ services:
       AME_DATABASE_URL: postgresql://${POSTGRES_USER:-ame}:${POSTGRES_PASSWORD:-}@postgres:5432/${POSTGRES_DB:-ame}
       REDIS_URL: redis://redis:6379/0
       AME_REDIS_URL: redis://redis:6379/0
+      AME_SEMANTIC_RAG_ENABLED: ${AME_SEMANTIC_RAG_ENABLED:-1}
+      AME_EMBEDDING_PROVIDER: ${AME_EMBEDDING_PROVIDER:-}
+      AME_EMBEDDING_API_KEY: ${AME_EMBEDDING_API_KEY:-}
+      AME_EMBEDDING_MODEL: ${AME_EMBEDDING_MODEL:-jina-embeddings-v3}
+      AME_EMBEDDING_DIM: ${AME_EMBEDDING_DIM:-1024}
+      AME_EMBEDDING_BASE_URL: ${AME_EMBEDDING_BASE_URL:-}
+      AME_RERANK_PROVIDER: ${AME_RERANK_PROVIDER:-}
+      AME_RERANK_API_KEY: ${AME_RERANK_API_KEY:-}
+      AME_RERANK_MODEL: ${AME_RERANK_MODEL:-jina-reranker-v2-base-multilingual}
+      AME_RERANK_BASE_URL: ${AME_RERANK_BASE_URL:-}
+      JINA_API_KEY: ${JINA_API_KEY:-}
     depends_on:
       postgres:
         condition: service_healthy
@@ -46,6 +57,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-ame}
     volumes:
       - ame_postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
       interval: 10s

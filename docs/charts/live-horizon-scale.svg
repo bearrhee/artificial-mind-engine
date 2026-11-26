@@ -72,7 +72,7 @@
         <text x="236" y="275.0" text-anchor="end" font-size="10.4" font-weight="650" fill="#1e293b">LongMemEval-S (Mem0 · Bare Oracle)</text>
         <text x="236" y="292.5" text-anchor="end" font-size="8.8" font-weight="500" fill="#64748b">max 308T pairs (616 msg · ~124K tok)</text>
         <path d="M 248.00 268.00 L 274.27 268.00 Q 277.77 268.00 277.77 271.50 L 277.77 287.50 Q 277.77 291.00 274.27 291.00 L 248.00 291.00 Z" fill="#475569" stroke="#334155" stroke-width="1" />
-        <text x="289.8" y="283.3" font-size="9.8" font-weight="600" fill="#334155" class="tabular">308T pairs (1/16.2x) · AME -92.31% Query Tokens</text>
+        <text x="289.8" y="283.3" font-size="9.8" font-weight="600" fill="#334155" class="tabular">308T pairs (1/16.2x) · AME v4.3.0 60.0% (-92.7% Tok)</text>
       </g>
   <g>
         <text x="236" y="316.0" text-anchor="end" font-size="10.4" font-weight="800" fill="#065f46">AME Track 1 EN Live (vs Mind-OFF)</text>

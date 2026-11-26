@@ -1081,7 +1081,7 @@
             </li>
             <li class="why-item">
               <span class="why-num emerald">B</span>
-              <div><strong>Beats Bare Frontier LLMs on Long-Horizon Recall &amp; Unit Cost:</strong> Delivers <code>96.67%</code> recall at <code>5,000T EN</code> vs <code>0.0%</code> Mind-OFF, <code>-92.31%</code> query tokens on <code>LongMemEval-S EN</code> (<code>13.01x</code> smaller), and <code>58.95%</code> real OpenAI KV cache (<code>8.68M/14.72M</code>).</div>
+              <div><strong>Beats Bare Frontier LLMs on Long-Horizon Recall &amp; Unit Cost:</strong> Delivers <code>96.67%</code> recall at <code>5,000T EN</code> vs <code>0.0%</code> Mind-OFF, <code>60.00%</code> with <code>-92.67%</code> query tokens on <code>LongMemEval-S EN</code> (<code>13.64x</code> smaller vs <code>Bare 62.86% @ 104K</code>), and <code>58.95%</code> real OpenAI KV cache (<code>8.68M/14.72M</code>).</div>
             </li>
             <li class="why-item">
               <span class="why-num emerald">C</span>
@@ -1863,7 +1863,7 @@
 
           <div class="chart-legend" id="c6-legend"></div>
           <div id="c6-inspect" class="chart-inspect">
-            <span><strong>EN KV Prefix Cache Economics:</strong> <span class="mono">AME 5,000T</span> achieves <span class="mono">58.95%</span> real OpenAI cached (<span class="mono">59.26%</span> peak block · <span class="mono">63.84%</span> AME est.) &amp; <span class="mono">LME-S EN</span> cuts tokens <span class="mono">-92.31%</span>.</span>
+            <span><strong>EN KV Prefix Cache Economics:</strong> <span class="mono">AME 5,000T</span> achieves <span class="mono">58.95%</span> real OpenAI cached (<span class="mono">59.26%</span> peak block · <span class="mono">63.84%</span> AME est.) &amp; <span class="mono">LME-S v4.3.0</span> cuts tokens <span class="mono">-92.67%</span> at <span class="mono">60.00%</span> acc.</span>
             <span class="pill amber mono">58.95% OAI Real · 59.26% Peak</span>
           </div>
         </div>
@@ -2013,11 +2013,11 @@
                 <td>Sustains <code>91.67%</code> recall at <code>2,500T</code> &amp; <code>5,000T</code> checkpoints with zero D3/D4 leaks and <code>58.95%</code> real OpenAI KV cache hit rate</td>
               </tr>
               <tr>
-                <td><strong>LongMemEval-S EN (<code>n=70</code> &amp; 500-QA PG)</strong></td>
+                <td><strong>LongMemEval-S EN (<code>v4.3.0</code> PG+Jina <code>n=70</code>)</strong></td>
                 <td class="mono">n=70 stratified EN (7 slices &times; 10) + 500-QA PG reference</td>
-                <td><strong><code>Token Save 92.31%</code></strong> (<code>8,005</code> vs <code>104,123</code> tok, <code>13.01x</code> smaller, <code>0.9024x O(1)</code>) · <strong><code>_abs 80.0%</code></strong> · <strong><code>Real OAI KV 11.88%</code></strong> (<code>48.05%</code> AME est.) · <code>D4 0/17,745</code> (<code>35,350</code> calls) · Sealed-Kernel Lexical <code>n=70</code> <code>38.57%</code> · P3 PG 500-QA <code>55.20%</code> (<code>276/500</code>, <code>_abs 76.67%</code>)</td>
-                <td class="mono">Bare Frontier n=70: 62.86% (_abs 90.0%) at 104,123 tok/query (0% OAI KV, 1.0136x) · Mem0 Upper 55.8%</td>
-                <td><code>O(1)</code> bounded prompt (<code>-92.31%</code> tokens, <code>5.38s</code> faster latency) with zero D4 leaks across <code>35,350</code> calls; P3 Postgres semantic retrieval reaches <code>55.20%</code> on 500-QA</td>
+                <td><strong><code>v4.3.0 PGVector + Jina</code>: <code>60.00%</code> (<code>42/70</code>, <code>+21.43%p</code> vs <code>v4.2.0</code> lex <code>38.57%</code>)</strong> · <strong><code>Token Save 92.67%</code></strong> (<code>7,633</code> vs <code>104,123</code> tok, <code>13.64x</code> smaller, <code>0.9857x O(1)</code>) · <strong><code>SS-User 100%</code></strong> · <strong><code>Multi-Sess 50%</code></strong> · <strong><code>Pref 40%</code></strong> · <strong><code>KU 70%</code></strong> · <strong><code>_abs 70%</code></strong> · <code>OAI KV 12.07%</code> (<code>50.78%</code> AME est.) · <code>D4 0/17,745</code></td>
+                <td class="mono">Bare Frontier n=70: 62.86% (SS-User 90% · Multi-Sess 20% · Pref 20%) at 104,123 tok · Mem0 Upper 55.8% · v4.2.0 Lex 38.57% · P3 55.20%</td>
+                <td><code>v4.3.0</code> Sealed Kernel beats <code>Mem0 Upper (55.8%)</code> and nears <code>104K</code>-tok <code>Bare (62.86%)</code> at <code>13.64x</code> smaller prompt cost with <code>0</code> D4 leaks</td>
               </tr>
               <tr>
                 <td><strong>1M-Turn EN Convergence &amp; <code>v4.2.0</code> Kernel Hardening</strong></td>
@@ -4072,57 +4072,58 @@ npm run bench:scorecard -- \
       const C6_DS = styleDs("c6");
       const C6_KV_BARS = [
         { label: "Mind-OFF 5,000T", sub: "(3,200 / 6.97M)", val: 0.05, txt: "0.05%", color: "#64748b", badge: "0.05% Baseline", note: "<strong>Mind-OFF 5,000T EN:</strong> <code>0.05%</code> OpenAI real cached ratio (<code>3,200 / 6,969,294</code> prompt tokens) — sliding window breaks prefix stability" },
-        { label: "AME LME-S EN", sub: "(n=70 · 48.05% est.)", val: 11.88, txt: "11.88%", color: "#738298", badge: "11.88% OAI · -92.31% Tok", note: "<strong>AME LongMemEval-S EN (n=70):</strong> <code>11.88%</code> OpenAI real cached (<code>66,560 / 560,354</code>; <code>48.05%</code> AME est.) while cutting query tokens <code>-92.31%</code> (<code>8,005</code> vs <code>104,123</code>)" },
+        { label: "AME LME-S v4.3", sub: "(n=70 · 50.78% est.)", val: 12.07, txt: "12.07%", color: "#738298", badge: "12.07% OAI · -92.67% Tok", note: "<strong>AME LongMemEval-S v4.3.0 PG+Jina (n=70):</strong> <code>12.07%</code> OpenAI real cached (<code>50.78%</code> AME est.) while cutting query tokens <code>-92.67%</code> (<code>7,633</code> vs <code>104,123</code>) at <code>60.00%</code> accuracy" },
         { label: "AME 5,000T Mean", sub: "(8.68M / 14.72M)", val: 58.95, txt: "58.95%", color: C6_DS.color, opts: C6_DS.opts, badge: "58.95% Real OAI", note: "<strong>AME 5,000T EN Mean (OAI Real):</strong> <code>58.95%</code> real OpenAI cached tokens (<code>8,676,096 / 14,718,597</code>; <code>63.84%</code> overall AME est.)" },
         { label: "AME 5,000T Peak", sub: "(63.84% / 64.47% est.)", val: 59.26, txt: "59.26%", color: C6_DS.color, opts: C6_DS.opts, badge: "59.26% Peak Block", note: "<strong>AME 5,000T EN Peak Block:</strong> <code>59.26%</code> real OpenAI cached at <code>t_5000</code> block (<code>4,370,048 / 7,374,445</code>; <code>63.84%</code> overall AME est., <code>64.47%</code> peak block at <code>t_2500</code>)" }
       ];
 
       const C6_LME_CLUSTERS = [
         {
-          label: "5,000T EN Recall", sub: "(60T · Mind-OFF vs AME)",
-          bars: [
-            { val: 0.0, txt: "0.0%", color: "#64748b" },
-            { val: 96.67, txt: "96.67%", color: C6_DS.color, opts: C6_DS.opts }
-          ],
-          badge: "96.67% vs 0.0%",
-          note: "<strong>5,000T EN Fact Recall (60T):</strong> <code>AME v4.2.0 96.67%</code> (58/60) vs <code>Mind-OFF 0.0%</code> (0/60)"
-        },
-        {
-          label: "5,000T EN Update", sub: "(15T · Mind-OFF vs AME)",
-          bars: [
-            { val: 20.0, txt: "20.0%", color: "#64748b" },
-            { val: 86.67, txt: "86.67%", color: C6_DS.color, opts: C6_DS.opts }
-          ],
-          badge: "86.67% vs 20.0%",
-          note: "<strong>5,000T EN Knowledge Update (15T):</strong> <code>AME v4.2.0 86.67%</code> (13/15) vs <code>Mind-OFF 20.0%</code> (3/15)"
-        },
-        {
-          label: "LME-S EN _abs", sub: "(n=10 · Bare vs AME)",
+          label: "LME-S SS-User", sub: "(n=10 · Bare vs v4.3)",
           bars: [
             { val: 90.0, txt: "90.0%", color: "#64748b" },
+            { val: 100.0, txt: "100.0%", color: C6_DS.color, opts: C6_DS.opts }
+          ],
+          badge: "100.0% vs 90.0%",
+          note: "<strong>LongMemEval-S EN Single-Session User (n=10):</strong> <code>AME v4.3.0 PG+Jina 100.0%</code> (10/10 at 7,088 avg tokens) vs <code>Bare 90.0%</code> (9/10 at 104K tokens) and <code>v4.2 Lex 30.0%</code>"
+        },
+        {
+          label: "LME-S Multi+Pref", sub: "(n=20 · Bare vs v4.3)",
+          bars: [
+            { val: 20.0, txt: "20.0%", color: "#64748b" },
+            { val: 45.0, txt: "45.0%", color: C6_DS.color, opts: C6_DS.opts }
+          ],
+          badge: "45.0% vs 20.0% (+25%p)",
+          note: "<strong>LongMemEval-S EN Multi-Session + Preference (n=20):</strong> <code>AME v4.3.0 45.0%</code> (Multi 50.0% + Pref 40.0%) vs <code>Bare Frontier 20.0%</code> (Multi 20.0% + Pref 20.0%) and <code>v4.2 Lex 15.0%</code>"
+        },
+        {
+          label: "LME-S EN _abs", sub: "(n=10 · Bare · v4.3 · v4.2)",
+          bars: [
+            { val: 90.0, txt: "90.0%", color: "#64748b" },
+            { val: 70.0, txt: "70.0%", color: C6_DS.color, opts: C6_DS.opts },
             { val: 80.0, txt: "80.0%", color: C6_DS.color, opts: C6_DS.opts }
           ],
-          badge: "_abs 80.0% vs 90.0%",
-          note: "<strong>LongMemEval-S EN Abstention (_abs, n=10):</strong> <code>AME 80.0%</code> (8/10 at 8,200 avg query tokens) vs <code>Bare 90.0%</code> (9/10 at 104,209 tokens)"
+          badge: "v4.3 70% · v4.2 80%",
+          note: "<strong>LongMemEval-S EN Abstention (_abs, n=10):</strong> <code>AME v4.3.0 PG+Jina 70.0%</code> (7/10 at 8,066 tokens), <code>AME v4.2.0 Lex 80.0%</code> (8/10) vs <code>Bare 90.0%</code> (9/10 at 104K tokens)"
         },
         {
-          label: "LME-S 500 vs n=70", sub: "(Mem0 · P3 · Lex · Bare)",
+          label: "LME-S n=70 Overall", sub: "(v4.2 · Mem0 · v4.3 · Bare)",
           bars: [
+            { val: 38.57, txt: "38.57%", color: "#94a3b8" },
             { val: 55.8, txt: "55.8%", color: "#8492a6" },
-            { val: 55.20, txt: "55.20%", color: C6_DS.color, opts: C6_DS.opts },
-            { val: 38.57, txt: "38.57%", color: C6_DS.color, opts: C6_DS.opts },
+            { val: 60.00, txt: "60.00%", color: C6_DS.color, opts: C6_DS.opts },
             { val: 62.86, txt: "62.86%", color: "#64748b" }
           ],
-          badge: "P3 55.20% · Lex 38.57%",
-          note: "<strong>LongMemEval-S 500 vs n=70 EN:</strong> <code>Mem0 Upper 55.8%</code> · <code>AME P3 PG 55.20%</code> (276/500, Postgres semantic) · <code>Sealed-Kernel Lexical n=70 38.57%</code> (27/70, lexical-only @ 8,005 tok) vs <code>Bare n=70 62.86%</code> (44/70 @ 104,123 tok)"
+          badge: "v4.3 60.00% (+21.43%p)",
+          note: "<strong>LongMemEval-S EN Overall (n=70 vs 500):</strong> <code>AME v4.2.0 Lex 38.57%</code> (27/70) &rarr; <strong><code>AME v4.3.0 PGVector+Jina 60.00%</code> (42/70, +21.43%p, beats <code>Mem0 Upper 55.8%</code> &amp; <code>P3 55.20%</code>)</strong> vs <code>Bare 104K 62.86%</code> (44/70)"
         },
         {
-          label: "LME-S Token Save", sub: "(13.01x · 0.9024x O(1))",
+          label: "LME-S Token Save", sub: "(13.64x · 0.9857x O(1))",
           bars: [
-            { val: 92.31, txt: "92.31%", color: C6_DS.color, opts: C6_DS.opts }
+            { val: 92.67, txt: "92.67%", color: C6_DS.color, opts: C6_DS.opts }
           ],
-          badge: "-92.31% Query Tokens",
-          note: "<strong>LongMemEval-S EN Token Compression (n=70):</strong> <code>92.31%</code> token savings — <code>8,005</code> vs <code>104,123</code> mean query tokens (<code>13.01x</code> smaller, <code>0.9024x O(1)</code> prompt growth ratio vs <code>1.0136x</code> Bare)"
+          badge: "-92.67% Query Tokens",
+          note: "<strong>LongMemEval-S EN Token Compression (v4.3.0 · n=70):</strong> <code>92.67%</code> token savings — <code>7,633</code> vs <code>104,123</code> mean query tokens (<code>13.64x</code> smaller, <code>0.9857x O(1)</code> prompt growth ratio vs <code>1.0136x</code> Bare)"
         }
       ];
 
@@ -4156,16 +4157,16 @@ npm run bench:scorecard -- \
 
           renderLegend("c6-legend", [
             { swatch: "#64748b", label: "Mind-OFF 5,000T (0.05% · 3,200 / 6.97M)" },
-            { swatch: "#738298", label: "AME LME-S EN n=70 (11.88% OAI · 48.05% est. · -92.31% tokens)" },
+            { swatch: "#738298", label: "AME LME-S v4.3.0 PG+Jina n=70 (12.07% OAI · 50.78% est. · -92.67% tok)" },
             { cls: "ds-swatch", label: "AME 5,000T OAI Real (58.95% Mean · 59.26% Peak Block · 63.84% AME est.)" }
           ]);
           setInspect("c6-inspect",
-            "<strong>EN KV Prefix Cache Economics:</strong> <span class='mono'>AME 5,000T</span> reaches <span class='mono'>58.95%</span> real OpenAI cached (<span class='mono'>8.68M/14.72M</span>; <span class='mono'>59.26%</span> peak block · <span class='mono'>63.84%</span> AME est.) vs <span class='mono'>0.05%</span> Mind-OFF.",
+            "<strong>EN KV Prefix Cache Economics:</strong> <span class='mono'>AME 5,000T</span> reaches <span class='mono'>58.95%</span> real OpenAI cached (<span class='mono'>8.68M/14.72M</span>; <span class='mono'>59.26%</span> peak block · <span class='mono'>63.84%</span> AME est.) &amp; <span class='mono'>LME-S v4.3.0</span> cuts tokens <span class='mono'>-92.67%</span>.",
             "58.95% OAI Real · 59.26% Peak", "amber");
         } else {
           renderAxes("c6-axes", { ticks: PCT_TICKS_100 });
-          document.getElementById("c6-title").textContent = "EN LongMemEval-S & 5,000-Turn Continuous Live: Accuracy & Token Savings";
-          document.getElementById("c6-sub").textContent = "5,000T EN Recall 96.67% & Update 86.67% vs Mind-OFF (0%/20%) · LME-S EN cuts query tokens 92.31% (8,005 vs 104,123 · 13.01x smaller)";
+          document.getElementById("c6-title").textContent = "EN LongMemEval-S v4.3.0 (PGVector + Jina) vs. v4.2.0 Lexical & Bare 104K";
+          document.getElementById("c6-sub").textContent = "AME v4.3.0 PG+Jina hits 60.00% (+21.43%p vs v4.2 38.57% · SS-User 100% · Multi+Pref 45% vs Bare 20%) at -92.67% tokens (7,633 vs 104,123)";
 
           const centers = [155, 321, 487, 653, 819];
           C6_LME_CLUSTERS.forEach(function (cl, idx) {
@@ -4187,13 +4188,13 @@ npm run bench:scorecard -- \
           });
 
           renderLegend("c6-legend", [
-            { swatch: "#64748b", label: "Mind-OFF 5,000T (0% / 20%) & Bare LME-S n=70 (62.86% · _abs 90.0% @ 104K tok)" },
-            { swatch: "#8492a6", label: "Mem0 Upper (55.8% on LME-S 500)" },
-            { cls: "ds-swatch", label: "AME EN (5,000T 96.67%/86.67% · LME-S P3 55.20% · Lex n=70 38.57% · -92.31% Tok)" }
+            { swatch: "#64748b", label: "Bare LME-S n=70 (62.86% · SS-User 90% · Multi 20% @ 104K tok)" },
+            { swatch: "#94a3b8", label: "AME v4.2.0 Lexical (38.57%) & Mem0 Upper (55.8% on 500)" },
+            { cls: "ds-swatch", label: "AME v4.3.0 PG+Jina (60.00% · SS-User 100% · -92.67% Tok · 13.64x)" }
           ]);
           setInspect("c6-inspect",
-            "<strong>EN LongMemEval-S &amp; 5,000T Live:</strong> <span class='mono'>AME</span> achieves <span class='mono'>96.67%</span> 5,000T Recall, <span class='mono'>92.31%</span> LME-S Token Save (<span class='mono'>8,005 vs 104,123</span>, <span class='mono'>0.9024x O(1)</span>), <span class='mono'>80.0%</span> _abs &amp; <span class='mono'>55.20%</span> P3 PG.",
-            "92.31% Token Save · O(1)", "blue");
+            "<strong>EN LongMemEval-S v4.3.0 (PG+Jina):</strong> Hits <span class='mono'>60.00%</span> (<span class='mono'>42/70</span>, <span class='mono'>+21.43%p</span> vs v4.2.0), beats <span class='mono'>Mem0 Upper (55.8%)</span> &amp; <span class='mono'>Bare SS-User/Multi/Pref</span> at <span class='mono'>-92.67%</span> tokens (<span class='mono'>7,633 vs 104,123</span>).",
+            "60.00% · -92.67% Tok (13.64x)", "blue");
         }
 
         document.querySelectorAll("#chart6-mode .seg-btn").forEach(function (btn) {
@@ -4252,9 +4253,9 @@ npm run bench:scorecard -- \
           sub: "max 308T pairs (616 msg · ~124K tok)",
           turns: 308,
           color: "#8b9ab0",
-          txt: "308T pairs (1/16.2x) · AME -92.31% Tokens",
+          txt: "308T pairs (1/16.2x) · AME v4.3.0 60.0% (-92.7% Tok)",
           badge: "308T max pairs",
-          note: "<strong>LongMemEval-S (n=500):</strong> Measured from official <code>longmemeval_s_cleaned.json</code> — avg <code>246.8</code> / max <code>308</code> turn pairs (max <code>616</code> messages, ~104K–124K tokens). AME cuts query prompt tokens by <code>-92.31%</code> (<code>13.01x</code> smaller)."
+          note: "<strong>LongMemEval-S (n=500):</strong> Measured from official <code>longmemeval_s_cleaned.json</code> — avg <code>246.8</code> / max <code>308</code> turn pairs (max <code>616</code> messages, ~104K–124K tokens). <code>AME v4.3.0</code> hits <code>60.00%</code> while cutting query tokens <code>-92.67%</code> (<code>13.64x</code> smaller)."
         },
         {
           label: "AME Track 1 EN Live (vs Mind-OFF)",

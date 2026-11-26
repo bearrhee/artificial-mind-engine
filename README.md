@@ -328,9 +328,21 @@ All figures below are empirical measurements from isolated verification environm
 
 > **Series Legend (`Track 2`, `1,000` EN Turns · `750` Blind `gpt-4o-mini` Votes):** **Bars** = Holm-corrected Memory Awareness blind win rates across all 5 frontier LLMs (`all pHolm < 0.002`; pooled **`85.21%` Awareness WR** [`121W/21L/108T`, `pHolm=8.45e-18`], **`61.54%` Grounded Humanness WR** [`pHolm=0.00147`], **`98.33%` Recall** vs. `5.0%` `Mind-OFF`, **`100%` Kernel HOT/FEP**, **`0%` D3/D4 Leaks**, **`100%` EN**): **`Gemma 4 26B` `88.46%`** (`pHolm=2.6e-4`, `100%` Recall), **`GPT-4o mini` `87.50%`** (`pHolm=8.3e-4`, `100%` Recall), **`Gemini 2.5 Flash` `85.71%`** (`pHolm=5.4e-4`, `100%` Recall), **`Sonnet 5.5` `83.33%`** (`pHolm=2.1e-4`, `91.67%` Recall), **`DeepSeek V3.2` `82.14%`** (`pHolm=1.8e-3`, `100%` Recall, Humanness `76.74%` `pHolm=0.0018`); **Line** = `50.0%` blind parity.
 
-**Chart E — Continuous 5,000-Turn EN Live Marathon (`1 → 5,000` Turns · `gpt-4o-mini` Mode B)**
+**Chart E1 — Live Benchmark Single-Conversation Horizon & Scale Comparison (`4T → 5,000T`):**
 
-![Chart E — 5,000-Turn EN Live Marathon](./docs/charts/live-5000t-en.svg)
+![Chart E1 — Live Benchmark Horizon Scale (4T to 5,000T)](./docs/charts/live-horizon-scale.svg)
+
+> **Series Legend (`4T → 5,000T` Linear Turn Scale):** Compares maximum single continuous conversation length across live benchmarks: `EQ-Bench 3` (`4T/scenario`), `CogEval IGT-Conv` (`20T/episode`), `5-LLM EN Live` (`100T/arm`), `LoCoMo` (`~300T avg`, `<=35` sessions; `OpenAI`/`LangMem`/`Mem0`/`Letta`/`Zep`), `LongMemEval-S` (`max 308T pairs` / `616` messages), and **`AME Track 1 Continuous EN Live` (`5,000` uninterrupted turns — `16.2x` longer than `LongMemEval-S` max / `16.7x` longer than `LoCoMo`; full-transcript `Bare Oracle` cannot run within `128K` context)**.
+
+**Chart E2 — Continuous 5,000-Turn EN Live Checkpoint Progression (`t=100 → 5,000` · `gpt-4o-mini` Mode B):**
+
+![Chart E2 — Continuous 5,000-Turn EN Live Progression](./docs/charts/live-5000t-trajectory.svg)
+
+> **Series Legend (`Track 1` Checkpoints: `t=100 → 500 → 1,000 → 2,500 → 5,000`):** Across all 5 blocks past the `~308T` external SOTA ceiling, **`AME v4.2.0`** sustains **`100.0%` Recall through `1,000T`** and **`91.67%` at `2,500T–5,000T`** (`96.67%` total `58/60` vs. `Mind-OFF 0.0%`), **`51.03% → 59.26%` real OpenAI `cached_tokens`** (`58.95%` mean `8.68M/14.72M` vs. `0.05%`), and **`100%` `HOT`/`FEP` with `0%` `D3`/`D4` leaks**.
+
+**Chart E3 — Continuous 5,000-Turn EN Live 6-Metric Head-to-Head (`AME` vs. `Mind-OFF`):**
+
+![Chart E3 — 5,000-Turn EN Live Marathon](./docs/charts/live-5000t-en.svg)
 
 > **Series Legend (`Track 1`, `gpt-4o-mini` Mode B, `8,330.79 s`):** Paired `5,000`-turn continuous English live run (`AME` vs. `Mind-OFF` 12-turn sliding window): **`96.67%` Fact Recall (`58/60`)** vs. `0.0%` (`+96.7%p`), **`86.67%` Knowledge Update (`13/15`)** vs. `20.0%`, **`100.0%` Known-Fact Control / `0%` FAR (`25/25`)** vs. `96.0%` FAR (`4.0%` control), **`100.0%` FEP Conflict Lock (`15/15`, `0/15` calm)** vs. `0.0%`, **`100.0%` D3 Erase Safety (`0%` leak `0/5` across turns `250..4,500`)** vs. `100.0%` prompt leak (`5/5`), **`0` D4 violations**, and **`58.95%` Real OpenAI KV Cache (`8,676,096 / 14,718,597` prompt tokens; `63.84%` AME internal KV)** vs. `0.05%`.
 

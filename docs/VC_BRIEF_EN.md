@@ -35,6 +35,10 @@ All figures below are directly measured across isolated verification environment
 
 ![CogEval-v1: Baseline vs. AME Backbones](./charts/cogeval-governance.svg)
 
+![Live Benchmark Horizon Scale (4T to 5,000T): Competitors vs. AME 5,000T](./charts/live-horizon-scale.svg)
+
+![Track 1: Continuous 5,000-Turn EN Live Progression (t=100 to 5,000)](./charts/live-5000t-trajectory.svg)
+
 ![5,000-Turn Continuous EN Live Marathon: AME vs. Mind-OFF](./charts/live-5000t-en.svg)
 
 ![5-Frontier-Model EN Live (1,000 Turns, 750 Blind Votes): AME vs. Mind-OFF](./charts/multi-llm-300t.svg)

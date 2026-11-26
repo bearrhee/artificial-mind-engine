@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 455" width="980" height="455" role="img" aria-label="Track 1: Continuous 5,000-Turn EN Live Progression [t=100 -&gt; t=5,000 · gpt-4o-mini]">
+  <defs>
+    <linearGradient id="grad-emerald" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#0891b2" />
+    </linearGradient>
+    <linearGradient id="grad-emerald-h" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0891b2" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+    <linearGradient id="grad-cyan" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0ea5e9" />
+      <stop offset="100%" stop-color="#2563eb" />
+    </linearGradient>
+    <linearGradient id="grad-coral" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f43f5e" />
+      <stop offset="100%" stop-color="#f97316" />
+    </linearGradient>
+    <filter id="shadow-ame" x="-18%" y="-12%" width="136%" height="132%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.18" />
+    </filter>
+  </defs>
+  <style>
+    text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    .tabular { font-variant-numeric: tabular-nums; }
+  </style>
+  <rect x="1" y="1" width="978" height="453" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.4" />
+  <text x="32" y="34" font-size="18.2" font-weight="750" fill="#0f172a" letter-spacing="-0.2">Track 1: Continuous 5,000-Turn EN Live Progression [t=100 -&gt; t=5,000 · gpt-4o-mini]</text>
+  <text x="32" y="55" font-size="11.8" font-weight="450" fill="#475569">Block-by-block recall &amp; OpenAI cached_tokens: AME sustains 91.67%-100% Recall &amp; 58.95% KV cache across 5,000 uninterrupted turns</text>
+  <line x1="64" y1="342.00" x2="948" y2="342.00" stroke="#94a3b8" stroke-width="1.3" />
+      <text x="54" y="346.00" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">0%</text>
+  <line x1="64" y1="301.66" x2="948" y2="301.66" stroke="#e2e8f0" stroke-width="1" />
+      <text x="54" y="305.66" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">20%</text>
+  <line x1="64" y1="261.32" x2="948" y2="261.32" stroke="#e2e8f0" stroke-width="1" />
+      <text x="54" y="265.32" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">40%</text>
+  <line x1="64" y1="220.98" x2="948" y2="220.98" stroke="#e2e8f0" stroke-width="1" />
+      <text x="54" y="224.98" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">60%</text>
+  <line x1="64" y1="180.64" x2="948" y2="180.64" stroke="#e2e8f0" stroke-width="1" />
+      <text x="54" y="184.64" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">80%</text>
+  <line x1="64" y1="140.31" x2="948" y2="140.31" stroke="#e2e8f0" stroke-width="1" />
+      <text x="54" y="144.31" text-anchor="end" font-size="11" font-weight="500" fill="#64748b" class="tabular">100%</text>
+  
+    <line x1="254.5" y1="84" x2="254.5" y2="342" stroke="#64748b" stroke-width="1.6" stroke-dasharray="5 3" opacity="0.7" />
+    <g>
+    <rect x="256.0" y="75.0" width="153.0" height="18" rx="9.0" fill="#f8fafc" stroke="#64748b" stroke-width="1.2" />
+    <text x="332.5" y="87.2" text-anchor="middle" font-size="9.2" font-weight="700" fill="#334155" class="tabular">External SOTA Ends (~308T)</text>
+  </g>
+    <g>
+    <rect x="621.5" y="75.0" width="277.0" height="18" rx="9.0" fill="#ecfdf5" stroke="#10b981" stroke-width="1.2" />
+    <text x="760.0" y="87.2" text-anchor="middle" font-size="9.2" font-weight="700" fill="#065f46" class="tabular">★ All 5 Blocks: HOT 100% · FEP 100% · D3/D4 0% Leak</text>
+  </g>
+  
+  <g>
+        <g>
+            <rect x="109.67" y="340.00" width="26.00" height="2" rx="1" fill="#cbd5e1" opacity="0.7" />
+            <text x="122.7" y="336.0" text-anchor="middle" font-size="8.4" font-weight="600" fill="#475569" class="tabular">0%</text>
+          </g>
+    <g>
+            <path d="M 141.67 342.00 L 141.67 339.91 Q 141.67 335.91 145.67 335.91 L 163.67 335.91 Q 167.67 335.91 167.67 339.91 L 167.67 342.00 Z" fill="#94a3b8" />
+            <text x="154.7" y="329.9" text-anchor="middle" font-size="8.4" font-weight="600" fill="#475569" class="tabular">3.0%</text>
+          </g>
+    <g>
+            <path d="M 173.67 342.00 L 173.67 243.58 Q 173.67 239.08 178.17 239.08 L 195.17 239.08 Q 199.67 239.08 199.67 243.58 L 199.67 342.00 Z" fill="url(#grad-cyan)" stroke="#0369a1" stroke-width="1.3" />
+            <text x="186.7" y="233.1" text-anchor="middle" font-size="8.4" font-weight="750" fill="#0369a1" class="tabular">51.0%</text>
+          </g>
+    <g>
+            <path d="M 205.67 342.00 L 205.67 144.81 Q 205.67 140.31 210.17 140.31 L 227.17 140.31 Q 231.67 140.31 231.67 144.81 L 231.67 342.00 Z" fill="url(#grad-emerald)" stroke="#047857" stroke-width="1.6" filter="url(#shadow-ame)" />
+            <text x="218.7" y="134.3" text-anchor="middle" font-size="8.4" font-weight="750" fill="#065f46" class="tabular">100%</text>
+          </g>
+        <text x="170.7" y="361" text-anchor="middle" font-size="11.4" font-weight="750" fill="#1e293b">t=100</text>
+        <text x="170.7" y="377" text-anchor="middle" font-size="9.4" font-weight="500" fill="#64748b">Block 1 (100T)</text>
+      </g>
+  <g>
+        <g>
+            <rect x="277.33" y="340.00" width="26.00" height="2" rx="1" fill="#cbd5e1" opacity="0.7" />
+            <text x="290.3" y="336.0" text-anchor="middle" font-size="8.4" font-weight="600" fill="#475569" class="tabular">0%</text>
+          </g>
+    <g>
+            <rect x="309.33" y="340.00" width="26.00" height="2" rx="1" fill="#94a3b8" opacity="0.7" />
+            <text x="322.3" y="336.0" text-anchor="middle" font-size="8.4" font-weight="600" fill="#475569" class="tabular">0%</text>
+          </g>
+    <g>
+            <path d="M 341.33 342.00 L 341.33 228.63 Q 341.33 224.13 345.83 224.13 L 362.83 224.13 Q 367.33 224.13 367.33 228.63 L 367.33 342.00 Z" fill="url(#grad-cyan)" stroke="#0369a1" stroke-width="1.3" />
+            <text x="354.3" y="218.1" text-anchor="middle" font-size="8.4" font-weight="750" fill="#0369a1" class="tabular">58.4%</text>
+          </g>
+    <g>
+            <path d="M 373.33 342.00 L 373.33 144.81 Q 373.33 140.31 377.83 140.31 L 394.83 140.31 Q 399.33 140.31 399.33 144.81 L 399.33 342.00 Z" fill="url(#grad-emerald)" stroke="#047857" stroke-width="1.6" filter="url(#shadow-ame)" />
+            <text x="386.3" y="134.3" text-anchor="middle" font-size="8.4" font-weight="750" fill="#065f46" class="tabular">100%</text>
+          </g>
+        <text x="338.3" y="361" text-anchor="middle" font-size="11.4" font-weight="750" fill="#1e293b">t=500</text>
+        <text x="338.3" y="377" text-anchor="middle" font-size="9.4" font-weight="500" fill="#64748b">Block 2 (500T)</text>
+      </g>
+  <g>
+        <g>
+            <rect x="445.00" y="340.00" width="26.00" height="2" rx="1" fill="#cbd5e1" opacity="0.7" />
+            <text x="458.0" y="336.0" text-anchor="middle" font-size="8.4" font-weight="600" fill="#475569" class="tabular">0%</text>
+          </g>
+    <g>
+            <rect x="477.00" y="340.00" width="26.00" height="2" rx="1" fill="#94a3b8" opacity="0.7" />
+            <text x="490.0" y="336.0" text-anchor="middle" font-size="8.4" font-weight="600" fill="#475569" class="tabular">0%</text>
+          </g>
+    <g>
+            <path d="M 509.00 342.00 L 509.00 229.03 Q 509.00 224.53 513.50 224.53 L 530.50 224.53 Q 535.00 224.53 535.00 229.03 L 535.00 342.00 Z" fill="url(#grad-cyan)" stroke="#0369a1" stroke-width="1.3" />
+            <text x="522.0" y="218.5" text-anchor="middle" font-size="8.4" font-weight="750" fill="#0369a1" class="tabular">58.2%</text>
+          </g>
+    <g>
+            <path d="M 541.00 342.00 L 541.00 144.81 Q 541.00 140.31 545.50 140.31 L 562.50 140.31 Q 567.00 140.31 567.00 144.81 L 567.00 342.00 Z" fill="url(#grad-emerald)" stroke="#047857" stroke-width="1.6" filter="url(#shadow-ame)" />
+            <text x="554.0" y="134.3" text-anchor="middle" font-size="8.4" font-weight="750" fill="#065f46" class="tabular">100%</text>
+          </g>
+        <text x="506.0" y="361" text-anchor="middle" font-size="11.4" font-weight="750" fill="#1e293b">t=1,000</text>
+        <text x="506.0" y="377" text-anchor="middle" font-size="9.4" font-weight="500" fill="#64748b">Block 3 (1,000T)</text>
+      </g>
+  <g>
+        <g>
+            <rect x="612.67" y="340.00" width="26.00" height="2" rx="1" fill="#cbd5e1" opacity="0.7" />
+            <text x="625.7" y="336.0" text-anchor="middle" font-size="8.4" font-weight="600" fill="#475569" class="tabular">0%</text>
+          </g>
+    <g>
+            <rect x="644.67" y="340.00" width="26.00" height="2" rx="1" fill="#94a3b8" opacity="0.7" />
+            <text x="657.7" y="336.0" text-anchor="middle" font-size="8.4" font-weight="600" fill="#475569" class="tabular">0%</text>
+          </g>
+    <g>
+            <path d="M 676.67 342.00 L 676.67 227.02 Q 676.67 222.52 681.17 222.52 L 698.17 222.52 Q 702.67 222.52 702.67 227.02 L 702.67 342.00 Z" fill="url(#grad-cyan)" stroke="#0369a1" stroke-width="1.3" />
+            <text x="689.7" y="216.5" text-anchor="middle" font-size="8.4" font-weight="750" fill="#0369a1" class="tabular">59.2%</text>
+          </g>
+    <g>
+            <path d="M 708.67 342.00 L 708.67 161.61 Q 708.67 157.11 713.17 157.11 L 730.17 157.11 Q 734.67 157.11 734.67 161.61 L 734.67 342.00 Z" fill="url(#grad-emerald)" stroke="#047857" stroke-width="1.6" filter="url(#shadow-ame)" />
+            <text x="721.7" y="151.1" text-anchor="middle" font-size="8.4" font-weight="750" fill="#065f46" class="tabular">91.7%</text>
+          </g>
+        <text x="673.7" y="361" text-anchor="middle" font-size="11.4" font-weight="750" fill="#1e293b">t=2,500</text>
+        <text x="673.7" y="377" text-anchor="middle" font-size="9.4" font-weight="500" fill="#64748b">Block 4 (2,500T)</text>
+      </g>
+  <g>
+        <g>
+            <rect x="780.33" y="340.00" width="26.00" height="2" rx="1" fill="#cbd5e1" opacity="0.7" />
+            <text x="793.3" y="336.0" text-anchor="middle" font-size="8.4" font-weight="600" fill="#475569" class="tabular">0%</text>
+          </g>
+    <g>
+            <rect x="812.33" y="340.00" width="26.00" height="2" rx="1" fill="#94a3b8" opacity="0.7" />
+            <text x="825.3" y="336.0" text-anchor="middle" font-size="8.4" font-weight="600" fill="#475569" class="tabular">0%</text>
+          </g>
+    <g>
+            <path d="M 844.33 342.00 L 844.33 226.98 Q 844.33 222.48 848.83 222.48 L 865.83 222.48 Q 870.33 222.48 870.33 226.98 L 870.33 342.00 Z" fill="url(#grad-cyan)" stroke="#0369a1" stroke-width="1.3" />
+            <text x="857.3" y="216.5" text-anchor="middle" font-size="8.4" font-weight="750" fill="#0369a1" class="tabular">59.3%</text>
+          </g>
+    <g>
+            <path d="M 876.33 342.00 L 876.33 161.61 Q 876.33 157.11 880.83 157.11 L 897.83 157.11 Q 902.33 157.11 902.33 161.61 L 902.33 342.00 Z" fill="url(#grad-emerald)" stroke="#047857" stroke-width="1.6" filter="url(#shadow-ame)" />
+            <text x="889.3" y="151.1" text-anchor="middle" font-size="8.4" font-weight="750" fill="#065f46" class="tabular">91.7%</text>
+          </g>
+        <text x="841.3" y="361" text-anchor="middle" font-size="11.4" font-weight="750" fill="#1e293b">t=5,000</text>
+        <text x="841.3" y="377" text-anchor="middle" font-size="9.4" font-weight="500" fill="#64748b">Block 5 (5,000T)</text>
+      </g>
+  <g>
+    <rect x="32" y="404" width="916" height="34" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" />
+    <rect x="51.8" y="415.5" width="14" height="11" rx="3" fill="#cbd5e1" /><text x="71.8" y="425.0" font-size="11" font-weight="500" fill="#334155">Mind-OFF Recall (0.0%)</text>
+    <rect x="224.9" y="415.5" width="14" height="11" rx="3" fill="#94a3b8" /><text x="244.9" y="425.0" font-size="11" font-weight="500" fill="#334155">Mind-OFF OAI KV (0.05%)</text>
+    <rect x="408.8" y="415.5" width="14" height="11" rx="3" fill="url(#grad-cyan)" stroke="#0369a1" stroke-width="1.4" /><text x="428.8" y="425.0" font-size="11" font-weight="700" fill="#0369a1">AME Real OAI KV Cache (58.95% Mean)</text>
+    <rect x="674.6" y="415.5" width="14" height="11" rx="3" fill="url(#grad-emerald)" stroke="#047857" stroke-width="1.4" /><text x="694.6" y="425.0" font-size="11" font-weight="700" fill="#065f46">AME Fact Recall (96.67% Mean · 58/60)</text>
+  </g>
+</svg>

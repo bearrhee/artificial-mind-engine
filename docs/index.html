@@ -1785,8 +1785,8 @@
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
               <span class="pill violet mono">5,000T + 1,000T EN Live · 750 Votes</span>
               <div class="pill-bar" id="chart5-mode">
-                <button class="seg-btn active" type="button" data-c5="5000t">5,000T EN Live</button>
-                <button class="seg-btn" type="button" data-c5="5llm">5-Model EN (1,000T)</button>
+                <button class="seg-btn" type="button" data-c5="5000t">5,000T EN Live</button>
+                <button class="seg-btn active" type="button" data-c5="5llm">5-Model EN (1,000T)</button>
               </div>
             </div>
           </div>
@@ -1865,6 +1865,86 @@
           <div id="c6-inspect" class="chart-inspect">
             <span><strong>EN KV Prefix Cache Economics:</strong> <span class="mono">AME 5,000T</span> achieves <span class="mono">58.95%</span> real OpenAI cached (<span class="mono">59.26%</span> peak block · <span class="mono">63.84%</span> AME est.) &amp; <span class="mono">LME-S EN</span> cuts tokens <span class="mono">-92.31%</span>.</span>
             <span class="pill amber mono">58.95% OAI Real · 59.26% Peak</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 4: Chart 7 (Live Benchmark Horizon Scale 4T -> 5,000T) + Chart 8 (5,000-Turn Continuous EN Live Progression) -->
+      <div class="split-equal" style="margin-top:18px;">
+        <!-- Chart 7: Live Benchmark Single-Conversation Horizon Scale -->
+        <div class="diagram-wrap">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+            <strong style="font-size:0.95rem;">Chart 7. Live Benchmark Horizon Scale [<code>4T &rarr; 5,000T</code>]: Single Continuous Conversation</strong>
+            <span class="pill blue mono">16.2x&ndash;16.7x Longer Live Scale</span>
+          </div>
+
+          <svg id="svg-horizon-chart" viewBox="0 0 960 365" class="diagram-svg" role="img" aria-label="Live Benchmark Horizon Scale 4T to 5000T Horizontal Bar Chart">
+            <defs>
+              <linearGradient id="c7-grad-ds-h" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="var(--ds-grad-1)" />
+                <stop offset="100%" stop-color="var(--ds-grad-0)" />
+              </linearGradient>
+              <filter id="c7-glow-ds" x="-10%" y="-20%" width="120%" height="140%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="blur" />
+                <feFlood flood-color="#00e5cc" flood-opacity="0.38" result="color" />
+                <feComposite in="color" in2="blur" operator="in" result="glow" />
+                <feMerge><feMergeNode in="glow" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+            </defs>
+            <rect x="0" y="0" width="960" height="365" rx="12" fill="var(--svg-canvas)" stroke="var(--svg-border)" stroke-width="1.2" />
+            <text id="c7-title" x="480" y="24" text-anchor="middle" font-size="13.8" font-weight="800" fill="var(--svg-text)">Live Benchmark Horizon Scale [4T &rarr; 5,000T]: Single Continuous Conversation Turns</text>
+            <text id="c7-sub" x="480" y="42" text-anchor="middle" font-size="10.0" fill="var(--svg-sub)">External memory SOTA stops at ~300T&ndash;308T pairs (616 msgs), while AME Track 1 runs 5,000 continuous EN turns (16.2x&ndash;16.7x)</text>
+
+            <g id="c7-axes"></g>
+            <g id="c7-bars-layer"></g>
+          </svg>
+
+          <div class="chart-legend" id="c7-legend"></div>
+          <div id="c7-inspect" class="chart-inspect">
+            <span><strong>Live Horizon Scale [4T &rarr; 5,000T]:</strong> External competitors top out at <span class="mono">~300T (LoCoMo)</span> and <span class="mono">308T pairs (LongMemEval-S)</span>; <span class="mono">AME Track 1</span> sustains <span class="mono">5,000</span> continuous EN turns (<span class="mono">16.2x</span>).</span>
+            <span class="pill emerald mono">5,000T vs 308T Max</span>
+          </div>
+        </div>
+
+        <!-- Chart 8: Continuous 5,000-Turn EN Live Progression (t=100 -> 5,000) -->
+        <div class="diagram-wrap">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+            <strong style="font-size:0.95rem;">Chart 8. Continuous <code>5,000</code>-Turn EN Live Progression [<code>t=100 &rarr; 5,000</code>]</strong>
+            <div class="pill-bar" id="chart8-mode">
+              <button class="seg-btn active" type="button" data-c8="trajectory">Checkpoint Trajectory</button>
+              <button class="seg-btn" type="button" data-c8="summary">6-Metric Head-to-Head</button>
+            </div>
+          </div>
+
+          <svg id="svg-marathon-chart" viewBox="0 0 960 365" class="diagram-svg" role="img" aria-label="Continuous 5000-Turn EN Live Progression Chart">
+            <defs>
+              <linearGradient id="c8-grad-ds" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="var(--ds-grad-0)" />
+                <stop offset="100%" stop-color="var(--ds-grad-1)" />
+              </linearGradient>
+              <linearGradient id="c8-grad-kv" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#38bdf8" />
+                <stop offset="100%" stop-color="#2563eb" />
+              </linearGradient>
+              <filter id="c8-glow-ds" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="blur" />
+                <feFlood flood-color="#00e5cc" flood-opacity="0.38" result="color" />
+                <feComposite in="color" in2="blur" operator="in" result="glow" />
+                <feMerge><feMergeNode in="glow" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+            </defs>
+            <rect x="0" y="0" width="960" height="365" rx="12" fill="var(--svg-canvas)" stroke="var(--svg-border)" stroke-width="1.2" />
+            <text id="c8-title" x="480" y="24" text-anchor="middle" font-size="13.8" font-weight="800" fill="var(--svg-text)">Track 1: 5,000-Turn EN Live Progression [t=100 &rarr; 5,000 &middot; gpt-4o-mini]</text>
+            <text id="c8-sub" x="480" y="42" text-anchor="middle" font-size="10.0" fill="var(--svg-sub)">Block-by-block Recall (96.67% · 58/60) &amp; Real OpenAI KV Cache (58.95% · 8.68M cached) past External SOTA Limit (~308T)</text>
+
+            <g id="c8-axes"></g>
+            <g id="c8-bars-layer"></g>
+          </svg>
+
+          <div class="chart-legend" id="c8-legend"></div>
+          <div id="c8-inspect" class="chart-inspect">
+            <span><strong>5,000-Turn EN Marathon [t=100 &rarr; 5,000]:</strong> <span class="mono">AME</span> holds <span class="mono">100%</span> recall through <span class="mono">1,000T</span> and <span class="mono">91.67%</span> at <span class="mono">2.5KT&ndash;5KT</span> (<span class="mono">96.67%</span> overall) + <span class="mono">58.95%</span> OpenAI KV cache (<span class="mono">0%</span> D3/D4 leaks).</span>
+            <span class="pill emerald mono">5,000T EN · 58.95% OAI KV</span>
           </div>
         </div>
       </div>
@@ -4125,13 +4205,298 @@ npm run bench:scorecard -- \
         btn.addEventListener("click", function () { renderChart6(btn.getAttribute("data-c6")); });
       });
 
-      /* Initial render of all 6 benchmark charts */
+      /* Chart 7: Live Benchmark Horizon Scale (4T -> 5,000T) */
+      const C7_DS_H = {
+        color: "url(#c7-grad-ds-h)",
+        opts: { stroke: "var(--ds-stroke)", strokeWidth: "2", filter: "url(#c7-glow-ds)" }
+      };
+      const C7_HORIZON_ROWS = [
+        {
+          label: "EQ-Bench 3 (GPT-5.2 · o3 · Claude)",
+          sub: "4T / scenario · Emotional Intel.",
+          turns: 4,
+          color: "#64748b",
+          txt: "4T (1/1,250x) · AME 77.77 vs GPT-5.2 72.2",
+          badge: "4T / scenario",
+          note: "<strong>EQ-Bench 3 Core:</strong> <code>4 turns/scenario</code> (46 scenarios = 184 total turns). AME scores <code>77.77</code> (Gemma 4 26B) / <code>77.59</code> (DeepSeek) vs GPT-5.2 <code>72.2</code>."
+        },
+        {
+          label: "CogEval IGT-Conv (Bare · Mind-OFF)",
+          sub: "20T / episode · Somatic Decision",
+          turns: 20,
+          color: "#64748b",
+          txt: "20T (1/250x) · AME 100% ($1,309) vs Bare 96.3%",
+          badge: "20T / episode",
+          note: "<strong>CogEval IGT-Conv:</strong> <code>20 turns/episode</code> (8 episodes = 160 turns). AME DeepSeek V3.2 hits <code>100.0%</code> safe deck (<code>$1,309.38</code> vs Bare <code>$821.88</code>)."
+        },
+        {
+          label: "5-LLM EN Live (5-Model Mind-OFF)",
+          sub: "100T / arm · Cross-Model Pairwise",
+          turns: 100,
+          color: "#738298",
+          txt: "100T (1/50x) · AME 98.33% Recall · 85.21% WR",
+          badge: "100T / arm",
+          note: "<strong>5-Frontier-Model EN Live:</strong> <code>100 turns/arm</code> across 5 models × 2 arms (1,000 turns total, 750 blind votes). AME hits <code>98.33%</code> recall vs <code>5.0%</code> Mind-OFF."
+        },
+        {
+          label: "LoCoMo (OpenAI · Mem0 · Letta · Zep)",
+          sub: "~300T avg / conv · <=35 sessions",
+          turns: 300,
+          color: "#8492a6",
+          txt: "~300T (1/16.7x) · AME 85.86% vs Zep 75.1%",
+          badge: "~300T / conv",
+          note: "<strong>LoCoMo Official Benchmark:</strong> <code>~300–305 single utterances/conversation</code> (up to 35 sessions, ~9K tokens). External commercial SOTA ranges <code>52.9%–75.1%</code>; AME hits <code>85.86%</code> Confirm-304 (<code>77.24%</code> Full n=1,986)."
+        },
+        {
+          label: "LongMemEval-S (Mem0 · Bare Oracle)",
+          sub: "max 308T pairs (616 msg · ~124K tok)",
+          turns: 308,
+          color: "#8b9ab0",
+          txt: "308T pairs (1/16.2x) · AME -92.31% Tokens",
+          badge: "308T max pairs",
+          note: "<strong>LongMemEval-S (n=500):</strong> Measured from official <code>longmemeval_s_cleaned.json</code> — avg <code>246.8</code> / max <code>308</code> turn pairs (max <code>616</code> messages, ~104K–124K tokens). AME cuts query prompt tokens by <code>-92.31%</code> (<code>13.01x</code> smaller)."
+        },
+        {
+          label: "AME Track 1 EN Live (vs Mind-OFF)",
+          sub: "gpt-4o-mini Mode B · Bare >128K N/A",
+          turns: 5000,
+          isAme: true,
+          txt: "5,000T (16.2x vs LME-S) · 96.67% Recall · 58.95% KV",
+          badge: "5,000T · 16.2x Scale",
+          note: "<strong>AME Track 1 EN Live Marathon:</strong> <code>5,000 continuous turns</code> (~16.2x longer than LongMemEval-S max / ~16.7x LoCoMo). Full-transcript <code>Bare Oracle</code> exceeds 128K context; AME achieves <code>96.67%</code> recall, <code>0%</code> FAR/D3/D4, and <code>58.95%</code> real OpenAI KV cache."
+        }
+      ];
+
+      function renderChart7() {
+        const axes = document.getElementById("c7-axes");
+        const layer = document.getElementById("c7-bars-layer");
+        if (!axes || !layer) return;
+        axes.innerHTML = "";
+        layer.innerHTML = "";
+
+        const plotLeft = 248, plotRight = 928, plotTop = 66, plotBottom = 296;
+        const plotW = plotRight - plotLeft;
+        const xMax = 7600;
+        const xOf = function (v) { return plotLeft + (v / xMax) * plotW; };
+
+        const gridG = svgEl("g", { stroke: "var(--svg-grid)", "stroke-width": "1" });
+        const labelG = svgEl("g", { "font-size": "10.2", fill: "var(--svg-sub)", "text-anchor": "middle" });
+        [
+          { v: 0, l: "0" }, { v: 1000, l: "1,000T" }, { v: 2000, l: "2,000T" },
+          { v: 3000, l: "3,000T" }, { v: 4000, l: "4,000T" }, { v: 5000, l: "5,000T" }
+        ].forEach(function (t) {
+          const x = xOf(t.v);
+          gridG.appendChild(svgEl("line", { x1: x.toFixed(1), y1: plotTop, x2: x.toFixed(1), y2: plotBottom }));
+          labelG.appendChild(svgEl("text", { x: x.toFixed(1), y: "316" }, t.l));
+        });
+        axes.appendChild(gridG);
+        axes.appendChild(labelG);
+        axes.appendChild(svgEl("line", { x1: plotLeft, y1: plotTop, x2: plotLeft, y2: plotBottom, stroke: "var(--svg-sub)", "stroke-width": "1.4" }));
+        axes.appendChild(svgEl("line", { x1: plotLeft, y1: plotBottom, x2: plotRight, y2: plotBottom, stroke: "var(--svg-sub)", "stroke-width": "1.4" }));
+
+        const x308 = xOf(308);
+        layer.appendChild(svgEl("line", {
+          x1: x308.toFixed(1), y1: (plotTop - 6), x2: x308.toFixed(1), y2: plotBottom,
+          stroke: "var(--svg-sub)", "stroke-width": "1.5", "stroke-dasharray": "5 3", opacity: "0.65"
+        }));
+        layer.appendChild(svgEl("text", {
+          x: (x308 + 4).toFixed(1), y: "60", "font-size": "9.2", "font-weight": "700", fill: "var(--svg-sub)"
+        }, "External Memory SOTA Max (308T pairs)"));
+
+        const rowStep = 37, barH = 21, startY = plotTop + 8;
+        C7_HORIZON_ROWS.forEach(function (r, idx) {
+          const y = startY + idx * rowStep;
+          const cy = y + barH / 2;
+          const w = Math.max(5, (r.turns / xMax) * plotW);
+          const barEndX = plotLeft + w;
+          const g = svgEl("g");
+
+          g.appendChild(svgEl("text", {
+            x: plotLeft - 10, y: (cy - 3.5).toFixed(1), "text-anchor": "end",
+            "font-size": "9.8", "font-weight": r.isAme ? "800" : "700",
+            fill: r.isAme ? "var(--ds-grad-0)" : "var(--svg-text)"
+          }, r.label));
+          g.appendChild(svgEl("text", {
+            x: plotLeft - 10, y: (cy + 10.5).toFixed(1), "text-anchor": "end",
+            "font-size": "8.4", fill: "var(--svg-sub)"
+          }, r.sub));
+
+          const rectAttrs = {
+            x: plotLeft, y: y.toFixed(1), width: w.toFixed(1), height: barH, rx: "4",
+            fill: r.isAme ? C7_DS_H.color : r.color
+          };
+          if (r.isAme) {
+            rectAttrs.stroke = C7_DS_H.opts.stroke;
+            rectAttrs["stroke-width"] = C7_DS_H.opts.strokeWidth;
+            rectAttrs.filter = C7_DS_H.opts.filter;
+          }
+          g.appendChild(svgEl("rect", rectAttrs));
+
+          const noteX = r.isAme ? barEndX + 8 : Math.max(barEndX + 10, x308 + 10);
+          g.appendChild(svgEl("text", {
+            x: noteX.toFixed(1), y: (cy + 3.8).toFixed(1),
+            "font-size": r.isAme ? "9.8" : "9.2",
+            "font-weight": r.isAme ? "800" : "600",
+            fill: r.isAme ? "var(--svg-text)" : "var(--svg-sub)"
+          }, r.txt));
+
+          bindHit(g, "c7-inspect", r.note, r.badge, r.isAme ? "emerald" : "blue");
+          layer.appendChild(g);
+        });
+
+        renderLegend("c7-legend", [
+          { swatch: "#64748b", label: "Short-Horizon Live (4T–100T)" },
+          { swatch: "#8b9ab0", label: "External Memory SOTA (~300T LoCoMo · 308T LME-S pairs)" },
+          { cls: "ds-swatch", label: "AME Track 1 Continuous EN Live (5,000T · 16.2x–16.7x · Bare >128K N/A)" }
+        ]);
+      }
+
+      /* Chart 8: Continuous 5,000-Turn EN Live Progression & 6-Metric Head-to-Head */
+      const C8_DS = styleDs("c8");
+      const C8_KV = {
+        color: "url(#c8-grad-kv)",
+        opts: { stroke: "#38bdf8", strokeWidth: "1.4" }
+      };
+      const C8_TRAJ_GROUPS = [
+        {
+          label: "t=100", sub: "Block 1 (100T)",
+          vals: [0.0, 3.02, 51.03, 100.0],
+          txts: ["0%", "3.0%", "51.0%", "100%"],
+          badge: "Block 1 · 100% Recall",
+          note: "<strong>Block 1 (t=100 · 100 turns):</strong> <code>AME</code> Recall <code>100.0%</code> (12/12), HOT <code>100% / 0% FAR</code>, FEP Lock <code>100% (3/3)</code>, OpenAI KV <code>51.03%</code> vs <code>Mind-OFF</code> Recall <code>0%</code>, OAI KV <code>3.02%</code>."
+        },
+        {
+          label: "t=500", sub: "Block 2 (500T)",
+          vals: [0.0, 0.0, 58.44, 100.0],
+          txts: ["0%", "0%", "58.4%", "100%"],
+          badge: "Block 2 · 100% Recall · 0% D3 Leak",
+          note: "<strong>Block 2 (t=500 · 400 turns):</strong> <code>AME</code> Recall <code>100.0%</code> (12/12), KU <code>100% (2/2)</code>, D3 post-delete leak <code>0/1</code>, OpenAI KV <code>58.44%</code> vs <code>Mind-OFF</code> Recall <code>0%</code>, OAI KV <code>0.0%</code>."
+        },
+        {
+          label: "t=1,000", sub: "Block 3 (1,000T)",
+          vals: [0.0, 0.0, 58.24, 100.0],
+          txts: ["0%", "0%", "58.2%", "100%"],
+          badge: "Block 3 · 100% Recall · 58.2% KV",
+          note: "<strong>Block 3 (t=1,000 · 500 turns):</strong> <code>AME</code> Recall <code>100.0%</code> (12/12), KU <code>100% (1/1)</code>, D3 leak <code>0/1</code>, OpenAI KV <code>58.24%</code> vs <code>Mind-OFF</code> Recall <code>0%</code>, D3 prompt leak <code>100%</code>."
+        },
+        {
+          label: "t=2,500", sub: "Block 4 (2,500T)",
+          vals: [0.0, 0.0, 59.24, 91.67],
+          txts: ["0%", "0%", "59.2%", "91.7%"],
+          badge: "Block 4 · 91.7% Recall · 59.2% KV",
+          note: "<strong>Block 4 (t=2,500 · 1,500 turns):</strong> <code>AME</code> Recall <code>91.67%</code> (11/12), KU <code>75.0% (3/4)</code>, HOT <code>100% / 0% FAR</code>, FEP <code>100%</code>, D3 leak <code>0/1</code>, OpenAI KV <code>59.24%</code> (64.47% AME est.)."
+        },
+        {
+          label: "t=5,000", sub: "Block 5 (5,000T)",
+          vals: [0.0, 0.0, 59.26, 91.67],
+          txts: ["0%", "0%", "59.3%", "91.7%"],
+          badge: "Block 5 · 91.7% Recall · 59.3% Peak KV",
+          note: "<strong>Block 5 (t=5,000 · 2,500 turns):</strong> <code>AME</code> Recall <code>91.67%</code> (11/12), KU <code>87.50% (7/8)</code>, HOT <code>100% / 0% FAR</code>, FEP <code>100%</code>, D3 leak <code>0/2</code>, OpenAI KV <code>59.26%</code> peak block (<code>4.37M/7.37M</code> cached)."
+        }
+      ];
+
+      function renderChart8(mode) {
+        const m = mode === "summary" ? "summary" : "trajectory";
+        const layer = document.getElementById("c8-bars-layer");
+        if (!layer) return;
+        layer.innerHTML = "";
+
+        if (m === "trajectory") {
+          renderAxes("c8-axes", {
+            min: 0, max: 112,
+            ticks: [
+              { val: 0, label: "0%" }, { val: 20, label: "20%" }, { val: 40, label: "40%" },
+              { val: 60, label: "60%" }, { val: 80, label: "80%" }, { val: 100, label: "100%" }
+            ]
+          });
+          document.getElementById("c8-title").textContent = "Track 1: 5,000-Turn EN Live Progression [t=100 → 5,000 · gpt-4o-mini]";
+          document.getElementById("c8-sub").textContent = "Block-by-block Recall (96.67% · 58/60) & Real OpenAI KV Cache (58.95% · 8.68M cached) past External SOTA Limit (~308T)";
+
+          const startX = 104, groupStep = 166, barW = 26, innerGap = 6;
+          const xSplit = startX + (barW * 4 + innerGap * 3) + (groupStep - (barW * 4 + innerGap * 3)) / 2;
+          const ySplitTop = PLOT_BOTTOM - (104 / 112) * PLOT_H;
+          layer.appendChild(svgEl("line", {
+            x1: xSplit.toFixed(1), y1: ySplitTop.toFixed(1), x2: xSplit.toFixed(1), y2: PLOT_BOTTOM,
+            stroke: "var(--svg-sub)", "stroke-width": "1.5", "stroke-dasharray": "5 3", opacity: "0.7"
+          }));
+          layer.appendChild(svgEl("text", {
+            x: (xSplit + 6).toFixed(1), y: (ySplitTop + 4).toFixed(1),
+            "font-size": "8.8", "font-weight": "700", fill: "var(--svg-sub)"
+          }, "External SOTA Ends (~308T)"));
+
+          const styles = [
+            { color: "#64748b", opts: null },
+            { color: "#8b9ab0", opts: null },
+            C8_KV,
+            C8_DS
+          ];
+
+          C8_TRAJ_GROUPS.forEach(function (grp, gi) {
+            const gx = startX + gi * groupStep;
+            const gcx = gx + (barW * 4 + innerGap * 3) / 2;
+            const g = svgEl("g");
+            grp.vals.forEach(function (v, si) {
+              const bx = gx + si * (barW + innerGap);
+              addBarGraphic(g, bx, barW, v, 0, 112, 0, styles[si].color, grp.txts[si], "8.0", styles[si].opts);
+            });
+            addXLabels(g, gcx, grp.label, grp.sub, "10.6", "8.6");
+            bindHit(g, "c8-inspect", grp.note, grp.badge, "emerald");
+            layer.appendChild(g);
+          });
+
+          renderLegend("c8-legend", [
+            { swatch: "#64748b", label: "Mind-OFF Recall (0.0%)" },
+            { swatch: "#8b9ab0", label: "Mind-OFF OAI KV (0.05%)" },
+            { swatch: "#2563eb", label: "AME Real OAI KV Cache (58.95% Mean)" },
+            { cls: "ds-swatch", label: "AME Fact Recall (96.67% Mean · 58/60)" }
+          ]);
+          setInspect("c8-inspect",
+            "<strong>5,000-Turn EN Marathon [t=100 &rarr; 5,000]:</strong> <span class='mono'>AME</span> holds <span class='mono'>100%</span> recall through <span class='mono'>1,000T</span> and <span class='mono'>91.67%</span> at <span class='mono'>2.5KT&ndash;5KT</span> (<span class='mono'>96.67%</span> overall) + <span class='mono'>58.95%</span> OpenAI KV cache (<span class='mono'>0%</span> D3/D4 leaks).",
+            "5,000T EN · 58.95% OAI KV", "emerald");
+        } else {
+          renderAxes("c8-axes", { ticks: PCT_TICKS_100 });
+          document.getElementById("c8-title").textContent = "5,000-Turn Continuous EN Live (gpt-4o-mini): 6-Metric Head-to-Head";
+          document.getElementById("c8-sub").textContent = "Fact Recall 96.67% vs 0.0% (58/60) · Update 86.67% vs 20.0% · Known-Fact 100% vs 4% · FEP 100% · D3 Safe 100% · Real OAI KV 58.95% vs 0.05%";
+
+          const startX = 96, groupStep = 136, barW = 36, innerGap = 8;
+          C5_5000T_GROUPS.forEach(function (grp, gi) {
+            const gx = startX + gi * groupStep;
+            const gcx = gx + (barW * 2 + innerGap) / 2;
+            const g = svgEl("g");
+            addBarGraphic(g, gx, barW, grp.vals[0], 0, 100, 0, "#64748b", grp.txts[0], "9.0");
+            addBarGraphic(g, gx + barW + innerGap, barW, grp.vals[1], 0, 100, 0, C8_DS.color, grp.txts[1], "9.4", C8_DS.opts);
+            addXLabels(g, gcx, grp.label, grp.sub, "10.4", "8.3");
+            bindHit(g, "c8-inspect", grp.note, grp.badge, "violet");
+            layer.appendChild(g);
+          });
+
+          renderLegend("c8-legend", [
+            { swatch: "#64748b", label: "Mind-OFF Sliding Window (0% Recall · 96% FAR · 100% D3 Leak · 0.05% KV)" },
+            { cls: "ds-swatch", label: "AME v4.2.0 EN Live (5,000T · 96.67% Recall · 86.67% KU · 58.95% Real OAI KV)" }
+          ]);
+          setInspect("c8-inspect",
+            "<strong>5,000-Turn EN Live (gpt-4o-mini):</strong> <span class='mono'>AME v4.2.0</span> hits <span class='mono'>96.67%</span> Recall (<span class='mono'>58/60</span>), <span class='mono'>86.67%</span> Update (<span class='mono'>13/15</span>), <span class='mono'>100%</span> HOT/FEP/D3-Safe, <span class='mono'>58.95%</span> OAI KV Cache.",
+            "5,000T EN · 0 D3/D4 Leaks", "violet");
+        }
+
+        document.querySelectorAll("#chart8-mode .seg-btn").forEach(function (btn) {
+          btn.classList.toggle("active", btn.getAttribute("data-c8") === m);
+        });
+      }
+
+      document.querySelectorAll("#chart8-mode .seg-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () { renderChart8(btn.getAttribute("data-c8")); });
+      });
+
+      /* Initial render of all 8 benchmark charts */
       renderChart1("sota");
       renderChart2("frontier");
       renderChart3();
       renderChart4("convergence");
-      renderChart5("5000t");
+      renderChart5("5llm");
       renderChart6("kv");
+      renderChart7();
+      renderChart8("trajectory");
 
       if (typeof globalThis !== "undefined") {
         globalThis.renderChart1 = renderChart1;
@@ -4140,6 +4505,8 @@ npm run bench:scorecard -- \
         globalThis.renderChart4 = renderChart4;
         globalThis.renderChart5 = renderChart5;
         globalThis.renderChart6 = renderChart6;
+        globalThis.renderChart7 = renderChart7;
+        globalThis.renderChart8 = renderChart8;
       }
 
       /* 6. Copy Buttons */

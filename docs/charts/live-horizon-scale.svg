@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 455" width="980" height="455" role="img" aria-label="Live Benchmark Horizon Scale [4T -&gt; 5,000T]: Single Continuous Conversation Turns">
+  <defs>
+    <linearGradient id="grad-emerald" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#0891b2" />
+    </linearGradient>
+    <linearGradient id="grad-emerald-h" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0891b2" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+    <linearGradient id="grad-cyan" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0ea5e9" />
+      <stop offset="100%" stop-color="#2563eb" />
+    </linearGradient>
+    <linearGradient id="grad-coral" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f43f5e" />
+      <stop offset="100%" stop-color="#f97316" />
+    </linearGradient>
+    <filter id="shadow-ame" x="-18%" y="-12%" width="136%" height="132%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.18" />
+    </filter>
+  </defs>
+  <style>
+    text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    .tabular { font-variant-numeric: tabular-nums; }
+  </style>
+  <rect x="1" y="1" width="978" height="453" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.4" />
+  <text x="32" y="34" font-size="18.2" font-weight="750" fill="#0f172a" letter-spacing="-0.2">Live Benchmark Horizon Scale [4T -&gt; 5,000T]: Single Continuous Conversation Turns</text>
+  <text x="32" y="55" font-size="11.8" font-weight="450" fill="#475569">Linear turn-count comparison across live benchmarks: external memory SOTA ends at ~300T-308T pairs, while AME runs 5,000 EN turns (16.2x-16.7x)</text>
+  <line x1="248.00" y1="98" x2="248.00" y2="350" stroke="#94a3b8" stroke-width="1.4" />
+      <text x="248.00" y="368" text-anchor="middle" font-size="10.8" font-weight="600" fill="#64748b" class="tabular">0</text>
+  <line x1="344.67" y1="98" x2="344.67" y2="350" stroke="#e2e8f0" stroke-width="1" />
+      <text x="344.67" y="368" text-anchor="middle" font-size="10.8" font-weight="600" fill="#64748b" class="tabular">1,000T</text>
+  <line x1="441.33" y1="98" x2="441.33" y2="350" stroke="#e2e8f0" stroke-width="1" />
+      <text x="441.33" y="368" text-anchor="middle" font-size="10.8" font-weight="600" fill="#64748b" class="tabular">2,000T</text>
+  <line x1="538.00" y1="98" x2="538.00" y2="350" stroke="#e2e8f0" stroke-width="1" />
+      <text x="538.00" y="368" text-anchor="middle" font-size="10.8" font-weight="600" fill="#64748b" class="tabular">3,000T</text>
+  <line x1="634.67" y1="98" x2="634.67" y2="350" stroke="#e2e8f0" stroke-width="1" />
+      <text x="634.67" y="368" text-anchor="middle" font-size="10.8" font-weight="600" fill="#64748b" class="tabular">4,000T</text>
+  <line x1="731.33" y1="98" x2="731.33" y2="350" stroke="#e2e8f0" stroke-width="1" />
+      <text x="731.33" y="368" text-anchor="middle" font-size="10.8" font-weight="600" fill="#64748b" class="tabular">5,000T</text>
+  
+    <line x1="277.77" y1="88" x2="277.77" y2="350" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5 3" opacity="0.55" />
+    <text x="277.77" y="82" text-anchor="start" font-size="9.8" font-weight="700" fill="#475569">External Memory SOTA Max (308T pairs)</text>
+  
+  <g>
+        <text x="236" y="111.0" text-anchor="end" font-size="10.4" font-weight="650" fill="#1e293b">EQ-Bench 3 (GPT-5.2 · o3 · Claude)</text>
+        <text x="236" y="128.5" text-anchor="end" font-size="8.8" font-weight="500" fill="#64748b">4T / scenario · Emotional Intelligence</text>
+        <path d="M 248.00 104.00 L 250.25 104.00 Q 252.50 104.00 252.50 106.25 L 252.50 124.75 Q 252.50 127.00 250.25 127.00 L 248.00 127.00 Z" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1" />
+        <text x="289.8" y="119.3" font-size="9.8" font-weight="600" fill="#334155" class="tabular">4T (1/1,250x) · AME 77.77 / 77.59 vs GPT-5.2 72.2</text>
+      </g>
+  <g>
+        <text x="236" y="152.0" text-anchor="end" font-size="10.4" font-weight="650" fill="#1e293b">CogEval IGT-Conv (Bare · Mind-OFF)</text>
+        <text x="236" y="169.5" text-anchor="end" font-size="8.8" font-weight="500" fill="#64748b">20T / episode · Somatic Decision</text>
+        <path d="M 248.00 145.00 L 250.25 145.00 Q 252.50 145.00 252.50 147.25 L 252.50 165.75 Q 252.50 168.00 250.25 168.00 L 248.00 168.00 Z" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1" />
+        <text x="289.8" y="160.3" font-size="9.8" font-weight="600" fill="#334155" class="tabular">20T (1/250x) · AME 100% [$1,309] vs Bare 96.3% [$822]</text>
+      </g>
+  <g>
+        <text x="236" y="193.0" text-anchor="end" font-size="10.4" font-weight="650" fill="#1e293b">5-LLM EN Live (5-Model Mind-OFF)</text>
+        <text x="236" y="210.5" text-anchor="end" font-size="8.8" font-weight="500" fill="#64748b">100T / arm · Cross-Model Pairwise</text>
+        <path d="M 248.00 186.00 L 254.17 186.00 Q 257.67 186.00 257.67 189.50 L 257.67 205.50 Q 257.67 209.00 254.17 209.00 L 248.00 209.00 Z" fill="#94a3b8" stroke="#64748b" stroke-width="1" />
+        <text x="289.8" y="201.3" font-size="9.8" font-weight="600" fill="#334155" class="tabular">100T (1/50x) · AME 98.33% Recall · 85.21% Blind WR</text>
+      </g>
+  <g>
+        <text x="236" y="234.0" text-anchor="end" font-size="10.4" font-weight="650" fill="#1e293b">LoCoMo (OpenAI · Mem0 · Letta · Zep)</text>
+        <text x="236" y="251.5" text-anchor="end" font-size="8.8" font-weight="500" fill="#64748b">~300T avg / conv · &lt;=35 sessions</text>
+        <path d="M 248.00 227.00 L 273.50 227.00 Q 277.00 227.00 277.00 230.50 L 277.00 246.50 Q 277.00 250.00 273.50 250.00 L 248.00 250.00 Z" fill="#64748b" stroke="#475569" stroke-width="1" />
+        <text x="289.8" y="242.3" font-size="9.8" font-weight="600" fill="#334155" class="tabular">~300T (1/16.7x) · AME 85.86% vs Zep 75.1%</text>
+      </g>
+  <g>
+        <text x="236" y="275.0" text-anchor="end" font-size="10.4" font-weight="650" fill="#1e293b">LongMemEval-S (Mem0 · Bare Oracle)</text>
+        <text x="236" y="292.5" text-anchor="end" font-size="8.8" font-weight="500" fill="#64748b">max 308T pairs (616 msg · ~124K tok)</text>
+        <path d="M 248.00 268.00 L 274.27 268.00 Q 277.77 268.00 277.77 271.50 L 277.77 287.50 Q 277.77 291.00 274.27 291.00 L 248.00 291.00 Z" fill="#475569" stroke="#334155" stroke-width="1" />
+        <text x="289.8" y="283.3" font-size="9.8" font-weight="600" fill="#334155" class="tabular">308T pairs (1/16.2x) · AME -92.31% Query Tokens</text>
+      </g>
+  <g>
+        <text x="236" y="316.0" text-anchor="end" font-size="10.4" font-weight="800" fill="#065f46">AME Track 1 EN Live (vs Mind-OFF)</text>
+        <text x="236" y="333.5" text-anchor="end" font-size="8.8" font-weight="500" fill="#047857">gpt-4o-mini Mode B · Bare Oracle &gt;128K N/A</text>
+        <path d="M 248.00 309.00 L 726.33 309.00 Q 731.33 309.00 731.33 314.00 L 731.33 327.00 Q 731.33 332.00 726.33 332.00 L 248.00 332.00 Z" fill="url(#grad-emerald-h)" stroke="#047857" stroke-width="1.8" filter="url(#shadow-ame)" />
+        <text x="739.3" y="324.5" font-size="11.0" font-weight="800" fill="#065f46" class="tabular">5,000T</text>
+           <g>
+    <rect x="800.3" y="311.5" width="122.0" height="18" rx="9.0" fill="#ecfdf5" stroke="#10b981" stroke-width="1.2" />
+    <text x="861.3" y="323.6" text-anchor="middle" font-size="9" font-weight="700" fill="#065f46" class="tabular">★ 16.2x · 96.7% Recall</text>
+  </g>
+      </g>
+  <g>
+    <rect x="32" y="404" width="916" height="34" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" />
+    <rect x="70.0" y="415.5" width="14" height="11" rx="3" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1.4" /><text x="90.0" y="425.0" font-size="11" font-weight="500" fill="#334155">Short-Horizon Live (4T–100T)</text>
+    <rect x="279.2" y="415.5" width="14" height="11" rx="3" fill="#64748b" stroke="#334155" stroke-width="1.4" /><text x="299.2" y="425.0" font-size="11" font-weight="500" fill="#334155">External Memory SOTA (~300T–308T pairs)</text>
+    <rect x="562.6" y="415.5" width="14" height="11" rx="3" fill="url(#grad-emerald-h)" stroke="#047857" stroke-width="1.4" /><text x="582.6" y="425.0" font-size="11" font-weight="700" fill="#065f46">AME Track 1 Continuous EN Live (5,000T · 16.2x–16.7x)</text>
+  </g>
+</svg>

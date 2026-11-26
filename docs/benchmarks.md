@@ -468,7 +468,15 @@ Verified from a fresh GitHub clone (`0046006`) against live `ame-kernel-sealed:v
 
 All 4 `v4.2.0` live tracks below ran **100% in English** against the live sealed kernel (`ame-kernel-sealed:v4.2.0`, `Mode B` `prepare/generate/settle`) with strict `D4` telemetry redaction (`0` violations across every turn and API call).
 
-#### 6.8.1 Track 1 — Single Continuous 5,000-Turn EN Live Marathon (`gpt-4o-mini`)
+#### 6.8.1 Track 1 — Single Continuous 5,000-Turn EN Live Marathon (`gpt-4o-mini`) & Horizon Scale Comparison
+
+![Live Benchmark Horizon Scale (4T to 5,000T): Single Continuous Conversation](./charts/live-horizon-scale.svg)
+
+> **Chart 7A Legend (`live-horizon-scale.svg`):** Linear turn-count comparison of single-conversation live benchmarks: `EQ-Bench 3` (`4T`), `CogEval IGT-Conv` (`20T`), `5-LLM EN Live` (`100T/arm`), `LoCoMo` (`~300T avg`, external SOTA `52.9%–75.1%`), `LongMemEval-S` (`max 308T pairs` / `616` messages), vs. **`AME Track 1 EN Live` (`5,000` continuous turns — `16.2x–16.7x` longer than external memory SOTA)**.
+
+![Track 1: Continuous 5,000-Turn EN Live Progression (t=100 to 5,000)](./charts/live-5000t-trajectory.svg)
+
+> **Chart 7B Legend (`live-5000t-trajectory.svg`):** Block-by-block `5,000`-turn trajectory (`t=100`, `500`, `1,000`, `2,500`, `5,000`) comparing `Mind-OFF` (`0.0%` Recall, `0.05%` OAI KV) vs. **`AME v4.2.0`** (`100% → 100% → 100% → 91.67% → 91.67%` Fact Recall; `51.03% → 58.44% → 58.24% → 59.24% → 59.26%` real OpenAI `cached_tokens`), maintaining `HOT 100%` (`0%` FAR), `FEP 100%`, and `0%` `D3`/`D4` leaks across all 5 blocks.
 
 ![Track 1: Continuous 5,000-Turn EN Live Marathon — Mind-OFF vs. AME v4.2.0](./charts/live-5000t-en.svg)
 

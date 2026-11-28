@@ -14,8 +14,9 @@
 [![D4 Firewall](https://img.shields.io/badge/D4%20Unconscious-0%20Leaks%20(35%2C350%2B%20Calls)-059669.svg)](./docs/enterprise-security.md)
 [![LongMemEval-S EN](https://img.shields.io/badge/LongMemEval--S%20EN-60.00%25%20(-92.67%25%20Tok)-b45309.svg)](./docs/benchmarks.md)
 [![1M-Turn EN](https://img.shields.io/badge/1M--Turn%20EN-0.9182%20(Drift%200.0001)-059669.svg)](./docs/benchmarks.md)
+[![Hugging Face Hub](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-artificial--mind-FFD21E.svg)](https://huggingface.co/artificial-mind)
 
-**Quick Navigation:** [Website (artificialmind.me)](https://artificialmind.me) · [Live Hosted Interactive Demo](https://thesoulthread.com/ame-demo/) · [GitHub Pages Showcase](https://bearrhee.github.io/artificial-mind-engine/) · [Interactive Web Showcase (HTML)](./docs/index.html) · [OpenAPI 3.1 Contract](./spec/openapi.yaml) · [1-Page Executive VC Brief](./docs/VC_BRIEF_EN.md) · [5-Layer Architecture](./docs/architecture.md) · [Full Benchmarks](./docs/benchmarks.md)
+**Quick Navigation:** [Website (artificialmind.me)](https://artificialmind.me) · [Hugging Face Hub (Spaces & Datasets)](./huggingface/README.md) · [Live Hosted Interactive Demo](https://thesoulthread.com/ame-demo/) · [GitHub Pages Showcase](https://bearrhee.github.io/artificial-mind-engine/) · [Interactive Web Showcase (HTML)](./docs/index.html) · [OpenAPI 3.1 Contract](./spec/openapi.yaml) · [1-Page Executive VC Brief](./docs/VC_BRIEF_EN.md) · [5-Layer Architecture](./docs/architecture.md) · [Full Benchmarks](./docs/benchmarks.md)
 
 ## At a Glance — Why AME Exists, Why It Wins & Proven Impact
 

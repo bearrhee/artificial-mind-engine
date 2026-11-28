@@ -1,0 +1,47 @@
+name: Sync Hugging Face Hub
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Validate staging bundles and Parquet datasets without uploading'
+        required: false
+        default: false
+        type: boolean
+  push:
+    branches: [main]
+    paths:
+      - 'huggingface/**'
+      - 'docs/index.html'
+      - 'docs/charts/**'
+      - 'packages/sandbox-server/**'
+      - 'packages/sdk-ts/**'
+      - 'spec/openapi.yaml'
+      - '.github/workflows/sync-huggingface.yml'
+
+jobs:
+  validate-and-sync-hf:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Hugging Face Hub & PyArrow
+        run: pip install --quiet huggingface_hub pyarrow
+
+      - name: Verify Parquet datasets (D4 audit & schema check)
+        run: python huggingface/build_hf_datasets.py --verify-only
+
+      - name: Dry-run stage all 4 HF repos + Closed-IP & Secret Guard
+        run: python huggingface/publish_to_hf.py --org artificial-mind --dry-run
+
+      - name: Publish Spaces, Datasets, and Collection to Hugging Face Hub
+        if: ${{ github.event_name != 'pull_request' && !inputs.dry_run && secrets.HF_TOKEN != '' }}
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python huggingface/publish_to_hf.py --org artificial-mind

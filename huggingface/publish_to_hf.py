@@ -282,6 +282,7 @@ def main() -> int:
                 folder_path=str(local_dir),
                 repo_id=repo_id,
                 repo_type=repo_type,
+                delete_patterns=["index.html", "style.css"] if repo_id == f"{args.org}/README" else None,
                 commit_message="Sync Artificial Mind Engine (AME v4.3.0 / AACIM v2.5.2)",
             )
             print(f"[PUBLISHED] https://huggingface.co/{'datasets/' if repo_type == 'dataset' else 'spaces/'}{repo_id}")

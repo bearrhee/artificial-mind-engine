@@ -23,6 +23,7 @@ import tempfile
 
 import pyarrow.parquet as pq
 from huggingface_hub import HfApi
+from huggingface_hub.errors import HfHubHTTPError
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
 HF_ROOT = pathlib.Path(__file__).resolve().parent
@@ -128,7 +129,7 @@ def stage_dataset(name: str, dest: pathlib.Path) -> dict[str, str]:
     return meta
 
 
-def ensure_collection(api: HfApi, org: str) -> None:
+def ensure_collection(api: HfApi, org: str, docker_space_repo_id: str | None = None) -> None:
     title = "Stateful Cognitive Control & Long-Horizon Memory Stack (AME)"
     description = (
         "Official collection for Artificial Mind Engine (AME v4.3.0): interactive live cognitive OS sandbox, "
@@ -147,8 +148,9 @@ def ensure_collection(api: HfApi, org: str) -> None:
         col = api.create_collection(title=title, namespace=org, description=description, private=False)
         existing_slug = col.slug
 
+    docker_space_id = docker_space_repo_id or f"{org}/ame-sandbox-live"
     desired_items = [
-        (f"{org}/ame-sandbox-live", "space", "Interactive OpenAPI 3.1 contract sandbox (D2/D3/D4, HOT, FEP Lock — zero API key)"),
+        (docker_space_id, "space", "Interactive OpenAPI 3.1 contract sandbox (D2/D3/D4, HOT, FEP Lock — zero API key)"),
         (f"{org}/ame-benchmarks", "space", "Interactive charts: LongMemEval-S v4.3.0 (60.00%, -92.67% tok), 5,000T EN Marathon, LoCoMo, EQ-Bench 3"),
         (f"{org}/cogeval-v1", "dataset", "Self-authored EN probes: D1 counterfactual, HOT abstention, FEP Lock, IGT-Conv, D2/D3/D4"),
         (f"{org}/ame-eval-traces", "dataset", "D4-redacted Tier-1 evaluation trajectories (5,000T EN, 5-LLM EN, CogEval-v1 4 arms, LongMemEval-S n=70)"),
@@ -172,6 +174,11 @@ def ensure_collection(api: HfApi, org: str) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Stage and publish AME assets to Hugging Face Hub")
     parser.add_argument("--org", default="artificial-mind", help="Target HF organization/user namespace")
+    parser.add_argument(
+        "--docker-space-org",
+        default=None,
+        help="Optional separate namespace for cpu-basic Docker Space (e.g. personal user on free HF org plan)",
+    )
     parser.add_argument("--dry-run", action="store_true", help="Stage & verify locally without uploading")
     parser.add_argument("--only", choices=["all", "spaces", "datasets", "collection"], default="all")
     parser.add_argument("--skip-collection", action="store_true")
@@ -189,13 +196,15 @@ def main() -> int:
 
     try:
         targets: list[tuple[str, str, str | None, pathlib.Path]] = []
+        docker_owner = args.docker_space_org or args.org
+        published_docker_space_id = f"{docker_owner}/ame-sandbox-live"
         if args.only in ("all", "spaces"):
             d1 = stage_root / "ame-sandbox-live"
             d1.mkdir(parents=True, exist_ok=True)
             stage_sandbox_space(d1)
             c1, b1 = guard_directory(d1)
-            print(f"[STAGED SPACE/docker] {args.org}/ame-sandbox-live ({c1} files, {b1:,} bytes)")
-            targets.append((f"{args.org}/ame-sandbox-live", "space", "docker", d1))
+            print(f"[STAGED SPACE/docker] {published_docker_space_id} ({c1} files, {b1:,} bytes)")
+            targets.append((published_docker_space_id, "space", "docker", d1))
 
             d2 = stage_root / "ame-benchmarks"
             d2.mkdir(parents=True, exist_ok=True)
@@ -227,7 +236,29 @@ def main() -> int:
             }
             if repo_type == "space" and space_sdk:
                 create_kwargs["space_sdk"] = space_sdk
-            api.create_repo(**create_kwargs)  # type: ignore[arg-type]
+            try:
+                api.create_repo(**create_kwargs)  # type: ignore[arg-type]
+            except HfHubHTTPError as exc:
+                if (
+                    repo_type == "space"
+                    and space_sdk == "docker"
+                    and exc.response is not None
+                    and exc.response.status_code == 402
+                    and args.docker_space_org is None
+                ):
+                    fallback_user = api.whoami().get("name")
+                    if fallback_user and fallback_user != docker_owner:
+                        repo_id = f"{fallback_user}/ame-sandbox-live"
+                        published_docker_space_id = repo_id
+                        create_kwargs["repo_id"] = repo_id
+                        print(
+                            f"[NOTICE] Free org plan returned 402 for cpu-basic Docker Space; falling back to personal namespace {repo_id}"
+                        )
+                        api.create_repo(**create_kwargs)  # type: ignore[arg-type]
+                    else:
+                        raise
+                else:
+                    raise
             api.upload_folder(
                 folder_path=str(local_dir),
                 repo_id=repo_id,
@@ -237,7 +268,7 @@ def main() -> int:
             print(f"[PUBLISHED] https://huggingface.co/{'datasets/' if repo_type == 'dataset' else 'spaces/'}{repo_id}")
 
         if args.only in ("all", "collection") and not args.skip_collection:
-            ensure_collection(api, args.org)
+            ensure_collection(api, args.org, docker_space_repo_id=published_docker_space_id)
 
         return 0
     finally:

@@ -33,7 +33,7 @@ Interactive showcase for verified Tier-1 benchmarks of **Artificial Mind Engine 
 
 ## Related Hugging Face Assets
 
-- **Live Docker Sandbox**: [huggingface.co/spaces/artificial-mind/ame-sandbox-live](https://huggingface.co/spaces/artificial-mind/ame-sandbox-live)
+- **Live Docker Sandbox**: [huggingface.co/spaces/bearrhee/ame-sandbox-live](https://huggingface.co/spaces/bearrhee/ame-sandbox-live)
 - **CogEval-v1 Benchmark Probes (Parquet)**: [huggingface.co/datasets/artificial-mind/cogeval-v1](https://huggingface.co/datasets/artificial-mind/cogeval-v1)
 - **Evaluation Traces & Metrics (Parquet)**: [huggingface.co/datasets/artificial-mind/ame-eval-traces](https://huggingface.co/datasets/artificial-mind/ame-eval-traces)
 - **GitHub Source**: [bearrhee/artificial-mind-engine](https://github.com/bearrhee/artificial-mind-engine)

@@ -44,6 +44,7 @@ This live Space runs [`packages/sandbox-server`](https://github.com/bearrhee/art
 
 ## Links
 
+- **Hugging Face Organization**: [huggingface.co/artificial-mind](https://huggingface.co/artificial-mind)
 - **GitHub Repository (MIT SDKs & Docs)**: [bearrhee/artificial-mind-engine](https://github.com/bearrhee/artificial-mind-engine)
 - **Interactive Benchmark Explorer**: [huggingface.co/spaces/artificial-mind/ame-benchmarks](https://huggingface.co/spaces/artificial-mind/ame-benchmarks)
 - **Parquet Datasets**: [`cogeval-v1`](https://huggingface.co/datasets/artificial-mind/cogeval-v1) · [`ame-eval-traces`](https://huggingface.co/datasets/artificial-mind/ame-eval-traces)

@@ -38,7 +38,7 @@ jobs:
         run: python huggingface/build_hf_datasets.py --verify-only
 
       - name: Dry-run stage all 4 HF repos + Closed-IP & Secret Guard
-        run: python huggingface/publish_to_hf.py --org artificial-mind --docker-space-org bearrhee --dry-run
+        run: python huggingface/publish_to_hf.py --org artificial-mind --dry-run
 
       - name: Publish Spaces, Datasets, and Collection to Hugging Face Hub
         if: ${{ github.event_name != 'pull_request' && inputs.dry_run != true }}
@@ -49,4 +49,4 @@ jobs:
             echo "HF_TOKEN secret is not configured yet; dry-run validation succeeded and live HF publish is skipped."
             exit 0
           fi
-          python huggingface/publish_to_hf.py --org artificial-mind --docker-space-org bearrhee
+          python huggingface/publish_to_hf.py --org artificial-mind

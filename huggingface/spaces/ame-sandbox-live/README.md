@@ -3,8 +3,8 @@ title: Artificial Mind Engine — Live Sandbox
 emoji: 🧠
 colorFrom: emerald
 colorTo: indigo
-sdk: docker
-app_port: 7860
+sdk: static
+app_file: index.html
 license: mit
 short_description: Interactive OpenAPI 3.1 Cognitive Control OS sandbox (HOT, FEP, D2, D3, D4)
 tags:
@@ -20,13 +20,13 @@ tags:
 
 # Artificial Mind Engine (AME) — Live Interactive Sandbox
 
-Welcome to the official **Hugging Face Docker Space** for **Artificial Mind Engine (`MIT` Open Interface & Contract Sandbox)**.
+Welcome to the official **Hugging Face Static Space** for **Artificial Mind Engine (`MIT` Open Interface & Contract Sandbox)**, connected live via CORS (`https://thesoulthread.com/ame-demo`) with zero API key and zero cold-start delay.
 
 > **"LLMs are swappable stateless CPUs; Artificial Mind Engine is the proprietary stateful cognitive OS kernel responsible for persistence, adaptability, and emotional coherence."**
 
 ## What You Can Test Here (Zero API Key Required)
 
-This live Space runs [`packages/sandbox-server`](https://github.com/bearrhee/artificial-mind-engine/tree/main/packages/sandbox-server) in standalone **OpenAPI 3.1 contract sandbox mode** (no external LLM API key needed):
+This Space renders the interactive **MIT Open Interface Console** (`packages/sandbox-server/src/demo-ui.html`) backed by the live public OpenAPI 3.1 contract sandbox (`https://thesoulthread.com/ame-demo`). You can also self-host locally via `deploy/Dockerfile.sandbox`:
 
 1. **Pre-populated 1-Click Scenario Presets** — test deterministic cognitive invariants immediately:
    - **D3 Atomic Erasure (`0.00%` Leak)**: Seed a private secret, verify recall, issue `DELETE /v1/minds/{mindId}/memories/{memoryId}`, and verify `0.00%` residual leakage + KV epoch bump.

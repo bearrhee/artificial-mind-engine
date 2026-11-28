@@ -2283,7 +2283,9 @@
         return headers;
       }
 
-      var API_BASE = (window.location.pathname || '/').replace(/\/index\.html$/i, '').replace(/\/+$/, '');
+      var API_BASE = (typeof window.__AME_API_BASE__ === 'string' && window.__AME_API_BASE__)
+        ? window.__AME_API_BASE__.replace(/\/+$/, '')
+        : (window.location.pathname || '/').replace(/\/index\.html$/i, '').replace(/\/+$/, '');
 
       async function apiFetch(url, options) {
         showError('');

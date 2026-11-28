@@ -1,12 +1,12 @@
 ---
 title: Artificial Mind Engine — Live Sandbox
 emoji: 🧠
-colorFrom: emerald
+colorFrom: green
 colorTo: indigo
 sdk: static
 app_file: index.html
 license: mit
-short_description: Interactive OpenAPI 3.1 Cognitive Control OS sandbox (HOT, FEP, D2, D3, D4)
+short_description: Interactive OpenAPI 3.1 Cognitive OS Sandbox (D2/D3/D4)
 tags:
   - cognitive-os
   - agent-memory

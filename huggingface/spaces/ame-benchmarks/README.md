@@ -1,12 +1,12 @@
 ---
 title: Artificial Mind Engine — Benchmark Explorer
 emoji: 📊
-colorFrom: cyan
-colorTo: slate
+colorFrom: blue
+colorTo: gray
 sdk: static
 app_file: index.html
 license: mit
-short_description: Interactive charts for LoCoMo, EQ-Bench 3, CogEval-v1, 5,000T EN & LongMemEval-S v4.3.0
+short_description: AME Benchmark Explorer (LongMemEval-S, LoCoMo, 5000T EN)
 tags:
   - benchmarks
   - longmemeval

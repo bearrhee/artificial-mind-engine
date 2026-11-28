@@ -125,8 +125,7 @@ def stage_dataset(name: str, dest: pathlib.Path) -> dict[str, str]:
 def ensure_collection(api: HfApi, org: str) -> None:
     title = "Stateful Cognitive Control & Long-Horizon Memory Stack (AME)"
     description = (
-        "Official collection for Artificial Mind Engine (AME v4.3.0): interactive live cognitive OS sandbox, "
-        "Tier-1 benchmark explorer, self-authored CogEval-v1 probes, D4-redacted evaluation traces, and key ecosystem models/benchmarks."
+        "Official AME v4.3.0 stack: live sandbox, benchmark explorer, CogEval-v1 probes & D4-redacted evaluation traces."
     )
     existing_slug = None
     try:

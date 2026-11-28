@@ -41,7 +41,12 @@ jobs:
         run: python huggingface/publish_to_hf.py --org artificial-mind --dry-run
 
       - name: Publish Spaces, Datasets, and Collection to Hugging Face Hub
-        if: ${{ github.event_name != 'pull_request' && !inputs.dry_run && secrets.HF_TOKEN != '' }}
+        if: ${{ github.event_name != 'pull_request' && inputs.dry_run != true }}
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: python huggingface/publish_to_hf.py --org artificial-mind
+        run: |
+          if [ -z "$HF_TOKEN" ]; then
+            echo "HF_TOKEN secret is not configured yet; dry-run validation succeeded and live HF publish is skipped."
+            exit 0
+          fi
+          python huggingface/publish_to_hf.py --org artificial-mind

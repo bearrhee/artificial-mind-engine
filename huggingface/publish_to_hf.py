@@ -112,6 +112,51 @@ def stage_benchmarks_space(dest: pathlib.Path) -> dict[str, str]:
     return meta
 
 
+def stage_org_profile_readme(dest: pathlib.Path, org: str) -> dict[str, str]:
+    charts_dst = dest / "charts"
+    charts_dst.mkdir(parents=True, exist_ok=True)
+    for svg in (REPO_ROOT / "docs" / "charts").glob("*.svg"):
+        shutil.copy2(svg, charts_dst / svg.name)
+
+    body = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    body = body.replace(
+        "](./docs/charts/",
+        f"](https://huggingface.co/spaces/{org}/README/resolve/main/charts/",
+    )
+    body = body.replace(
+        "[Hugging Face Hub (Spaces & Datasets)](./huggingface/README.md)",
+        (
+            "[GitHub Repository](https://github.com/bearrhee/artificial-mind-engine) · "
+            f"[Live Sandbox Space](https://huggingface.co/spaces/{org}/ame-sandbox-live) · "
+            f"[Benchmark Explorer Space](https://huggingface.co/spaces/{org}/ame-benchmarks) · "
+            f"[CogEval-v1 Dataset](https://huggingface.co/datasets/{org}/cogeval-v1) · "
+            f"[Eval Traces Dataset](https://huggingface.co/datasets/{org}/ame-eval-traces)"
+        ),
+    )
+    body = re.sub(
+        r"\]\(\./([^)]+)\)",
+        r"](https://github.com/bearrhee/artificial-mind-engine/blob/main/\1)",
+        body,
+    )
+
+    frontmatter = (
+        "---\n"
+        "title: README\n"
+        "emoji: 🧠\n"
+        "colorFrom: green\n"
+        "colorTo: indigo\n"
+        "sdk: static\n"
+        "pinned: false\n"
+        "---\n\n"
+    )
+    out_readme = dest / "README.md"
+    out_readme.write_text(frontmatter + body, encoding="utf-8")
+    meta = parse_frontmatter(out_readme)
+    if meta.get("sdk") != "static":
+        raise ValueError(f"Invalid Org Card YAML in {out_readme}: {meta}")
+    return meta
+
+
 def stage_dataset(name: str, dest: pathlib.Path) -> dict[str, str]:
     src = HF_ROOT / "datasets" / name
     shutil.copy2(src / "README.md", dest / "README.md")
@@ -201,6 +246,13 @@ def main() -> int:
             c2, b2 = guard_directory(d2)
             print(f"[STAGED SPACE/static] {args.org}/ame-benchmarks ({c2} files, {b2:,} bytes)")
             targets.append((f"{args.org}/ame-benchmarks", "space", "static", d2))
+
+            d_org = stage_root / "org-readme"
+            d_org.mkdir(parents=True, exist_ok=True)
+            stage_org_profile_readme(d_org, args.org)
+            c_org, b_org = guard_directory(d_org)
+            print(f"[STAGED ORG-CARD/static] {args.org}/README ({c_org} files, {b_org:,} bytes)")
+            targets.append((f"{args.org}/README", "space", "static", d_org))
 
         if args.only in ("all", "datasets"):
             for ds_name in ("cogeval-v1", "ame-eval-traces"):

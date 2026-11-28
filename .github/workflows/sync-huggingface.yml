@@ -11,6 +11,7 @@ on:
   push:
     branches: [main]
     paths:
+      - 'README.md'
       - 'huggingface/**'
       - 'docs/index.html'
       - 'docs/charts/**'

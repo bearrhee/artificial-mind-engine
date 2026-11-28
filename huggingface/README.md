@@ -6,6 +6,7 @@ This folder packages the **MIT Open Interface**, interactive **Sandbox & Benchma
 
 | Asset Type | Repository ID | Source Contents | Purpose |
 | :--- | :--- | :--- | :--- |
+| **Organization Card** | [`artificial-mind/README`](https://huggingface.co/artificial-mind) | Root `README.md` + `docs/charts/*.svg` (with rewritten Hub/GitHub links) | Organization main profile page mirrored from GitHub `README.md` |
 | **Static Space (Live UI)** | [`artificial-mind/ame-sandbox-live`](https://huggingface.co/spaces/artificial-mind/ame-sandbox-live) | `huggingface/spaces/ame-sandbox-live/README.md` + `packages/sandbox-server/src/demo-ui.html` (`window.__AME_API_BASE__ = https://thesoulthread.com/ame-demo`) + `spec/openapi.yaml` | Zero-key, zero-sleep interactive OpenAPI 3.1 Console connected to live public sandbox (`deploy/Dockerfile.sandbox` for local self-hosting) |
 | **Static Space** | [`artificial-mind/ame-benchmarks`](https://huggingface.co/spaces/artificial-mind/ame-benchmarks) | `huggingface/spaces/ame-benchmarks/README.md` + `docs/index.html` + `docs/charts/*.svg` | Zero-cost interactive chart explorer & live SVG showcase |
 | **Dataset (Parquet)** | [`artificial-mind/cogeval-v1`](https://huggingface.co/datasets/artificial-mind/cogeval-v1) | `huggingface/datasets/cogeval-v1/` (7 Parquet subsets) | Self-authored EN cognitive control probes (`D1`, `HOT`, `FEP`, `IGT-Conv`, `D2`, `D3`, `D4`) |
